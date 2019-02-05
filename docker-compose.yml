@@ -1,0 +1,46 @@
+version: "2.1"
+services:
+  registrar-db:
+    image: mysql:5.6
+    container_name: registrar-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      - devstack_default
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  registrar-memcache:
+    image: memcached:1.4.24
+    container_name: registrar-memcache
+    networks:
+      - devstack_default
+
+  registrar-app:
+    image: registrar
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: registrar-app
+    volumes:
+      - .:/edx/app/registrar
+    command: bash -c 'while true; do python /edx/app/registrar/manage.py runserver 0.0.0.0:16616; sleep 2; done'
+    ports:
+      - "16616:16616"
+    networks:
+      - devstack_default
+    depends_on:
+      - registrar-memcache
+      - registrar-db
+    stdin_open: true
+    tty: true
+    env_file:
+      - registrar-app.env
+
+networks:
+  devstack_default:
+    external: true
+
+volumes:
+  mysql_data:
