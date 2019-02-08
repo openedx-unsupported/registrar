@@ -1,0 +1,7 @@
+# Packages required in a production environment
+-r base.in
+
+gevent
+gunicorn
+mysqlclient
+PyYAML

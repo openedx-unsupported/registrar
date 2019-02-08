@@ -4,4 +4,5 @@ RUN apt-get install python3-dev -y
 ADD requirements /edx/app/registrar/requirements
 ADD Makefile /edx/app/registrar
 WORKDIR /edx/app/registrar
+RUN make piptools
 RUN make requirements

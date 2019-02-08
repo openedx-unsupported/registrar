@@ -82,11 +82,20 @@ create_superuser:
 # The followeing targets must be build from within the Docker container,
 # which can be accessed using `make shell` after running `make up`.
 
+upgrade: piptools
+	pip-compile --upgrade -o requirements/production.txt requirements/production.in
+	pip-compile --upgrade -o requirements/local.txt requirements/local.in
+	pip-compile --upgrade -o requirements/test.txt requirements/test.in
+	pip-compile --upgrade -o requirements/monitoring/requirements.txt requirements/monitoring/requirements.in
+
+piptools:
+	pip install -q pip-tools
+
 requirements:
-	pip install -qr requirements/local.txt --exists-action w
+	pip-sync -q requirements/local.txt
 
 prod-requirements:
-	pip install -qr requirements.txt --exists-action w
+	pip-sync -q requirements.txt
 
 test: clean
 	coverage run ./manage.py test registrar --settings=registrar.settings.test
