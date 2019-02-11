@@ -10,7 +10,7 @@ The registrar service links an edX learner user with an edX program stored in co
 
 Using Locally
 -------------
-
+ww
 This can be run locally with docker.  It uses the ``devstack_default`` network.
 
 First, you have to build the images::
