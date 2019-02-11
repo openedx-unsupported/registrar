@@ -158,7 +158,7 @@ LOGOUT_URL = '/logout/'
 AUTH_USER_MODEL = 'core.User'
 
 AUTHENTICATION_BACKENDS = (
-    'auth_backends.backends.EdXOpenIdConnect',
+    'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
