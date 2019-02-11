@@ -3,21 +3,6 @@ import os
 from registrar.settings.base import *
 
 
-# TEST SETTINGS
-INSTALLED_APPS += (
-    'django_nose',
-)
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-NOSE_ARGS = [
-    '--with-ignore-docstrings',
-    '--logging-level=DEBUG',
-]
-
-# END TEST SETTINGS
-
-
 # IN-MEMORY TEST DATABASE
 DATABASES = {
     'default': {
