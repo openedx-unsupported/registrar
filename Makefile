@@ -79,7 +79,7 @@ create_superuser:
 	docker exec -t registrar-app bash -c 'echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"edx\", \"edx@example.com\",\"edx\")" | python manage.py shell'
 
 
-# The followeing targets must be build from within the Docker container,
+# The followeing targets must be built from within the Docker container,
 # which can be accessed using `make shell` after running `make up`.
 
 upgrade: piptools
@@ -97,9 +97,12 @@ requirements:
 prod-requirements:
 	pip-sync -q requirements.txt
 
+coverage: clean
+	pytest --cov-report html
+	$(BROWSER) htmlcov/index.html
+
 test: clean
-	coverage run ./manage.py test registrar --settings=registrar.settings.test
-	coverage report
+	pytest
 
 quality:
 	pycodestyle registrar *.py
@@ -109,7 +112,7 @@ pii_check:
 	DJANGO_SETTINGS_MODULE=registrar.settings.test \
 	code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
 
-validate: test quality pii_check
+validate: coverage quality pii_check
 
 migrate:
 	python manage.py migrate

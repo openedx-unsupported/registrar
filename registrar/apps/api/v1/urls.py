@@ -6,4 +6,5 @@ from rest_framework import routers
 from .views import ProgramEnrollmentView
 
 
+app_name = 'v1'
 urlpatterns = []

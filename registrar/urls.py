@@ -26,7 +26,7 @@ from registrar.apps.core import views as core_views
 admin.autodiscover()
 
 urlpatterns = auth_urlpatterns + [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^api/', include('registrar.apps.api.urls', namespace='api')),
     url(r'^api-docs/', get_swagger_view(title='registrar API')),
     # Use the same auth views for all logins, including those originating from the browseable API.
