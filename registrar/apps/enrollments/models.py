@@ -9,6 +9,8 @@ from simple_history.models import HistoricalRecords
 class Organization(TimeStampedModel):
     """
     Model that represents a course-discovery Organization entity.
+
+    .. no_pii::
     """
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
@@ -18,6 +20,8 @@ class Organization(TimeStampedModel):
 class Program(TimeStampedModel):
     """
     Table that referrences a course-discovery Program entity.
+
+    .. no_pii::
     """
     class Meta(object):
         app_label = 'enrollments'
@@ -34,6 +38,8 @@ class Program(TimeStampedModel):
 class OrganizationProgramMembership(TimeStampedModel):
     """
     Table that captures the relationship between Programs and Organizations.
+
+    .. no_pii::
     """
     class Meta(object):
         app_label = 'enrollments'
@@ -49,6 +55,10 @@ class OrganizationProgramMembership(TimeStampedModel):
 class Learner(TimeStampedModel):
     """
     Model that represents an LMS user who may be enrolled in programs and courses.
+
+    .. pii:: The ``email`` field contains pii in the form of the email address of a learner.
+    .. pii_types:: email_address
+    .. pii_retirement:: local_api
     """
     PENDING = 'pending'
     ACCOUNT_CREATED = 'account_created'
@@ -74,6 +84,8 @@ class Learner(TimeStampedModel):
 class LearnerProgramEnrollment(TimeStampedModel):
     """
     Model that represents the relationship between a Learner and a Program.
+
+    .. no_pii::
     """
     class Meta(object):
         app_label = 'enrollments'

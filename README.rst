@@ -73,6 +73,42 @@ Authentication from External system against Registrar API
 
 #. The school's system need to use the client_key and client_secret above to get auth token from LMS, then use the auth token for API calls against registrar service
 
+Annotating and Checking PII
+---------------------------
+
+As part of edX's GDPR compliance, every Django model requires either positive (when the model
+stores PII) or negative (no PII is stored) annotations.  For example::
+
+  class MyModel(models.Model):
+    """
+    Normal description for this model.
+    .. pii:: the field named pii_field contains pii...
+    .. pii_types:: <comma separated list of the types of PII stored here, required if the PII annotation exists>
+    .. pii_retirement:: local_api
+    """
+    pii_field = models.CharField(max_length=255)
+
+And in the negative case::
+
+  class MyModel(models.Model):
+    """
+    Normal description for this model.
+    .. no_pii::
+    """
+
+We must also capture annotations for models generated via 3rd-party libraries.
+We use the ``.annotations_safe_list.yml`` file to capture such annotations, with entries as follows::
+
+  sessions.Session:
+    ".. no_pii::": "This model has no PII"
+  enrollments.HistoricalLearner:
+    ".. pii::": "Learner email_address."
+    ".. pii_types::": email_address
+    ".. pii_retirement::": local_api
+
+You can check that all models are annotated by running the ``make pii_check`` command
+from inside a registrar container/shell.
+
 
 License
 -------
