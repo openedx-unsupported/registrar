@@ -17,6 +17,14 @@ contenttypes.ContentType:
   ".. no_pii::": "This model has no PII"
 sessions.Session:
   ".. no_pii::": "This model has no PII"
+enrollments.HistoricalLearner:
+  ".. pii::": "Learner email_address."
+  ".. pii_types::": email_address
+  ".. pii_retirement::": local_api
+enrollments.HistoricalLearnerProgramEnrollment:
+  ".. no_pii::": "This model has no PII"
+enrollments.HistoricalOrganizationProgramMembership:
+  ".. no_pii::": "This model has no PII"
 social_django.Association:
   ".. no_pii::": "This model has no PII"
 social_django.Code:
