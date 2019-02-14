@@ -66,7 +66,7 @@ update_db:  ## apply database migrations
 	docker exec -t registrar-app bash -c 'python manage.py migrate'
 
 create_superuser:  ## create a super user with username and password 'edx'
-	docker exec -t registrar-app bash -c 'echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"edx\", \"edx@example.com\",\"edx\")" | python manage.py shell'
+	docker exec -t registrar-app bash -c 'make createsuperuser'
 
 
 # The followeing targets must be built from within the Docker container,
@@ -116,6 +116,9 @@ validate: coverage quality pii_check ## run tests and quality checks *
 
 migrate: ## apply database migrations*
 	python manage.py migrate
+
+createsuperuser:  ## create a super user with username and password 'edx'*
+	echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"edx\", \"edx@example.com\",\"edx\") if not User.objects.filter(username=\"edx\").exists() else None" | python manage.py shell
 
 html_coverage: ## generate and view HTML coverage report*
 	coverage html && open htmlcov/index.html
