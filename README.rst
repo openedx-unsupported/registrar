@@ -37,6 +37,32 @@ real values to configure rest clients for communication with other services, etc
 If you wish to bring the containers down and destroy your database volumes, run::
 
   make destroy
+ 
+
+Using within Devstack
+-----------------
+
+This can also be run within the edX Devstack: https://github.com/edx/devstack.
+
+After setting up Devstack, clone the Registrar repository::
+
+  make registrar-clone
+ 
+Bring up Registrar, along with the other Devstack containers::
+
+  make up-registrar-detached
+
+Install requirements, do migrations, create a superuser, and create an IDA user::
+
+  make registrar-setup
+
+To bring all containers down::
+ 
+  make down-registrar
+
+To view all commmands::
+
+  make help-registrar
 
 
 How Authentication Works
