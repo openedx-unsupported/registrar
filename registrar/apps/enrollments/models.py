@@ -27,6 +27,7 @@ class Program(TimeStampedModel):
         app_label = 'enrollments'
 
     discovery_uuid = models.UUIDField(db_index=True, null=True)
+    key = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     organizations = models.ManyToManyField(
         Organization,

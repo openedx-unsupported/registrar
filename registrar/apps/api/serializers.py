@@ -8,12 +8,16 @@ from rest_framework import serializers
 
 
 # pylint: disable=abstract-method
-class ProgramSerializer(serializers.Serializer):
+class ProgramSerializer(serializers.ModelSerializer):
     """
-    Serializer for the Program model.
+    Serializer for Programs.
     """
-    discovery_uuid = serializers.CharField()
-    title = serializers.CharField()
+    program_id = serializers.CharField(source='key')
+    program_title = serializers.CharField(source='title')
+
+    class Meta:
+        model = Program
+        field = tuple()
 
 
 class LearnerSerializer(serializers.Serializer):
