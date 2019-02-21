@@ -2,13 +2,16 @@
 Utilities related to API permissions.
 """
 
-def get_user_organization_keys(user):
+from registrar.apps.enrollments.models import Organization
+
+
+def get_user_organizations(user):
     """
-    Get set of keys for organizations the user is affiliated with.
+    Get set of organizations the user is affiliated with.
 
     Arguments:
         user (User)
 
-    Returns: set[str]
+    Returns: set[Organization]
     """
-    return set(['gt', 'uta'])  # TODO: Write this function
+    return set([Organization.objects.get(pk=1)])  # TODO write this method

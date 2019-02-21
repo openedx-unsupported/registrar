@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from registrar.apps.enrollments.models import Program, Organization
 from registrar.apps.api.serializers import ProgramSerializer
-from registrar.apps.api.permissions import get_user_organization_keys
+from registrar.apps.api.permissions import get_user_organizations
 
 
 class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -38,19 +38,20 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
                 return HttpResponseForbidden()
             programs = Program.objects.all()
         else:
+            org = get_object_or_404(Organization, key=org_key.lower())
             if not request.user.is_staff:
-                user_keys = get_user_organization_keys(request.user)
-                if org_key.lower() not in user_keys:
+                user_orgs = get_user_organizations(request.user)
+                if org not in user_orgs:
                     return HttpResponseForbidden()
-            programs = get_object_or_404(Organization, key=org_key).programs.all()
+            programs = org.programs.all()
         data = ProgramSerializer(programs, many=True).data
         return Response(data)
 
     def retrieve(self, request, key=None):
         program = get_object_or_404(Program.objects.all(), key=key)
-        org_keys = set(org.key for org in program.organizations.all())
-        user_org_keys = get_user_organization_keys(request.user)
-        if len(org_keys.intersection(user_org_keys)) == 0:
+        orgs = program.organizations.all()
+        user_orgs = get_user_organizations(request.user)
+        if len(user_orgs.intersection(orgs)) == 0:
             return HttpResponseForbidden()
         data = ProgramSerializer(program).data
         return Response(data)
