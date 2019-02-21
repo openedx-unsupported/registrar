@@ -12,30 +12,39 @@ class ProgramReadOnlyViewSetPermission(permissions.BasePermission):
     message = 'You are not permitted to view this set of programs.'
 
     def has_permission(self, request, view):
-        if user.is_staff():
-            return True
-        org_key = request.GET('org', None)
-        return (
-            org_key is not None and
-            org_key.lower() in get_user_organizations(request.user)
+        url = request.get_full_path()
+        is_list_endpoint = (
+            url.endswith('programs') or
+            url.endswith('programs/')
         )
+        # If we are querying individual objects, let has_object_permission handle it
+        if not is_list_endpoint:
+            return True
+        org_key = request.GET.get('org', None)
+        return can_user_access_organization(request.user, org_key)
 
     def has_object_permission(self, request, view, program):
-        if user.is_staff():
-            return True
-        org_keys = set(org.key for org in program.organizations)
-        user_org_keys = get_user_organization_keys(request.user)
-        return len(org_keys.intersection(user_org_keys)) > 0
+        for org in program.organizations.all():
+            if can_user_access_organization(request.user, org):
+                return True
+        else:
+            return False
 
 
-def get_user_organization_keys(user):
+def can_user_access_organization(user, org_key):
     """
-
-    Get set of keys for organizations the user is affiliated with.
+    Returns whether the given user can perform operations on a given
+    organization.
 
     Arguments:
         user (User)
+        org_key (str): if None, refers to 'all organizations'
 
-    Returns: set[str]
+    Returns: bool
     """
-    return set(['gt'])  # TODO: Write this function
+    if user.is_staff:
+        return True
+    if org_key is None:
+        return False
+    org_key_lower = org_key.lower()
+    return org_key_lower == 'gt'  # TODO: Finish writing this function

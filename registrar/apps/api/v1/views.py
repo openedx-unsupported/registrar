@@ -12,7 +12,7 @@ from registrar.apps.api.permissions import ProgramReadOnlyViewSetPermission
 class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     """
     A view for accessing program objects.
-
+    ---
     retrieve:
     Return the program associated with the given ``key``,
     or 404 if no such program exists.
@@ -27,10 +27,10 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     """
     lookup_field = 'key'
     serializer_class = ProgramSerializer
-    permission_classes = [ProgramViewSetPermission]
+    permission_classes = [ProgramReadOnlyViewSetPermission]
 
     def get_queryset(self):
-        org_key = request.get('org', None)
+        org_key = self.request.GET.get('org', None)
         if org_key is None:
             return Program.objects.all()
         else:

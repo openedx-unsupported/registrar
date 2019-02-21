@@ -16,6 +16,9 @@ class Organization(TimeStampedModel):
     name = models.CharField(max_length=255)
     key = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
 
 class Program(TimeStampedModel):
     """
@@ -35,6 +38,9 @@ class Program(TimeStampedModel):
         through='OrganizationProgramMembership'
     )
 
+    def __str__(self):
+        return self.title
+
 
 class OrganizationProgramMembership(TimeStampedModel):
     """
@@ -51,6 +57,9 @@ class OrganizationProgramMembership(TimeStampedModel):
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     history = HistoricalRecords()
+
+    def __str__(self):
+        return self.program.key + ' :: ' + self.organization.key
 
 
 class Learner(TimeStampedModel):
