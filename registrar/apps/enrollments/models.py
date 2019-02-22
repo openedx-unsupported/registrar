@@ -12,9 +12,12 @@ class Organization(TimeStampedModel):
 
     .. no_pii::
     """
+    key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
-    key = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 
 class Program(TimeStampedModel):
@@ -26,30 +29,14 @@ class Program(TimeStampedModel):
     class Meta(object):
         app_label = 'enrollments'
 
+    key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     title = models.CharField(max_length=255)
-    organizations = models.ManyToManyField(
-        Organization,
-        related_name='programs',
-        through='OrganizationProgramMembership'
-    )
+    managing_organization = models.ForeignKey(Organization, related_name='programs')
+    url = models.URLField(null=True)
 
-
-class OrganizationProgramMembership(TimeStampedModel):
-    """
-    Table that captures the relationship between Programs and Organizations.
-
-    .. no_pii::
-    """
-    class Meta(object):
-        app_label = 'enrollments'
-        unique_together = [
-            ('program', 'organization',)
-        ]
-
-    program = models.ForeignKey(Program, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    history = HistoricalRecords()
+    def __str__(self):
+        return self.title
 
 
 class Learner(TimeStampedModel):
