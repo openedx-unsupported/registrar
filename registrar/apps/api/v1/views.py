@@ -47,11 +47,11 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
         data = ProgramSerializer(programs, many=True).data
         return Response(data)
 
-    def retrieve(self, request, key=None):
+    def retrieve(self, request, key=None):  # pylint: disable=arguments-differ
         program = get_object_or_404(Program.objects.all(), key=key)
         orgs = program.organizations.all()
         user_orgs = get_user_organizations(request.user)
-        if len(user_orgs.intersection(orgs)) == 0:
+        if not user_orgs.intersection(orgs):
             return HttpResponseForbidden()
         data = ProgramSerializer(program).data
         return Response(data)

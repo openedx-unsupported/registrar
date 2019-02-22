@@ -5,7 +5,7 @@ Utilities related to API permissions.
 from registrar.apps.enrollments.models import Organization
 
 
-def get_user_organizations(user):
+def get_user_organizations(user):  # pylint: disable=unused-argument
     """
     Get set of organizations the user is affiliated with.
 
@@ -14,4 +14,5 @@ def get_user_organizations(user):
 
     Returns: set[Organization]
     """
-    return set([Organization.objects.get(pk=1)])  # TODO write this method
+    # TODO write this method; remove pylint disable
+    return set([Organization.objects.get(pk=1)])
