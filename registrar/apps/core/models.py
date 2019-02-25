@@ -36,4 +36,4 @@ class User(AbstractUser):
 
     @python_2_unicode_compatible
     def __str__(self):
-        return str(self.get_full_name())
+        return str(self.username)

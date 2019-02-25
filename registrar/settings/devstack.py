@@ -35,11 +35,15 @@ DATABASES = {
 STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'django.contrib.staticfiles.storage.StaticFilesStorage')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
-#JWT_AUTH['JWT_ISSUERS'].append({
-#    'AUDIENCE': 'lms-key',
-#    'ISSUER': 'http://localhost:18000/oauth2',
-#    'SECRET_KEY': 'lms-secret',
-#})
+JWT_AUTH = {
+    'JWT_ISSUERS': [
+        {
+            'AUDIENCE': 'lms-key',
+            'ISSUER': 'http://edx.devstack.lms:18000/oauth2',
+            'SECRET_KEY': 'lms-secret',
+        },
+    ],
+}
 
 
 #####################################################################

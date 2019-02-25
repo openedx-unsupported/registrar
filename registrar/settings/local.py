@@ -51,11 +51,11 @@ INTERNAL_IPS = ('127.0.0.1',)
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 # Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
-SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
+SOCIAL_AUTH_EDX_OAUTH2_KEY = 'registrar-backend-service-key'
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'registrar-backend-service-secret'
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = 'http://edx.devstack.lms:18000'
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = 'http://localhost:18000'
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = 'http://localhost:18000/logout'
 
 ENABLE_AUTO_AUTH = True
 

@@ -1,5 +1,6 @@
 django==1.11.18
 django-extensions
+django-guardian
 django-model-utils
 django-mysql
 django-rest-swagger

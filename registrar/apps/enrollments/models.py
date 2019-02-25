@@ -1,9 +1,12 @@
 """
 Models relating to learner program and course enrollments.
 """
+from django.contrib.auth.models import Group
 from django.db import models
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
+
+from registrar.apps.enrollments import permissions as perms
 
 
 ACCESS_ADMIN = ('admin', 2)
@@ -17,6 +20,14 @@ class Organization(TimeStampedModel):
 
     .. no_pii::
     """
+    class Meta(object):
+        app_label = 'enrollments'
+        permissions = (
+            (perms.ORGANIZATION_READ_METADATA, 'View Organization Metadata'),
+            (perms.ORGANIZATION_READ_ENROLLMENTS, 'Read Organization enrollment data'),
+            (perms.ORGANIZATION_WRITE_ENROLLMENTS, 'Read and Write Organization enrollment data'),
+        )
+
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
@@ -43,6 +54,37 @@ class Organization(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+
+class OrgGroup(Group):
+    class Meta(object):
+        app_label = 'enrollments'
+        verbose_name = 'Organization Group'
+
+    ROLE_CHOICES = (
+        (perms.OrganizationReadMetadataRole.name, 'Read an Organization Metadata'),
+        (perms.OrganizationReadEnrollmentsRole.name, 'Read Enrollments Data'),
+        (perms.OrganizationReadWriteEnrollmentsRole.name, 'Read and Write Enrollments Data'),
+    )
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=255,
+        choices=ROLE_CHOICES,
+        default=perms.OrganizationReadMetadataRole.name,
+    )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.role == perms.OrganizationReadMetadataRole.name:
+            perms.OrganizationReadMetadataRole.assign_to_group(self, self.organization)
+        elif self.role == perms.OrganizationReadEnrollmentsRole.name:
+            perms.OrganizationReadEnrollmentsRole.assign_to_group(self, self.organization)
+        elif self.role ==  perms.OrganizationReadWriteEnrollmentsRole.name:
+            perms.OrganizationReadWriteEnrollmentsRole.assign_to_group(self, self.organization)
+
+    def __str__(self):
+        return 'OrgGroup: {} role={}'.format(self.organization.name, self.role)
 
 
 class Program(TimeStampedModel):
