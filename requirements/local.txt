@@ -18,6 +18,7 @@ code-annotations==0.2.4
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
 coverage==4.5.2
+ddt==1.2.1
 defusedxml==0.5.0         # via python3-openid, social-auth-core
 django-debug-toolbar==1.11
 django-dynamic-fixture==2.0.0
@@ -40,6 +41,8 @@ edx-i18n-tools==0.4.8
 edx-lint==1.1.1
 edx-rest-api-client==1.9.2
 edx-sphinx-theme==1.4.0
+factory-boy==2.11.1
+faker==1.0.2
 future==0.17.1            # via pyjwkest
 idna==2.7                 # via requests
 imagesize==1.1.0          # via sphinx
@@ -74,6 +77,7 @@ pylint==1.7.6             # via edx-lint, pylint-celery, pylint-django, pylint-p
 pytest-cov==2.6.1
 pytest-django==3.4.8
 pytest==4.3.0             # via pytest-cov, pytest-django
+python-dateutil==2.8.0    # via faker
 python-memcached==1.59
 python-slugify==1.2.6     # via transifex-client
 python3-openid==3.1.0     # via social-auth-core
@@ -82,7 +86,7 @@ pyyaml==3.13              # via code-annotations, docker-compose, edx-i18n-tools
 requests-oauthlib==1.2.0  # via social-auth-core
 requests==2.20.1          # via coreapi, docker, docker-compose, edx-rest-api-client, pyjwkest, requests-oauthlib, slumber, social-auth-core, sphinx, transifex-client
 simplejson==3.16.0        # via django-rest-swagger
-six==1.11.0               # via astroid, django-dynamic-fixture, django-extensions, docker, docker-compose, docker-pycreds, dockerpty, edx-auth-backends, edx-i18n-tools, edx-lint, edx-sphinx-theme, mock, pathlib2, pyjwkest, pylint, pytest, python-memcached, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
+six==1.11.0               # via astroid, django-dynamic-fixture, django-extensions, docker, docker-compose, docker-pycreds, dockerpty, edx-auth-backends, edx-i18n-tools, edx-lint, edx-sphinx-theme, faker, mock, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-memcached, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.2.1    # via sphinx
 social-auth-app-django==1.2.0  # via edx-auth-backends
@@ -91,6 +95,7 @@ sphinx==1.6.7
 sphinxcontrib-websupport==1.1.0  # via sphinx
 sqlparse==0.2.4           # via django-debug-toolbar
 stevedore==1.30.0         # via code-annotations
+text-unidecode==1.2       # via faker
 texttable==0.9.1          # via docker-compose
 transifex-client==0.13.6
 unidecode==1.0.23         # via python-slugify

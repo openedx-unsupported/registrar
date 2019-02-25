@@ -6,6 +6,11 @@ from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 
 
+ACCESS_ADMIN = ('admin', 2)
+ACCESS_WRITE = ('write', 1)
+ACCESS_READ = ('read', 0)
+
+
 class Organization(TimeStampedModel):
     """
     Model that represents a course-discovery Organization entity.
@@ -15,6 +20,26 @@ class Organization(TimeStampedModel):
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
+
+    def check_access(self, user, access_level):
+        """
+        Check whether the user has the access level to the organziation.
+
+        Arguments:
+            user (User)
+            org (Organization)
+            access_level
+
+        Returns: bool
+        """
+        # TODO: We can't write this method right now, because we haven't
+        #       implemented auth and roles yet. For now, return True for
+        #       ACCESS_READ checks and False for higher-level checks, except
+        #       in the case of staff.
+        if access_level[1] >= ACCESS_WRITE[1]:
+            return user.is_staff
+        else:
+            return True
 
     def __str__(self):
         return self.name
@@ -34,6 +59,22 @@ class Program(TimeStampedModel):
     title = models.CharField(max_length=255)
     managing_organization = models.ForeignKey(Organization, related_name='programs')
     url = models.URLField(null=True)
+
+    def check_access(self, user, access_level):
+        """
+        Check whether the user has the access level to the program.
+
+        Currently, simply checks whether user has access level to the program's
+        managing organization.
+
+        Arguments:
+            user (User)
+            program (Program)
+            access_level
+
+        Returns: bool
+        """
+        return self.managing_organization.check_access(user, access_level)
 
     def __str__(self):
         return self.title

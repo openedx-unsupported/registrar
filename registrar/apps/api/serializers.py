@@ -6,14 +6,21 @@ in question should be moved to versioned sub-package.
 """
 from rest_framework import serializers
 
+from registrar.apps.enrollments.models import Program
+
 
 # pylint: disable=abstract-method
-class ProgramSerializer(serializers.Serializer):
+class ProgramSerializer(serializers.ModelSerializer):
     """
-    Serializer for the Program model.
+    Serializer for Programs.
     """
-    discovery_uuid = serializers.CharField()
-    title = serializers.CharField()
+    program_key = serializers.CharField(source='key')
+    program_title = serializers.CharField(source='title')
+    program_url = serializers.CharField(source='url')
+
+    class Meta:
+        model = Program
+        fields = ('program_key', 'program_title', 'program_url')
 
 
 class LearnerSerializer(serializers.Serializer):
