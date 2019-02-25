@@ -5,7 +5,10 @@ coverage
 django-dynamic-fixture
 code-annotations
 edx-lint
+factory_boy
+Faker
 mock
+ddt
 pycodestyle
 pytest-cov
 pytest-django

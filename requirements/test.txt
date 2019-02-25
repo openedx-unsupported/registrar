@@ -15,6 +15,7 @@ code-annotations==0.2.4
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
 coverage==4.5.2
+ddt==1.2.1
 defusedxml==0.5.0         # via python3-openid, social-auth-core
 django-dynamic-fixture==2.0.0
 django-extensions==2.1.6
@@ -28,6 +29,8 @@ djangorestframework==3.9.1
 edx-auth-backends==1.2.2
 edx-lint==1.1.1
 edx-rest-api-client==1.9.2
+factory-boy==2.11.1
+faker==1.0.2
 future==0.17.1            # via pyjwkest
 idna==2.8                 # via requests
 isort==4.3.9              # via pylint
@@ -56,6 +59,7 @@ pylint==1.7.6             # via edx-lint, pylint-celery, pylint-django, pylint-p
 pytest-cov==2.6.1
 pytest-django==3.4.8
 pytest==4.3.0             # via pytest-cov, pytest-django
+python-dateutil==2.8.0    # via faker
 python-memcached==1.59
 python3-openid==3.1.0     # via social-auth-core
 pytz==2018.9
@@ -63,11 +67,12 @@ pyyaml==3.13              # via code-annotations
 requests-oauthlib==1.2.0  # via social-auth-core
 requests==2.21.0          # via coreapi, edx-rest-api-client, pyjwkest, requests-oauthlib, slumber, social-auth-core
 simplejson==3.16.0        # via django-rest-swagger
-six==1.12.0               # via astroid, django-dynamic-fixture, django-extensions, edx-auth-backends, edx-lint, mock, pathlib2, pyjwkest, pylint, pytest, python-memcached, social-auth-app-django, social-auth-core, stevedore
+six==1.12.0               # via astroid, django-dynamic-fixture, django-extensions, edx-auth-backends, edx-lint, faker, mock, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-memcached, social-auth-app-django, social-auth-core, stevedore
 slumber==0.7.1            # via edx-rest-api-client
 social-auth-app-django==1.2.0  # via edx-auth-backends
 social-auth-core[openidconnect]==1.7.0  # via edx-auth-backends, social-auth-app-django
 stevedore==1.30.0         # via code-annotations
+text-unidecode==1.2       # via faker
 uritemplate==3.0.0        # via coreapi
 urllib3==1.24.1           # via requests
 wrapt==1.11.1             # via astroid
