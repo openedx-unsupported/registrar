@@ -44,6 +44,28 @@ JWT_AUTH = {
         },
     ],
 }
+JWT_AUTH = {
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
+    'JWT_VERIFY_AUDIENCE': False,
+    'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
+    'JWT_ISSUERS': [
+        {
+            'AUDIENCE': 'lms-key',
+            'ISSUER': 'http://localhost:18000/oauth2',
+            'SECRET_KEY': 'lms-secret',
+        },
+    ],
+}
+JWT_AUTH.update({
+    # Must match public signing key used in LMS.
+    'JWT_PUBLIC_SIGNING_JWK_SET': (
+        '{"keys": [{"kid": "devstack_key", "e": "AQAB", "kty": "RSA", "n": "smKFSYowG6nNUAdeqH1jQQnH1PmIHphzBmwJ5vRf1vu'
+        '48BUI5VcVtUWIPqzRK_LDSlZYh9D0YFL0ZTxIrlb6Tn3Xz7pYvpIAeYuQv3_H5p8tbz7Fb8r63c1828wXPITVTv8f7oxx5W3lFFgpFAyYMmROC'
+        '4Ee9qG5T38LFe8_oAuFCEntimWxN9F3P-FJQy43TL7wG54WodgiM0EgzkeLr5K6cDnyckWjTuZbWI-4ffcTgTZsL_Kq1owa_J2ngEfxMCObnzG'
+        'y5ZLcTUomo4rZLjghVpq6KZxfS6I1Vz79ZsMVUWEdXOYePCKKsrQG20ogQEkmTf9FT_SouC6jPcHLXw"}]}'
+    ),
+})
 
 
 #####################################################################
