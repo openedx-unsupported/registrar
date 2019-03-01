@@ -38,7 +38,7 @@ THIRD_PARTY_APPS = (
 PROJECT_APPS = (
     'registrar.apps.core',
     'registrar.apps.api',
-    'registrar.apps.enrollments',
+    'registrar.apps.enrollments.apps.EnrollmentsConfig',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS

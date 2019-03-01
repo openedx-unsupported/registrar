@@ -1,9 +1,12 @@
 """
 Models relating to learner program and course enrollments.
 """
+from datetime import datetime
+
 from django.contrib.auth.models import Group
 from django.db import models
 from model_utils.models import TimeStampedModel
+from pytz import UTC
 from simple_history.models import HistoricalRecords
 
 from registrar.apps.enrollments import permissions as perms
@@ -85,6 +88,42 @@ class OrgGroup(Group):
 
     def __str__(self):
         return 'OrgGroup: {} role={}'.format(self.organization.name, self.role)
+
+
+class OrgGroupFutureMembership(TimeStampedModel):
+    """
+    Represents the fact that an API-client/user, who does not currently
+    have a corresponding ``core.User`` record, can join an existing ``OrgGroup`
+    once the ``core.User`` record has been created.
+
+    .. pii: The ``email`` field contains pii in the form of the email address of an API user.
+    .. pii_retirement:: local_api
+    """
+    email = models.EmailField(db_index=True)
+    org_group = models.ForeignKey(OrgGroup, db_index=True, related_name='org_group_future_memberships')
+    membership_created_at = models.DateTimeField(db_index=True, null=True, blank=True)
+
+    def add_user_to_group(self, user):
+        """
+        If this future membership hasn't already been marked as created,
+        add the given user to the group.  Checks that the given user's
+        email field matches this future membership's email field.
+        """
+        if user.email != self.email:
+            raise Exception('Emails for future group membership addition do not match: {} != {}'.format(
+                user.email,
+                self.email
+            ))
+
+        if self.membership_created_at is not None:
+            return
+
+        user.groups.add(self.org_group)
+        self.membership_created_at = datetime.utcnow()
+        self.save()
+
+    def __str__(self):
+        return 'Future Org Memberhship: email={}, group={}'.format(self.email, self.org_group)
 
 
 class Program(TimeStampedModel):
