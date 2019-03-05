@@ -15,7 +15,7 @@ Including another URLconf
 
 import os
 
-from auth_backends.urls import auth_urlpatterns
+from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
@@ -28,12 +28,12 @@ admin.autodiscover()
 
 app_name = 'registrar'
 
-urlpatterns = auth_urlpatterns + [
+urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(api_urls)),
     url(r'^api-docs/', get_swagger_view(title='registrar API')),
     # Use the same auth views for all logins, including those originating from the browseable API.
-    url(r'^api-auth/', include(auth_urlpatterns)),
+    url(r'^api-auth/', include(oauth2_urlpatterns)),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
 ]
