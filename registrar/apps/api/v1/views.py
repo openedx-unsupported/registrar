@@ -3,6 +3,7 @@ The public-facing REST API.
 """
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -33,6 +34,7 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
         '404':
             description: Program key not found.
     """
+    authentication_classes = (JwtAuthentication,)
     lookup_field = 'program_key'
     serializer_class = ProgramSerializer
     queryset = Program

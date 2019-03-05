@@ -7,6 +7,7 @@ django-simple-history
 django-waffle
 djangorestframework
 django-guardian
+edx-drf-extensions
 
 edx-rest-api-client==1.9.2
 
