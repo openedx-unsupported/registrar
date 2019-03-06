@@ -27,6 +27,7 @@ INSTALLED_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    'guardian',
     'rest_framework',
     'rest_framework_swagger',
     'simple_history',
@@ -160,6 +161,7 @@ AUTH_USER_MODEL = 'core.User'
 AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 ENABLE_AUTO_AUTH = False
