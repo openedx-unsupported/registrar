@@ -1,4 +1,5 @@
 from registrar.settings.base import *
+from registrar.settings.utils import get_logger_config
 
 DEBUG = True
 
@@ -66,6 +67,9 @@ ENABLE_AUTO_AUTH = True
 
 LMS_BASE_URL = 'http://edx.devstack.lms:18000'
 DISCOVERY_BASE_URL = 'http://edx.devstack.discovery:18381'
+
+# LOGGING
+LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.
