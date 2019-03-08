@@ -2,7 +2,7 @@ from os import environ
 import yaml
 
 from registrar.settings.base import *
-from registrar.settings.utils import get_env_setting
+from registrar.settings.utils import get_env_setting, get_logger_config
 
 
 DEBUG = False
@@ -10,7 +10,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['*']
 
-LOGGING['handlers']['local']['level'] = 'INFO'
+LOGGING = get_logger_config()
 
 CONFIG_FILE = get_env_setting('REGISTRAR_CFG')
 with open(CONFIG_FILE, encoding='utf-8') as f:
