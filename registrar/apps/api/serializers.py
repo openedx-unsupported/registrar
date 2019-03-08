@@ -41,3 +41,13 @@ class LearnerProgramEnrollmentSerializer(serializers.Serializer):
     learner = LearnerSerializer()
     program = ProgramSerializer()
     status = serializers.CharField()
+
+
+class CourseRunSerializer(serializers.Serializer):
+    """
+    Serializer for a course run returned from the
+    Course Discovery Service
+    """
+    course_id = serializers.CharField(source='key')
+    course_title = serializers.CharField(source='title')
+    course_url = serializers.CharField(source='marketing_url')

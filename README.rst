@@ -79,11 +79,9 @@ Discovery and LMS services.
 #. Setup a Django Oauth Toolkit (DOT) application for ``registrar_worker`` in your local LMS.
    See examples at http://localhost:18000/admin/oauth2_provider/application/
 
-#. Store the ``client_key`` and ``client_secret`` created from step above in your ``registrar-app.env`` file.
-
 #. When making API calls into LMS or Discovery service within Registrar,
    leverage the edx-rest-api-client library https://github.com/edx/edx-rest-api-client/blob/master/edx_rest_api_client/client.py#L88
-   by providing the client_key and client_secret above.
+   by providing `settings.BACKEND_SERVICE_EDX_OAUTH2_KEY` and `settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET`.
 
 
 Authentication from External system against Registrar API

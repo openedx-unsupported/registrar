@@ -1,7 +1,6 @@
 """
 Module for syncing data with external services.
 """
-import os
 from posixpath import join as urljoin
 
 from django.conf import settings
@@ -9,44 +8,41 @@ from django.conf import settings
 from edx_rest_api_client import client as rest_client
 
 
-CLIENT_ID = os.getenv('EDX_REST_API_CLIENT_ID')
-CLIENT_SECRET = os.getenv('EDX_REST_API_CLIENT_SECRET')
-
-
 def get_client(host_base_url):
     """
     Returns an authenticated edX REST API client.
     """
-    client = rest_client.OAuthAPIClient(host_base_url, CLIENT_ID, CLIENT_SECRET)
+    client = rest_client.OAuthAPIClient(
+        host_base_url,
+        settings.BACKEND_SERVICE_EDX_OAUTH2_KEY,
+        settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET
+    )
     client._check_auth()  # pylint: disable=protected-access
     if not client.auth.token:
         raise 'No Auth Token'
     return client
 
 
-REST_CLIENT = get_client(settings.LMS_BASE_URL)
-
-
-def get_discovery_program(program_uuid):
+def get_discovery_program(program_uuid, client=None):
     """
     Fetches program data from discovery service, given a program UUID.
     """
-    url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}').format(program_uuid)
-    return _get_request(url)
+    url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
+    return _get_request(url, client)
 
 
-def get_lms_user_by_email(email):
+def get_lms_user_by_email(email, client=None):
     """
     TODO: the LMS doesn't currently expose an endpoint
     to get accounts by email address.  I have an edx-platform
     branch to do this.
     """
     url = urljoin(settings.LMS_BASE_URL, 'api/user/v1/accounts?email={}').format(email)
-    return _get_request(url)
+    return _get_request(url, client)
 
 
 # pylint: disable=unused-argument
-def enroll_in_course(user, course_id):
+def enroll_in_course(user, course_id, client=None):
     """
     TODO: LMS enrollment API only allows you to enroll
     the currently logged-in user (I think).
@@ -54,12 +50,16 @@ def enroll_in_course(user, course_id):
     pass
 
 
-def _get_request(url):
+def _get_request(url, client=None):
     """
     Helper method to make a GET request using
     an authN'd client.
     """
-    response = REST_CLIENT.get(url)
+    if not client:
+        client = get_client(settings.LMS_BASE_URL)
+
+    response = client.get(url)
+
     if response.status_code == 200:
         return response.json()
     else:

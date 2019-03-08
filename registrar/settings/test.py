@@ -16,6 +16,9 @@ DATABASES = {
 }
 # END IN-MEMORY TEST DATABASE
 
+LMS_BASE_URL = 'https://lms-service-base'
+DISCOVERY_BASE_URL = 'https://discovery-service-base'
+
 OAUTH2_PROVIDER_URL = 'https://test-provider/oauth2'
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = OAUTH2_PROVIDER_URL
 

@@ -36,7 +36,7 @@ edx-lint==1.1.1
 edx-opaque-keys==0.4.4    # via edx-drf-extensions
 edx-rest-api-client==1.9.2
 factory-boy==2.11.1
-faker==1.0.2
+faker==1.0.4
 future==0.17.1            # via pyjwkest
 idna==2.8                 # via requests
 isort==4.3.15             # via pylint
@@ -67,7 +67,7 @@ pylint==1.7.6             # via edx-lint, pylint-celery, pylint-django, pylint-p
 pymongo==3.7.2            # via edx-opaque-keys
 pytest-cov==2.6.1
 pytest-django==3.4.8
-pytest==4.3.0             # via pytest-cov, pytest-django
+pytest==4.3.1             # via pytest-cov, pytest-django
 python-dateutil==2.8.0    # via edx-drf-extensions, faker
 python-memcached==1.59
 python-slugify==3.0.0     # via code-annotations
@@ -75,11 +75,12 @@ python3-openid==3.1.0     # via social-auth-core
 pytz==2018.9
 pyyaml==3.13              # via code-annotations, edx-django-release-util
 requests-oauthlib==1.2.0  # via social-auth-core
-requests==2.21.0          # via coreapi, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, slumber, social-auth-core
+requests==2.21.0          # via coreapi, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core
+responses==0.10.5
 rest-condition==1.0.3     # via edx-drf-extensions
 semantic-version==2.6.0   # via edx-drf-extensions
 simplejson==3.16.0        # via django-rest-swagger
-six==1.12.0               # via astroid, django-dynamic-fixture, django-extensions, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, faker, mock, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-memcached, social-auth-app-django, social-auth-core, stevedore
+six==1.12.0               # via astroid, django-dynamic-fixture, django-extensions, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, faker, mock, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-memcached, responses, social-auth-app-django, social-auth-core, stevedore
 slumber==0.7.1            # via edx-rest-api-client
 social-auth-app-django==1.2.0  # via edx-auth-backends
 social-auth-core[openidconnect]==1.7.0  # via edx-auth-backends, social-auth-app-django

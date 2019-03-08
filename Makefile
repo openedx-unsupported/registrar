@@ -25,7 +25,7 @@ pkg-devstack: ## compile translation files, outputting .po files for each suppor
 	docker build -t registrar:latest -f docker/build/registrar/Dockerfile git://github.com/edx/configuration
 
 registrar-app.env:
-	cp registrar-app.env.template registrar-app.env
+	touch registrar-app.env
 
 build: registrar-app.env ## build the Docker image
 	docker-compose build
