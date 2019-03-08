@@ -48,7 +48,7 @@ edx-opaque-keys==0.4.4    # via edx-drf-extensions
 edx-rest-api-client==1.9.2
 edx-sphinx-theme==1.4.0
 factory-boy==2.11.1
-faker==1.0.2
+faker==1.0.4
 future==0.17.1            # via pyjwkest
 gevent==1.4.0
 greenlet==0.4.15          # via gevent
@@ -88,7 +88,7 @@ pylint==1.7.6             # via edx-lint, pylint-celery, pylint-django, pylint-p
 pymongo==3.7.2            # via edx-opaque-keys
 pytest-cov==2.6.1
 pytest-django==3.4.8
-pytest==4.3.0             # via pytest-cov, pytest-django
+pytest==4.3.1             # via pytest-cov, pytest-django
 python-dateutil==2.8.0    # via edx-drf-extensions, faker
 python-memcached==1.59
 python-slugify==1.2.6     # via code-annotations, transifex-client
@@ -96,18 +96,19 @@ python3-openid==3.1.0     # via social-auth-core
 pytz==2018.9
 pyyaml==3.13
 requests-oauthlib==1.2.0  # via social-auth-core
-requests==2.20.1          # via coreapi, docker, docker-compose, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, slumber, social-auth-core, sphinx, transifex-client
+requests==2.20.1          # via coreapi, docker, docker-compose, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, sphinx, transifex-client
+responses==0.10.5
 rest-condition==1.0.3     # via edx-drf-extensions
 semantic-version==2.6.0   # via edx-drf-extensions
 simplejson==3.16.0        # via django-rest-swagger
-six==1.11.0               # via astroid, django-dynamic-fixture, django-extensions, docker, docker-compose, docker-pycreds, dockerpty, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, mock, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-memcached, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
+six==1.11.0               # via astroid, django-dynamic-fixture, django-extensions, docker, docker-compose, docker-pycreds, dockerpty, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, mock, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-memcached, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.2.1    # via sphinx
 social-auth-app-django==1.2.0  # via edx-auth-backends
 social-auth-core[openidconnect]==1.7.0  # via edx-auth-backends, social-auth-app-django
 sphinx==1.6.7
 sphinxcontrib-websupport==1.1.0  # via sphinx
-sqlparse==0.2.4           # via django-debug-toolbar
+sqlparse==0.3.0           # via django-debug-toolbar
 stevedore==1.30.1         # via code-annotations, edx-opaque-keys
 text-unidecode==1.2       # via faker
 texttable==0.9.1          # via docker-compose

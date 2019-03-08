@@ -367,7 +367,7 @@ docstring-min-length = 5
 
 [FORMAT]
 max-line-length = 120
-ignore-long-lines = ^\s*(# )?<?https?://\S+>?$
+ignore-long-lines = ^\s*(# )?((<?https?://\S+>?)|(\.\. pii: .*))$
 single-line-if-stmt = no
 no-space-check = trailing-comma,dict-separator
 max-module-lines = 1000
@@ -408,6 +408,7 @@ generated-members =
 	name,
 	revision,
 	_meta,
+ignored-modules = responses
 
 [VARIABLES]
 init-import = no
@@ -440,4 +441,4 @@ int-import-graph =
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
 
-# 6a2d8e754f691a664db457e6eddef2d4ed11b854
+# 83e24ad4b02c940fb9b9bb930b2dfa2975d45b8d

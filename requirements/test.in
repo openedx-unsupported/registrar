@@ -12,3 +12,4 @@ ddt
 pycodestyle
 pytest-cov
 pytest-django
+responses

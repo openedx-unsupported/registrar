@@ -1,15 +1,22 @@
 """
 The public-facing REST API.
 """
-from django.http import HttpResponseForbidden
+import logging
+
+from django.http import HttpResponseForbidden, HttpResponseServerError
 from django.shortcuts import get_object_or_404
+from requests.exceptions import HTTPError
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from registrar.apps.api.permissions import program_access_required
-from registrar.apps.api.serializers import ProgramSerializer
+from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
 from registrar.apps.enrollments.models import ACCESS_READ, Program, Organization
+from registrar.apps.enrollments.data import get_discovery_program
+
+logger = logging.getLogger(__name__)
 
 
 class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -26,6 +33,10 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
         Return the program associated with the given ``program_key``,
         or 404 if no such program exists.
 
+    /api/v1/programs/{program_key}/courses
+        List all courses associated with the given ``program_key``,
+        or 404 if no such program exists.
+
     Responses:
         '200':
             description: OK
@@ -35,7 +46,8 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
             description: Program key not found.
     """
     authentication_classes = (JwtAuthentication,)
-    lookup_field = 'program_key'
+    lookup_url_kwarg = 'program_key'
+    lookup_field = 'key'
     serializer_class = ProgramSerializer
     queryset = Program
 
@@ -56,4 +68,39 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     @program_access_required(ACCESS_READ)
     def retrieve(self, request, program):  # pylint: disable=arguments-differ
         data = ProgramSerializer(program).data
+        return Response(data)
+
+    @action(detail=True)
+    def courses(self, request, program_key):  # pylint: disable=unused-argument
+        """
+        Retrieve the list of courses contained within this program.
+
+        This returns a flat list of course run objects from the discovery
+        service.  This endpoint will only include courses setup as
+        part of a curriculum.
+        """
+        program = self.get_object()
+        if not program.check_access(request.user, ACCESS_READ):
+            return HttpResponseForbidden()
+
+        try:
+            discovery_program = get_discovery_program(program.discovery_uuid)
+        except HTTPError:
+            logger.exception(
+                'Failed to retrieve program data from course-discovery'
+            )
+            return HttpResponseServerError()
+
+        curricula = discovery_program.get('curricula')
+
+        # this make two temporary assumptions (zwh 03/19)
+        #  1. one curriculum per program
+        #  2. no programs are nested within a curriculum
+        course_runs = []
+        if curricula:
+            for course in curricula[0].get('courses') or []:
+                course_runs = course_runs + course.get('course_runs')
+
+        data = CourseRunSerializer(course_runs, many=True).data
+
         return Response(data)
