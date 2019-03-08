@@ -1,5 +1,6 @@
 """ Admin configuration for enrollments models. """
 from django.contrib import admin
+
 from guardian.admin import GuardedModelAdmin
 
 from registrar.apps.enrollments import models
@@ -12,7 +13,13 @@ class OrganizationAdmin(GuardedModelAdmin):
     date_hierarchy = 'modified'
 
 
+class OrganizationGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'organization', 'role')
+    exclude = ('permissions',)
+
+
 admin.site.register(models.Learner)
 admin.site.register(models.LearnerProgramEnrollment)
 admin.site.register(models.Organization, OrganizationAdmin)
 admin.site.register(models.Program)
+admin.site.register(models.OrganizationGroup, OrganizationGroupAdmin)

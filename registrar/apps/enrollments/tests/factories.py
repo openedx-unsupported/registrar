@@ -5,8 +5,10 @@ import re
 
 import factory
 
+from registrar.apps.enrollments.permissions import OrganizationReadMetadataRole
 from registrar.apps.enrollments.models import (
     Organization,
+    OrganizationGroup,
     Program,
 )
 
@@ -32,6 +34,15 @@ class OrganizationFactory(factory.DjangoModelFactory):
 
     key = factory.LazyAttribute(lambda org: name_to_key(org.name))
     discovery_uuid = factory.Faker('uuid4')
+    name = factory.Sequence(lambda n: "Test Origanization " + str(n))
+
+
+class OrganizationGroupFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = OrganizationGroup
+
+    organization = factory.SubFactory(OrganizationFactory)
+    role = OrganizationReadMetadataRole.name
 
 
 class ProgramFactory(factory.DjangoModelFactory):

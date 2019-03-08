@@ -11,7 +11,7 @@ from registrar.apps.core.tests.factories import (
     StaffUserFactory,
 )
 from registrar.apps.enrollments.models import Organization
-from registrar.apps.enrollments.tests.factories import (
+from registrar.apps.enrollments.tests.factories import (  # pylint: disable=no-name-in-module
     OrganizationFactory,
     ProgramFactory,
 )
