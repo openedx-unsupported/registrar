@@ -5,20 +5,21 @@ Context
 -------
 
 Currently, the idea of "program enrollments" does not exist explictly anywhere
-in the edX ecosystem. When students purchase enrollment in a program today, they
-are implicitly enrolled by being given an Entitlement
-(i.e., purchased seat) in every course within the program.
+in the edX ecosystem.
+The relationship is implicitly deductible, as
+it can be assumed that when a learner is enrolled in the verified track
+of a program's course, that they are enrolled in said program.
 However, there is no table anywhere that links together students and programs,
 like there is for students and courses. For Master's degree programs, this implicit
 enrollment system will not suffice.
-While is clear that a ProgramEnrollment table must created, there has been much
+While it is clear that a ProgramEnrollment table must created, there has been
 debate over exactly where that table belongs.
 
 One view is that the table belongs in the Registrar service.
 This prevents us from introducing additional features into edX Platform,
 which is generally considered to be overly large and complex.
 Additionally, as Registrar is currently planned to only service Master's programs,
-it would remove the need for us to tailor the table to Master's business needs,
+it would allow for us to tailor the table to Master's business needs,
 instead of taking into consideration all edX Programs.
 
 The opposing view is that the table belongs within the LMS application of the edX Platform.
@@ -31,7 +32,7 @@ Furthermore, if program enrollments were stored in Registrar,
 then "preemptive program enrollments"
 (program enrollments made for a students who do not yet have edX accounts)
 would also need to be stored in Registrar.
-This would require the LMS to somehow communicate to Registrar whenever an
+This would require the LMS to somehow communicate to Registrar whenever a learner
 account is created, so that any corresponding preemptive enrollments can be activated.
 It would be simpler to implement program enrollments, both preemptive and actual,
 within the LMS.
@@ -41,7 +42,7 @@ both preemptive and actual program enrollments (and, in the future, course enrol
 while having the Registar remain solely an integration point.
 This would both avoid adding features to the LMS as well as avoid adding authoritative
 core data to Registrar.
-There was worry, however, that migrating course enrollments over to such an Enrollments
+However, there was worry that migrating course enrollments over to such an Enrollments
 Service would be a time-consuming task that may not be tackled for a long time,
 leaving the service as a "half-baked" system that would actually increase
 complexity over time instead of decreasing it.
