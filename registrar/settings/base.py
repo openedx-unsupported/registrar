@@ -30,6 +30,7 @@ INSTALLED_APPS = (
 
 THIRD_PARTY_APPS = (
     'guardian',
+    'release_util',
     'rest_framework',
     'rest_framework_swagger',
     'simple_history',
