@@ -63,8 +63,9 @@ Accepted (circa March 2019)
 Consequences
 ------------
 
-* The ``ProgramEnrollment`` and ``Learner`` models will be removed from Registrar.
-* The ``ProgramEnrollment``, ``PreemptiveProgramEnrollment``, and ``PreemptiveCourseEnrollment`` models will be created within LMS.
+* The ``ProgramEnrollment`` and ``Learner`` models in Registrar will no longer be authoritative data sources. We may or may not store program enrollments in Registrar non-authoritatively for caching and/or validation purposes.
+* The ``ProgramEnrollment`` models will be created within LMS.
+* Preemptive program and course enrollments will be stored within the LMS, either through an existing mechanism or by the creation of new ``PreemptiveProgramEnrollment`` and ``PreemptiveCourseEnrollment`` tables.
 * Program enrollment will be added to the current LMS Enrollment API.
 * A preemptive enrollment API will be created within the LMS.
 
