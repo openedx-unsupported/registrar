@@ -5,10 +5,7 @@ import re
 
 import factory
 
-from registrar.apps.enrollments.permissions import OrganizationReadMetadataRole
 from registrar.apps.enrollments.models import (
-    Organization,
-    OrganizationGroup,
     Program,
 )
 
@@ -26,23 +23,6 @@ def name_to_key(name):
     """
     name2 = name.replace(' ', '-').replace('_', '-').lower()
     return re.sub(r'[^a-z0-9-]', '', name2)
-
-
-class OrganizationFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = Organization
-
-    key = factory.LazyAttribute(lambda org: name_to_key(org.name))
-    discovery_uuid = factory.Faker('uuid4')
-    name = factory.Sequence(lambda n: "Test Origanization " + str(n))
-
-
-class OrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = OrganizationGroup
-
-    organization = factory.SubFactory(OrganizationFactory)
-    role = OrganizationReadMetadataRole.name
 
 
 class ProgramFactory(factory.DjangoModelFactory):

@@ -13,7 +13,8 @@ from rest_framework.response import Response
 
 from registrar.apps.api.permissions import program_access_required
 from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
-from registrar.apps.enrollments.models import ACCESS_READ, Program, Organization
+from registrar.apps.enrollments.models import Program
+from registrar.apps.core.models import ACCESS_READ, Organization
 from registrar.apps.enrollments.data import get_discovery_program
 
 logger = logging.getLogger(__name__)

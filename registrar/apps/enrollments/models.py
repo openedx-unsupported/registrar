@@ -6,6 +6,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 
+from registrar.apps.core.models import Organization as Org
 from registrar.apps.enrollments import permissions as perms
 
 
@@ -71,6 +72,7 @@ class OrganizationGroup(Group):
         (perms.OrganizationReadWriteEnrollmentsRole.name, 'Read and Write Enrollments Data'),
     )
 
+    group_ptr = models.OneToOneField(Group, parent_link=True, related_name="organization_old")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=255,
@@ -102,7 +104,7 @@ class Program(TimeStampedModel):
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     title = models.CharField(max_length=255)
-    managing_organization = models.ForeignKey(Organization, related_name='programs')
+    managing_organization = models.ForeignKey(Org, related_name='programs')
     url = models.URLField(null=True)
 
     def check_access(self, user, access_level):
