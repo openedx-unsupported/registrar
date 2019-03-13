@@ -10,9 +10,9 @@ from registrar.apps.core.tests.factories import (
     USER_PASSWORD,
     StaffUserFactory,
 )
-from registrar.apps.enrollments.models import Organization
+from registrar.apps.core.models import Organization
+from registrar.apps.core.tests.factories import OrganizationFactory
 from registrar.apps.enrollments.tests.factories import (  # pylint: disable=no-name-in-module
-    OrganizationFactory,
     ProgramFactory,
 )
 

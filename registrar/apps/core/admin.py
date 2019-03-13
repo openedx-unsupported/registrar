@@ -4,7 +4,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
-from registrar.apps.core.models import User
+from guardian.admin import GuardedModelAdmin
+from registrar.apps.core.models import (
+    Organization,
+    OrganizationGroup,
+    User,
+)
 
 
 class CustomUserAdmin(UserAdmin):
@@ -19,4 +24,18 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
+class OrganizationAdmin(GuardedModelAdmin):
+    list_display = ('key', 'name', 'discovery_uuid')
+    search_fields = ('key', 'name')
+    ordering = ('key',)
+    date_hierarchy = 'modified'
+
+
+class OrganizationGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'organization', 'role')
+    exclude = ('permissions',)
+
+
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(Organization, OrganizationAdmin)
+admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
