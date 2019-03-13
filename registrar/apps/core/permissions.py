@@ -79,3 +79,9 @@ ORG_GROUP_ROLES = [
     OrganizationReadEnrollmentsRole,
     OrganizationReadWriteEnrollmentsRole
 ]
+
+ROLE_CHOICES = (
+    (OrganizationReadMetadataRole.name, 'Read Metadata Only'),
+    (OrganizationReadEnrollmentsRole.name, 'Read Enrollments Data'),
+    (OrganizationReadWriteEnrollmentsRole.name, 'Read and Write Enrollments Data'),
+)

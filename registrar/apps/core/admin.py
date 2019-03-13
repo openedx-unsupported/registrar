@@ -8,6 +8,7 @@ from guardian.admin import GuardedModelAdmin
 from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
+    PendingOrganizationUserRole,
     User,
 )
 
@@ -27,7 +28,7 @@ class CustomUserAdmin(UserAdmin):
 class OrganizationAdmin(GuardedModelAdmin):
     list_display = ('key', 'name', 'discovery_uuid')
     search_fields = ('key', 'name')
-    ordering = ('key',)
+    ordering = ('key', )
     date_hierarchy = 'modified'
 
 
@@ -35,7 +36,13 @@ class OrganizationGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'organization', 'role')
     exclude = ('permissions',)
 
+class PendingOrganizationUserRoleAdmin(admin.ModelAdmin):
+    list_display = ('user_email', 'organization', 'role')
+    search_fields = ('user_email', 'organization')
+    ordering = ('organization', )
+
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
+admin.site.register(PendingOrganizationUserRole, PendingOrganizationUserRoleAdmin)

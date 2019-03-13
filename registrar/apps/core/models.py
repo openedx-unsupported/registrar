@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 from registrar.apps.core import permissions as perms
 
+
 ACCESS_ADMIN = ('admin', 2)
 ACCESS_WRITE = ('write', 1)
 ACCESS_READ = ('read', 0)
@@ -97,16 +98,10 @@ class OrganizationGroup(Group):
         app_label = 'core'
         verbose_name = 'Organization Group'
 
-    ROLE_CHOICES = (
-        (perms.OrganizationReadMetadataRole.name, 'Read Metadata Only'),
-        (perms.OrganizationReadEnrollmentsRole.name, 'Read Enrollments Data'),
-        (perms.OrganizationReadWriteEnrollmentsRole.name, 'Read and Write Enrollments Data'),
-    )
-
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=255,
-        choices=ROLE_CHOICES,
+        choices=perms.ROLE_CHOICES,
         default=perms.OrganizationReadMetadataRole.name,
     )
 
@@ -120,3 +115,41 @@ class OrganizationGroup(Group):
 
     def __str__(self):
         return 'OrganizationGroup: {} role={}'.format(self.organization.name, self.role)
+
+
+class PendingOrganizationUserRole(TimeStampedModel):
+    """
+    Organization Membership model for user who have not yet been created in the user table
+
+    .. pii:: stores the user email address field for pending users. The pii data gets deleted after a real user gets created
+    .. pii_types: email address
+    .. pii_retirement:: local_api
+    """
+    class Meta(object):
+        ordering = ['created']
+
+
+    user_email = models.EmailField(null=False, blank=False, unique=True)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=255,
+        choices=perms.ROLE_CHOICES,
+        default=perms.OrganizationReadMetadataRole.name,
+    )
+
+    def __str__(self):
+        """
+        Return human-readable string representation
+        """
+        return "<PendingOrganizationUserRole {ID}>: {organization_name} - {user_email} - {role}".format(
+            ID=self.id,
+            organization_name=self.organization.name,
+            user_email=self.user_email,
+            role=self.role,
+        )
+
+    def __repr__(self):
+        """
+        Return uniquely identifying string representation.
+        """
+        return self.__str__()
