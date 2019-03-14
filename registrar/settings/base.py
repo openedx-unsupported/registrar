@@ -177,7 +177,6 @@ SOCIAL_AUTH_EDX_OAUTH2_KEY = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_ENDPOINT = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = 'replace-me'
 
 # These values are used to make server to server rest api call. Should be fed into edx_rest_api_client
