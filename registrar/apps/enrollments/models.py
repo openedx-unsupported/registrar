@@ -1,95 +1,11 @@
 """
 Models relating to learner program and course enrollments.
 """
-from django.contrib.auth.models import Group
 from django.db import models
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 
-from registrar.apps.core.models import Organization as Org
-from registrar.apps.enrollments import permissions as perms
-
-
-ACCESS_ADMIN = ('admin', 2)
-ACCESS_WRITE = ('write', 1)
-ACCESS_READ = ('read', 0)
-
-
-class Organization(TimeStampedModel):
-    """
-    Model that represents a course-discovery Organization entity.
-
-    .. no_pii::
-    """
-    class Meta(object):
-        app_label = 'enrollments'
-        permissions = (
-            (perms.ORGANIZATION_READ_METADATA, 'View Organization Metadata'),
-            (perms.ORGANIZATION_READ_ENROLLMENTS, 'Read Organization enrollment data'),
-            (perms.ORGANIZATION_WRITE_ENROLLMENTS, 'Read and Write Organization enrollment data'),
-        )
-    key = models.CharField(unique=True, max_length=255)
-    discovery_uuid = models.UUIDField(db_index=True, null=True)
-    name = models.CharField(max_length=255)
-
-    def check_access(self, user, access_level):
-        """
-        Check whether the user has the access level to the organziation.
-
-        Arguments:
-            user (User)
-            org (Organization)
-            access_level
-
-        Returns: bool
-        """
-        # TODO: We can't write this method right now, because we haven't
-        #       implemented auth and roles yet. For now, return True for
-        #       ACCESS_READ checks and False for higher-level checks, except
-        #       in the case of staff.
-        if access_level[1] >= ACCESS_WRITE[1]:
-            return user.is_staff
-        else:
-            return True
-
-    def __str__(self):
-        return self.name
-
-
-class OrganizationGroup(Group):
-    """
-    Group subclass to grant select guardian permissions to a group on an organization level
-
-    .. no_pii::
-    """
-    class Meta(object):
-        app_label = 'enrollments'
-        verbose_name = 'Organization Group'
-
-    ROLE_CHOICES = (
-        (perms.OrganizationReadMetadataRole.name, 'Read Metadata Only'),
-        (perms.OrganizationReadEnrollmentsRole.name, 'Read Enrollments Data'),
-        (perms.OrganizationReadWriteEnrollmentsRole.name, 'Read and Write Enrollments Data'),
-    )
-
-    group_ptr = models.OneToOneField(Group, parent_link=True, related_name="organization_old")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    role = models.CharField(
-        max_length=255,
-        choices=ROLE_CHOICES,
-        default=perms.OrganizationReadMetadataRole.name,
-    )
-
-    # pylint: disable=arguments-differ
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        for role in perms.ORG_GROUP_ROLES:
-            if self.role is role.name:
-                role.assign_to_group(self, self.organization)
-                break
-
-    def __str__(self):
-        return 'OrganizationGroup: {} role={}'.format(self.organization.name, self.role)
+from registrar.apps.core.models import Organization
 
 
 class Program(TimeStampedModel):
@@ -104,7 +20,7 @@ class Program(TimeStampedModel):
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     title = models.CharField(max_length=255)
-    managing_organization = models.ForeignKey(Org, related_name='programs')
+    managing_organization = models.ForeignKey(Organization, related_name='programs')
     url = models.URLField(null=True)
 
     def check_access(self, user, access_level):
