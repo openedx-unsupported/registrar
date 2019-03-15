@@ -16,9 +16,7 @@ from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     UserFactory,
 )
-from registrar.apps.enrollments.tests.factories import (
-    ProgramFactory,
-)
+from registrar.apps.enrollments.tests.factories import ProgramFactory  # pylint: disable=no-name-in-module
 
 
 def mock_oauth_login(fn):

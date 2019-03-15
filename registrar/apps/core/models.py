@@ -18,10 +18,9 @@ class User(AbstractUser):
     """
     Custom user model for use with OpenID Connect.
 
-    .. pii:: Stores full name, username, and email address for a user.
+    .. pii:: Stores full name, username, and email address for a user
     .. pii_types:: name, other
     .. pii_retirement:: local_api
-
     """
     full_name = models.CharField(_('Full Name'), max_length=255, blank=True, null=True)
 
@@ -70,7 +69,7 @@ class Organization(TimeStampedModel):
 
 class OrganizationGroup(Group):
     """
-    Group subclass to grant select guardian permissions to a group on an organization level
+    Group subclass to grant select guardian permissions to a group on an organization level.
 
     .. no_pii::
     """
@@ -120,3 +119,37 @@ class OrganizationGroup(Group):
 
     def __str__(self):
         return 'OrganizationGroup: {} role={}'.format(self.organization.name, self.role)
+
+
+class PendingUserOrganizationGroup(TimeStampedModel):
+    """
+    Organization Membership model for user who have not yet been created in the user table
+
+    .. pii:: stores the user email address field for pending users.
+             The pii data gets deleted after a real user gets created
+    .. pii_types:: email_address
+    .. pii_retirement:: local_api
+    """
+    class Meta(object):
+        ordering = ['created']
+        unique_together = ('user_email', 'organization_group')
+
+    user_email = models.EmailField()
+    organization_group = models.ForeignKey(OrganizationGroup)
+
+    def __str__(self):
+        """
+        Return human-readable string representation
+        """
+        return "<PendingUserOrganizationGroup {ID}>: {organization_name} - {user_email} - {role}".format(
+            ID=self.id,
+            organization_name=self.organization_group.organization.name,
+            user_email=self.user_email,
+            role=self.organization_group.role,
+        )
+
+    def __repr__(self):
+        """
+        Return uniquely identifying string representation.
+        """
+        return self.__str__()
