@@ -103,3 +103,44 @@ class OrganizationGroupTests(TestCase):
         self.user.groups.add(org_group)
         self.assertTrue(self.user.has_perm(permission, self.organization))
         self.assertFalse(self.user.has_perm(permission, organization2))
+
+    def test_org_group_recalculates_permissions(self):
+        org1 = self.organization
+        org2 = OrganizationFactory()
+        metdata_permission = perm.ORGANIZATION_READ_METADATA
+        write_permission = perm.ORGANIZATION_WRITE_ENROLLMENTS
+
+        # Scenario 1: read/write on org1
+        org_group = OrganizationGroup.objects.create(
+            role=perm.OrganizationReadWriteEnrollmentsRole.name,
+            organization=org1,
+        )
+        self.user.groups.add(org_group)
+        self.assertTrue(self.user.has_perm(metdata_permission, org1))
+        self.assertTrue(self.user.has_perm(write_permission, org1))
+        self.assertFalse(self.user.has_perm(metdata_permission, org2))
+        self.assertFalse(self.user.has_perm(write_permission, org2))
+
+        # Scenario 2: metadata only on org1
+        org_group.role = perm.OrganizationReadEnrollmentsRole.name
+        org_group.save()
+        self.assertTrue(self.user.has_perm(metdata_permission, org1))
+        self.assertFalse(self.user.has_perm(write_permission, org1))
+        self.assertFalse(self.user.has_perm(metdata_permission, org2))
+        self.assertFalse(self.user.has_perm(write_permission, org2))
+
+        # Scenario 3: metadata only on org2
+        org_group.organization = org2
+        org_group.save()
+        self.assertFalse(self.user.has_perm(metdata_permission, org1))
+        self.assertFalse(self.user.has_perm(write_permission, org1))
+        self.assertTrue(self.user.has_perm(metdata_permission, org2))
+        self.assertFalse(self.user.has_perm(write_permission, org2))
+
+        # Scenario 4: read/write on org2
+        org_group.role = perm.OrganizationReadWriteEnrollmentsRole.name
+        org_group.save()
+        self.assertFalse(self.user.has_perm(metdata_permission, org1))
+        self.assertFalse(self.user.has_perm(write_permission, org1))
+        self.assertTrue(self.user.has_perm(metdata_permission, org2))
+        self.assertTrue(self.user.has_perm(write_permission, org2))

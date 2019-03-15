@@ -23,22 +23,6 @@ class Program(TimeStampedModel):
     managing_organization = models.ForeignKey(Organization, related_name='programs')
     url = models.URLField(null=True)
 
-    def check_access(self, user, access_level):
-        """
-        Check whether the user has the access level to the program.
-
-        Currently, simply checks whether user has access level to the program's
-        managing organization.
-
-        Arguments:
-            user (User)
-            program (Program)
-            access_level
-
-        Returns: bool
-        """
-        return self.managing_organization.check_access(user, access_level)
-
     def __str__(self):
         return self.title
 
