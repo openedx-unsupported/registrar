@@ -6,8 +6,11 @@ import re
 import factory
 from django.contrib.auth import get_user_model
 from registrar.apps.core.permissions import OrganizationReadMetadataRole
-from registrar.apps.core.models import Organization, OrganizationGroup
-
+from registrar.apps.core.models import (
+    Organization,
+    OrganizationGroup,
+    PendingUserOrganizationGroup,
+)
 
 # pylint: disable=missing-docstring
 
@@ -63,3 +66,11 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
     )
     organization = factory.SubFactory(OrganizationFactory)
     role = OrganizationReadMetadataRole.name
+
+
+class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = PendingUserOrganizationGroup
+
+    organization_group = factory.SubFactory(OrganizationGroupFactory)
+    user_email = factory.Faker('email')

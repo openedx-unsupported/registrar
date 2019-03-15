@@ -39,7 +39,7 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
-    'registrar.apps.core',
+    'registrar.apps.core.apps.CoreConfig',
     'registrar.apps.api',
     'registrar.apps.enrollments',
 )

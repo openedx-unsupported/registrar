@@ -8,8 +8,12 @@ from social_django.models import UserSocialAuth
 
 from registrar.apps.core.tests.factories import UserFactory
 from registrar.apps.core.models import User
-from registrar.apps.core.tests.factories import OrganizationFactory
-from registrar.apps.core.models import Organization, OrganizationGroup
+from registrar.apps.core.tests.factories import OrganizationFactory, OrganizationGroupFactory
+from registrar.apps.core.models import (
+    Organization,
+    OrganizationGroup,
+    PendingUserOrganizationGroup,
+)
 import registrar.apps.core.permissions as perm
 
 
@@ -144,3 +148,24 @@ class OrganizationGroupTests(TestCase):
         self.assertFalse(self.user.has_perm(write_permission, org1))
         self.assertTrue(self.user.has_perm(metdata_permission, org2))
         self.assertTrue(self.user.has_perm(write_permission, org2))
+
+
+class PendingUserOrganizationGroupTests(TestCase):
+    """ Tests for PendingUserOrganizationGroup model """
+
+    def setUp(self):
+        super(PendingUserOrganizationGroupTests, self).setUp()
+        self.organization = OrganizationFactory()
+        self.organization_group = OrganizationGroupFactory(organization=self.organization)
+
+    def test_string(self):
+        user_email = 'test@example.com'
+        pending_user_org_group = PendingUserOrganizationGroup.objects.create(
+            user_email=user_email,
+            organization_group=self.organization_group,
+        )
+        pending_user_org_group_string = str(pending_user_org_group)
+        self.assertIn('PendingUserOrganizationGroup', pending_user_org_group_string)
+        self.assertIn(user_email, pending_user_org_group_string)
+        self.assertIn(self.organization.name, pending_user_org_group_string)
+        self.assertIn(self.organization_group.role, pending_user_org_group_string)
