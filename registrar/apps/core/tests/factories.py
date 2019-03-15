@@ -33,10 +33,6 @@ class UserFactory(factory.DjangoModelFactory):
     full_name = factory.LazyAttribute(lambda user: ' '.join((user.first_name, user.last_name)))
 
 
-class StaffUserFactory(UserFactory):
-    is_staff = True
-
-
 def name_to_key(name):
     """
     Returns a 'key-like' version of a name.
@@ -62,5 +58,8 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
     class Meta:
         model = OrganizationGroup
 
+    name = factory.LazyAttribute(
+        lambda og: '{}_{}'.format(og.organization.key, og.role)
+    )
     organization = factory.SubFactory(OrganizationFactory)
     role = OrganizationReadMetadataRole.name

@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 from registrar.apps.core import permissions as perms
 
@@ -57,31 +58,11 @@ class Organization(TimeStampedModel):
         permissions = (
             (perms.ORGANIZATION_READ_METADATA, 'View Organization Metadata'),
             (perms.ORGANIZATION_READ_ENROLLMENTS, 'Read Organization enrollment data'),
-            (perms.ORGANIZATION_WRITE_ENROLLMENTS, 'Read and Write Organization enrollment data'),
+            (perms.ORGANIZATION_WRITE_ENROLLMENTS, 'Write Organization enrollment data'),
         )
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
-
-    def check_access(self, user, access_level):
-        """
-        Check whether the user has the access level to the organziation.
-
-        Arguments:
-            user (User)
-            org (Organization)
-            access_level
-
-        Returns: bool
-        """
-        # TODO: We can't write this method right now, because we haven't
-        #       implemented auth and roles yet. For now, return True for
-        #       ACCESS_READ checks and False for higher-level checks, except
-        #       in the case of staff.
-        if access_level[1] >= ACCESS_WRITE[1]:
-            return user.is_staff
-        else:
-            return True
 
     def __str__(self):
         return self.name
@@ -98,9 +79,8 @@ class OrganizationGroup(Group):
         verbose_name = 'Organization Group'
 
     ROLE_CHOICES = (
-        (perms.OrganizationReadMetadataRole.name, 'Read Metadata Only'),
-        (perms.OrganizationReadEnrollmentsRole.name, 'Read Enrollments Data'),
-        (perms.OrganizationReadWriteEnrollmentsRole.name, 'Read and Write Enrollments Data'),
+        (role.name, role.description)
+        for role in perms.ORGANIZATION_ROLES
     )
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
@@ -110,13 +90,29 @@ class OrganizationGroup(Group):
         default=perms.OrganizationReadMetadataRole.name,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Save the value of organization in an attribute, so that when
+        # save() is called, we have access to the old value.
+        self._initial_organization = self.organization
+
+    @property
+    def role_object(self):
+        """
+        Converts self.role (which is a role name) to its matching Role instance.
+        """
+        for role in perms.ORGANIZATION_ROLES:
+            if self.role == role.name:
+                return role
+        return None
+
     # pylint: disable=arguments-differ
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        for role in perms.ORG_GROUP_ROLES:
-            if self.role is role.name:
-                role.assign_to_group(self, self.organization)
-                break
+        for perm in perms.ORGANIZATION_PERMISSIONS:
+            remove_perm(perm, self, self._initial_organization)
+        self.role_object.assign_to_group(self, self.organization)
+        self._initial_organization = self.organization
 
     def __str__(self):
         return 'OrganizationGroup: {} role={}'.format(self.organization.name, self.role)

@@ -1,96 +1,200 @@
 """
 The public-facing REST API.
 """
+from collections.abc import Iterable
 import logging
 
-from django.http import HttpResponseForbidden, HttpResponseServerError
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-from requests.exceptions import HTTPError
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from requests.exceptions import HTTPError
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from registrar.apps.api.permissions import program_access_required
 from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
 from registrar.apps.enrollments.models import Program
-from registrar.apps.core.models import ACCESS_READ, Organization
+from registrar.apps.core import permissions as perms
+from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import get_discovery_program
 
 logger = logging.getLogger(__name__)
 
 
-class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+class AuthMixin(object):
     """
-    A view for accessing program objects.
+    Mixin providing AuthN/AuthZ functionality for all our views to use.
 
-    /api/v1/programs
-        List all programs. Staff users only.
-
-    /api/v1/programs?org={org_key}
-        Return programs of organization specified by ``org`` query parameter.
-
-    /api/v1/programs/{program_key}
-        Return the program associated with the given ``program_key``,
-        or 404 if no such program exists.
-
-    /api/v1/programs/{program_key}/courses
-        List all courses associated with the given ``program_key``,
-        or 404 if no such program exists.
-
-    Responses:
-        '200':
-            description: OK
-        '403':
-            description: User does not have read access to program(s)
-        '404':
-            description: Program key not found.
+    This mixin overrides `APIView.check_permissions` to use Django Guardian.
+    It replicates, to the extent that we require, the functionality of
+    Django Guardian's `PermissionRequiredMixin`, which unfortunately doesn't
+    play nicely with Django REST Framework.
     """
-    authentication_classes = (JwtAuthentication,)
-    lookup_url_kwarg = 'program_key'
-    lookup_field = 'key'
-    serializer_class = ProgramSerializer
-    queryset = Program
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_required = []
+    raise_404_if_unauthorized = False
 
-    def list(self, request):
-        org_key = request.GET.get('org', None)
-        if org_key is None:
-            if not request.user.is_staff:
-                return HttpResponseForbidden()
-            programs = Program.objects.all()
+    def get_permission_object(self):
+        """
+        Get an object against which required permissions will be checked.
+
+        If None, permissions will be checked globally.
+        """
+        return None
+
+    def check_permissions(self, request):
+        """
+        Check that the authenticated user can access this view.
+
+        Ensure that the user has all of the permissions specified in
+        `permission_required` granted on the object returned by
+        `get_permission_object`. If not, an HTTP 403 (or, HTTP 404 if
+        `raise_404_if_unauthorized` is True) is raised.
+
+        Overrides APIView.check_permissions.
+        """
+        if isinstance(self.permission_required, str):
+            required = [self.permission_required]
+        elif isinstance(self.permission_required, Iterable):
+            required = [perm for perm in self.permission_required]
         else:
-            org = get_object_or_404(Organization, key=org_key.lower())
-            if not org.check_access(request.user, ACCESS_READ):
-                return HttpResponseForbidden()
-            programs = org.programs.all()
-        data = ProgramSerializer(programs, many=True).data
-        return Response(data)
-
-    @program_access_required(ACCESS_READ)
-    def retrieve(self, request, program):  # pylint: disable=arguments-differ
-        data = ProgramSerializer(program).data
-        return Response(data)
-
-    @action(detail=True)
-    def courses(self, request, program_key):  # pylint: disable=unused-argument
-        """
-        Retrieve the list of courses contained within this program.
-
-        This returns a flat list of course run objects from the discovery
-        service.  This endpoint will only include courses setup as
-        part of a curriculum.
-        """
-        program = self.get_object()
-        if not program.check_access(request.user, ACCESS_READ):
-            return HttpResponseForbidden()
-
-        try:
-            discovery_program = get_discovery_program(program.discovery_uuid)
-        except HTTPError:
-            logger.exception(
-                'Failed to retrieve program data from course-discovery'
+            raise ImproperlyConfigured(
+                'permission_required must be set to string or iterable; ' +
+                'is set to {}'.format(self.permission_required)
             )
-            return HttpResponseServerError()
+
+        if all(request.user.has_perm(perm) for perm in required):
+            return
+        obj = self.get_permission_object()
+        if obj and all(request.user.has_perm(perm, obj) for perm in required):
+            return
+        if self.raise_404_if_unauthorized:
+            raise Http404()
+        else:
+            raise PermissionDenied()
+
+
+class ProgramListView(AuthMixin, ListAPIView):
+    """
+    A view for listing program objects.
+
+    Path: /api/v1/programs?org={org_key}
+
+    All programs within organization specified by `org_key` are returned.
+    For users will global organization access, `org_key` can be omitted in order
+    to return all programs.
+
+    Returns:
+     * 200: OK
+     * 403: User lacks read access to specified organization.
+     * 404: Organization does not exist.
+    """
+
+    serializer_class = ProgramSerializer
+    permission_required = perms.ORGANIZATION_READ_METADATA
+
+    def get_queryset(self):
+        org_key = self.request.GET.get('org', None)
+        programs = Program.objects.all()
+        if org_key:
+            programs = programs.filter(managing_organization__key=org_key)
+        return programs
+
+    def get_permission_object(self):
+        """
+        Returns an organization object against which permissions should be checked.
+
+        If the requesting user does not have `organization_read_metadata`
+        permission for the organization specified by `org` (or globally
+        on the Organization class), Guardian will raise a 403.
+        """
+        org_key = self.request.GET.get('org')
+        if org_key:
+            return get_object_or_404(Organization, key=org_key)
+        else:
+            # By returning None, Guardian will check for global Organization
+            # access instead of access against a specific Organization
+            return None
+
+
+class ProgramSpecificViewMixin(AuthMixin):
+    """
+    A mixin for views that operate on or within a specific program.
+
+    Provides a `program` property. On first access, the property is loaded
+    based on the `program_key` URL parameter, and cached for subsequent
+    calls. This avoids redundant database queries between `get_object/queryset`
+    and `get_permission_object`.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(ProgramSpecificViewMixin, self).__init__(*args, **kwargs)
+        self._program = None
+
+    @property
+    def program(self):
+        """
+        The program specified by the `program_key` URL parameter.
+        """
+        if not self._program:
+            program_key = self.kwargs['program_key']
+            self._program = get_object_or_404(Program, key=program_key)
+        return self._program
+
+    def get_permission_object(self):
+        """
+        Returns an organization object against which permissions should be checked.
+        """
+        return self.program.managing_organization
+
+
+class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
+    """
+    A view for retrieving a single program object.
+
+    Path: /api/v1/programs/{program_key}
+
+    Returns:
+     * 200: OK
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+    """
+
+    serializer_class = ProgramSerializer
+    permission_required = perms.ORGANIZATION_READ_METADATA
+
+    def get_object(self):
+        return self.program
+
+
+class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
+    """
+    A view for listing courses in a program.
+
+    Path: /api/v1/programs/{program_key}/courses
+
+    Returns:
+     * 200: OK
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+    """
+
+    serializer_class = CourseRunSerializer
+    permission_required = perms.ORGANIZATION_READ_METADATA
+
+    def get_queryset(self):
+        uuid = self.program.discovery_uuid
+        try:
+            discovery_program = get_discovery_program(uuid)
+        except HTTPError as error:
+            error_string = (
+                'Failed to retrieve program data from course-discovery ' +
+                '(key = {}, uuid = {}, http status = {})'.format(
+                    self.program.key, uuid, error.response.status_code,
+                )
+            )
+            logger.exception(error_string)
+            raise Exception(error_string)
 
         curricula = discovery_program.get('curricula')
 
@@ -101,7 +205,4 @@ class ProgramReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
         if curricula:
             for course in curricula[0].get('courses') or []:
                 course_runs = course_runs + course.get('course_runs')
-
-        data = CourseRunSerializer(course_runs, many=True).data
-
-        return Response(data)
+        return course_runs
