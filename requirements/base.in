@@ -1,3 +1,4 @@
+celery
 django==1.11.18
 django-extensions
 django-model-utils
