@@ -80,6 +80,32 @@ DATABASES = {
     }
 }
 
+############################# BEGIN CELERY #################################3
+
+# Message configuration
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_MESSAGE_COMPRESSION = 'gzip'
+
+# Results configuration
+
+CELERY_IGNORE_RESULT = False
+CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+
+# Events configuration
+
+CELERY_TRACK_STARTED = True
+
+CELERY_SEND_EVENTS = True
+CELERY_SEND_TASK_SENT_EVENT = True
+
+# let logging work as configured:
+CELERYD_HIJACK_ROOT_LOGGER = False
+
+############################# END CELERY #################################3
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
