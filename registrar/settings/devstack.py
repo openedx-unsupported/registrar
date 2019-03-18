@@ -33,6 +33,9 @@ DATABASES = {
 STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'django.contrib.staticfiles.storage.StaticFilesStorage')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
+LMS_BASE_URL = 'http://edx.devstack.lms:18000'
+DISCOVERY_BASE_URL = 'http://edx.devstack.discovery:18381'
+
 # Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
 SOCIAL_AUTH_EDX_OAUTH2_KEY = os.environ.get('SOCIAL_AUTH_EDX_OAUTH2_KEY', 'registrar-sso-key')
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = os.environ.get('SOCIAL_AUTH_EDX_OAUTH2_SECRET', 'registrar-sso-secret')
