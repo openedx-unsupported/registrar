@@ -69,6 +69,8 @@ JWT_AUTH.update({
     ),
 })
 
+SEGMENT_KEY = os.environ.get('SEGMENT_KEY', None)
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):

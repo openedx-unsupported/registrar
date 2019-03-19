@@ -12,6 +12,7 @@ from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
+import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
@@ -98,6 +99,11 @@ class ProgramListView(AuthMixin, ListAPIView):
         programs = Program.objects.all()
         if org_key:
             programs = programs.filter(managing_organization__key=org_key)
+        segment.track(
+            self.request.user.username,
+            'List Programs',
+            {'organization_key': org_key}
+        )
         return programs
 
     def get_permission_object(self):

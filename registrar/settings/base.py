@@ -36,11 +36,12 @@ THIRD_PARTY_APPS = (
     'simple_history',
     'social_django',
     'waffle',
+    'analytics',
 )
 
 PROJECT_APPS = (
     'registrar.apps.core.apps.CoreConfig',
-    'registrar.apps.api',
+    'registrar.apps.api.apps.ApiConfig',
     'registrar.apps.enrollments',
 )
 
@@ -233,3 +234,6 @@ PLATFORM_NAME = 'Your Platform Name Here'
 
 # Set up logging for development use (logging to stdout)
 LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
+
+# API key for segment.io event tracking
+SEGMENT_KEY = None
