@@ -94,7 +94,10 @@ class OrganizationGroup(Group):
         super().__init__(*args, **kwargs)
         # Save the value of organization in an attribute, so that when
         # save() is called, we have access to the old value.
-        self._initial_organization = self.organization
+        try:
+            self._initial_organization = self.organization
+        except Organization.DoesNotExist:
+            self._initial_organization = None
 
     @property
     def role_object(self):
@@ -109,8 +112,9 @@ class OrganizationGroup(Group):
     # pylint: disable=arguments-differ
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        for perm in perms.ORGANIZATION_PERMISSIONS:
-            remove_perm(perm, self, self._initial_organization)
+        if self._initial_organization:
+            for perm in perms.ORGANIZATION_PERMISSIONS:
+                remove_perm(perm, self, self._initial_organization)
         self.role_object.assign_to_group(self, self.organization)
         self._initial_organization = self.organization
 
