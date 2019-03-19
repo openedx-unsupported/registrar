@@ -7,23 +7,30 @@ from guardian.shortcuts import assign_perm
 
 APP_PREFIX = 'core.'
 
+# Non-prefixed names of Organization permissions.
+# In general, the prefixed versions (without _KEY) should be used, because
+# non-prefixed permission names break when you attempt to assign or check them
+# globally.
+ORGANIZATION_READ_METADATA_KEY = 'organization_read_metadata'
+ORGANIZATION_READ_ENROLLMENTS_KEY = 'organization_read_enrollments'
+ORGANIZATION_WRITE_ENROLLMENTS_KEY = 'organization_write_enrollments'
 
 # A user with this permission can read any metadata
 # about an organization, including metadata about
 # its programs and courses therein.
-ORGANIZATION_READ_METADATA = APP_PREFIX + 'organization_read_metadata'
+ORGANIZATION_READ_METADATA = APP_PREFIX + ORGANIZATION_READ_METADATA_KEY
 
 
 # A user with this permission can read any enrollment data contained
 # in the scope of an organization, i.e. the organization's
 # program enrollments and program-course enrollments.
-ORGANIZATION_READ_ENROLLMENTS = APP_PREFIX + 'organization_read_enrollments'
+ORGANIZATION_READ_ENROLLMENTS = APP_PREFIX + ORGANIZATION_READ_ENROLLMENTS_KEY
 
 
 # A user with this permission can write any enrollment data contained
 # in the scope of an organization, i.e. the organization's
 # program enrollments and program-course enrollments.
-ORGANIZATION_WRITE_ENROLLMENTS = APP_PREFIX + 'organization_write_enrollments'
+ORGANIZATION_WRITE_ENROLLMENTS = APP_PREFIX + ORGANIZATION_WRITE_ENROLLMENTS_KEY
 
 
 ORGANIZATION_PERMISSIONS = {

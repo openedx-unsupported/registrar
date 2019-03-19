@@ -56,9 +56,9 @@ class Organization(TimeStampedModel):
     class Meta(object):
         app_label = 'core'
         permissions = (
-            (perms.ORGANIZATION_READ_METADATA, 'View Organization Metadata'),
-            (perms.ORGANIZATION_READ_ENROLLMENTS, 'Read Organization enrollment data'),
-            (perms.ORGANIZATION_WRITE_ENROLLMENTS, 'Write Organization enrollment data'),
+            (perms.ORGANIZATION_READ_METADATA_KEY, 'View Organization Metadata'),
+            (perms.ORGANIZATION_READ_ENROLLMENTS_KEY, 'Read Organization enrollment data'),
+            (perms.ORGANIZATION_WRITE_ENROLLMENTS_KEY, 'Write Organization enrollment data'),
         )
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
