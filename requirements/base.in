@@ -1,5 +1,5 @@
 celery
-django==1.11.18
+django==1.11.20
 django-extensions
 django-model-utils
 django-mysql
