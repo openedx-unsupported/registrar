@@ -22,10 +22,10 @@ class MockProgramListView(ListAPIView):
     """
     A view for listing program objects.
 
-    Path: /api/v1/programs?org={org_key}
+    Path: /api/v0/programs?org={org_key}
 
     All programs within organization specified by `org_key` are returned.
-    For users will global organization access, `org_key` can be omitted in order
+    For users with global organization access, `org_key` can be omitted in order
     to return all programs.
 
     Returns:
@@ -71,7 +71,7 @@ class MockProgramRetrieveView(RetrieveAPIView, ProgramSpecificViewMixin):
     """
     A view for retrieving a single program object.
 
-    Path: /api/v1/programs/{program_key}
+    Path: /api/v0/programs/{program_key}
 
     Returns:
      * 200: OK
