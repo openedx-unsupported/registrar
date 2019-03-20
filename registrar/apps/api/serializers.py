@@ -43,6 +43,17 @@ class LearnerProgramEnrollmentSerializer(serializers.Serializer):
     status = serializers.CharField()
 
 
+class RequestedLearnerProgramEnrollmentSerializer(serializers.Serializer):
+    """
+    Serializer for request to create a LearnerProgramEnrollment
+    """
+    STATUS_CHOICES = ['pending', 'enrolled']
+
+    student_key = serializers.CharField(allow_blank=False)
+    email = serializers.CharField(allow_blank=False)
+    status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+
+
 class CourseRunSerializer(serializers.Serializer):
     """
     Serializer for a course run returned from the

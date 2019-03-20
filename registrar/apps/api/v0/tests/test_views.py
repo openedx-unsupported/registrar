@@ -1,5 +1,7 @@
 """ Tests for the v0 API views. """
 
+import json
+import uuid
 import ddt
 from rest_framework.test import APITestCase
 
@@ -31,6 +33,22 @@ class MockAPITestBase(APITestCase, JwtMixin):
             )
         else:
             return self.client.get(self.API_ROOT + path, follow=True)
+
+    def post(self, path, data, user):
+        if user:
+            return self.client.post(
+                self.API_ROOT + path,
+                data=json.dumps(data),
+                follow=True,
+                content_type='application/json',
+                HTTP_AUTHORIZATION=self.generate_jwt_header(
+                    user, admin=user.is_staff,
+                )
+            )
+        else:
+            return self.client.post(
+                self.API_ROOT + path, data=json.dumps(data), follow=True, content_type='application/json',
+            )
 
 
 # pylint: disable=no-member
@@ -126,3 +144,127 @@ class MockCourseListViewTests(MockAPITestBase, MockAPICommonTests):
         response = self.get('programs/{}/courses'.format(program_key), self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), num_courses)
+
+
+class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
+    """ Test for mock program enrollment """
+
+    def student_enrollment(self, email, status, student_key=None):
+        return {
+            'email': email,
+            'status': status,
+            'student_key': student_key or uuid.uuid4().hex[0:10]
+        }
+
+    def test_unauthenticated(self):
+        post_data = [
+            self.student_enrollment('jjohn@mit.edu', 'enrolled')
+        ]
+        response = self.post(
+            'programs/upz-masters-ancient-history/enrollments/',
+            post_data,
+            None
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_program_unauthorized(self):
+        post_data = [
+            self.student_enrollment('jjohn@mit.edu', 'enrolled')
+        ]
+        response = self.post(
+            'programs/upz-masters-ancient-history/enrollments/',
+            post_data,
+            self.user
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_program_not_found(self):
+        post_data = [
+            self.student_enrollment('jjohn@mit.edu', 'enrolled')
+        ]
+        response = self.post(
+            'programs/uan-shark-tap-dancing/enrollments/',
+            post_data,
+            self.user
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_successful_program_enrollment(self):
+        post_data = [
+            self.student_enrollment('hefferWolfe@mit.edu', 'enrolled', '001'),
+            self.student_enrollment('invader_zim@mit.edu', 'enrolled', '002'),
+            self.student_enrollment('snarf@mit.edu', 'pending', '003'),
+        ]
+        response = self.post(
+            'programs/hhp-masters-theo-physics/enrollments/',
+            post_data,
+            self.user
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {
+            '001': 'enrolled',
+            '002': 'enrolled',
+            '003': 'pending',
+        })
+
+    def test_partially_valid_enrollment(self):
+        post_data = [
+            self.student_enrollment('hefferWolfe@mit.edu', 'new', '001'),
+            {'status': 'enrolled', 'student_key': '002'},
+            self.student_enrollment('snarf@mit.edu', 'pending', '003'),
+        ]
+        response = self.post(
+            'programs/hhp-masters-theo-physics/enrollments/',
+            post_data,
+            self.user
+        )
+
+        self.assertEqual(response.status_code, 207)
+        self.assertEqual(response.data, {
+            '001': 'invalid-status',
+            '002': 'internal-error',
+            '003': 'pending',
+        })
+
+    def test_unprocessable_enrollment(self):
+        response = self.post(
+            'programs/hhp-masters-theo-physics/enrollments/',
+            [{'status': 'enrolled'}],
+            self.user
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_duplicate_enrollment(self):
+        post_data = [
+            self.student_enrollment('hefferWolfe@mit.edu', 'enrolled', '001'),
+            self.student_enrollment('invader_zim@mit.edu', 'enrolled', '002'),
+            self.student_enrollment('hefferWolfe@mit.edu', 'enrolled', '001'),
+        ]
+        response = self.post(
+            'programs/hhp-masters-theo-physics/enrollments/',
+            post_data,
+            self.user
+        )
+
+        self.assertEqual(response.status_code, 207)
+        self.assertEqual(response.data, {
+            '001': 'duplicated',
+            '002': 'enrolled',
+        })
+
+    def test_enrollment_payload_limit(self):
+        post_data = []
+        for i in range(26):
+            post_data += self.student_enrollment(
+                'user{}@mit.edu'.format(i), 'enrolled'
+            )
+
+        response = self.post(
+            'programs/hhp-masters-theo-physics/enrollments/',
+            post_data,
+            self.user
+        )
+
+        self.assertEqual(response.status_code, 413)
