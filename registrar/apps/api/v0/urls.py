@@ -24,4 +24,9 @@ urlpatterns = [
         views.MockProgramCourseListView.as_view(),
         name="program-course-list",
     ),
+    url(
+        r'programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
+        views.MockProgramEnrollmentView.as_view(),
+        name="program-enrollment",
+    ),
 ]
