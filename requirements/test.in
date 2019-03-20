@@ -3,7 +3,7 @@
 
 coverage
 django-dynamic-fixture
-code-annotations
+code-annotations>=0.3.1
 edx-lint
 factory_boy
 Faker
