@@ -19,4 +19,9 @@ urlpatterns = [
         views.MockProgramRetrieveView.as_view(),
         name="program",
     ),
+    url(
+        r'programs/{}/courses/$'.format(PROGRAM_KEY_PATTERN),
+        views.MockProgramCourseListView.as_view(),
+        name="program-course-list",
+    ),
 ]

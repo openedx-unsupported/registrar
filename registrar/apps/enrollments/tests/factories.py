@@ -1,28 +1,15 @@
 """
 Factories for creating enrollment data.
 """
-import re
-
 import factory
 
+from registrar.apps.core.utils import name_to_key
 from registrar.apps.enrollments.models import (
     Program,
 )
 
 
 # pylint: disable=missing-docstring
-
-
-def name_to_key(name):
-    """
-    Returns a 'key-like' version of a name.
-
-    Example:
-        name_to_key("Master's in Computer Science") =>
-            'masters-in-computer-science'
-    """
-    name2 = name.replace(' ', '-').replace('_', '-').lower()
-    return re.sub(r'[^a-z0-9-]', '', name2)
 
 
 class ProgramFactory(factory.DjangoModelFactory):
