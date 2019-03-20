@@ -10,11 +10,12 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from registrar.apps.api.serializers import ProgramSerializer
+from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
 from registrar.apps.api.v0.data import (
     FAKE_ORG_DICT,
     FAKE_ORG_PROGRAMS,
     FAKE_PROGRAM_DICT,
+    FAKE_PROGRAM_COURSE_RUNS,
 )
 
 
@@ -51,7 +52,7 @@ class MockProgramListView(ListAPIView):
         return FAKE_ORG_PROGRAMS[org.key]
 
 
-class ProgramSpecificViewMixin(object):
+class MockProgramSpecificViewMixin(object):
     """
     A mixin for views that operate on or within a specific program.
     """
@@ -67,7 +68,7 @@ class ProgramSpecificViewMixin(object):
         return FAKE_PROGRAM_DICT[program_key]
 
 
-class MockProgramRetrieveView(RetrieveAPIView, ProgramSpecificViewMixin):
+class MockProgramRetrieveView(MockProgramSpecificViewMixin, RetrieveAPIView):
     """
     A view for retrieving a single program object.
 
@@ -87,5 +88,29 @@ class MockProgramRetrieveView(RetrieveAPIView, ProgramSpecificViewMixin):
     def get_object(self):
         if self.program.managing_organization.metadata_readable:
             return self.program
+        else:
+            raise PermissionDenied()
+
+
+class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
+    """
+    A view for listing courses in a program.
+
+    Path: /api/v0/programs/{program_key}/courses
+
+    Returns:
+     * 200: OK
+     * 401: User is not authenticated
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+    """
+
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CourseRunSerializer
+
+    def get_queryset(self):
+        if self.program.managing_organization.metadata_readable:
+            return FAKE_PROGRAM_COURSE_RUNS[self.program.key]
         else:
             raise PermissionDenied()

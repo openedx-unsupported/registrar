@@ -97,3 +97,32 @@ class MockProgramRetrieveViewTests(MockAPITestBase, MockAPICommonTests):
     def test_program_retrieve(self, program_key):
         response = self.get(self.path + program_key, self.user)
         self.assertEqual(response.status_code, 200)
+
+
+@ddt.ddt
+class MockCourseListViewTests(MockAPITestBase, MockAPICommonTests):
+    """ Tests for mock course listing """
+
+    path_suffix = 'programs/bcc-masters-english-lit/courses'  # for 401 test only
+
+    def test_program_unauthorized(self):
+        response = self.get('programs/upz-masters-ancient-history/courses', self.user)
+        self.assertEqual(response.status_code, 403)
+
+    def test_program_not_found(self):
+        response = self.get('programs/uan-masters-underwater-basket-weaving/courses', self.user)
+        self.assertEqual(response.status_code, 404)
+
+    @ddt.data(
+        ('bcc-masters-english-lit', 4),
+        ('dvi-masters-polysci', 4),
+        ('dvi-mba', 2),
+        ('hhp-masters-ce', 4),
+        ('hhp-masters-theo-physics', 3),
+        ('hhp-masters-enviro', 0),
+    )
+    @ddt.unpack
+    def test_program_retrieve(self, program_key, num_courses):
+        response = self.get('programs/{}/courses'.format(program_key), self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), num_courses)
