@@ -9,16 +9,15 @@ logger = logging.getLogger(__name__)
 
 
 def track(
-    user_id=None,
-    event=None,
+    user_id,
+    event,
     properties=None,
     context=None,
     timestamp=None,
     anonymous_id=None,
     integrations=None,
-    message_id=None
 ):
     if settings.SEGMENT_KEY:
-        analytics.track(user_id, event, properties, context, timestamp, anonymous_id, integrations, message_id)
+        analytics.track(user_id, event, properties, context, timestamp, anonymous_id, integrations)
     else:
         logger.debug("{{{}, {}}} not tracked because SEGMENT_KEY not set".format(user_id, event))
