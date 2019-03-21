@@ -12,9 +12,22 @@ ALLOWED_HOSTS = ['*']
 
 LOGGING = get_logger_config()
 
+# Keep track of the names of settings that represent dicts. Instead of overriding the values in base.py,
+# the values read from disk should UPDATE the pre-configured dicts.
+DICT_UPDATE_KEYS = ('JWT_AUTH',)
+
 CONFIG_FILE = get_env_setting('REGISTRAR_CFG')
 with open(CONFIG_FILE, encoding='utf-8') as f:
     config_from_yaml = yaml.load(f)
+
+    # Remove the items that should be used to update dicts, and apply them separately rather
+    # than pumping them into the local vars.
+    dict_updates = {key: config_from_yaml.pop(key, None) for key in DICT_UPDATE_KEYS}
+
+    for key, value in dict_updates.items():
+        if value:
+            vars()[key].update(value)
+
     vars().update(config_from_yaml)
 
 DB_OVERRIDES = dict(
