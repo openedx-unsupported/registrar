@@ -172,7 +172,7 @@ class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
             self.student_enrollment('jjohn@mit.edu', 'enrolled')
         ]
         response = self.post(
-            'programs/upz-masters-ancient-history/enrollments/',
+            'programs/dvi-masters-polysci/enrollments/',
             post_data,
             self.user
         )
@@ -211,7 +211,6 @@ class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
     def test_partially_valid_enrollment(self):
         post_data = [
             self.student_enrollment('hefferWolfe@mit.edu', 'new', '001'),
-            {'status': 'enrolled', 'student_key': '002'},
             self.student_enrollment('snarf@mit.edu', 'pending', '003'),
         ]
         response = self.post(
@@ -223,7 +222,6 @@ class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
         self.assertEqual(response.status_code, 207)
         self.assertEqual(response.data, {
             '001': 'invalid-status',
-            '002': 'internal-error',
             '003': 'pending',
         })
 

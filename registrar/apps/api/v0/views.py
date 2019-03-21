@@ -20,7 +20,7 @@ from rest_framework.status import (
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
     ProgramSerializer,
-    RequestedLearnerProgramEnrollmentSerializer,
+    ProgramEnrollmentRequestSerializer,
 )
 from registrar.apps.api.v0.data import (
     FAKE_ORG_DICT,
@@ -144,47 +144,54 @@ class MockProgramEnrollmentView(CreateAPIView, MockProgramSpecificViewMixin):
     """
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    serializer_class = RequestedLearnerProgramEnrollmentSerializer
+    serializer_class = ProgramEnrollmentRequestSerializer
 
     def post(self, request, *args, **kwargs):
         """ Enroll up to 25 students in program """
-        if not self.program.managing_organization.metadata_readable:
+        if not self.program.managing_organization.enrollments_writeable:
             raise PermissionDenied()
 
         response = {}
-        error_status = None
+        enrolled_students = []
 
         if not isinstance(request.data, list):
             raise ValidationError()
 
         if len(request.data) > 25:
             return Response(
-                'enrollement limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
+                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
 
         for enrollee in request.data:
-            enrollee_serializer = RequestedLearnerProgramEnrollmentSerializer(
+            enrollee_serializer = ProgramEnrollmentRequestSerializer(
                 data=enrollee
             )
 
             if enrollee_serializer.is_valid():
                 enrollee = enrollee_serializer.data
                 student_key = enrollee['student_key']
-                if student_key in response:
+                if student_key in enrolled_students:
                     response[student_key] = 'duplicated'
-                    error_status = HTTP_207_MULTI_STATUS
                 else:
                     response[student_key] = enrollee['status']
+                    enrolled_students.append(student_key)
             else:
                 try:
                     if 'status' in enrollee_serializer.errors:
                         response[enrollee['student_key']] = 'invalid-status'
                     else:
-                        response[enrollee['student_key']] = 'internal-error'
-                    error_status = HTTP_207_MULTI_STATUS
+                        return Response(
+                            'invalid enrollemnt record',
+                            HTTP_422_UNPROCESSABLE_ENTITY
+                        )
                 except KeyError:
                     return Response(
                         'student_key required', HTTP_422_UNPROCESSABLE_ENTITY
                     )
 
-        return Response(response, error_status)
+        if len(enrolled_students) < 1:
+            return Response(response, HTTP_422_UNPROCESSABLE_ENTITY)
+        if len(request.data) != len(enrolled_students):
+            return Response(response, HTTP_207_MULTI_STATUS)
+        else:
+            return Response(response)

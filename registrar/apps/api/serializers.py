@@ -43,7 +43,7 @@ class LearnerProgramEnrollmentSerializer(serializers.Serializer):
     status = serializers.CharField()
 
 
-class RequestedLearnerProgramEnrollmentSerializer(serializers.Serializer):
+class ProgramEnrollmentRequestSerializer(serializers.Serializer):
     """
     Serializer for request to create a LearnerProgramEnrollment
     """
