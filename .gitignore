@@ -88,3 +88,6 @@ docs/_build/
 
 # Docker env files
 registrar-app.env
+
+# Local database
+*.sqlite3
