@@ -1,0 +1,4 @@
+# Packages required for devstack development environment
+
+-r local.in
+-r nonlocal.in

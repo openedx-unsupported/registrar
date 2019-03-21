@@ -1,8 +1,7 @@
-# Packages required for local development
+# Packages required for standalone local development
 -r test.in
 -r docs.in
 
 django-debug-toolbar
-docker-compose
 edx-i18n-tools
 transifex-client

@@ -1,7 +1,8 @@
 # Packages required in a production environment
 -r base.in
+-r nonlocal.in
 
 gevent
 gunicorn
 mysqlclient
-PyYAML
+PyYAML==5.1

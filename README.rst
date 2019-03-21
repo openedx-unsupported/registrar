@@ -7,42 +7,11 @@ Registrar service  |Travis|_ |Codecov|_
 .. _Codecov: http://codecov.io/github/edx/registrar?branch=master
 
 The registrar service links an edX learner user with an edX program stored in course discovery.
-
-Using Locally
--------------
-
-This can be run locally with docker.  It uses the ``devstack_default`` network.
-
-First, you have to build the images::
-
-  make build
-
-Secondly, bring up the application container, memcache container, and DB container::
-
-  make up
-
-Lastly, you'll need to provision data to your mysql contianer::
-
-  make provision
-
-To bring these containers down::
-
-  make down
-
-The way we're providing container configuration is via docker environment files.
-The ``registrar-app.env.template`` defines a template for including environment variables
-in your running registrar container.  Replace the dummy values in that file with
-real values to configure rest clients for communication with other services, etc.
-
-If you wish to bring the containers down and destroy your database volumes, run::
-
-  make destroy
  
-
-Using within Devstack
+Using with Devstack
 -----------------
 
-This can also be run within the edX Devstack: https://github.com/edx/devstack.
+The best way to run Registrar is within the edX Devstack: https://github.com/edx/devstack.
 
 After setting up Devstack, clone the Registrar repository::
 
@@ -63,6 +32,57 @@ To bring all containers down::
 To view all commmands::
 
   make help-registrar
+
+Using Standalone
+-----------------
+
+Alternatively, you may run Registrar locally without the edX Devstack. Note that in this configuration, functionality that depends on communication with other edX services (e.g. LMS authentication) will not work by default.
+
+Requirements:
+
+- Python 3
+
+- python3-pip
+
+- virtualenv (`pip3 install virtualenv`)
+
+- python3.X-dev, where X is the minor version of your Python 3 installation
+
+- Optional, for ``dbshell-local``: sqlite3
+
+First, clone this respository with one of the following::
+
+  git clone https://github.com/edx/registrar
+  git clone git@github.com:edx/registrar.git
+
+Navigate in, create a Python 3 virtualenv, and activate it::
+
+  cd registrar
+  virtualenv --python=python3 venv
+  source venv/bin/activate
+
+Ensure local settings are used instead of Devstack settings::
+
+  export DJANGO_SETTINGS_MODULE=registrar.settings.local
+
+This above command must be run every time you open a new shell
+to run Registrar in. Alternatively, you can append it to the end of
+``venv/bin/activate`` so that it is run upon activation of your virtualenv.
+If you do so, you may want to add ``unset DJANGO_SETTINGS_MODULE``
+to the ``deactivate()`` function of the same file.
+
+
+Next, install requirements, run migrations, and create the default superuser::
+
+  make local-requirements
+  make migrate
+  make createsuperuser
+
+Run the server::
+
+  make run-local
+
+Finally, navigate to https://localhost:8000.
 
 
 How Authentication Works
