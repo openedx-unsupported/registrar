@@ -7,7 +7,9 @@ import logging
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.urls import resolve
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -54,6 +56,10 @@ class AuthMixin(object):
 
         Overrides APIView.check_permissions.
         """
+        if resolve(request.path_info).url_name == 'api-docs':
+            self.check_doc_permissions(request)
+            return
+
         if isinstance(self.permission_required, str):
             required = [self.permission_required]
         elif isinstance(self.permission_required, Iterable):
@@ -72,6 +78,23 @@ class AuthMixin(object):
         if self.raise_404_if_unauthorized:
             raise Http404()
         else:
+            raise PermissionDenied()
+
+    def check_doc_permissions(self, request):
+        """
+        Check whether the endpoint being requested should show up in the
+        Swagger UI.
+
+        When loading /api-docs/, Swagger does `check_permissions` on all
+        API endpoints in order to decide which ones to show to the user.
+        However, we assign permissions on a per-Oranization-instance
+        basis using Guardian, whereas /api-docs/ is Organization-agnostic.
+
+        To compensate for this, we handle permission checks coming from
+        /api-docs/ differently: we simply check if the user has the appropriate
+        permission on *any* Organization instance.
+        """
+        if not get_objects_for_user(request.user, self.permission_required):
             raise PermissionDenied()
 
 
