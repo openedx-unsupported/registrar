@@ -8,7 +8,8 @@ from django.http import Http404
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -21,8 +22,9 @@ from rest_framework.status import (
 from registrar.apps.api.serializers import (
     AcceptedJobSerializer,
     CourseRunSerializer,
-    ProgramEnrollmentRequestSerializer,
     ProgramSerializer,
+    ProgramEnrollmentRequestSerializer,
+    ProgramEnrollmentModificationRequestSerializer,
 )
 from registrar.apps.api.v0.data import (
     FAKE_ORG_DICT,
@@ -131,13 +133,13 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
             raise PermissionDenied()
 
 
-class MockProgramEnrollmentView(CreateAPIView, RetrieveAPIView, MockProgramSpecificViewMixin):
+class MockProgramEnrollmentView(RetrieveAPIView, APIView, MockProgramSpecificViewMixin):
     """
-    A view for enrolling students in a program, or retrieving program enrollment data.
+    A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
     Path: /api/v1/programs/{program_key}/enrollments
 
-    Accepts: [POST, GET]
+    Accepts: [POST, PATCH, GET]
 
     ------------------------------------------------------------------------------------
     GET
@@ -159,7 +161,7 @@ class MockProgramEnrollmentView(CreateAPIView, RetrieveAPIView, MockProgramSpeci
     }
 
     ------------------------------------------------------------------------------------
-    POST
+    POST / PATCH
     ------------------------------------------------------------------------------------
 
     Returns:
@@ -176,12 +178,15 @@ class MockProgramEnrollmentView(CreateAPIView, RetrieveAPIView, MockProgramSpeci
     serializer_class = ProgramEnrollmentRequestSerializer
 
     def post(self, request, *args, **kwargs):
+        return self.validate_and_echo_statuses(request, ProgramEnrollmentRequestSerializer)
+
+    def patch(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        return self.validate_and_echo_statuses(request, ProgramEnrollmentModificationRequestSerializer)
+
+    def validate_and_echo_statuses(self, request, serializer):
         """ Enroll up to 25 students in program """
         if not self.program.managing_organization.enrollments_writeable:
             raise PermissionDenied()
-
-        response = {}
-        enrolled_students = []
 
         if not isinstance(request.data, list):
             raise ValidationError()
@@ -191,34 +196,35 @@ class MockProgramEnrollmentView(CreateAPIView, RetrieveAPIView, MockProgramSpeci
                 'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
 
-        for enrollee in request.data:
-            enrollee_serializer = ProgramEnrollmentRequestSerializer(
-                data=enrollee
-            )
+        response = {}
+        enrolled_students = set()
 
+        for enrollee in request.data:
+            enrollee_serializer = serializer(data=enrollee)
             if enrollee_serializer.is_valid():
                 enrollee = enrollee_serializer.data
-                student_key = enrollee['student_key']
-                if student_key in enrolled_students:
-                    response[student_key] = 'duplicated'
+                student_id = enrollee["student_key"]
+                if student_id in enrolled_students:
+                    response[student_id] = 'duplicated'
                 else:
-                    response[student_key] = enrollee['status']
-                    enrolled_students.append(student_key)
+                    response[student_id] = enrollee['status']
+                    enrolled_students.add(student_id)
             else:
                 try:
-                    if 'status' in enrollee_serializer.errors:
-                        response[enrollee['student_key']] = 'invalid-status'
+                    if 'status' in enrollee_serializer.errors and \
+                            enrollee_serializer.errors['status'][0].code == 'invalid_choice':
+                        response[enrollee["student_key"]] = 'invalid-status'
                     else:
                         return Response(
-                            'invalid enrollemnt record',
+                            'invalid enrollment record',
                             HTTP_422_UNPROCESSABLE_ENTITY
                         )
                 except KeyError:
                     return Response(
-                        'student_key required', HTTP_422_UNPROCESSABLE_ENTITY
+                        'student key required', HTTP_422_UNPROCESSABLE_ENTITY
                     )
 
-        if len(enrolled_students) < 1:
+        if not enrolled_students:
             return Response(response, HTTP_422_UNPROCESSABLE_ENTITY)
         if len(request.data) != len(enrolled_students):
             return Response(response, HTTP_207_MULTI_STATUS)

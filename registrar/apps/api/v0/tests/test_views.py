@@ -50,6 +50,22 @@ class MockAPITestBase(APITestCase, JwtMixin):
                 self.API_ROOT + path, data=json.dumps(data), follow=True, content_type='application/json',
             )
 
+    def patch(self, path, data, user):
+        if user:
+            return self.client.patch(
+                self.API_ROOT + path,
+                data=json.dumps(data),
+                follow=True,
+                content_type='application/json',
+                HTTP_AUTHORIZATION=self.generate_jwt_header(
+                    user, admin=user.is_staff,
+                )
+            )
+        else:
+            return self.client.patch(
+                self.API_ROOT + path, data=json.dumps(data), follow=True, content_type='application/json',
+            )
+
 
 # pylint: disable=no-member
 class MockAPICommonTests(object):
@@ -301,3 +317,85 @@ class MockProgramEnrollmentRetrievalTest(MockAPITestBase, MockAPICommonTests):
         for program_key in self.READABLE_ENROLLMENT_PROGRAM_KEYS:
             response = self.get('programs/{}/enrollments/'.format(program_key), self.user)
             self.assertEqual(202, response.status_code)
+
+
+@ddt.ddt
+class MockModifyProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
+    """ Tests for mock modify program enrollment """
+
+    path_suffix = 'programs/hhp-masters-ce/enrollments/'
+
+    def learner_modification(self, student_key, status):
+        return {"student_key": student_key, "status": status}
+
+    def test_200_ok(self):
+        patch_data = [
+            self.learner_modification("A", "enrolled"),
+            self.learner_modification("B", "pending"),
+            self.learner_modification("C", "suspended"),
+            self.learner_modification("D", "canceled"),
+        ]
+        response = self.patch(self.path, patch_data, self.user)
+        self.assertEqual(200, response.status_code)
+        self.assertDictEqual(
+            {
+                "A": "enrolled",
+                "B": "pending",
+                "C": "suspended",
+                "D": "canceled"
+            },
+            response.data
+        )
+
+    def test_207_multi_status(self):
+        """ Also tests duplicates """
+        patch_data = [
+            self.learner_modification("A", "enrolled"),
+            self.learner_modification("A", "enrolled"),
+            self.learner_modification("B", "not-a-status"),
+            self.learner_modification("C", "enrolled"),
+        ]
+        response = self.patch(self.path, patch_data, self.user)
+        self.assertEqual(207, response.status_code)
+        self.assertDictEqual(
+            {
+                'A': 'duplicated',
+                'B': 'invalid-status',
+                'C': 'enrolled',
+            },
+            response.data
+        )
+
+    def test_403_forbidden(self):
+        path_403 = 'programs/dvi-masters-polysci/enrollments/'
+        patch_data = [self.learner_modification("A", "enrolled")]
+        response = self.patch(path_403, patch_data, self.user)
+        self.assertEqual(403, response.status_code)
+
+    def test_413_payload_too_large(self):
+        patch_data = [self.learner_modification(str(i), "enrolled") for i in range(30)]
+        response = self.patch(self.path, patch_data, self.user)
+        self.assertEqual(413, response.status_code)
+
+    def test_404_not_found(self):
+        path_404 = 'programs/nonexistant-program-will-404/enrollments/'
+        patch_data = [self.learner_modification("A", "enrolled")]
+        response = self.patch(path_404, patch_data, self.user)
+        self.assertEqual(404, response.status_code)
+
+    def test_422_unprocessable_entity(self):
+        patch_data = [{'student_key': 'A', 'status': 'this-is-not-a-status'}]
+        response = self.patch(self.path, patch_data, self.user)
+        self.assertEqual(422, response.status_code)
+        self.assertDictEqual({'A': 'invalid-status'}, response.data)
+
+    @ddt.data(
+        [{'status': 'enrolled'}],
+        [{'student_key': '000'}],
+        ["this isn't even a dict!"],
+        [{'student_key': '000', 'status': 'enrolled'}, "bad_data"],
+    )
+    def test_422_unprocessable_entity_bad_data(self, patch_data):
+        response = self.patch(self.path, patch_data, self.user)
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('invalid enrollment record', response.data)
