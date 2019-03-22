@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = (
     'rest_framework_swagger',
     'simple_history',
     'social_django',
+    'user_tasks',
     'waffle',
     'analytics',
 )

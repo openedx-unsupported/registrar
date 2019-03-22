@@ -10,6 +10,7 @@ djangorestframework
 django-guardian
 edx-django-release-util
 edx-drf-extensions
+django-user-tasks
 
 edx-rest-api-client==1.9.2
 
