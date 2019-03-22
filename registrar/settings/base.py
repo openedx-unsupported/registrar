@@ -224,7 +224,7 @@ JWT_AUTH = {
 EXTRA_SCOPE = ['permissions']
 
 # TODO Set this to another (non-staff, ideally) path.
-LOGIN_REDIRECT_URL = '/admin/'
+LOGIN_REDIRECT_URL = '/api-docs/'
 # END AUTHENTICATION CONFIGURATION
 
 
