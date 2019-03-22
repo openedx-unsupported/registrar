@@ -54,6 +54,16 @@ class ProgramEnrollmentRequestSerializer(serializers.Serializer):
     status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
 
 
+class ProgramEnrollmentModificationRequestSerializer(serializers.Serializer):
+    """
+    Serializer for request to modify a LearnerProgramEnrollment
+    """
+    STATUS_CHOICES = ['pending', 'enrolled', 'suspended', 'canceled']
+
+    student_key = serializers.CharField(allow_blank=False)
+    status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+
+
 class CourseRunSerializer(serializers.Serializer):
     """
     Serializer for a course run returned from the
