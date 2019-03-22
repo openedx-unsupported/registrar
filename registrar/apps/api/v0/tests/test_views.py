@@ -266,3 +266,38 @@ class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
         )
 
         self.assertEqual(response.status_code, 413)
+
+
+class MockProgramEnrollmentRetrievalTest(MockAPITestBase, MockAPICommonTests):
+    """
+    Tests for the mock retrieval of program enrollments data via fake async jobs.
+    """
+    READABLE_ENROLLMENT_PROGRAM_KEYS = [
+        'dvi-masters-polysci',
+        'dvi-mba',
+        'hhp-masters-ce',
+        'hhp-masters-theo-physics',
+        'hhp-masters-enviro',
+    ]
+    UNREADABLE_ENROLLMENT_PROGRAM_KEYS = [
+        'upz-masters-ancient-history',
+        'bcc-masters-english-lit',
+    ]
+
+    def test_unauthenticated(self):
+        response = self.get('programs/upz-masters-ancient-history/enrollments/', None)
+        self.assertEqual(401, response.status_code)
+
+    def test_program_unauthorized(self):
+        for program_key in self.UNREADABLE_ENROLLMENT_PROGRAM_KEYS:
+            response = self.get('programs/{}/enrollments/'.format(program_key), self.user)
+            self.assertEqual(403, response.status_code)
+
+    def test_program_not_found(self):
+        response = self.get('programs/not-a-program/enrollments/', self.user)
+        self.assertEqual(404, response.status_code, 404)
+
+    def test_program_retrieval_success(self):
+        for program_key in self.READABLE_ENROLLMENT_PROGRAM_KEYS:
+            response = self.get('programs/{}/enrollments/'.format(program_key), self.user)
+            self.assertEqual(202, response.status_code)

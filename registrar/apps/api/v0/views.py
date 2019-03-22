@@ -12,21 +12,25 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
+    HTTP_202_ACCEPTED,
     HTTP_207_MULTI_STATUS,
     HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-    HTTP_422_UNPROCESSABLE_ENTITY
+    HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
 from registrar.apps.api.serializers import (
+    AcceptedJobSerializer,
     CourseRunSerializer,
-    ProgramSerializer,
     ProgramEnrollmentRequestSerializer,
+    ProgramSerializer,
 )
 from registrar.apps.api.v0.data import (
     FAKE_ORG_DICT,
     FAKE_ORG_PROGRAMS,
     FAKE_PROGRAM_DICT,
     FAKE_PROGRAM_COURSE_RUNS,
+    FAKE_TASK_IDS_BY_PROGRAM,
+    FakeTask,
 )
 
 
@@ -127,11 +131,36 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
             raise PermissionDenied()
 
 
-class MockProgramEnrollmentView(CreateAPIView, MockProgramSpecificViewMixin):
+class MockProgramEnrollmentView(CreateAPIView, RetrieveAPIView, MockProgramSpecificViewMixin):
     """
-    A view for enrolling students in a program.
+    A view for enrolling students in a program, or retrieving program enrollment data.
 
     Path: /api/v1/programs/{program_key}/enrollments
+
+    Accepts: [POST, GET]
+
+    ------------------------------------------------------------------------------------
+    GET
+    ------------------------------------------------------------------------------------
+
+    Invokes a Django User Task that retrieves student enrollment
+    data for a given program.
+
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+
+    Example Response:
+    {
+        "job_id": "fake-job-for-hhp-masters-ce",
+        "job_url": "http://localhost/api/v1/jobs/fake-job-for-hhp-masters-ce"
+    }
+
+    ------------------------------------------------------------------------------------
+    POST
+    ------------------------------------------------------------------------------------
 
     Returns:
      * 200: Returns a map of students and their enrollment status.
@@ -195,3 +224,18 @@ class MockProgramEnrollmentView(CreateAPIView, MockProgramSpecificViewMixin):
             return Response(response, HTTP_207_MULTI_STATUS)
         else:
             return Response(response)
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves program enrollment data.
+        """
+        if not self.program.managing_organization.enrollments_readable:
+            raise PermissionDenied()
+
+        fake_task_id = FAKE_TASK_IDS_BY_PROGRAM[self.program.key]
+
+        # TODO: EDUCATOR-4179 This should use reverse() of the job results view.
+        fake_task_url = 'http://foo/{}'.format(fake_task_id)
+        fake_task = FakeTask(fake_task_id, fake_task_url)
+
+        return Response(AcceptedJobSerializer(fake_task).data, HTTP_202_ACCEPTED)

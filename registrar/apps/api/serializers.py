@@ -62,3 +62,12 @@ class CourseRunSerializer(serializers.Serializer):
     course_id = serializers.CharField(source='key')
     course_title = serializers.CharField(source='title')
     course_url = serializers.CharField(source='marketing_url')
+
+
+class AcceptedJobSerializer(serializers.Serializer):
+    """
+    Serializer for data about the invocation of a
+    Django User Task.
+    """
+    job_id = serializers.UUIDField()
+    job_url = serializers.CharField()
