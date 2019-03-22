@@ -41,6 +41,12 @@ social_django.Partial:
   ".. no_pii::": "This model has no PII"
 social_django.UserSocialAuth:
   ".. no_pii::": "This model has no PII"
+user_tasks.UserTaskArtifact:
+  ".. pii::": "File, URL, and text fields could potentially contain PII"
+  ".. pii_types::": other
+  ".. pii_retirement::": local_api
+user_tasks.UserTaskStatus:
+  ".. no_pii::": "This model has no PII"
 waffle.Flag:
   ".. no_pii::": "This model has no PII"
 waffle.Sample:
