@@ -28,6 +28,11 @@ FakeCourseRun = namedtuple('FakeCourseRun', [
     'marketing_url',
 ])
 
+FakeTask = namedtuple('FakeTask', [
+    'job_id',
+    'job_url'
+])
+
 
 def _program(org, program_key, title):
     """
@@ -152,4 +157,15 @@ FAKE_PROGRAM_COURSE_RUNS = {
     ]
     for program_key, course_run_keys
     in _FAKE_PROGRAM_COURSE_RUN_KEY_BODIES.items()
+}
+
+
+def _fake_job_id(index):
+    return 'aaaaaaaa-bbbb-cccc-dddd-{}'.format(str(index).zfill(12))
+
+
+FAKE_TASK_IDS_BY_PROGRAM = {
+    program.key: _fake_job_id(index)
+    for index, program in enumerate(FAKE_PROGRAMS)
+    if program.managing_organization.enrollments_readable
 }
