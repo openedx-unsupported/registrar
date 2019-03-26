@@ -5,6 +5,7 @@ specific to a particular version of the API. In this case, the serializers
 in question should be moved to versioned sub-package.
 """
 from rest_framework import serializers
+from user_tasks.models import UserTaskStatus
 
 from registrar.apps.enrollments.models import Program
 
@@ -16,7 +17,7 @@ class ProgramSerializer(serializers.ModelSerializer):
     """
     program_key = serializers.CharField(source='key')
     program_title = serializers.CharField(source='title')
-    program_url = serializers.CharField(source='url')
+    program_url = serializers.URLField(source='url')
 
     class Meta:
         model = Program
@@ -91,13 +92,30 @@ class CourseRunSerializer(serializers.Serializer):
     """
     course_id = serializers.CharField(source='key')
     course_title = serializers.CharField(source='title')
-    course_url = serializers.CharField(source='marketing_url')
+    course_url = serializers.URLField(source='marketing_url')
 
 
-class AcceptedJobSerializer(serializers.Serializer):
+class JobAcceptanceSerializer(serializers.Serializer):
     """
-    Serializer for data about the invocation of a
-    Django User Task.
+    Serializer for data about the invocation of a job.
     """
     job_id = serializers.UUIDField()
-    job_url = serializers.CharField()
+    job_url = serializers.URLField()
+
+
+class JobStatusSerializer(serializers.Serializer):
+    """
+    Serializer for data about the status of a job.
+    """
+    STATUS_CHOICES = {
+        UserTaskStatus.PENDING,
+        UserTaskStatus.IN_PROGRESS,
+        UserTaskStatus.SUCCEEDED,
+        UserTaskStatus.FAILED,
+        UserTaskStatus.RETRYING,
+    }
+
+    original_url = serializers.URLField()
+    created = serializers.DateTimeField()
+    state = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    result = serializers.URLField(allow_null=True)

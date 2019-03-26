@@ -33,5 +33,10 @@ urlpatterns = [
         r'programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
         views.MockCourseEnrollmentView.as_view(),
         name="program-enrollment",
-    )
+    ),
+    url(
+        r'jobs/(?P<job_id>[0-9a-f-]+)$',
+        views.MockJobStatusRetrieveView.as_view(),
+        name="job-status",
+    ),
 ]

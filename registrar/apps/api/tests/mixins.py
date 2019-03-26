@@ -1,6 +1,7 @@
 """
 Mixins for Registrar API tests.
 """
+import json
 from time import time
 
 import jwt
@@ -51,3 +52,59 @@ class JwtMixin(object):
         """Generate a jwt header value for AUTHORIZATION"""
         jwt_token = self.generate_id_token(user, admin, ttl, **overrides).decode('utf-8')
         return 'JWT {token}'.format(token=jwt_token)
+
+
+class RequestMixin(JwtMixin):
+    """
+    Mixin with authenticated get/post/put/patch/delete helper functions.
+
+    Expects implementing classes to provide ``self.client`` attribute.
+    """
+
+    def get(self, path, user):
+        """
+        Perform a GET on the given path, optionally with a user.
+        """
+        return self._request('get', path, user)
+
+    def post(self, path, data, user):
+        """
+        Perform a POST on the given path, optionally with a user.
+        """
+        return self._request('post', path, user, data)
+
+    def put(self, path, data, user):
+        """
+        Perform a PUT on the given path, optionally with a user.
+        """
+        return self._request('put', path, user, data)
+
+    def patch(self, path, data, user):
+        """
+        Perform a PATCH on the given path, optionally with a user.
+        """
+        return self._request('patch', path, user, data)
+
+    def delete(self, path, user):
+        """
+        Perform a DELETE on the given, optionally with a user.
+        """
+        return self._request('delete', path, user)
+
+    def _request(self, method, path, user, data=None):
+        """
+        Perform an HTTP request of the given method.
+
+        If user is not None, include a JWT auth header.
+        """
+        kwargs = {'follow': True}
+        if user:
+            kwargs['HTTP_AUTHORIZATION'] = self.generate_jwt_header(
+                user, admin=user.is_staff,
+            )
+        if data:
+            kwargs['data'] = json.dumps(data)
+            kwargs['content_type'] = 'application/json'
+        if not (path.startswith('http://') or path.startswith('https://')):
+            path = self.api_root + path
+        return getattr(self.client, method.lower())(path, **kwargs)

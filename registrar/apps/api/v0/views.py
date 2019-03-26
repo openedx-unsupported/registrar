@@ -5,6 +5,7 @@ testing.
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.urls import reverse
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
@@ -20,8 +21,9 @@ from rest_framework.status import (
 )
 
 from registrar.apps.api.serializers import (
-    AcceptedJobSerializer,
     CourseRunSerializer,
+    JobAcceptanceSerializer,
+    JobStatusSerializer,
     ProgramSerializer,
     ProgramEnrollmentRequestSerializer,
     ProgramEnrollmentModificationRequestSerializer,
@@ -29,12 +31,13 @@ from registrar.apps.api.serializers import (
     CourseEnrollmentModificationRequestSerializer,
 )
 from registrar.apps.api.v0.data import (
+    invoke_fake_program_enrollment_listing_job,
     FAKE_ORG_DICT,
     FAKE_ORG_PROGRAMS,
     FAKE_PROGRAM_DICT,
     FAKE_PROGRAM_COURSE_RUNS,
-    FAKE_TASK_IDS_BY_PROGRAM,
-    FakeTask,
+    FakeJobAcceptance,
+    get_fake_job_status,
 )
 
 
@@ -212,7 +215,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
-    Path: /api/v1/programs/{program_key}/enrollments
+    Path: /api/v0/programs/{program_key}/enrollments
 
     Accepts: [POST, PATCH, GET]
 
@@ -232,7 +235,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
     Example Response:
     {
         "job_id": "fake-job-for-hhp-masters-ce",
-        "job_url": "http://localhost/api/v1/jobs/fake-job-for-hhp-masters-ce"
+        "job_url": "http://localhost/api/v0/jobs/fake-job-for-hhp-masters-ce"
     }
 
     ------------------------------------------------------------------------------------
@@ -270,20 +273,25 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
         if not self.program.managing_organization.enrollments_readable:
             raise PermissionDenied()
 
-        fake_task_id = FAKE_TASK_IDS_BY_PROGRAM[self.program.key]
+        fake_job_id = invoke_fake_program_enrollment_listing_job(
+            self.program.key, self.request.build_absolute_uri()
+        )
+        fake_job_url = self.request.build_absolute_uri(
+            reverse('api:v0:job-status', kwargs={'job_id': fake_job_id})
+        )
+        fake_job_acceptance = FakeJobAcceptance(fake_job_id, fake_job_url)
 
-        # TODO: EDUCATOR-4179 This should use reverse() of the job results view.
-        fake_task_url = 'http://foo/{}'.format(fake_task_id)
-        fake_task = FakeTask(fake_task_id, fake_task_url)
-
-        return Response(AcceptedJobSerializer(fake_task).data, HTTP_202_ACCEPTED)
+        return Response(
+            JobAcceptanceSerializer(fake_job_acceptance).data,
+            HTTP_202_ACCEPTED,
+        )
 
 
 class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, EchoStatusesMixin):
     """
     A view for enrolling students in a course.
 
-    Path: /api/v1/programs/{program_key}/courses/{course_id}/enrollments
+    Path: /api/v0/programs/{program_key}/courses/{course_id}/enrollments
 
     Accepts: [POST]
 
@@ -299,7 +307,6 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
      * 404: Program does not exist, or course does not exist in program
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
-
     """
 
     authentication_classes = (JwtAuthentication, SessionAuthentication)
@@ -318,3 +325,39 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
     def patch(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         self.course  # trigger 404  # pylint: disable=pointless-statement
         return self.validate_and_echo_statuses(request)
+
+
+class MockJobStatusRetrieveView(RetrieveAPIView):
+    """
+    A view for getting the status of a job.
+
+    Path: /api/v0/jobs/{job_id}
+
+    Accepts: [GET]
+
+    Returns:
+     * 200: Returns the status of the job
+     * 404: Invalid job ID
+
+    Example:
+    {
+        "original_url":
+            "http://localhost/api/v0/programs/dvi-mba/enrollments/",
+        "created": "2019-03-27T18:19:19.189272Z",
+        "state": "Succeeded",
+        "result":
+            "http://localhost/static/api/v0/program-enrollments/thirty.json"
+    }
+    """
+
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = JobStatusSerializer
+
+    def get_object(self):
+        job_id = self.kwargs.get('job_id')
+        job_status = get_fake_job_status(job_id, self.request.build_absolute_uri)
+        if job_status:
+            return job_status
+        else:
+            raise Http404
