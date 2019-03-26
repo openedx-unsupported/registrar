@@ -133,7 +133,7 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
             raise PermissionDenied()
 
 
-class MockProgramEnrollmentView(RetrieveAPIView, APIView, MockProgramSpecificViewMixin):
+class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
@@ -175,7 +175,6 @@ class MockProgramEnrollmentView(RetrieveAPIView, APIView, MockProgramSpecificVie
     """
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    serializer_class = ProgramEnrollmentRequestSerializer
 
     def post(self, request, *args, **kwargs):
         return self.validate_and_echo_statuses(request, ProgramEnrollmentRequestSerializer)
@@ -231,7 +230,7 @@ class MockProgramEnrollmentView(RetrieveAPIView, APIView, MockProgramSpecificVie
         else:
             return Response(response)
 
-    def retrieve(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves program enrollment data.
         """
