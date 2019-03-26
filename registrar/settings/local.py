@@ -57,13 +57,11 @@ BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'registrar-backend-service-secret'
 
 ENABLE_AUTO_AUTH = True
 
-# CELERY
-
-# All tasks are executed locally by blocking until return
-CELERY_TASK_ALWAYS_EAGER = True
-
 # LOGGING
 LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
+
+# CELERY
+CELERY_TASK_ALWAYS_EAGER = True
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

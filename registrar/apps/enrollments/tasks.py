@@ -3,14 +3,13 @@ This module contains the celery task definitions for the enrollment project.
 """
 from __future__ import absolute_import
 
-import logging
-
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from user_tasks.models import UserTaskArtifact
 from user_tasks.tasks import UserTask
 
 
-log = logging.getLogger(__name__)
+log = get_task_logger(__name__)
 
 
 @shared_task(bind=True)
