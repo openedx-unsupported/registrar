@@ -30,6 +30,27 @@ DATABASES = {
     }
 }
 
+########################### BEGIN CELERY ###################################
+
+# Celery Broker
+CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "")
+CELERY_BROKER_HOSTNAME = os.environ.get("CELERY_BROKER_HOSTNAME", "")
+CELERY_BROKER_VHOST = os.environ.get("CELERY_BROKER_VHOST", "")
+CELERY_BROKER_USER = os.environ.get("CELERY_BROKER_USER", "")
+CELERY_BROKER_PASSWORD = os.environ.get("CELERY_BROKER_PASSWORD", "")
+
+BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
+    CELERY_BROKER_TRANSPORT,
+    CELERY_BROKER_USER,
+    CELERY_BROKER_PASSWORD,
+    CELERY_BROKER_HOSTNAME,
+    CELERY_BROKER_VHOST
+)
+
+CELERY_TASK_ALWAYS_EAGER = False
+
+########################### END CELERY ###################################
+
 STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'django.contrib.staticfiles.storage.StaticFilesStorage')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
