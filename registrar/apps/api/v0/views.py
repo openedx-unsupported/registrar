@@ -26,6 +26,7 @@ from registrar.apps.api.serializers import (
     ProgramEnrollmentRequestSerializer,
     ProgramEnrollmentModificationRequestSerializer,
     CourseEnrollmentRequestSerializer,
+    CourseEnrollmentModificationRequestSerializer,
 )
 from registrar.apps.api.v0.data import (
     FAKE_ORG_DICT,
@@ -153,7 +154,10 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
 
 
 class EchoStatusesMixin(object):
-    """ Provides the validate_and_echo_statuses function """
+    """
+    Provides the validate_and_echo_statuses function
+    Classes that inherit from EchoStatusesMixin must implement get_serializer_class
+    """
 
     def validate_and_echo_statuses(self, request):
         """ Enroll up to 25 students in program/course """
@@ -304,7 +308,13 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CourseEnrollmentRequestSerializer
+        elif self.request.method == 'PATCH':
+            return CourseEnrollmentModificationRequestSerializer
 
     def post(self, request, *args, **kwargs):
+        self.course  # trigger 404  # pylint: disable=pointless-statement
+        return self.validate_and_echo_statuses(request)
+
+    def patch(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         self.course  # trigger 404  # pylint: disable=pointless-statement
         return self.validate_and_echo_statuses(request)
