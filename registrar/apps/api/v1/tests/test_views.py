@@ -9,7 +9,7 @@ import responses
 from django.conf import settings
 from rest_framework.test import APITestCase
 
-from registrar.apps.api.tests.mixins import JwtMixin
+from registrar.apps.api.tests.mixins import RequestMixin
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
@@ -35,10 +35,10 @@ def mock_oauth_login(fn):
     return inner
 
 
-class RegistrarAPITestCase(APITestCase, JwtMixin):
+class RegistrarAPITestCase(APITestCase, RequestMixin):
     """ Base for tests of the Registrar API """
 
-    API_ROOT = '/api/v1/'
+    api_root = '/api/v1/'
 
     def setUp(self):
         super(RegistrarAPITestCase, self).setUp()
@@ -79,13 +79,6 @@ class RegistrarAPITestCase(APITestCase, JwtMixin):
             role=perms.OrganizationReadMetadataRole.name
         )
         self.hum_admin.groups.add(self.hum_admin_group)
-
-    def get(self, path, user):
-        return self.client.get(
-            self.API_ROOT + path,
-            follow=True,
-            HTTP_AUTHORIZATION=self.generate_jwt_header(user, admin=user.is_staff)
-        )
 
     def mock_api_response(self, url, response_data):
         responses.add(

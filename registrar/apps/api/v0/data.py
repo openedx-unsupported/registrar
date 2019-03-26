@@ -3,6 +3,12 @@ Fake data for the mock API.
 """
 
 from collections import namedtuple
+from datetime import datetime
+import random
+import uuid
+
+from django.core.cache import cache
+from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.utils import name_to_key
 
@@ -28,9 +34,25 @@ FakeCourseRun = namedtuple('FakeCourseRun', [
     'marketing_url',
 ])
 
-FakeTask = namedtuple('FakeTask', [
+FakeJobAcceptance = namedtuple('FakeJobAcceptance', [
     'job_id',
-    'job_url'
+    'job_url',
+])
+
+# Info about the invokation of job. Stored in the cache.
+_FakeJobInfo = namedtuple('_FakeJobInfo', [
+    'original_url',
+    'created',
+    'duration_seconds',
+    'result_filename',  # None indicates task should fail after duration_seconds
+])
+
+FakeJobStatus = namedtuple('FakeJobStatus', [
+    'job_id',
+    'original_url',
+    'created',
+    'state',
+    'result',
 ])
 
 
@@ -160,12 +182,96 @@ FAKE_PROGRAM_COURSE_RUNS = {
 }
 
 
-def _fake_job_id(index):
-    return 'aaaaaaaa-bbbb-cccc-dddd-{}'.format(str(index).zfill(12))
+_FAKE_JOB_CACHE_PREFIX = 'api-v0-job:'
+_FAKE_JOB_CACHE_LIFETIME = 60 * 60 * 24  # Clean up jobs after one day
 
 
-FAKE_TASK_IDS_BY_PROGRAM = {
-    program.key: _fake_job_id(index)
-    for index, program in enumerate(FAKE_PROGRAMS)
-    if program.managing_organization.enrollments_readable
+# Dictionary mapping fake program keys to their fake enrollment listing filenames.
+# None indicates that the job should fail and not have a result.
+_FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM = {
+    'dvi-masters-polysci': 'polysci.json',
+    'dvi-mba': 'mba.json',
+    'hhp-masters-ce': 'ce.json',
+    'hhp-masters-theo-physics': 'physics.json',
+    'hhp-masters-enviro': None,
 }
+
+
+def invoke_fake_program_enrollment_listing_job(
+        program_key,
+        original_url,
+        min_duration=5,
+        max_duration=5
+):
+    """
+    Create fake enrollment listing job for program with the given key.
+
+    Info about the "invocation" of the job gets added to the cache,
+    retrievable by ``get_fake_job_status``. After a random number of seconds
+    between ``min_duration`` and ``max_duration``, ``get_fake_job_status``
+    will return the job as Succeeded (with a result URL) or Failed.
+
+    Arguments:
+        program_key (str)
+        original_url (str): original URL of the request
+        min_duration (int): inclusive lower bound for number of seconds job
+            should appear as 'In Progress'
+        max_duration (int): inclusive upper bound for number of seconds job
+            should appear as 'In Progress'
+
+    Returns: str
+        UUID of the created job
+    """
+    job_id = str(uuid.uuid4())
+    created = datetime.now()
+    duration_seconds = random.randrange(min_duration, max_duration + 1)
+    result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM[program_key]
+    job_info = _FakeJobInfo(
+        original_url, created, duration_seconds, result_filename,
+    )
+    cache_key = _FAKE_JOB_CACHE_PREFIX + job_id
+    cache.set(cache_key, job_info, _FAKE_JOB_CACHE_LIFETIME)
+    return job_id
+
+
+def get_fake_job_status(job_id, to_absolute_uri):
+    """
+    Get status of fake job.
+
+    We try to load the job, returning None if it does not exist.
+    If it does, we construct a FakeJobStatus to return.
+
+    If the job's duration has elapsed since its creation, then the
+    state of the job will be Failed or Succeeded. Otherwise, it will be
+    In Progress.
+
+    Arguments:
+        job_id (str): UUID of job
+        to_absolute_uri (str -> str): function that converts a path to a
+            complete URL. We must take this as an argument because there is
+            no such library function available outside the context of a Request.
+
+    Returns: FakeJobStatus|NoneType
+    """
+    cache_key = _FAKE_JOB_CACHE_PREFIX + job_id
+    job_info = cache.get(cache_key)
+    if not job_info:
+        return None
+
+    result = None
+
+    elapsed = datetime.now() - job_info.created
+    if elapsed.seconds < job_info.duration_seconds:
+        state = UserTaskStatus.IN_PROGRESS
+    elif not job_info.result_filename:
+        state = UserTaskStatus.FAILED
+    else:
+        state = UserTaskStatus.SUCCEEDED
+        path = '/static/api/v0/program-enrollments/{}'.format(
+            job_info.result_filename
+        )
+        result = to_absolute_uri(path)
+
+    return FakeJobStatus(
+        job_id, job_info.original_url, job_info.created, state, result,
+    )

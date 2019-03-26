@@ -1,0 +1,52 @@
+[
+    {
+        "student_key": "5825056846",
+        "email": "kwilliams@holmeshaven.edu",
+        "status": "suspended"
+    },
+    {
+        "student_key": "0157882591",
+        "email": "gyang@holmeshaven.edu",
+        "status": "suspended"
+    },
+    {
+        "student_key": "4981369517",
+        "email": "bhoover@holmeshaven.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "9731443455",
+        "email": "swhite@holmeshaven.edu",
+        "status": "enrolled-waiting"
+    },
+    {
+        "student_key": "9462955995",
+        "email": "jholder@holmeshaven.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "6901003198",
+        "email": "agrimes@holmeshaven.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "2056595515",
+        "email": "ssimpson@holmeshaven.edu",
+        "status": "enrolled"
+    },
+    {
+        "student_key": "1719318529",
+        "email": "mmorgan@holmeshaven.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "6497543108",
+        "email": "jmcconnell@holmeshaven.edu",
+        "status": "enrolled"
+    },
+    {
+        "student_key": "5691722399",
+        "email": "mpeterson@holmeshaven.edu",
+        "status": "pending-waiting"
+    }
+]

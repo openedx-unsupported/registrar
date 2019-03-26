@@ -13,7 +13,7 @@ LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', 'en')
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': os.environ.get('CACHE_LOCATION', 'memcached:12211'),
+        'LOCATION': os.environ.get('CACHE_LOCATION', 'memcached:11211'),
     }
 }
 

@@ -1,75 +1,28 @@
 """ Tests for the v0 API views. """
 
-import json
 import uuid
+
 import ddt
+import mock
 from rest_framework.test import APITestCase
 
-from registrar.apps.api.tests.mixins import JwtMixin
+from registrar.apps.api.tests.mixins import RequestMixin
+from registrar.apps.api.v0.data import invoke_fake_program_enrollment_listing_job
 from registrar.apps.core.tests.factories import UserFactory
 
 
-class MockAPITestBase(APITestCase, JwtMixin):
-    """ Base class for tests for the v0 API. """
-    API_ROOT = '/api/v0/'
+class MockAPITestMixin(RequestMixin):
+    """ Base mixin for tests for the v0 API. """
+    api_root = '/api/v0/'
     path_suffix = None  # Define me in subclasses
 
     @property
     def path(self):
-        return self.API_ROOT + self.path_suffix
+        return self.api_root + self.path_suffix
 
     def setUp(self):
         super().setUp()
         self.user = UserFactory()
-
-    def get(self, path, user):
-        if user:
-            return self.client.get(
-                self.API_ROOT + path,
-                follow=True,
-                HTTP_AUTHORIZATION=self.generate_jwt_header(
-                    user, admin=user.is_staff,
-                )
-            )
-        else:
-            return self.client.get(self.API_ROOT + path, follow=True)
-
-    def post(self, path, data, user):
-        if user:
-            return self.client.post(
-                self.API_ROOT + path,
-                data=json.dumps(data),
-                follow=True,
-                content_type='application/json',
-                HTTP_AUTHORIZATION=self.generate_jwt_header(
-                    user, admin=user.is_staff,
-                )
-            )
-        else:
-            return self.client.post(
-                self.API_ROOT + path, data=json.dumps(data), follow=True, content_type='application/json',
-            )
-
-    def patch(self, path, data, user):
-        if user:
-            return self.client.patch(
-                self.API_ROOT + path,
-                data=json.dumps(data),
-                follow=True,
-                content_type='application/json',
-                HTTP_AUTHORIZATION=self.generate_jwt_header(
-                    user, admin=user.is_staff,
-                )
-            )
-        else:
-            return self.client.patch(
-                self.API_ROOT + path, data=json.dumps(data), follow=True, content_type='application/json',
-            )
-
-
-# pylint: disable=no-member
-class MockAPICommonTests(object):
-    """ Common tests for all v0 API test cases """
 
     def test_unauthenticated(self):
         response = self.get(self.path, None)
@@ -77,7 +30,7 @@ class MockAPICommonTests(object):
 
 
 @ddt.ddt
-class MockProgramListViewTests(MockAPITestBase, MockAPICommonTests):
+class MockProgramListViewTests(MockAPITestMixin, APITestCase):
     """ Tests for mock program listing """
 
     path_suffix = 'programs'
@@ -107,7 +60,7 @@ class MockProgramListViewTests(MockAPITestBase, MockAPICommonTests):
 
 
 @ddt.ddt
-class MockProgramRetrieveViewTests(MockAPITestBase, MockAPICommonTests):
+class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
     """ Tests for mock program retrieve """
 
     path_suffix = 'programs/'
@@ -134,7 +87,7 @@ class MockProgramRetrieveViewTests(MockAPITestBase, MockAPICommonTests):
 
 
 @ddt.ddt
-class MockCourseListViewTests(MockAPITestBase, MockAPICommonTests):
+class MockCourseListViewTests(MockAPITestMixin, APITestCase):
     """ Tests for mock course listing """
 
     path_suffix = 'programs/bcc-masters-english-lit/courses'  # for 401 test only
@@ -162,7 +115,7 @@ class MockCourseListViewTests(MockAPITestBase, MockAPICommonTests):
         self.assertEqual(len(response.data), num_courses)
 
 
-class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
+class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
     """ Test for mock program enrollment """
 
     def student_enrollment(self, email, status, student_key=None):
@@ -284,43 +237,8 @@ class MockProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
         self.assertEqual(response.status_code, 413)
 
 
-class MockProgramEnrollmentRetrievalTest(MockAPITestBase, MockAPICommonTests):
-    """
-    Tests for the mock retrieval of program enrollments data via fake async jobs.
-    """
-    READABLE_ENROLLMENT_PROGRAM_KEYS = [
-        'dvi-masters-polysci',
-        'dvi-mba',
-        'hhp-masters-ce',
-        'hhp-masters-theo-physics',
-        'hhp-masters-enviro',
-    ]
-    UNREADABLE_ENROLLMENT_PROGRAM_KEYS = [
-        'upz-masters-ancient-history',
-        'bcc-masters-english-lit',
-    ]
-
-    def test_unauthenticated(self):
-        response = self.get('programs/upz-masters-ancient-history/enrollments/', None)
-        self.assertEqual(401, response.status_code)
-
-    def test_program_unauthorized(self):
-        for program_key in self.UNREADABLE_ENROLLMENT_PROGRAM_KEYS:
-            response = self.get('programs/{}/enrollments/'.format(program_key), self.user)
-            self.assertEqual(403, response.status_code)
-
-    def test_program_not_found(self):
-        response = self.get('programs/not-a-program/enrollments/', self.user)
-        self.assertEqual(404, response.status_code, 404)
-
-    def test_program_retrieval_success(self):
-        for program_key in self.READABLE_ENROLLMENT_PROGRAM_KEYS:
-            response = self.get('programs/{}/enrollments/'.format(program_key), self.user)
-            self.assertEqual(202, response.status_code)
-
-
 @ddt.ddt
-class MockModifyProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
+class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     """ Tests for mock modify program enrollment """
 
     path_suffix = 'programs/hhp-masters-ce/enrollments/'
@@ -401,8 +319,79 @@ class MockModifyProgramEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
         self.assertIn('invalid enrollment record', response.data)
 
 
+def _mock_invoke_program_job(duration):
+    """
+    Return a wrapper around ``invoke_fake_program_enrollment_listing_job`` that
+    ignores supplied ``min_duration`` and ``max_duration`` and replaces them
+    both with the ``duration`` argument to this function.
+    """
+    def inner(program_key, original_url, min_duration=5, max_duration=5):  # pylint: disable=unused-argument
+        return invoke_fake_program_enrollment_listing_job(
+            program_key, original_url, duration, duration,
+        )
+    return inner
+
+
 @ddt.ddt
-class MockCourseEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
+class MockProgramEnrollmentGetTests(MockAPITestMixin, APITestCase):
+    """
+    Tests for the mock retrieval of program enrollments data via fake async jobs.
+    """
+    def test_unauthenticated(self):
+        response = self.get('programs/upz-masters-ancient-history/enrollments/', None)
+        self.assertEqual(401, response.status_code)
+
+    def _get_enrollments(self, program_key):
+        return self.get('programs/{}/enrollments/'.format(program_key), self.user)
+
+    @ddt.data(
+        'upz-masters-ancient-history',
+        'bcc-masters-english-lit',
+    )
+    def test_program_unauthorized(self, program_key):
+        response = self._get_enrollments(program_key)
+        self.assertEqual(403, response.status_code)
+
+    def test_program_not_found(self):
+        response = self._get_enrollments('not-a-program')
+        self.assertEqual(404, response.status_code)
+
+    @ddt.data(
+        ('dvi-masters-polysci', 10, 'In Progress', None),
+        ('dvi-masters-polysci', 0, 'Succeeded', 'polysci.json'),
+        ('dvi-mba', 0, 'Succeeded', 'mba.json'),
+        ('hhp-masters-ce', 0, 'Succeeded', 'ce.json'),
+        ('hhp-masters-theo-physics', 0, 'Succeeded', 'physics.json'),
+        ('hhp-masters-theo-physics', 10, 'In Progress', None),
+        ('hhp-masters-enviro', 0, 'Failed', None),
+    )
+    @ddt.unpack
+    def test_program_get_202(self, program_key, job_duration, job_state, result_fname):
+        with mock.patch(
+                'registrar.apps.api.v0.views.invoke_fake_program_enrollment_listing_job',
+                new=_mock_invoke_program_job(job_duration),
+        ):
+            response = self._get_enrollments(program_key)
+            self.assertEqual(202, response.status_code)
+
+        job_response = self.get(response.data['job_url'], self.user)
+        self.assertEqual(200, job_response.status_code)
+        job_data = job_response.data
+        original_url = job_data['original_url']
+        expected_path = '{}programs/{}/enrollments'.format(self.api_root, program_key)
+        self.assertIn(expected_path, original_url)
+        self.assertIn('created', job_data)
+        self.assertEqual(job_data['state'], job_state)
+
+        RESULTS_ROOT = '/static/api/v0/program-enrollments/'
+        if result_fname:
+            self.assertIn(result_fname, RESULTS_ROOT + job_data['result'])
+        else:
+            self.assertEqual(job_data['result'], None)
+
+
+@ddt.ddt
+class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
     """ Tests for mock course enrollment """
 
     path_suffix = 'programs/hhp-masters-ce/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
@@ -490,7 +479,7 @@ class MockCourseEnrollmentViewTests(MockAPITestBase, MockAPICommonTests):
 
 
 @ddt.ddt
-class MockCourseEnrollmentModificationViewTests(MockAPITestBase, MockAPICommonTests):
+class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     """ Tests for mock modify course enrollment """
 
     path_suffix = 'programs/hhp-masters-ce/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
