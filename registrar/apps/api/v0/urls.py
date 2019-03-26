@@ -3,7 +3,7 @@
 from django.conf.urls import url
 
 from registrar.apps.api.v0 import views
-from registrar.apps.core.constants import PROGRAM_KEY_PATTERN
+from registrar.apps.core.constants import PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN
 
 
 app_name = 'v0'
@@ -29,4 +29,9 @@ urlpatterns = [
         views.MockProgramEnrollmentView.as_view(),
         name="program-enrollment",
     ),
+    url(
+        r'programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
+        views.MockCourseEnrollmentView.as_view(),
+        name="program-enrollment",
+    )
 ]

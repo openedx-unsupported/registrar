@@ -25,6 +25,7 @@ from registrar.apps.api.serializers import (
     ProgramSerializer,
     ProgramEnrollmentRequestSerializer,
     ProgramEnrollmentModificationRequestSerializer,
+    CourseEnrollmentRequestSerializer,
 )
 from registrar.apps.api.v0.data import (
     FAKE_ORG_DICT,
@@ -85,6 +86,24 @@ class MockProgramSpecificViewMixin(object):
         return FAKE_PROGRAM_DICT[program_key]
 
 
+class MockProgramCourseSpecificViewMixin(MockProgramSpecificViewMixin):
+    """
+    A mixin for views that operate on or within a specific course in a program
+    """
+
+    @property
+    def course(self):
+        """
+        The course specified by the `course_id` URL parameter.
+        """
+        course_id = self.kwargs['course_id']
+        program_course_runs = FAKE_PROGRAM_COURSE_RUNS[self.program.key]
+        course = next(filter(lambda run: run.key == course_id, program_course_runs), None)
+        if course is None:
+            raise Http404()
+        return course
+
+
 class MockProgramRetrieveView(MockProgramSpecificViewMixin, RetrieveAPIView):
     """
     A view for retrieving a single program object.
@@ -133,7 +152,59 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
             raise PermissionDenied()
 
 
-class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin):
+class EchoStatusesMixin(object):
+    """ Provides the validate_and_echo_statuses function """
+
+    def validate_and_echo_statuses(self, request):
+        """ Enroll up to 25 students in program/course """
+        if not self.program.managing_organization.enrollments_writeable:
+            raise PermissionDenied()
+
+        if not isinstance(request.data, list):
+            raise ValidationError()
+
+        if len(request.data) > 25:
+            return Response(
+                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
+            )
+
+        results = {}
+        enrolled_students = set()
+
+        for enrollee in request.data:
+            enrollee_serializer = self.get_serializer_class()(data=enrollee)
+            if enrollee_serializer.is_valid():
+                enrollee = enrollee_serializer.data
+                student_id = enrollee["student_key"]
+                if student_id in enrolled_students:
+                    results[student_id] = 'duplicated'
+                else:
+                    results[student_id] = enrollee['status']
+                    enrolled_students.add(student_id)
+            else:
+                try:
+                    if 'status' in enrollee_serializer.errors and \
+                            enrollee_serializer.errors['status'][0].code == 'invalid_choice':
+                        results[enrollee["student_key"]] = 'invalid-status'
+                    else:
+                        return Response(
+                            'invalid enrollment record',
+                            HTTP_422_UNPROCESSABLE_ENTITY
+                        )
+                except KeyError:
+                    return Response(
+                        'student key required', HTTP_422_UNPROCESSABLE_ENTITY
+                    )
+
+        if not enrolled_students:
+            return Response(results, HTTP_422_UNPROCESSABLE_ENTITY)
+        if len(request.data) != len(enrolled_students):
+            return Response(results, HTTP_207_MULTI_STATUS)
+        else:
+            return Response(results)
+
+
+class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatusesMixin):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
@@ -176,59 +247,17 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProgramEnrollmentRequestSerializer
+        elif self.request.method == 'PATCH':
+            return ProgramEnrollmentModificationRequestSerializer
+
     def post(self, request, *args, **kwargs):
-        return self.validate_and_echo_statuses(request, ProgramEnrollmentRequestSerializer)
+        return self.validate_and_echo_statuses(request)
 
     def patch(self, request, *args, **kwargs):  # pylint: disable=unused-argument
-        return self.validate_and_echo_statuses(request, ProgramEnrollmentModificationRequestSerializer)
-
-    def validate_and_echo_statuses(self, request, serializer):
-        """ Enroll up to 25 students in program """
-        if not self.program.managing_organization.enrollments_writeable:
-            raise PermissionDenied()
-
-        if not isinstance(request.data, list):
-            raise ValidationError()
-
-        if len(request.data) > 25:
-            return Response(
-                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
-            )
-
-        response = {}
-        enrolled_students = set()
-
-        for enrollee in request.data:
-            enrollee_serializer = serializer(data=enrollee)
-            if enrollee_serializer.is_valid():
-                enrollee = enrollee_serializer.data
-                student_id = enrollee["student_key"]
-                if student_id in enrolled_students:
-                    response[student_id] = 'duplicated'
-                else:
-                    response[student_id] = enrollee['status']
-                    enrolled_students.add(student_id)
-            else:
-                try:
-                    if 'status' in enrollee_serializer.errors and \
-                            enrollee_serializer.errors['status'][0].code == 'invalid_choice':
-                        response[enrollee["student_key"]] = 'invalid-status'
-                    else:
-                        return Response(
-                            'invalid enrollment record',
-                            HTTP_422_UNPROCESSABLE_ENTITY
-                        )
-                except KeyError:
-                    return Response(
-                        'student key required', HTTP_422_UNPROCESSABLE_ENTITY
-                    )
-
-        if not enrolled_students:
-            return Response(response, HTTP_422_UNPROCESSABLE_ENTITY)
-        if len(request.data) != len(enrolled_students):
-            return Response(response, HTTP_207_MULTI_STATUS)
-        else:
-            return Response(response)
+        return self.validate_and_echo_statuses(request)
 
     def get(self, request, *args, **kwargs):
         """
@@ -244,3 +273,38 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin):
         fake_task = FakeTask(fake_task_id, fake_task_url)
 
         return Response(AcceptedJobSerializer(fake_task).data, HTTP_202_ACCEPTED)
+
+
+class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, EchoStatusesMixin):
+    """
+    A view for enrolling students in a course.
+
+    Path: /api/v1/programs/{program_key}/courses/{course_id}/enrollments
+
+    Accepts: [POST]
+
+    ------------------------------------------------------------------------------------
+    POST / PATCH
+    ------------------------------------------------------------------------------------
+
+    Returns:
+     * 200: Returns a map of students and their enrollment status.
+     * 207: Not all students enrolled. Returns resulting enrollment status.
+     * 401: User is not authenticated
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist, or course does not exist in program
+     * 413: Payload too large, over 25 students supplied.
+     * 422: Invalid request, unable to enroll students.
+
+    """
+
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CourseEnrollmentRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        self.course  # trigger 404  # pylint: disable=pointless-statement
+        return self.validate_and_echo_statuses(request)
