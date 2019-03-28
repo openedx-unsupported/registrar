@@ -1,0 +1,52 @@
+[
+    {
+        "student_key": "0313297057",
+        "email": "snunez@donnaview.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "4726366367",
+        "email": "kjackson@donnaview.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "9879851914",
+        "email": "tday@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "4879984984",
+        "email": "jescobar@donnaview.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "3806588540",
+        "email": "droy@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "1651412408",
+        "email": "jcampbell@donnaview.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "0953818163",
+        "email": "tsimpson@donnaview.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "5796621693",
+        "email": "kmccarthy@donnaview.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "0714113287",
+        "email": "ahaas@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "4978377149",
+        "email": "aschmidt@donnaview.edu",
+        "status": "withdrawn"
+    }
+]

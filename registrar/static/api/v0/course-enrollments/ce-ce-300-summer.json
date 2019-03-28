@@ -1,0 +1,22 @@
+[
+    {
+        "student_key": "5825056846",
+        "email": "kwilliams@holmeshaven.edu",
+        "status": "enrolled"
+    },
+    {
+        "student_key": "0157882591",
+        "email": "gyang@holmeshaven.edu",
+        "status": "enrolled"
+    },
+    {
+        "student_key": "6901003198",
+        "email": "agrimes@holmeshaven.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "9731443455",
+        "email": "swhite@holmeshaven.edu",
+        "status": "enrolled-waiting"
+    }
+]

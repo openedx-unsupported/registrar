@@ -44,7 +44,7 @@ _FakeJobInfo = namedtuple('_FakeJobInfo', [
     'original_url',
     'created',
     'duration_seconds',
-    'result_filename',  # None indicates task should fail after duration_seconds
+    'result_filepath',  # None indicates task should fail after duration_seconds
 ])
 
 FakeJobStatus = namedtuple('FakeJobStatus', [
@@ -205,6 +205,62 @@ def invoke_fake_program_enrollment_listing_job(
 ):
     """
     Create fake enrollment listing job for program with the given key.
+    """
+    result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM[program_key]
+    if result_filename:
+        result_filepath = '/static/api/v0/program-enrollments/{}'.format(result_filename)
+    else:
+        result_filepath = None
+    return _invoke_fake_job(result_filepath, original_url, min_duration, max_duration)
+
+
+_FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE = {
+    'dvi-masters-polysci': {
+        'course-v1:DVIx+COMM-101+Spring2050': 'polysci-comm-101.json',
+        'course-v1:DVIx+GOV-200+Spring2050': 'polysci-gov-200.json',
+        'course-v1:DVIx+GOV-201+Spring2050': 'polysci-gov-201.json',
+        'course-v1:DVIx+GOV-202+Spring2050': 'polysci-gov-202.json',
+    },
+    'dvi-mba': {
+        'course-v1:DVIx+COMM-101+Spring2050': 'mba-comm-101.json',
+        'course-v1:DVIx+BIZ-200+Spring2050': 'mba-biz-200.json',
+    },
+    'hhp-masters-ce': {
+        'course-v1:HHPx+MA-101+Spring2050': 'ce-ma-101.json',
+        'course-v1:HHPx+MA-102+Fall2050': 'ce-ma-102.json',
+        'course-v1:HHPx+CE-300+Spring2050': 'ce-ce-300-spring.json',
+        'course-v1:HHPx+CE-300+Summer2050': 'ce-ce-300-summer.json',
+    },
+    'hhp-masters-theo-physics': {
+        'course-v1:HHPx+MA-101+Spring2050': 'physics-ma-101.json',
+        'course-v1:HHPx+MA-102+Fall2050': 'physics-ma-102.json',
+        'course-v1:HHPx+PHYS-260+Spring2050': None,
+    },
+}
+
+
+def invoke_fake_course_enrollment_listing_job(
+        program_key,
+        course_key,
+        original_url,
+        min_duration=5,
+        max_duration=5
+):
+    """
+    Create fake enrollment listing job for course with the given key within
+    the program with the given key.
+    """
+    result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE[program_key][course_key]
+    if result_filename:
+        result_filepath = '/static/api/v0/course-enrollments/{}'.format(result_filename)
+    else:
+        result_filepath = None
+    return _invoke_fake_job(result_filepath, original_url, min_duration, max_duration)
+
+
+def _invoke_fake_job(result_filepath, original_url, min_duration, max_duration):
+    """
+    Create fake job that produces ``result_filepath``.
 
     Info about the "invocation" of the job gets added to the cache,
     retrievable by ``get_fake_job_status``. After a random number of seconds
@@ -212,7 +268,7 @@ def invoke_fake_program_enrollment_listing_job(
     will return the job as Succeeded (with a result URL) or Failed.
 
     Arguments:
-        program_key (str)
+        result_filepath (str)
         original_url (str): original URL of the request
         min_duration (int): inclusive lower bound for number of seconds job
             should appear as 'In Progress'
@@ -225,9 +281,8 @@ def invoke_fake_program_enrollment_listing_job(
     job_id = str(uuid.uuid4())
     created = datetime.now()
     duration_seconds = random.randrange(min_duration, max_duration + 1)
-    result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM[program_key]
     job_info = _FakeJobInfo(
-        original_url, created, duration_seconds, result_filename,
+        original_url, created, duration_seconds, result_filepath,
     )
     cache_key = _FAKE_JOB_CACHE_PREFIX + job_id
     cache.set(cache_key, job_info, _FAKE_JOB_CACHE_LIFETIME)
@@ -263,13 +318,11 @@ def get_fake_job_status(job_id, to_absolute_uri):
     elapsed = datetime.now() - job_info.created
     if elapsed.seconds < job_info.duration_seconds:
         state = UserTaskStatus.IN_PROGRESS
-    elif not job_info.result_filename:
+    elif not job_info.result_filepath:
         state = UserTaskStatus.FAILED
     else:
         state = UserTaskStatus.SUCCEEDED
-        path = '/static/api/v0/program-enrollments/{}'.format(
-            job_info.result_filename
-        )
+        path = job_info.result_filepath
         result = to_absolute_uri(path)
 
     return FakeJobStatus(

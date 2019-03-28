@@ -31,6 +31,7 @@ from registrar.apps.api.serializers import (
     CourseEnrollmentModificationRequestSerializer,
 )
 from registrar.apps.api.v0.data import (
+    invoke_fake_course_enrollment_listing_job,
     invoke_fake_program_enrollment_listing_job,
     FAKE_ORG_DICT,
     FAKE_ORG_PROGRAMS,
@@ -325,6 +326,26 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
     def patch(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         self.course  # trigger 404  # pylint: disable=pointless-statement
         return self.validate_and_echo_statuses(request)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves course enrollment data.
+        """
+        if not self.program.managing_organization.enrollments_readable:
+            raise PermissionDenied()
+
+        fake_job_id = invoke_fake_course_enrollment_listing_job(
+            self.program.key, self.course.key, self.request.build_absolute_uri()
+        )
+        fake_job_url = self.request.build_absolute_uri(
+            reverse('api:v0:job-status', kwargs={'job_id': fake_job_id})
+        )
+        fake_job_acceptance = FakeJobAcceptance(fake_job_id, fake_job_url)
+
+        return Response(
+            JobAcceptanceSerializer(fake_job_acceptance).data,
+            HTTP_202_ACCEPTED,
+        )
 
 
 class MockJobStatusRetrieveView(RetrieveAPIView):

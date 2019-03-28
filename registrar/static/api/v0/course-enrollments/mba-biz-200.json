@@ -1,0 +1,77 @@
+[
+    {
+        "student_key": "4950949520",
+        "email": "rlawrence@donnaview.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "9073595764",
+        "email": "kbennett@donnaview.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "0600707115",
+        "email": "mlewis@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "2488377080",
+        "email": "jburnett@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "4516182666",
+        "email": "smartinez@donnaview.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "8516967230",
+        "email": "dmendoza@donnaview.edu",
+        "status": "enrolled-waiting"
+    },
+    {
+        "student_key": "4008172516",
+        "email": "tmcguire@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "7723920978",
+        "email": "ksmith@donnaview.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "6110875257",
+        "email": "tyoung@donnaview.edu",
+        "status": "pending"
+    },
+    {
+        "student_key": "1369363212",
+        "email": "pbuck@donnaview.edu",
+        "status": "pending-waiting"
+    },
+    {
+        "student_key": "9178239307",
+        "email": "cwilliams@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "8791511982",
+        "email": "yallen@donnaview.edu",
+        "status": "enrolled-waiting"
+    },
+    {
+        "student_key": "9360931307",
+        "email": "klin@donnaview.edu",
+        "status": "enrolled"
+    },
+    {
+        "student_key": "1758249378",
+        "email": "ajennings@donnaview.edu",
+        "status": "withdrawn"
+    },
+    {
+        "student_key": "5640059480",
+        "email": "cmartinez@donnaview.edu",
+        "status": "withdrawn"
+    }
+]
