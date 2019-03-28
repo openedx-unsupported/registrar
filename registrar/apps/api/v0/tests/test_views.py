@@ -7,7 +7,10 @@ import mock
 from rest_framework.test import APITestCase
 
 from registrar.apps.api.tests.mixins import RequestMixin
-from registrar.apps.api.v0.data import invoke_fake_program_enrollment_listing_job
+from registrar.apps.api.v0.data import (
+    invoke_fake_course_enrollment_listing_job,
+    invoke_fake_program_enrollment_listing_job,
+)
 from registrar.apps.core.tests.factories import UserFactory
 
 
@@ -27,6 +30,30 @@ class MockAPITestMixin(RequestMixin):
     def test_unauthenticated(self):
         response = self.get(self.path, None)
         self.assertEqual(response.status_code, 401)
+
+
+class MockJobTestMixin(object):
+    """ Mixin for testing the results of a job """
+
+    def assert_job_result(self, job_url, original_url, expected_state, expected_path):
+        """
+        Gets the job at ``job_url``. Asserts:
+         * Response is 200
+         * Provided ``original_url`` matches job's
+         * Job dict has 'created' key
+         * Provided ``expected_state`` matches job's
+         * Provided ``expected_path`` is substring of job's result
+        """
+        job_response = self.get(job_url, self.user)
+        self.assertEqual(200, job_response.status_code)
+        job_data = job_response.data
+        self.assertIn(original_url, job_data['original_url'])
+        self.assertIn('created', job_data)
+        self.assertEqual(job_data['state'], expected_state)
+        if expected_path:
+            self.assertIn(expected_path, job_data['result'])
+        else:
+            self.assertIsNone(job_data['result'])
 
 
 @ddt.ddt
@@ -333,7 +360,7 @@ def _mock_invoke_program_job(duration):
 
 
 @ddt.ddt
-class MockProgramEnrollmentGetTests(MockAPITestMixin, APITestCase):
+class MockProgramEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCase):
     """
     Tests for the mock retrieval of program enrollments data via fake async jobs.
     """
@@ -362,32 +389,26 @@ class MockProgramEnrollmentGetTests(MockAPITestMixin, APITestCase):
         ('dvi-mba', 0, 'Succeeded', 'mba.json'),
         ('hhp-masters-ce', 0, 'Succeeded', 'ce.json'),
         ('hhp-masters-theo-physics', 0, 'Succeeded', 'physics.json'),
-        ('hhp-masters-theo-physics', 10, 'In Progress', None),
+        ('hhp-masters-enviro', 10, 'In Progress', None),
         ('hhp-masters-enviro', 0, 'Failed', None),
     )
     @ddt.unpack
-    def test_program_get_202(self, program_key, job_duration, job_state, result_fname):
+    def test_program_get_202(self, program_key, job_duration, expected_state, expected_fname):
         with mock.patch(
                 'registrar.apps.api.v0.views.invoke_fake_program_enrollment_listing_job',
                 new=_mock_invoke_program_job(job_duration),
         ):
             response = self._get_enrollments(program_key)
-            self.assertEqual(202, response.status_code)
 
-        job_response = self.get(response.data['job_url'], self.user)
-        self.assertEqual(200, job_response.status_code)
-        job_data = job_response.data
-        original_url = job_data['original_url']
-        expected_path = '{}programs/{}/enrollments'.format(self.api_root, program_key)
-        self.assertIn(expected_path, original_url)
-        self.assertIn('created', job_data)
-        self.assertEqual(job_data['state'], job_state)
-
+        self.assertEqual(202, response.status_code)
+        original_url = '{}programs/{}/enrollments'.format(
+            self.api_root, program_key,
+        )
         RESULTS_ROOT = '/static/api/v0/program-enrollments/'
-        if result_fname:
-            self.assertIn(result_fname, RESULTS_ROOT + job_data['result'])
-        else:
-            self.assertEqual(job_data['result'], None)
+        expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
+        self.assert_job_result(
+            response.data['job_url'], original_url, expected_state, expected_path,
+        )
 
 
 @ddt.ddt
@@ -566,3 +587,177 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
+
+
+def _mock_invoke_course_job(duration):
+    """
+    Return a wrapper around ``invoke_fake_course_enrollment_listing_job`` that
+    ignores supplied ``min_duration`` and ``max_duration`` and replaces them
+    both with the ``duration`` argument to this function.
+    """
+    def inner(program_key, course_key, original_url, min_duration=5, max_duration=5):  # pylint: disable=unused-argument
+        return invoke_fake_course_enrollment_listing_job(
+            program_key, course_key, original_url, duration, duration,
+        )
+    return inner
+
+
+@ddt.ddt
+class MockCourseEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCase):
+    """
+    Tests for the mock retrieval of program enrollments data via fake async jobs.
+    """
+    def test_unauthenticated(self):
+        response = self.get('programs/dvi-mba/courses/DVIx+BIZ-200+Spring2050/enrollments', None)
+        self.assertEqual(401, response.status_code)
+
+    def _get_enrollments(self, program_key, course_key):
+        return self.get(
+            'programs/{}/courses/{}/enrollments'.format(program_key, course_key),
+            self.user,
+        )
+
+    @ddt.data(
+        ('upz-masters-ancient-history', 'UPZx+HIST-101+Spring2050'),
+        ('bcc-masters-english-lit', 'BCCx+EN-111+Spring2050'),
+    )
+    @ddt.unpack
+    def test_program_unauthorized(self, program_key, course_key):
+        response = self._get_enrollments(program_key, course_key)
+        self.assertEqual(403, response.status_code)
+
+    @ddt.data(
+        ('not-a-program', 'not-a-course'),
+        ('not-a-program', 'HHPx+MA-101+Spring2050'),
+        ('hhp-masters-ce', 'not-a-course'),
+        ('hhp-masters-ce', 'BCCx+EN-111+Spring2050'),  # real course, wrong program
+    )
+    @ddt.unpack
+    def test_course_not_found(self, program_key, course_key):
+        response = self._get_enrollments(program_key, course_key)
+        self.assertEqual(404, response.status_code)
+
+    @ddt.data(
+        (
+            'dvi-masters-polysci',
+            'course-v1:DVIx+COMM-101+Spring2050',
+            10,
+            'In Progress',
+            None,
+        ),
+        (
+            'dvi-masters-polysci',
+            'course-v1:DVIx+COMM-101+Spring2050',
+            0,
+            'Succeeded',
+            'polysci-comm-101.json',
+        ),
+        (
+            'dvi-masters-polysci',
+            'course-v1:DVIx+GOV-200+Spring2050',
+            0,
+            'Succeeded',
+            'polysci-gov-200.json',
+        ),
+        (
+            'dvi-masters-polysci',
+            'course-v1:DVIx+GOV-201+Spring2050',
+            0,
+            'Succeeded',
+            'polysci-gov-201.json',
+        ),
+        (
+            'dvi-masters-polysci',
+            'course-v1:DVIx+GOV-202+Spring2050',
+            0,
+            'Succeeded',
+            'polysci-gov-202.json',
+        ),
+        (
+            'dvi-mba',
+            'course-v1:DVIx+COMM-101+Spring2050',
+            0,
+            'Succeeded',
+            'mba-comm-101.json',
+        ),
+        (
+            'dvi-mba',
+            'course-v1:DVIx+BIZ-200+Spring2050',
+            0,
+            'Succeeded',
+            'mba-biz-200.json',
+        ),
+        (
+            'hhp-masters-ce',
+            'course-v1:HHPx+MA-101+Spring2050',
+            0,
+            'Succeeded',
+            'ce-ma-101.json',
+        ),
+        (
+            'hhp-masters-ce',
+            'course-v1:HHPx+MA-102+Fall2050',
+            0,
+            'Succeeded',
+            'ce-ma-102.json',
+        ),
+        (
+            'hhp-masters-ce',
+            'course-v1:HHPx+CE-300+Spring2050',
+            0,
+            'Succeeded',
+            'ce-ce-300-spring.json',
+        ),
+        (
+            'hhp-masters-ce',
+            'course-v1:HHPx+CE-300+Summer2050',
+            0,
+            'Succeeded',
+            'ce-ce-300-summer.json',
+        ),
+        (
+            'hhp-masters-theo-physics',
+            'course-v1:HHPx+MA-101+Spring2050',
+            0,
+            'Succeeded',
+            'physics-ma-101.json',
+        ),
+        (
+            'hhp-masters-theo-physics',
+            'course-v1:HHPx+MA-102+Fall2050',
+            0,
+            'Succeeded',
+            'physics-ma-102.json',
+        ),
+        (
+            'hhp-masters-theo-physics',
+            'course-v1:HHPx+PHYS-260+Spring2050',
+            10,
+            'In Progress',
+            None,
+        ),
+        (
+            'hhp-masters-theo-physics',
+            'course-v1:HHPx+PHYS-260+Spring2050',
+            0,
+            'Failed',
+            None,
+        ),
+    )
+    @ddt.unpack
+    def test_course_get_202(self, program_key, course_key, job_duration, expected_state, expected_fname):
+        with mock.patch(
+                'registrar.apps.api.v0.views.invoke_fake_course_enrollment_listing_job',
+                new=_mock_invoke_course_job(job_duration),
+        ):
+            response = self._get_enrollments(program_key, course_key)
+
+        self.assertEqual(202, response.status_code)
+        original_url = '{}programs/{}/courses/{}/enrollments'.format(
+            self.api_root, program_key, course_key,
+        )
+        RESULTS_ROOT = '/static/api/v0/course-enrollments/'
+        expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
+        self.assert_job_result(
+            response.data['job_url'], original_url, expected_state, expected_path,
+        )
