@@ -13,9 +13,15 @@ from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
 
 import registrar.apps.api.segment as segment
-from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
+from registrar.apps.api.serializers import (
+    CourseRunSerializer,
+    JobAcceptanceSerializer,
+    ProgramSerializer,
+)
+from registrar.apps.api.v1 import jobs
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.models import Organization
@@ -110,6 +116,7 @@ class ProgramListView(AuthMixin, ListAPIView):
 
     Returns:
      * 200: OK
+     * 401: User is not authenticated
      * 403: User lacks read access to specified organization.
      * 404: Organization does not exist.
     """
@@ -185,6 +192,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
 
     Returns:
      * 200: OK
+     * 401: User is not authenticated
      * 403: User lacks read access organization of specified program.
      * 404: Program does not exist.
     """
@@ -204,6 +212,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
 
     Returns:
      * 200: OK
+     * 401: User is not authenticated
      * 403: User lacks read access organization of specified program.
      * 404: Program does not exist.
     """
@@ -235,3 +244,51 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
             for course in curricula[0].get('courses') or []:
                 course_runs = course_runs + course.get('course_runs')
         return course_runs
+
+
+class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
+    """
+    A view for asynchronously retrieving program enrollments.
+
+    Path: /api/v1/programs/{program_key}/enrollments
+
+    Accepts: [GET]
+
+    ----------------------------------------------------------------------------
+    GET
+    ----------------------------------------------------------------------------
+
+    Invokes a Django User Task that retrieves student enrollment
+    data for a given program.
+
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+
+    Example Response:
+    {
+        "job_id": "fake-job-for-hhp-masters-ce",
+        "job_url": "http://localhost/api/v0/jobs/fake-job-for-hhp-masters-ce"
+    }
+    """
+    permission_required = perms.ORGANIZATION_READ_ENROLLMENTS
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return JobAcceptanceSerializer
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves program enrollment data.
+        """
+        original_url = self.request.build_absolute_uri()
+        job_id = jobs.invoke_program_enrollment_listing(
+            self.request.user, self.program.key, original_url,
+        )
+        job_url = self.request.build_absolute_uri(
+            reverse('api:v0:job-status', kwargs={'job_id': fake_job_id})
+        )
+        data = {'job_id': job_id, 'job_url': job_url}
+        return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)

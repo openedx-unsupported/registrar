@@ -214,15 +214,16 @@ class EchoStatusesMixin(object):
 
 class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatusesMixin):
     """
-    A view for enrolling students in a program, or retrieving/modifying program enrollment data.
+    A view for enrolling students in a program, or retrieving/modifying program
+    enrollment data.
 
     Path: /api/v0/programs/{program_key}/enrollments
 
     Accepts: [POST, PATCH, GET]
 
-    ------------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
     GET
-    ------------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
 
     Invokes a Django User Task that retrieves student enrollment
     data for a given program.
@@ -239,9 +240,9 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
         "job_url": "http://localhost/api/v0/jobs/fake-job-for-hhp-masters-ce"
     }
 
-    ------------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
     POST / PATCH
-    ------------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
 
     Returns:
      * 200: Returns a map of students and their enrollment status.
@@ -260,6 +261,8 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
             return ProgramEnrollmentRequestSerializer
         elif self.request.method == 'PATCH':
             return ProgramEnrollmentModificationRequestSerializer
+        elif self.request.method == 'GET':
+            return JobAcceptanceSerializer
 
     def post(self, request, *args, **kwargs):
         return self.validate_and_echo_statuses(request)
@@ -318,6 +321,8 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
             return CourseEnrollmentRequestSerializer
         elif self.request.method == 'PATCH':
             return CourseEnrollmentModificationRequestSerializer
+        elif self.request.method == 'GET':
+            return JobAcceptanceSerializer
 
     def post(self, request, *args, **kwargs):
         self.course  # trigger 404  # pylint: disable=pointless-statement
