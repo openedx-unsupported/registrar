@@ -1,5 +1,5 @@
 analytics-python<2.0
-celery
+celery<4.0
 django==1.11.20
 djangorestframework
 django-extensions
