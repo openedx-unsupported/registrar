@@ -1,7 +1,7 @@
 """
 This module contains the celery task definitions for the enrollment project.
 """
-from __future__ import absolute_import
+import time
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -27,3 +27,12 @@ def debug_user_task(self, user_id, text):  # pylint: disable=unused-argument
     A user task for debugging.  Creates user artifact containing given text.
     """
     UserTaskArtifact.objects.create(status=self.status, text=text)
+
+
+@shared_task(base=UserTask, bind=True)
+def list_program_enrollments(self, user_id, program_key, original_url):  # pylint: disable=unused-argument
+    """
+    A user task for debugging.  Creates user artifact containing given text.
+    """
+    time.sleep(5)
+    UserTaskArtifact.objects.create(status=self.status)

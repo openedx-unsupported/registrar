@@ -7,13 +7,17 @@ import logging
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.urls import resolve
+from django.urls import resolve, reverse
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.status import (
+    HTTP_202_ACCEPTED,
+)
 
 import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
@@ -21,11 +25,13 @@ from registrar.apps.api.serializers import (
     JobAcceptanceSerializer,
     ProgramSerializer,
 )
-from registrar.apps.api.v1 import jobs
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.models import Organization
-from registrar.apps.enrollments.data import get_discovery_program
+from registrar.apps.enrollments.data import (
+    get_discovery_program,
+    invoke_program_enrollment_listing,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -269,8 +275,8 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
 
     Example Response:
     {
-        "job_id": "fake-job-for-hhp-masters-ce",
-        "job_url": "http://localhost/api/v0/jobs/fake-job-for-hhp-masters-ce"
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
     }
     """
     permission_required = perms.ORGANIZATION_READ_ENROLLMENTS
@@ -284,11 +290,11 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         Submit a user task that retrieves program enrollment data.
         """
         original_url = self.request.build_absolute_uri()
-        job_id = jobs.invoke_program_enrollment_listing(
+        job_id = invoke_program_enrollment_listing(
             self.request.user, self.program.key, original_url,
         )
         job_url = self.request.build_absolute_uri(
-            reverse('api:v0:job-status', kwargs={'job_id': fake_job_id})
+            reverse('api:v0:job-status', kwargs={'job_id': job_id})
         )
         data = {'job_id': job_id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)

@@ -4,8 +4,10 @@ Module for syncing data with external services.
 from posixpath import join as urljoin
 
 from django.conf import settings
-
 from edx_rest_api_client import client as rest_client
+from user_tasks.models import UserTaskStatus
+
+from registrar.apps.enrollments.tasks import list_program_enrollments
 
 
 def get_client(host_base_url):
@@ -39,6 +41,17 @@ def get_lms_user_by_email(email, client=None):
     """
     url = urljoin(settings.LMS_BASE_URL, 'api/user/v1/accounts?email={}').format(email)
     return _get_request(url, client)
+
+
+def invoke_program_enrollment_listing(user, program_key, original_url):
+    """
+    TODO docstring
+    """
+    task_id = list_program_enrollments.delay(
+        user.id, program_key, original_url,
+    ).task_id
+    job_id = UserTaskStatus.objects.get(task_id=task_id).uuid
+    return job_id
 
 
 # pylint: disable=unused-argument

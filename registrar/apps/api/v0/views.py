@@ -236,8 +236,8 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
 
     Example Response:
     {
-        "job_id": "fake-job-for-hhp-masters-ce",
-        "job_url": "http://localhost/api/v0/jobs/fake-job-for-hhp-masters-ce"
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/v0/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
     }
 
     ----------------------------------------------------------------------------
