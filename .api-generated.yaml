@@ -1,0 +1,590 @@
+################################################################################
+# Please read before updating!                                                 #
+#   api.yaml -                                                                 #
+#       This is the source of the api spec.  Any api-doc changes should be     #
+#       made to this file      .                                               #
+#   .api-generated.yaml -                                                      #
+#       This is an expanded version of api.yaml since the consuming tools are  #
+#       unable to parse YAML anchors. This file is generated using:            #
+#         `make api_generated`                                                 #
+################################################################################
+swagger: '2.0'
+
+x-amazon-apigateway-integration:
+  type: aws_proxy
+  httpMethod: GET
+
+program_path_param:
+  in: path
+  name: program_key
+  required: true
+  type: string
+course_path_param:
+  in: path
+  name: course_id
+  required: true
+  type: string
+course_enrollment_body:
+  in: body
+  name: body
+  required: true
+  schema:
+    $ref: '#/models/CourseEnrollmentList'
+program_enrollment_body:
+  in: body
+  name: body
+  required: true
+  schema:
+    $ref: '#/models/ProgramEnrollmentList'
+
+################################################################################
+#                        Base Endpoint Definitions                             #
+################################################################################
+
+endpoints:
+
+  get_program:
+    summary: Get Program
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/Program'
+
+  list_programs:
+    summary: List programs
+    description: list all programs, requires an organization key for non-admins
+    parameters:
+    - in: query
+      name: org
+      required: false
+      type: string
+      description: organization key
+    responses:
+      200:
+        description: OK
+        schema:
+          type: array
+          items:
+            $ref: '#/models/Program'
+
+  get_job_status:
+    summary: Get the status of a job
+    parameters:
+    - in: path
+      name: job_id
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/JobStatus'
+
+  list_program_courses:
+    summary: List program courses
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          type: array
+          items:
+            $ref: '#/models/Course'
+
+  get_program_enrollments:
+    summary: Request program enrollment data
+    description: submit a task to retrieve program enrollment data
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/NewJob'
+
+  post_program_enrollments:
+    summary: Enroll students in a program
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/ProgramEnrollmentList'
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/CourseEnrollmentList'
+
+  patch_program_enrollments:
+    summary: Modify program enrollments
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    - in: path
+      name: course_id
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/CourseEnrollmentList'
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/ProgramEnrollmentList'
+
+  get_course_enrollments:
+    summary: Request course enrollment data
+    description: submit a task to retrieve course enrollment data
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    - in: path
+      name: course_id
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/NewJob'
+
+  post_course_enrollments:
+    summary: Enroll students in a course
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    - in: path
+      name: course_id
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/CourseEnrollmentList'
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/CourseEnrollmentList'
+
+  patch_course_enrollments:
+    summary: Modify course enrollments
+    parameters:
+    - in: path
+      name: program_key
+      required: true
+      type: string
+    - in: path
+      name: course_id
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/CourseEnrollmentList'
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/CourseEnrollmentList'
+
+
+################################################################################
+#                              API Information                                 #
+################################################################################
+info:
+  title: Registrar API
+  description: |
+    Registrar API
+
+basePath: /api
+produces:
+- application/json
+consumes:
+- application/json
+
+
+################################################################################
+#                             Path Config                                      #
+################################################################################
+
+paths:
+  ### API Docs ###
+  /api-docs/:
+    get:
+      tags: [api-docs]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api-docs/
+
+  ### V0 API ###
+  /v0/jobs/{job_id}/:
+    get:
+      summary: Get the status of a job
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/JobStatus'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/jobs/{job_id}/
+  /v0/programs/:
+    get:
+      summary: List programs
+      description: list all programs, requires an organization key for non-admins
+      parameters:
+      - in: query
+        name: org
+        required: false
+        type: string
+        description: organization key
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/models/Program'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/
+  /v0/programs/{program_key}/:
+    get:
+      summary: Get Program
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/Program'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/
+  /v0/programs/{program_key}/courses/:
+    get:
+      summary: List program courses
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/models/Course'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/
+  /v0/programs/{program_key}/courses/{course_id}/enrollments/:
+    get:
+      summary: Request course enrollment data
+      description: submit a task to retrieve course enrollment data
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      - in: path
+        name: course_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/NewJob'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/
+    post:
+      summary: Enroll students in a course
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      - in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/CourseEnrollmentList'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/CourseEnrollmentList'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/
+    patch:
+      summary: Enroll students in a course
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      - in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/CourseEnrollmentList'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/CourseEnrollmentList'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/
+  /v0/programs/{program_key}/enrollments/:
+    get:
+      summary: Request program enrollment data
+      description: submit a task to retrieve program enrollment data
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/NewJob'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/
+    post:
+      summary: Enroll students in a program
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/ProgramEnrollmentList'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/CourseEnrollmentList'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/
+    patch:
+      summary: Enroll students in a program
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/ProgramEnrollmentList'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/CourseEnrollmentList'
+      tags: [v0 - Mock API]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: GET
+
+        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/
+
+
+  ### V1 API ###
+  /v1/programs/:
+    get:
+      summary: List programs
+      description: list all programs, requires an organization key for non-admins
+      parameters:
+      - in: query
+        name: org
+        required: false
+        type: string
+        description: organization key
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/models/Program'
+      tags: [v1]
+  /v1/programs/{program_key}/:
+    get:
+      summary: Get Program
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/Program'
+      tags: [v1]
+  /v1/programs/{program_key}/courses/:
+    get:
+      summary: List program courses
+      parameters:
+      - in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/models/Course'
+      tags: [v1]
+
+
+################################################################################
+#     Data Models                                                              #
+################################################################################
+models:
+  Program:
+    type: object
+    properties:
+      program_key:
+        type: string
+      program_title:
+        type: string
+      program_url:
+        type: string
+  Course:
+    type: object
+    properties:
+      course_id:
+        type: string
+      course_title:
+        type: string
+      course_url:
+        type: string
+  CourseEnrollmentList:
+    type: array
+    items:
+      type: object
+      properties:
+        student_key:
+          type: string
+        status:
+          type: string
+  ProgramEnrollmentList:
+    type: array
+    items:
+      type: object
+      properties:
+        student_key:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+  NewJob:
+    type: object
+    properties:
+      job_id:
+        type: string
+      job_url:
+        type: string
+  JobStatus:
+    type: object
+    properties:
+      original_url:
+        type: string
+      created:
+        type: string
+      state:
+        type: string
+      result:
+        type: string

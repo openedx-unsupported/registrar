@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="../static/swagger-ui-dist/swagger-ui.css" >
+    <link rel="icon" type="image/png" href="../static/swagger-ui-dist/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="../static/swagger-ui-dist/favicon-16x16.png" sizes="16x16" />
+    <style>
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+
+      .download-url-button
+      {
+        border-radius: 4px !important;
+        max-width: 120px !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% csrf_token %}
+    <div class="swagger-ui">
+      <div class="topbar">
+        <div class="wrapper">
+          <div class="topbar-wrapper">
+            <a class="link">
+              <span>swagger</span>
+            </a>
+            <div class="download-url-wrapper">
+              {% if request.user.is_authenticated %}
+              <a class="download-url-button button" href="{{ LOGOUT_URL }}?next={{ request.path }}">Logout</a>
+              {% else %}
+              <a class="download-url-button button" href="{{ LOGIN_URL }}?next={{ request.path }}">Login</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% if not request.user.is_authenticated %}
+      <h3 style="text-align: center">You must be logged in to view this page</h3>
+      {% endif %}
+    </div>
+
+    <div id="rest-swagger-ui"></div>
+
+    <script src="../static/swagger-ui-dist/swagger-ui-bundle.js"> </script>
+    <script src="../static/swagger-ui-dist/swagger-ui-standalone-preset.js"> </script>
+    <script>
+      window.onload = function() {
+        {% autoescape off %}
+          var spec = {{ spec }};
+        {% endautoescape %}
+        
+        var ui = SwaggerUIBundle({
+          spec: spec,
+          dom_id: '#rest-swagger-ui',
+          deepLinking: false,
+          docExpansion: 'none',
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset.slice(1) // use default but remove header node
+          ],
+          plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+          ],
+          layout: 'StandaloneLayout',
+          operationsSorter: 'alpha',
+          tagsSorter: 'alpha',
+          requestInterceptor: function(req) {
+            var csrfTokenNode = window.document.getElementsByName('csrfmiddlewaretoken');
+            if (csrfTokenNode.length) {
+              req.headers['X-CSRFToken'] = csrfTokenNode[0].value;
+            }
+            return req;
+          }
+        })
+
+        window.ui = ui
+      }
+      </script>
+  </body>
+</html>
