@@ -19,8 +19,8 @@ from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from rest_framework_swagger.views import get_swagger_view
 
+from registrar import api_renderer
 from registrar.apps.api import urls as api_urls
 from registrar.apps.core import views as core_views
 
@@ -31,7 +31,7 @@ app_name = 'registrar'
 urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(api_urls)),
-    url(r'^api-docs/', get_swagger_view(title='registrar API'), name='api-docs'),
+    url(r'^api-docs', api_renderer.render_yaml_spec, name='api-docs'),
     # Use the same auth views for all logins, including those originating from the browseable API.
     url(r'^api-auth/', include(oauth2_urlpatterns)),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),

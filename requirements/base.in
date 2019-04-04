@@ -6,7 +6,6 @@ django-extensions
 django-guardian
 django-model-utils
 django-mysql
-django-rest-swagger
 django-simple-history
 django-user-tasks
 django-waffle

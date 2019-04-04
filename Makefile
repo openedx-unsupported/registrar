@@ -71,6 +71,7 @@ test: clean ## run tests and generate coverage report
 quality: ## run Pycodestyle and Pylint
 	pycodestyle registrar *.py
 	pylint --rcfile=pylintrc registrar *.py
+	yamllint *.yaml
 
 pii_check: ## check for PII annotations on all Django models
 	DJANGO_SETTINGS_MODULE=registrar.settings.test \
@@ -109,3 +110,9 @@ detect_changed_source_translations: ## check if translation files are up-to-date
 	cd registrar && i18n_tool changed
 
 validate_translations: fake_translations detect_changed_source_translations ## install fake translations and check if translation files are up-to-date
+
+api_generated: ## generates an expanded verison of api.yaml for consuming tools that cannot read yaml anchors
+	yaml merge-expand api.yaml .api-generated.yaml
+
+validate_api_committed: ## check to make sure any api.yaml changes have been committed to the expanded document
+	bash -c "diff .api-generated.yaml <(yaml merge-expand api.yaml -)"

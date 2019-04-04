@@ -13,3 +13,4 @@ pycodestyle
 pytest-cov
 pytest-django
 responses
+yamllint

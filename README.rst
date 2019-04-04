@@ -117,6 +117,20 @@ Authentication from External system against Registrar API
 
 #. The school's system need to use the client_key and client_secret above to get auth token from LMS, then use the auth token for API calls against registrar service
 
+
+API Documentation
+-----------------
+
+Endpoints of this api can be tested using the swagger page served on the ``/api-docs`` path.  This UI is driven by an openapi specification in `api.yaml <./api.yaml>`_.
+A second version of this document, `.api-generated.yaml <./.api-generated.yaml>`_, can be generated to expose the spec to external tools that are unable to parse yaml anchors.  All manual edits should be made to `api.yaml <./api.yaml>`_.  The generated file should only be updated using the process outlined below.
+
+To add/update endpoints or parameters:
+  1. make your changes to api.yaml
+  2. restart the registrar application and validate appearance on the ``/api-docs`` page
+  3. before merging your changes run ``make api_generated``. This will create the expanded document.
+  4. commit new  `.api-generated.yaml <./.api-generated.yaml>`_ file
+
+
 Annotating and Checking PII
 ---------------------------
 
