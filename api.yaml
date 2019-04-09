@@ -20,23 +20,132 @@ program_path_param: &program_path_param
   name: program_key
   required: true
   type: string
+  description: edX program key
+  example: 'uexample-master-of-science'
 course_path_param: &course_path_param
   in: path
   name: course_id
   required: true
   type: string
-course_enrollment_body: &course_enrollment_body
+  description: edX course run identifier
+  example: 'course-v1:ExU+Science-101+Fall2050'
+enrollment_body: &enrollment_body
   in: body
   name: body
   required: true
   schema:
-    $ref: '#/models/CourseEnrollmentList'
-program_enrollment_body: &program_enrollment_body
-  in: body
-  name: body
-  required: true
-  schema:
-    $ref: '#/models/ProgramEnrollmentList'
+    $ref: '#/models/EnrollmentRequests'
+
+post_enrollment_responses: &post_enrollment_responses
+  200:
+    description: All students were successfully listed.
+    schema:
+      $ref: '#/models/EnrollmentResult'
+    examples:
+      application/json:
+        student_0128fe4a: pending
+        student_aae45c81: enrolled
+  207:
+    description: Some, but not all, students were successfully listed.
+    schema:
+      $ref: '#/models/EnrollmentResult'
+    examples:
+      application/json:
+        student_0128fe4a: pending
+        student_aae45c81: conflict
+  403:
+    description: >
+      User is not authorized to modify enrollments for program course.
+  404:
+    description: >
+      Course does not exist within program, or program was not found.
+  413:
+    description: >
+      Payload too large; at most 25 students may be supplied per request.
+  422:
+    description: None of the students were successfully listed.
+    schema:
+      $ref: '#/models/EnrollmentResult'
+    examples:
+      application/json:
+        student_0128fe4a: invalid-status
+        student_aae45c81: conflict
+
+patch_enrollment_responses: &patch_enrollment_responses
+  200:
+    description: All students' enrollments were successfully modified.
+    schema:
+      $ref: '#/models/EnrollmentResult'
+    examples:
+      application/json:
+        student_0128fe4a: enrolled
+        student_aae45c81: withdrawn
+  207:
+    description: >
+      Some, but not all, students' enrollments were successfully modified.
+    schema:
+      $ref: '#/models/EnrollmentResult'
+    examples:
+      application/json:
+        student_0128fe4a: enrolled
+        student_aae45c81: not-found
+  403:
+    description: >
+      User is not authorized to modify enrollments for program course.
+  404:
+    description: >
+      Course does not exist within program, or program was not found.
+  413:
+    description: >
+      Payload too large; at most 25 students' enrollments may be modified per
+      request.
+  422:
+    description: >
+      None of the students' enrollments were successfully modified.
+    schema:
+      $ref: '#/models/EnrollmentResult'
+    examples:
+      application/json:
+        student_0128fe4a: invalid-status
+        student_aae45c81: not-found
+
+student_key: &student_key
+  type: string
+  description: >
+    Key that uniquely identifies student within organization.
+    For data privacy reasons, this cannot be, or include,
+    sensitive personal information like a student’s official university ID
+    number, social security number, or some other government-issued ID number.
+  example: student_0128fe4a
+email: &email
+  type: string
+  format: email
+  description: .edu email address of student
+  example: cgonzales@example.edu
+input_status: &input_status
+  type: string
+  # TODO: The exact set of status strings that we will accept has not been
+  # determined.
+  enum:
+    - enrolled
+    - pending
+    - suspended
+    - canceled
+output_status: &output_status
+  type: string
+  # TODO: The exact set of status strings that we will return has not been
+  # determined.
+  enum:
+    - enrolled
+    - pending
+    - suspended
+    - canceled
+    - invalid-status
+    - duplicated
+    - conflict
+    - not-found
+    - illegal-operation
+    - internal-error
 
 ################################################################################
 #                        Base Endpoint Definitions                             #
@@ -53,16 +162,21 @@ endpoints:
         description: OK
         schema:
           $ref: '#/models/Program'
+      403:
+        description: User is not authorized to view program.
+      404:
+        description: Program was not found.
 
   list_programs: &list_programs
     summary: List programs
-    description: list all programs, requires an organization key for non-admins
+    description: List all programs, requires an organization key for non-admins
     parameters:
       - in: query
         name: org
         required: false
         type: string
-        description: organization key
+        description: Organization key
+        example: uexample
     responses:
       200:
         description: OK
@@ -70,6 +184,10 @@ endpoints:
           type: array
           items:
             $ref: '#/models/Program'
+      403:
+        description: User is not authorized to list specified programs.
+      404:
+        description: Organization was not found.
 
   get_job_status: &get_job_status
     summary: Get the status of a job
@@ -78,6 +196,9 @@ endpoints:
         name: job_id
         required: true
         type: string
+        format: uuid
+        description: UUID-4 job identifier
+        example: 3869c0d5-e88f-4088-bf1d-409222492869
     responses:
       200:
         description: OK
@@ -95,10 +216,14 @@ endpoints:
           type: array
           items:
             $ref: '#/models/Course'
+      403:
+        description: User is not authorized to list courses of program.
+      404:
+        description: Program was not found.
 
   get_program_enrollments: &get_program_enrollments
     summary: Request program enrollment data
-    description: submit a task to retrieve program enrollment data
+    description: Submit a job to retrieve program enrollment data
     parameters:
       - *program_path_param
     responses:
@@ -106,33 +231,28 @@ endpoints:
         description: OK
         schema:
           $ref: '#/models/NewJob'
+      403:
+        description: User is not authorized to retrieve enrollment of program.
+      404:
+        description: Program was not found.
 
   post_program_enrollments: &post_program_enrollments
     summary: Enroll students in a program
     parameters:
       - *program_path_param
-      - *program_enrollment_body
-    responses:
-      200:
-        description: OK
-        schema:
-          $ref: '#/models/CourseEnrollmentList'
+      - *enrollment_body
+    responses: *post_enrollment_responses
 
   patch_program_enrollments: &patch_program_enrollments
     summary: Modify program enrollments
     parameters:
       - *program_path_param
-      - *course_path_param
-      - *course_enrollment_body
-    responses:
-      200:
-        description: OK
-        schema:
-          $ref: '#/models/ProgramEnrollmentList'
+      - *enrollment_body
+    responses: *patch_enrollment_responses
 
   get_course_enrollments: &get_course_enrollments
     summary: Request course enrollment data
-    description: submit a task to retrieve course enrollment data
+    description: Submit a job to retrieve course enrollment data
     parameters:
       - *program_path_param
       - *course_path_param
@@ -141,30 +261,28 @@ endpoints:
         description: OK
         schema:
           $ref: '#/models/NewJob'
+      403:
+        description: >
+          User is not authorized to retrieve enrollments for program course.
+      404:
+        description: >
+          Course does not exist within program, or program was not found.
 
   post_course_enrollments: &post_course_enrollments
     summary: Enroll students in a course
     parameters:
       - *program_path_param
       - *course_path_param
-      - *course_enrollment_body
-    responses:
-      200:
-        description: OK
-        schema:
-          $ref: '#/models/CourseEnrollmentList'
+      - *enrollment_body
+    responses: *post_enrollment_responses
 
   patch_course_enrollments: &patch_course_enrollments
     summary: Modify course enrollments
     parameters:
       - *program_path_param
       - *course_path_param
-      - *course_enrollment_body
-    responses:
-      200:
-        description: OK
-        schema:
-          $ref: '#/models/CourseEnrollmentList'
+      - *enrollment_body
+    responses: *patch_enrollment_responses
 
 
 ################################################################################
@@ -239,7 +357,7 @@ paths:
         httpMethod: POST
         uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/'
     patch:
-      <<: *post_course_enrollments
+      <<: *patch_course_enrollments
       tags: ['v0 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
@@ -260,7 +378,7 @@ paths:
         httpMethod: POST
         uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/'
     patch:
-      <<: *post_program_enrollments
+      <<: *patch_program_enrollments
       tags: ['v0 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
@@ -292,54 +410,75 @@ models:
     properties:
       program_key:
         type: string
+        example: uexample-master-of-science
       program_title:
         type: string
+        example: Master of Science
       program_url:
         type: string
+        format: uri
+        example: https://uexample.edx.org/uexample-master-of-science
   Course:
     type: object
     properties:
       course_id:
         type: string
+        example: 'course-v1:ExU+Science-101+Fall2050'
       course_title:
         type: string
+        example: Introduction to Science
       course_url:
         type: string
-  CourseEnrollmentList:
+        format: uri
+        example: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
+  EnrollmentRequests:
     type: array
     items:
       type: object
       properties:
-        student_key:
-          type: string
-        status:
-          type: string
-  ProgramEnrollmentList:
-    type: array
-    items:
-      type: object
-      properties:
-        student_key:
-          type: string
-        email:
-          type: string
-        status:
-          type: string
+        student_key: *student_key
+        status: *input_status
+    example:
+      - student_key: student_0128fe4a
+        status: pending
+      - student_key: student_aae45c81
+        status: enrolled
+  EnrollmentResult:
+    type: object
+    additionalProperties: *output_status
+    description: Mapping from student_keys to enrollment statuses
   NewJob:
     type: object
     properties:
       job_id:
         type: string
+        format: uuid
+        description: UUID-4 job identifier
+        example: 3869c0d5-e88f-4088-bf1d-409222492869
       job_url:
         type: string
+        format: uri
+        description: URL to get status of job
+        example: https://.../api/v1/jobs/3869c0d5-e88f-4088-bf1d-409222492869
   JobStatus:
     type: object
     properties:
       original_url:
         type: string
+        format: uri
+        description: The URL of the request that initated the job
+        example: https://.../api/v1/programs/uexample-master-of-science/enrollments
       created:
         type: string
+        format: date-time
+        description: The ISO-format date-time that the job was created
       state:
         type: string
+        enum: [Queued, In Progress, Canceled, Failed, Succeeded]
+        example: In Progress
       result:
         type: string
+        format: uri
+        nullable: true
+        description: URL to result file; null if result unavailable
+        example: https://.../files/result.json
