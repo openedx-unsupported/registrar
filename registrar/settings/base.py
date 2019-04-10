@@ -227,6 +227,10 @@ EXTRA_SCOPE = ['permissions']
 LOGIN_REDIRECT_URL = '/api-docs/'
 # END AUTHENTICATION CONFIGURATION
 
+# Other service locations
+LMS_BASE_URL = 'replace-me'
+DISCOVERY_BASE_URL = 'replace-me'
+
 
 # OPENEDX-SPECIFIC CONFIGURATION 
 PLATFORM_NAME = 'Your Platform Name Here'
