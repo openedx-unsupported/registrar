@@ -8,6 +8,9 @@ from registrar.apps.jobs import states
 
 
 class Job(models.Model):
+    """
+    TODO docstring
+    """
 
     STATE_CHOICES = [(state, state) for state in states.ALL]
 

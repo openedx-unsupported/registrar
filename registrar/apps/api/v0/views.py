@@ -23,7 +23,7 @@ from rest_framework.status import (
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobAcceptanceSerializer,
-    JobStatusSerializer,
+    JobSerializer,
     ProgramSerializer,
     ProgramEnrollmentRequestSerializer,
     ProgramEnrollmentModificationRequestSerializer,
@@ -373,7 +373,7 @@ class MockJobStatusRetrieveView(RetrieveAPIView):
 
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    serializer_class = JobStatusSerializer
+    serializer_class = JobSerializer
 
     def get_object(self):
         job_id = self.kwargs.get('job_id')

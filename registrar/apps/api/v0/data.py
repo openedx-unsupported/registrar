@@ -10,7 +10,7 @@ import uuid
 from django.core.cache import cache
 
 from registrar.apps.core.utils import name_to_key
-from registrar.apps.jobs import states
+from registrar.apps.jobs import states as job_states
 
 
 FakeOrganization = namedtuple('FakeOrganization', [
@@ -317,11 +317,11 @@ def get_fake_job_status(job_id, to_absolute_uri):
 
     elapsed = datetime.now() - job_info.created
     if elapsed.seconds < job_info.duration_seconds:
-        state = UserTaskStatus.IN_PROGRESS
+        state = job_states.IN_PROGRESS
     elif not job_info.result_filepath:
-        state = UserTaskStatus.FAILED
+        state = job_states.FAILED
     else:
-        state = UserTaskStatus.SUCCEEDED
+        state = job_states.SUCCEEDED
         path = job_info.result_filepath
         result = to_absolute_uri(path)
 
