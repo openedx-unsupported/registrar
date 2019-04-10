@@ -17,14 +17,14 @@ class Job(models.Model):
     original_url = models.URLField()
     created = models.DateTimeField()
     state = models.CharField(max_length=11, choices=STATE_CHOICES, default=IN_PROGRESS)
-    result = models.URLField(null=True, default=None)
+    result_url = models.URLField(null=True, default=None)
 
-    def succeed(self, result):
+    def succeed(self, result_url):
         """
         TODO docstring
         """
         self._assert_in_progress()
-        self.result = result
+        self.result_url = result_url
         self.state = state.SUCCEEDED
 
     def fail(self):

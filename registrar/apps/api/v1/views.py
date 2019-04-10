@@ -13,13 +13,24 @@ from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.status import (
+    HTTP_202_ACCEPTED,
+)
 
 import registrar.apps.api.segment as segment
-from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
+from registrar.apps.api.serializers import (
+    CourseRunSerializer,
+    JobAcceptanceSerializer,
+    ProgramSerializer,
+)
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import get_discovery_program
+from registrar.apps.enrollments.tasks import list_program_enrollments
+
 
 logger = logging.getLogger(__name__)
 
@@ -235,3 +246,53 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
             for course in curricula[0].get('courses') or []:
                 course_runs = course_runs + course.get('course_runs')
         return course_runs
+
+
+class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
+    """
+    A view for asynchronously retrieving program enrollments.
+
+    Path: /api/v1/programs/{program_key}/enrollments
+
+    Accepts: [GET]
+
+    ----------------------------------------------------------------------------
+    GET
+    ----------------------------------------------------------------------------
+
+    Invokes a Django User Task that retrieves student enrollment
+    data for a given program.
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+
+    Example Response:
+    {
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+    }
+    """
+    permission_required = perms.ORGANIZATION_READ_ENROLLMENTS
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return JobAcceptanceSerializer
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves program enrollment data.
+        """
+        original_url = self.request.build_absolute_uri()
+        job = start_job(
+            self.request.user,
+            original_url,
+            list_program_enrollments,
+            self.program.key,
+        )
+        job_url = self.request.build_absolute_uri(
+            reverse('api:v0:job-status', kwargs={'job_id': job.id})
+        )
+        data = {'job_id': job.id, 'job_url': job_url}
+        return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)

@@ -24,4 +24,9 @@ urlpatterns = [
         views.ProgramCourseListView.as_view(),
         name="program-course-list",
     ),
+    url(
+        r'programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
+        views.ProgramEnrollmentView.as_view(),
+        name="program-enrollment",
+    ),
 ]
