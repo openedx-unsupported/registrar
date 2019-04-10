@@ -7,7 +7,6 @@ django-guardian
 django-model-utils
 django-mysql
 django-simple-history
-django-user-tasks
 django-waffle
 edx-auth-backends
 edx-django-release-util

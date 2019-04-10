@@ -8,9 +8,9 @@ import random
 import uuid
 
 from django.core.cache import cache
-from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.utils import name_to_key
+from registrar.apps.jobs import states
 
 
 FakeOrganization = namedtuple('FakeOrganization', [

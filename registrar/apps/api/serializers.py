@@ -5,9 +5,9 @@ specific to a particular version of the API. In this case, the serializers
 in question should be moved to versioned sub-package.
 """
 from rest_framework import serializers
-from user_tasks.models import UserTaskStatus
 
 from registrar.apps.enrollments.models import Program
+from registrar.apps.jobs.states import ALL as JOB_STATES
 
 
 # pylint: disable=abstract-method
@@ -103,19 +103,11 @@ class JobAcceptanceSerializer(serializers.Serializer):
     job_url = serializers.URLField()
 
 
-class JobStatusSerializer(serializers.Serializer):
+class JobSerializer(serializers.Serializer):
     """
     Serializer for data about the status of a job.
     """
-    STATUS_CHOICES = {
-        UserTaskStatus.PENDING,
-        UserTaskStatus.IN_PROGRESS,
-        UserTaskStatus.SUCCEEDED,
-        UserTaskStatus.FAILED,
-        UserTaskStatus.RETRYING,
-    }
-
     original_url = serializers.URLField()
     created = serializers.DateTimeField()
-    state = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    state = serializers.ChoiceField(allow_blank=False, choices=JOB_STATES)
     result = serializers.URLField(allow_null=True)
