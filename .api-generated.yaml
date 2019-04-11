@@ -520,6 +520,7 @@ paths:
   ### API Docs ###
   /api-docs/:
     get:
+      operationId: registrar_get_api_docs
       tags: [api-docs]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -544,6 +545,7 @@ paths:
           description: OK
           schema:
             $ref: '#/models/JobStatus'
+      operationId: registrar_v0_get_job_status
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -573,6 +575,7 @@ paths:
         404:
           description: Organization was not found.
 
+      operationId: registrar_v0_list_programs
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -599,6 +602,7 @@ paths:
         404:
           description: Program was not found.
 
+      operationId: registrar_v0_get_program
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -627,6 +631,7 @@ paths:
         404:
           description: Program was not found.
 
+      operationId: registrar_v0_list_courses
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -662,6 +667,7 @@ paths:
           description: >
             Course does not exist within program, or program was not found.
 
+      operationId: registrar_v0_get_course_enrollments
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -723,6 +729,7 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: conflict
 
+      operationId: registrar_v0_post_course_enrollments
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -787,6 +794,7 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: not-found
 
+      operationId: registrar_v0_patch_course_enrollments
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -814,6 +822,7 @@ paths:
         404:
           description: Program was not found.
 
+      operationId: registrar_v0_get_program_enrollments
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -869,6 +878,7 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: conflict
 
+      operationId: registrar_v0_post_program_enrollments
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -927,6 +937,7 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: not-found
 
+      operationId: registrar_v0_patch_program_enrollments
       tags: [v0 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
@@ -959,6 +970,7 @@ paths:
         404:
           description: Organization was not found.
 
+      operationId: registrar_v1_list_programs
       tags: [v1]
   /v1/programs/{program_key}/:
     get:
@@ -980,6 +992,7 @@ paths:
         404:
           description: Program was not found.
 
+      operationId: registrar_v1_get_program
       tags: [v1]
   /v1/programs/{program_key}/courses/:
     get:
@@ -1003,6 +1016,7 @@ paths:
         404:
           description: Program was not found.
 
+      operationId: registrar_v1_list_courses
       tags: [v1]
 
 
