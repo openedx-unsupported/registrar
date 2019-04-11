@@ -13,6 +13,7 @@ from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -23,6 +24,7 @@ import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobAcceptanceSerializer,
+    JobSerializer,
     ProgramSerializer,
 )
 from registrar.apps.enrollments.models import Program
@@ -30,6 +32,7 @@ from registrar.apps.core import permissions as perms
 from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import get_discovery_program
 from registrar.apps.enrollments.tasks import list_program_enrollments
+from registrar.apps.jobs.api import get_job, start_job
 
 
 logger = logging.getLogger(__name__)
@@ -296,3 +299,41 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         )
         data = {'job_id': job.id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
+
+
+class JobStatusRetrieveView(RetrieveAPIView):
+    """
+    A view for getting the status of a job.
+
+    Path: /api/v0/jobs/{job_id}
+
+    Accepts: [GET]
+
+    Returns:
+     * 200: Returns the status of the job
+     * 404: Invalid job ID
+
+    Example:
+    {
+        "original_url":
+            "http://localhost/api/v1/programs/uexample-masters-of-science/enrollments/",
+        "created": "2019-03-27T18:19:19.189272Z",
+        "state": "Succeeded",
+        "result":
+            "http://localhost/files/3b985cec-dcf4-4d38-9498-8545ebcf5d0f.json"
+    }
+    """
+
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = JobSerializer
+
+    def get_object(self):
+
+        # Raises PermissionDenied if user is not allowed to access job.
+        job_status = get_job(self.request.user, self.kwargs['job_id'])
+
+        if job_status:
+            return job_status
+        else:
+            raise Http404

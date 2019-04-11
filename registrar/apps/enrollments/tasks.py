@@ -19,7 +19,7 @@ def debug_task(self, *args, **kwargs):  # pylint: disable=unused-argument
     log.debug('Request: {0!r}'.format(self.request))
 
 
-@shared_task(base=UserTask, bind=True)
+@shared_task(bind=True)
 def list_program_enrollments(self, job_id, program_key):  # pylint: disable=unused-argument
     """
     TODO docstring

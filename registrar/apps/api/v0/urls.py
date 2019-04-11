@@ -3,7 +3,11 @@
 from django.conf.urls import url
 
 from registrar.apps.api.v0 import views
-from registrar.apps.core.constants import PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN
+from registrar.apps.core.constants import (
+    COURSE_ID_PATTERN,
+    PROGRAM_KEY_PATTERN,
+    JOB_ID_PATTERN,
+)
 
 
 app_name = 'v0'
@@ -35,7 +39,7 @@ urlpatterns = [
         name="program-enrollment",
     ),
     url(
-        r'jobs/(?P<job_id>[0-9a-f-]+)$',
+        r'jobs/{}/$'.format(JOB_ID_PATTERN),
         views.MockJobStatusRetrieveView.as_view(),
         name="job-status",
     ),

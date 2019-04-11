@@ -11,6 +11,8 @@ class Job(models.Model):
     """
     TODO docstring
     """
+    class Meta(object):
+        app_label = 'jobs'
 
     STATE_CHOICES = [(state, state) for state in states.ALL]
 
@@ -19,7 +21,9 @@ class Job(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     original_url = models.URLField()
     created = models.DateTimeField()
-    state = models.CharField(max_length=11, choices=STATE_CHOICES, default=IN_PROGRESS)
+    state = models.CharField(
+        max_length=11, choices=STATE_CHOICES, default=states.IN_PROGRESS
+    )
     result_url = models.URLField(null=True, default=None)
 
     def succeed(self, result_url):
@@ -45,3 +49,6 @@ class Job(models.Model):
             raise ValueError(
                 'Job can only be marked as Succeeded from state In Progress'
             )
+
+    def __str__(self):
+        return 'Job {}'.format(self.id)

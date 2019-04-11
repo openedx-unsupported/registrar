@@ -110,4 +110,4 @@ class JobSerializer(serializers.Serializer):
     original_url = serializers.URLField()
     created = serializers.DateTimeField()
     state = serializers.ChoiceField(allow_blank=False, choices=JOB_STATES)
-    result = serializers.URLField(allow_null=True)
+    result = serializers.URLField(allow_null=True, source='result_url')
