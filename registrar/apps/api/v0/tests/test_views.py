@@ -8,10 +8,12 @@ from rest_framework.test import APITestCase
 
 from registrar.apps.api.tests.mixins import RequestMixin
 from registrar.apps.api.v0.data import (
+    FAKE_PROGRAMS,
     invoke_fake_course_enrollment_listing_job,
     invoke_fake_program_enrollment_listing_job,
 )
-from registrar.apps.core.tests.factories import UserFactory
+from registrar.apps.core.permissions import OrganizationReadMetadataRole
+from registrar.apps.core.tests.factories import GroupFactory, UserFactory
 
 
 class MockAPITestMixin(RequestMixin):
@@ -26,6 +28,11 @@ class MockAPITestMixin(RequestMixin):
     def setUp(self):
         super().setUp()
         self.user = UserFactory()
+        self.admin_read_metadata_group = GroupFactory(
+            name='admin_read_metadata',
+            permissions=OrganizationReadMetadataRole.permissions,
+        )
+        self.admin_user = UserFactory(groups=[self.admin_read_metadata_group])
 
     def test_unauthenticated(self):
         response = self.get(self.path, None)
@@ -66,9 +73,23 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
         response = self.get(self.path, self.user)
         self.assertEqual(response.status_code, 403)
 
+    def test_list_all_admin_user(self):
+        response = self.get(self.path, self.admin_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(FAKE_PROGRAMS))
+
     def test_list_org_unauthorized(self):
         response = self.get(self.path + '?org=u-perezburgh', self.user)
         self.assertEqual(response.status_code, 403)
+
+    def test_list_org_no_perm_but_admin(self):
+        """
+        Every organization's metadata should be visible to the admin user,
+        even u-perezburgh.
+        """
+        response = self.get(self.path + '?org=u-perezburgh', self.admin_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
 
     def test_org_not_found(self):
         response = self.get(self.path + '?org=antarctica-tech', self.user)

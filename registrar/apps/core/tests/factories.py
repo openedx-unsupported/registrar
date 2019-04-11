@@ -5,6 +5,8 @@ Factories for creating core data.
 import re
 import factory
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from guardian.shortcuts import assign_perm
 from registrar.apps.core.permissions import OrganizationReadMetadataRole
 from registrar.apps.core.models import (
     Organization,
@@ -21,8 +23,24 @@ User = get_user_model()
 USER_PASSWORD = 'password'
 
 
+class GroupFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = Group
+        django_get_or_create = ('name',)
+
+    name = factory.Sequence('group{0}'.format)
+
+    @factory.post_generation
+    def permissions(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
+        if extracted is None:
+            return
+
+        for permission in extracted:
+            assign_perm(permission, self)
+
+
 class UserFactory(factory.DjangoModelFactory):
-    class Meta:
+    class Meta(object):
         model = User
 
     username = factory.Sequence(lambda n: 'user_%d' % n)
@@ -34,6 +52,14 @@ class UserFactory(factory.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     full_name = factory.LazyAttribute(lambda user: ' '.join((user.first_name, user.last_name)))
+
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
+        if extracted is None:
+            return
+
+        for group in extracted:
+            self.groups.add(group)  # pylint: disable=no-member
 
 
 def name_to_key(name):
@@ -49,7 +75,7 @@ def name_to_key(name):
 
 
 class OrganizationFactory(factory.DjangoModelFactory):
-    class Meta:
+    class Meta(object):
         model = Organization
 
     key = factory.LazyAttribute(lambda org: name_to_key(org.name))
@@ -58,7 +84,7 @@ class OrganizationFactory(factory.DjangoModelFactory):
 
 
 class OrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta:
+    class Meta(object):
         model = OrganizationGroup
 
     name = factory.LazyAttribute(
@@ -69,7 +95,7 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
 
 
 class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta:
+    class Meta(object):
         model = PendingUserOrganizationGroup
 
     organization_group = factory.SubFactory(OrganizationGroupFactory)

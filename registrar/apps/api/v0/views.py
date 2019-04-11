@@ -35,11 +35,21 @@ from registrar.apps.api.v0.data import (
     invoke_fake_program_enrollment_listing_job,
     FAKE_ORG_DICT,
     FAKE_ORG_PROGRAMS,
-    FAKE_PROGRAM_DICT,
+    FAKE_PROGRAMS,
     FAKE_PROGRAM_COURSE_RUNS,
+    FAKE_PROGRAM_DICT,
     FakeJobAcceptance,
     get_fake_job_status,
 )
+from registrar.apps.core import permissions as perms
+
+
+def global_read_metadata_perm(user):
+    """
+    Returns True iff the given user has the `ORGANIZATION_READ_METADATA`
+    perm on all objects.
+    """
+    return user.has_perm(perms.ORGANIZATION_READ_METADATA)
 
 
 class MockProgramListView(ListAPIView):
@@ -63,16 +73,39 @@ class MockProgramListView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProgramSerializer
 
+    @property
+    def org_key(self):
+        return self.request.GET.get('org', None)
+
+    @property
+    def organization(self):
+        return FAKE_ORG_DICT.get(self.org_key) if self.org_key else None
+
+    def check_permissions(self, request):
+        """
+        Checks permissions against self.permission_classes.  Also checks
+        if the requesting user has metadata read permissions on the requested programs,
+        raising a 403 unless the requesting user has global metadata read permissions.
+        """
+        super().check_permissions(request)
+        if not self.org_key and global_read_metadata_perm(request.user):
+            return
+        elif not self.org_key:
+            raise PermissionDenied()
+        elif self.organization and not self.organization.metadata_readable:
+            if global_read_metadata_perm(request.user):
+                return
+            raise PermissionDenied()
+
     def get_queryset(self):
-        org_key = self.request.GET.get('org', None)
-        if not org_key:
-            raise PermissionDenied()
-        org = FAKE_ORG_DICT.get(org_key)
-        if not org:
+        if not self.org_key:
+            # We've already checked permissions, so if we've made it here
+            # without an org_key, the requesting user must have global
+            # metadata read permissions
+            return FAKE_PROGRAMS
+        if not self.organization:
             raise Http404()
-        if not org.metadata_readable:
-            raise PermissionDenied()
-        return FAKE_ORG_PROGRAMS[org.key]
+        return FAKE_ORG_PROGRAMS[self.org_key]
 
 
 class MockProgramSpecificViewMixin(object):

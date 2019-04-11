@@ -61,7 +61,7 @@ class RegistrarAPITestCase(APITestCase, RequestMixin):
             organization=self.stem_org,
             role=perms.OrganizationReadMetadataRole.name
         )
-        self.stem_admin.groups.add(self.stem_admin_group)
+        self.stem_admin.groups.add(self.stem_admin_group)  # pylint: disable=no-member
 
         self.hum_org = OrganizationFactory(name='Humanities College')
         self.phil_program = ProgramFactory(
@@ -78,7 +78,7 @@ class RegistrarAPITestCase(APITestCase, RequestMixin):
             organization=self.hum_org,
             role=perms.OrganizationReadMetadataRole.name
         )
-        self.hum_admin.groups.add(self.hum_admin_group)
+        self.hum_admin.groups.add(self.hum_admin_group)  # pylint: disable=no-member
 
     def mock_api_response(self, url, response_data):
         responses.add(
