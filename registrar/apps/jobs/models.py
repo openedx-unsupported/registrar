@@ -26,29 +26,5 @@ class Job(models.Model):
     )
     result_url = models.URLField(null=True, default=None)
 
-    def succeed(self, result_url):
-        """
-        TODO docstring
-        """
-        self._assert_in_progress()
-        self.result_url = result_url
-        self.state = state.SUCCEEDED
-
-    def fail(self):
-        """
-        TODO docstring
-        """
-        self._assert_in_progress()
-        self.state = state.FAILED
-
-    def _assert_in_progress(self):
-        """
-        Raise a ValueError if job is not currently In Progress.
-        """
-        if self.state != state.IN_PROGRESS:
-            raise ValueError(
-                'Job can only be marked as Succeeded from state In Progress'
-            )
-
     def __str__(self):
         return 'Job {}'.format(self.id)

@@ -25,5 +25,6 @@ def list_program_enrollments(self, job_id, program_key):  # pylint: disable=unus
     TODO docstring
     """
     # TODO write this
-    time.sleep(5)
+    #raise Exception()
+    #time.sleep(5)
     post_job_success(job_id, 'https://example.com/{}'.format(program_key))

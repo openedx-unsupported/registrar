@@ -7,7 +7,7 @@ import logging
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.urls import resolve
+from django.urls import resolve, reverse
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
@@ -295,7 +295,7 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
             self.program.key,
         )
         job_url = self.request.build_absolute_uri(
-            reverse('api:v0:job-status', kwargs={'job_id': job.id})
+            reverse('api:v1:job-status', kwargs={'job_id': job.id})
         )
         data = {'job_id': job.id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
@@ -305,7 +305,7 @@ class JobStatusRetrieveView(RetrieveAPIView):
     """
     A view for getting the status of a job.
 
-    Path: /api/v0/jobs/{job_id}
+    Path: /api/v1/jobs/{job_id}
 
     Accepts: [GET]
 
