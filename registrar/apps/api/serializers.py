@@ -7,6 +7,10 @@ in question should be moved to versioned sub-package.
 from rest_framework import serializers
 from user_tasks.models import UserTaskStatus
 
+from registrar.apps.enrollments.constants import (
+    COURSE_ENROLLMENT_STATUSES,
+    PROGRAM_ENROLLMENT_STATUSES,
+)
 from registrar.apps.enrollments.models import Program
 
 
@@ -24,64 +28,36 @@ class ProgramSerializer(serializers.ModelSerializer):
         fields = ('program_key', 'program_title', 'program_url')
 
 
-class LearnerSerializer(serializers.Serializer):
-    """
-    Serializer for the Learner model.
-    """
-    id = serializers.IntegerField()
-    lms_id = serializers.IntegerField()
-    email = serializers.CharField()
-    external_id = serializers.CharField()
-    status = serializers.CharField()
-
-
-class LearnerProgramEnrollmentSerializer(serializers.Serializer):
-    """
-    Serializer for the LearnerProgramEnrollment model.
-    """
-    learner = LearnerSerializer()
-    program = ProgramSerializer()
-    status = serializers.CharField()
-
-
 class ProgramEnrollmentRequestSerializer(serializers.Serializer):
     """
-    Serializer for request to create a LearnerProgramEnrollment
+    Serializer for request to create a program enrollment
     """
-    STATUS_CHOICES = ['pending', 'enrolled', 'suspended', 'canceled']
-
-    student_key = serializers.CharField(allow_blank=False)
-    status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    student_key = serializers.CharField()
+    status = serializers.ChoiceField(choices=PROGRAM_ENROLLMENT_STATUSES)
 
 
 class ProgramEnrollmentModificationRequestSerializer(serializers.Serializer):
     """
-    Serializer for request to modify a LearnerProgramEnrollment
+    Serializer for request to modify a program enrollment
     """
-    STATUS_CHOICES = ['pending', 'enrolled', 'suspended', 'canceled']
-
-    student_key = serializers.CharField(allow_blank=False)
-    status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    student_key = serializers.CharField()
+    status = serializers.ChoiceField(choices=PROGRAM_ENROLLMENT_STATUSES)
 
 
 class CourseEnrollmentRequestSerializer(serializers.Serializer):
     """
-    Serializer for a request to create a LearnerCourseEnrollment
+    Serializer for a request to create a course enrollment
     """
-    STATUS_CHOICES = ['active', 'inactive']
-
-    student_key = serializers.CharField(allow_blank=False)
-    status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    student_key = serializers.CharField()
+    status = serializers.ChoiceField(choices=COURSE_ENROLLMENT_STATUSES)
 
 
 class CourseEnrollmentModificationRequestSerializer(serializers.Serializer):
     """
-    Serializer for a request to modify a LearnerCourseEnrollment
+    Serializer for a request to modify a course enrollment
     """
-    STATUS_CHOICES = ['active', 'inactive']
-
-    student_key = serializers.CharField(allow_blank=False)
-    status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    student_key = serializers.CharField()
+    status = serializers.ChoiceField(choices=COURSE_ENROLLMENT_STATUSES)
 
 
 class CourseRunSerializer(serializers.Serializer):
@@ -115,5 +91,5 @@ class JobStatusSerializer(serializers.Serializer):
     }
 
     created = serializers.DateTimeField()
-    state = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
+    state = serializers.ChoiceField(choices=STATUS_CHOICES)
     result = serializers.URLField(allow_null=True)

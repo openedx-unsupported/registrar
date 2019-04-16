@@ -87,6 +87,7 @@ DATABASES = {
 
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
 
 CELERY_MESSAGE_COMPRESSION = 'gzip'
 
@@ -132,7 +133,6 @@ MEDIA_ROOT = root('media')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = '/media/'
 # END MEDIA CONFIGURATION
-
 
 # STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root

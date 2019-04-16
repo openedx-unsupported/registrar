@@ -153,3 +153,21 @@ class PendingUserOrganizationGroup(TimeStampedModel):
         Return uniquely identifying string representation.
         """
         return self.__str__()
+
+
+class JobPermissionSupport(models.Model):
+    """
+    'Model' allowing us to define permissions related to jobs, which do not
+    have a model associated with them (they are simply an abstraction around
+    UserTasks).
+
+    We set Meta.managed to False so that a database table is not created.
+
+    .. no_pii::
+    """
+
+    class Meta:
+        managed = False  # Do not create a database table
+        permissions = (
+            (perms.JOB_GLOBAL_READ_KEY, 'Global Job status reading'),
+        )

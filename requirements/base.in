@@ -1,5 +1,5 @@
 analytics-python<2.0
-celery
+celery<4.0
 django==1.11.20
 djangorestframework
 django-extensions
@@ -7,6 +7,7 @@ django-guardian
 django-model-utils
 django-mysql
 django-simple-history
+django-storages
 django-user-tasks
 django-waffle
 edx-auth-backends
@@ -14,4 +15,4 @@ edx-django-release-util
 edx-drf-extensions
 edx-rest-api-client==1.9.2
 pytz
-redis
+redis==2.8

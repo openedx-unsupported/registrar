@@ -47,7 +47,7 @@ BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
     CELERY_BROKER_VHOST
 )
 
-CELERY_TASK_ALWAYS_EAGER = False
+CELERY_ALWAYS_EAGER = False
 
 ########################### END CELERY ###################################
 

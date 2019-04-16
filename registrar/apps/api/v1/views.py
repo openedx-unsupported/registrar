@@ -4,30 +4,43 @@ The public-facing REST API.
 from collections.abc import Iterable
 import logging
 
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    ObjectDoesNotExist,
+    PermissionDenied,
+)
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.urls import resolve
+from django.urls import resolve, reverse
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_413_REQUEST_ENTITY_TOO_LARGE
+from rest_framework.status import (
+    HTTP_202_ACCEPTED,
+    HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+)
 from rest_framework.views import APIView
 
 import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
+    JobAcceptanceSerializer,
+    JobStatusSerializer,
     ProgramEnrollmentRequestSerializer,
     ProgramSerializer,
 )
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.jobs import get_job_status, start_job
 from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import get_discovery_program, post_lms_program_enrollment
+from registrar.apps.enrollments.tasks import list_program_enrollments
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +66,16 @@ class AuthMixin(object):
         """
         return None
 
+    def get_permission_required(self, _request):
+        """
+        Gets permission(s) to be checked.
+
+        Must return a string or an iterable of strings.
+        Can be overridden in subclass.
+        Default to class-level `permission_required` attribute.
+        """
+        return self.permission_required
+
     def check_permissions(self, request):
         """
         Check that the authenticated user can access this view.
@@ -67,19 +90,19 @@ class AuthMixin(object):
         if resolve(request.path_info).url_name == 'api-docs':
             self.check_doc_permissions(request)
             return
-        try:
-            self.permission_required = self.get_permission_required(request)
-        except AttributeError:
-            pass
 
-        if isinstance(self.permission_required, str):
-            required = [self.permission_required]
-        elif isinstance(self.permission_required, Iterable):
-            required = [perm for perm in self.permission_required]
+        if not request.user.is_authenticated:
+            raise NotAuthenticated()
+
+        required = self.get_permission_required(request)
+        if isinstance(required, str):
+            required = [required]
+        elif isinstance(required, Iterable):
+            required = list(required)
         else:
             raise ImproperlyConfigured(
-                'permission_required must be set to string or iterable; ' +
-                'is set to {}'.format(self.permission_required)
+                'get_permission_required must return string or iterable; ' +
+                'returned {}'.format(required)
             )
 
         if all(request.user.has_perm(perm) for perm in required):
@@ -208,61 +231,6 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
         return self.program
 
 
-class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
-    """
-    A view for enrolling students in a program, or retrieving/modifying program enrollment data.
-
-    Path: /api/v1/programs/{program_key}/enrollments
-
-    Accepts: [POST]
-
-    ------------------------------------------------------------------------------------
-    GET
-    ------------------------------------------------------------------------------------
-
-    Not implemented.
-
-    ------------------------------------------------------------------------------------
-    POST / PATCH
-    ------------------------------------------------------------------------------------
-
-    Create or modify program enrollments. Checks user permissions and forwards request
-    to the LMS program_enrollments endpoint.  Accepts up to 25 enrollments
-
-    Returns:
-     * 200: Returns a map of students and their enrollment status.
-     * 207: Not all students enrolled. Returns resulting enrollment status.
-     * 401: User is not authenticated
-     * 403: User lacks read access for the organization of specified program.
-     * 404: Program does not exist.
-     * 413: Payload too large, over 25 students supplied.
-     * 422: Invalid request, unable to enroll students.
-    """
-    ENROLLMENT_LIMIT = 25
-
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return ProgramEnrollmentRequestSerializer(multiple=True)
-
-    def get_permission_required(self, request):
-        if request.method == 'POST':
-            return perms.ORGANIZATION_WRITE_ENROLLMENTS
-
-    def post(self, request, program_key):
-        """ POST handler """
-        if not isinstance(request.data, list):
-            raise ValidationError('expected request body type: List')
-
-        if len(request.data) > self.ENROLLMENT_LIMIT:
-            return Response(
-                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
-            )
-
-        program_uuid = self.program.discovery_uuid
-        response = post_lms_program_enrollment(program_uuid, request.data)
-        return Response(response.json(), status=response.status_code)
-
-
 class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     """
     A view for listing courses in a program.
@@ -302,3 +270,129 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
             for course in curricula[0].get('courses') or []:
                 course_runs = course_runs + course.get('course_runs')
         return course_runs
+
+
+class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
+    """
+    A view for enrolling students in a program, or retrieving/modifying program enrollment data.
+
+    Path: /api/v1/programs/{program_key}/enrollments
+
+    Accepts: [GET, POST, PATCH]
+
+    ------------------------------------------------------------------------------------
+    GET
+    ------------------------------------------------------------------------------------
+
+    Invokes a Django User Task that retrieves student enrollment
+    data for a given program.
+
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks read access organization of specified program.
+     * 404: Program does not exist.
+
+    Example Response:
+    {
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+    }
+
+    ------------------------------------------------------------------------------------
+    POST / PATCH
+    ------------------------------------------------------------------------------------
+
+    Create or modify program enrollments. Checks user permissions and forwards request
+    to the LMS program_enrollments endpoint.  Accepts up to 25 enrollments
+
+    Returns:
+     * 200: Returns a map of students and their enrollment status.
+     * 207: Not all students enrolled. Returns resulting enrollment status.
+     * 401: User is not authenticated
+     * 403: User lacks read access for the organization of specified program.
+     * 404: Program does not exist.
+     * 413: Payload too large, over 25 students supplied.
+     * 422: Invalid request, unable to enroll students.
+    """
+    ENROLLMENT_LIMIT = 25
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return JobAcceptanceSerializer
+        if self.request.method == 'POST':
+            return ProgramEnrollmentRequestSerializer(multiple=True)
+
+    def get_permission_required(self, request):
+        if request.method == 'GET':
+            return perms.ORGANIZATION_READ_ENROLLMENTS
+        if request.method == 'POST':
+            return perms.ORGANIZATION_WRITE_ENROLLMENTS
+        return []
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves program enrollment data.
+        """
+        file_format = request.query_params.get('fmt', 'json')
+        if file_format not in {'json', 'csv'}:
+            raise Http404()
+        job_id = start_job(
+            self.request.user,
+            list_program_enrollments,
+            self.program.key,
+            file_format,
+        )
+        job_url = self.request.build_absolute_uri(
+            reverse('api:v1:job-status', kwargs={'job_id': job_id})
+        )
+        data = {'job_id': job_id, 'job_url': job_url}
+        return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
+
+    def post(self, request, program_key):
+        """ POST handler """
+        if not isinstance(request.data, list):
+            raise ValidationError('expected request body type: List')
+
+        if len(request.data) > self.ENROLLMENT_LIMIT:
+            return Response(
+                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
+            )
+
+        program_uuid = self.program.discovery_uuid
+        response = post_lms_program_enrollment(program_uuid, request.data)
+        return Response(response.json(), status=response.status_code)
+
+
+class JobStatusRetrieveView(RetrieveAPIView):
+    """
+    A view for getting the status of a job.
+
+    Path: /api/v1/jobs/{job_id}
+
+    Accepts: [GET]
+
+    Returns:
+     * 200: Returns the status of the job
+     * 404: Invalid job ID
+
+    Example:
+    {
+        "created": "2019-03-27T18:19:19.189272Z",
+        "state": "Succeeded",
+        "result":
+            "http://localhost/files/3b985cec-dcf4-4d38-9498-8545ebcf5d0f.json"
+    }
+    """
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = JobStatusSerializer
+
+    def get_object(self):
+        try:
+            job_status = get_job_status(self.request.user, self.kwargs['job_id'])
+        except PermissionDenied:
+            raise
+        except ObjectDoesNotExist:
+            raise Http404()
+        return job_status

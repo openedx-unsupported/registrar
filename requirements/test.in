@@ -8,6 +8,7 @@ edx-lint
 factory_boy
 Faker
 mock
+moto
 ddt
 pycodestyle
 pytest-cov

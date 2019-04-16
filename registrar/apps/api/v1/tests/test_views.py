@@ -1,90 +1,89 @@
 """ Tests for API views. """
 
 import json
-import uuid
 from posixpath import join as urljoin
+import uuid
 
-import ddt
-from guardian.shortcuts import assign_perm
-import responses
+import boto3
+from celery import shared_task
 from django.conf import settings
+import ddt
+from faker import Faker
+from guardian.shortcuts import assign_perm
+import mock
+import moto
+import requests
+import responses
 from rest_framework.test import APITestCase
+from user_tasks.tasks import UserTask
 
-from registrar.apps.api.tests.mixins import RequestMixin
+from registrar.apps.api.tests.mixins import AuthRequestMixin
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.jobs import (
+    post_job_failure,
+    post_job_success,
+    start_job,
+)
+from registrar.apps.core.permissions import JOB_GLOBAL_READ
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
     OrganizationGroupFactory,
     UserFactory,
 )
+from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
-def mock_oauth_login(fn):
-    """
-    Mock request to authenticate registrar as a backend client
-    """
-    # pylint: disable=missing-docstring
-    def inner(self, *args, **kwargs):
-        responses.add(
-            responses.POST,
-            settings.LMS_BASE_URL + '/oauth2/access_token',
-            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
-            status=200
-        )
-        fn(self, *args, **kwargs)
-    return inner
-
-
-class RegistrarAPITestCase(APITestCase, RequestMixin):
+class RegistrarAPITestCase(APITestCase):
     """ Base for tests of the Registrar API """
 
     api_root = '/api/v1/'
 
-    def setUp(self):
-        super(RegistrarAPITestCase, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
-        self.edx_admin = UserFactory(username='edx-admin')
-        assign_perm(perms.ORGANIZATION_READ_METADATA, self.edx_admin)
+        cls.edx_admin = UserFactory(username='edx-admin')
+        assign_perm(perms.ORGANIZATION_READ_METADATA, cls.edx_admin)
 
-        self.stem_org = OrganizationFactory(name='STEM Institute')
-        self.cs_program = ProgramFactory(
-            managing_organization=self.stem_org,
+        cls.stem_org = OrganizationFactory(name='STEM Institute')
+        cls.cs_program = ProgramFactory(
+            managing_organization=cls.stem_org,
             title="Master's in CS"
         )
-        self.mech_program = ProgramFactory(
-            managing_organization=self.stem_org,
+        cls.mech_program = ProgramFactory(
+            managing_organization=cls.stem_org,
             title="Master's in ME"
         )
 
-        self.stem_admin = UserFactory(username='stem-institute-admin')
-        self.stem_user = UserFactory(username='stem-institute-user')
-        self.stem_admin_group = OrganizationGroupFactory(
-            organization=self.stem_org,
+        cls.stem_admin = UserFactory(username='stem-institute-admin')
+        cls.stem_user = UserFactory(username='stem-institute-user')
+        cls.stem_admin_group = OrganizationGroupFactory(
+            organization=cls.stem_org,
             role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
-        self.stem_user_group = OrganizationGroupFactory(
-            organization=self.stem_org,
+        cls.stem_user_group = OrganizationGroupFactory(
+            organization=cls.stem_org,
             role=perms.OrganizationReadMetadataRole.name
         )
-        self.stem_admin.groups.add(self.stem_admin_group)  # pylint: disable=no-member
+        cls.stem_admin.groups.add(cls.stem_admin_group)  # pylint: disable=no-member
 
-        self.hum_org = OrganizationFactory(name='Humanities College')
-        self.phil_program = ProgramFactory(
-            managing_organization=self.hum_org,
+        cls.hum_org = OrganizationFactory(name='Humanities College')
+        cls.phil_program = ProgramFactory(
+            managing_organization=cls.hum_org,
             title="Master's in Philosophy"
         )
-        self.english_program = ProgramFactory(
-            managing_organization=self.hum_org,
+        cls.english_program = ProgramFactory(
+            managing_organization=cls.hum_org,
             title="Master's in English"
         )
 
-        self.hum_admin = UserFactory(username='humanities-college-admin')
-        self.hum_admin_group = OrganizationGroupFactory(
-            organization=self.hum_org,
-            role=perms.OrganizationReadMetadataRole.name
+        cls.hum_admin = UserFactory(username='humanities-college-admin')
+        cls.hum_admin_group = OrganizationGroupFactory(
+            organization=cls.hum_org,
+            role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
-        self.hum_admin.groups.add(self.hum_admin_group)  # pylint: disable=no-member
+        cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
 
     def mock_api_response(self, url, response_data, method='GET', response_code=200):
         responses.add(
@@ -96,9 +95,34 @@ class RegistrarAPITestCase(APITestCase, RequestMixin):
         )
 
 
+class S3MockMixin(object):
+    """
+    Mixin for classes that need to access S3 resources.
+
+    Enables S3 mock and creates default bucket before tests.
+    Disables S3 mock afterwards.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._s3_mock = moto.mock_s3()
+        cls._s3_mock.start()
+        conn = boto3.resource('s3')
+        conn.create_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._s3_mock.stop()
+        super().tearDownClass()
+
+
 @ddt.ddt
-class ProgramListViewTests(RegistrarAPITestCase):
+class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     """ Tests for the /api/v1/programs?org={org_key} endpoint """
+
+    method = 'GET'
+    path = 'programs'
 
     def test_all_programs(self):
         response = self.get('programs', self.edx_admin)
@@ -143,8 +167,11 @@ class ProgramListViewTests(RegistrarAPITestCase):
 
 
 @ddt.ddt
-class ProgramRetrieveViewTests(RegistrarAPITestCase):
+class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
     """ Tests for the /api/v1/programs/{program_key} endpoint """
+
+    method = 'GET'
+    path = 'programs/masters-in-english'
 
     @ddt.data(True, False)
     def test_get_program(self, is_staff):
@@ -171,8 +198,11 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase):
 
 
 @ddt.ddt
-class ProgramCourseListViewTests(RegistrarAPITestCase):
+class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     """ Tests for the /api/v1/programs/{program_key}/courses endpoint """
+
+    method = 'GET'
+    path = 'programs/masters-in-english/courses'
 
     @ddt.data(True, False)
     @mock_oauth_login
@@ -308,13 +338,16 @@ class ProgramCourseListViewTests(RegistrarAPITestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class ProgramEnrollmentViewTest(RegistrarAPITestCase):
-    """ Tests for the /api/v1/programs/{program_key}/enrollments endpoint """
+class ProgramEnrollmentPostTests(RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for the POST /api/v1/programs/{program_key}/enrollments endpoint """
+    method = 'POST'
+    path = 'programs/masters-in-english/enrollments'
 
-    def setUp(self):
-        super(ProgramEnrollmentViewTest, self).setUp()
-        program_uuid = self.cs_program.discovery_uuid
-        self.lms_request_url = urljoin(
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        program_uuid = cls.cs_program.discovery_uuid
+        cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
@@ -402,3 +435,127 @@ class ProgramEnrollmentViewTest(RegistrarAPITestCase):
 
         response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
         self.assertEqual(response.status_code, 413)
+
+
+@ddt.ddt
+class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for GET /api/v1/programs/{program_key}/enrollments endpoint """
+    method = 'GET'
+    path = 'programs/masters-in-english/enrollments'
+
+    enrollments = [
+        {
+            'student_key': 'abcd',
+            'status': 'enrolled',
+            'account_exists': True,
+        },
+        {
+            'student_key': 'efgh',
+            'status': 'pending',
+            'account_exists': False,
+        },
+    ]
+    enrollments_json = json.dumps(enrollments, indent=4)
+    enrollments_csv = (
+        "abcd,enrolled,true\n"
+        "efgh,pending,false"
+    )
+
+    @mock.patch(
+        'registrar.apps.enrollments.tasks.get_program_enrollments',
+        return_value=enrollments,
+    )
+    @ddt.data(
+        (None, 'json', enrollments_json),
+        ('json', 'json', enrollments_json),
+        ('csv', 'csv', enrollments_csv),
+    )
+    @ddt.unpack
+    def test_ok(self, format_param, expected_format, expected_contents, _mock):
+        format_suffix = "?fmt=" + format_param if format_param else ""
+        response = self.get(self.path + format_suffix, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        result_url = job_response.data['result']
+        self.assertIn(".{}?".format(expected_format), result_url)
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response.text, expected_contents)
+
+    def test_permission_denied(self):
+        response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_program_not_found(self):
+        response = self.get('programs/masters-in-polysci/courses', self.hum_admin)
+        self.assertEqual(response.status_code, 404)
+
+
+class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for GET /api/v1/jobs/{job_id} endpoint """
+    method = 'GET'
+    path = 'jobs/a6393974-cf86-4e3b-a21a-d27e17932447'
+
+    def test_successful_job(self):
+        job_id = start_job(self.stem_admin, _succeeding_job)
+        job_respose = self.get('jobs/' + job_id, self.stem_admin)
+        self.assertEqual(job_respose.status_code, 200)
+
+        job_status = job_respose.data
+        self.assertIn('created', job_status)
+        self.assertEqual(job_status['state'], 'Succeeded')
+        result_url = job_status['result']
+        self.assertIn("/job-results/{}.json?".format(job_id), result_url)
+
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        json.loads(file_response.text)  # Make sure this doesn't raise an error
+
+    @mock.patch('registrar.apps.core.jobs.logger', autospec=True)
+    def test_failed_job(self, mock_jobs_logger):
+        FAIL_MESSAGE = "everything is broken"
+        job_id = start_job(self.stem_admin, _failing_job, FAIL_MESSAGE)
+        job_respose = self.get('jobs/' + job_id, self.stem_admin)
+        self.assertEqual(job_respose.status_code, 200)
+
+        job_status = job_respose.data
+        self.assertIn('created', job_status)
+        self.assertEqual(job_status['state'], 'Failed')
+        self.assertIsNone(job_status['result'])
+        self.assertEqual(mock_jobs_logger.error.call_count, 1)
+
+        error_logged = mock_jobs_logger.error.call_args_list[0][0][0]
+        self.assertIn(job_id, error_logged)
+        self.assertIn(FAIL_MESSAGE, error_logged)
+
+    def test_job_permission_denied(self):
+        job_id = start_job(self.stem_admin, _succeeding_job)
+        job_respose = self.get('jobs/' + job_id, self.hum_admin)
+        self.assertEqual(job_respose.status_code, 403)
+
+    def test_job_global_read_permission(self):
+        job_id = start_job(self.stem_admin, _succeeding_job)
+        assign_perm(JOB_GLOBAL_READ, self.hum_admin)
+        job_respose = self.get('jobs/' + job_id, self.hum_admin)
+        self.assertEqual(job_respose.status_code, 200)
+
+    def test_job_does_not_exist(self):
+        nonexistant_job_id = str(uuid.uuid4())
+        job_respose = self.get('jobs/' + nonexistant_job_id, self.stem_admin)
+        self.assertEqual(job_respose.status_code, 404)
+
+
+@shared_task(base=UserTask, bind=True)
+def _succeeding_job(self, job_id, user_id):  # pylint: disable=unused-argument
+    """ A job that just succeeds, posting an empty JSON list as its result. """
+    fake_data = Faker().pystruct(20, str, int, bool)  # pylint: disable=no-member
+    post_job_success(job_id, json.dumps(fake_data), 'json')
+
+
+@shared_task(base=UserTask, bind=True)
+def _failing_job(self, job_id, user_id, fail_message):  # pylint: disable=unused-argument
+    """ A job that just fails, providing `fail_message` as its reason """
+    post_job_failure(job_id, fail_message)
