@@ -517,16 +517,6 @@ consumes:
 ################################################################################
 
 paths:
-  ### API Docs ###
-  /api-docs/:
-    get:
-      operationId: registrar_get_api_docs
-      tags: [api-docs]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api-docs/
 
   ### V0 API ###
   /v0/jobs/{job_id}/:
