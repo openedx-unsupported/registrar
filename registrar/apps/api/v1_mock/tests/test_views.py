@@ -6,7 +6,7 @@ import ddt
 import mock
 from rest_framework.test import APITestCase
 
-from registrar.apps.api.tests.mixins import RequestMixin
+from registrar.apps.api.tests.mixins import AuthRequestMixin
 from registrar.apps.api.v1_mock.data import (
     FAKE_PROGRAMS,
     invoke_fake_course_enrollment_listing_job,
@@ -16,27 +16,19 @@ from registrar.apps.core.permissions import OrganizationReadMetadataRole
 from registrar.apps.core.tests.factories import GroupFactory, UserFactory
 
 
-class MockAPITestMixin(RequestMixin):
+class MockAPITestMixin(AuthRequestMixin):
     """ Base mixin for tests for the v1_mock API. """
     api_root = '/api/v1-mock/'
-    path_suffix = None  # Define me in subclasses
 
-    @property
-    def path(self):
-        return self.api_root + self.path_suffix
-
-    def setUp(self):
-        super().setUp()
-        self.user = UserFactory()
-        self.admin_read_metadata_group = GroupFactory(
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory()
+        cls.admin_read_metadata_group = GroupFactory(
             name='admin_read_metadata',
             permissions=OrganizationReadMetadataRole.permissions,
         )
-        self.admin_user = UserFactory(groups=[self.admin_read_metadata_group])
-
-    def test_unauthenticated(self):
-        response = self.get(self.path, None)
-        self.assertEqual(response.status_code, 401)
+        cls.admin_user = UserFactory(groups=[cls.admin_read_metadata_group])
 
 
 class MockJobTestMixin(object):
@@ -65,7 +57,8 @@ class MockJobTestMixin(object):
 class MockProgramListViewTests(MockAPITestMixin, APITestCase):
     """ Tests for mock program listing """
 
-    path_suffix = 'programs'
+    method = 'GET'
+    path = 'programs'
 
     def test_list_all_unauthorized(self):
         response = self.get(self.path, self.user)
@@ -109,7 +102,8 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
 class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
     """ Tests for mock program retrieve """
 
-    path_suffix = 'programs/'
+    method = 'GET'
+    path = 'programs/'
 
     def test_program_unauthorized(self):
         response = self.get(self.path + 'upz-masters-ancient-history', self.user)
@@ -136,7 +130,9 @@ class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
 class MockCourseListViewTests(MockAPITestMixin, APITestCase):
     """ Tests for mock course listing """
 
-    path_suffix = 'programs/bcc-masters-english-lit/courses'  # for 401 test only
+    # For AuthN test
+    method = 'GET'
+    path = 'programs/bcc-masters-english-lit/courses'
 
     def test_program_unauthorized(self):
         response = self.get('programs/upz-masters-ancient-history/courses', self.user)
@@ -163,6 +159,10 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
 
 class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
     """ Test for mock program enrollment """
+
+    # For AuthN test
+    method = 'POST'
+    path = 'programs/hhp-masters-ce/enrollments/'
 
     def student_enrollment(self, status, student_key=None):
         return {
@@ -284,7 +284,8 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     """ Tests for mock modify program enrollment """
 
-    path_suffix = 'programs/hhp-masters-ce/enrollments/'
+    method = 'PATCH'
+    path = 'programs/hhp-masters-ce/enrollments/'
 
     def learner_modification(self, student_key, status):
         return {"student_key": student_key, "status": status}
@@ -380,9 +381,8 @@ class MockProgramEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestC
     """
     Tests for the mock retrieval of program enrollments data via fake async jobs.
     """
-    def test_unauthenticated(self):
-        response = self.get('programs/upz-masters-ancient-history/enrollments/', None)
-        self.assertEqual(401, response.status_code)
+    method = 'GET'
+    path = 'programs/hhp-masters-ce/enrollments/'
 
     def _get_enrollments(self, program_key):
         return self.get('programs/{}/enrollments/'.format(program_key), self.user)
@@ -428,7 +428,8 @@ class MockProgramEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestC
 class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
     """ Tests for mock course enrollment """
 
-    path_suffix = 'programs/hhp-masters-ce/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
+    method = 'POST'
+    path = 'programs/hhp-masters-ce/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
 
     def learner_enrollment(self, student_key, status):
         return {"student_key": student_key, "status": status}
@@ -516,7 +517,9 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
 class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     """ Tests for mock modify course enrollment """
 
-    path_suffix = 'programs/hhp-masters-ce/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
+    # For AuthN test
+    method = 'PATCH'
+    path = 'programs/hhp-masters-ce/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
 
     def learner_modification(self, student_key, status):
         return {"student_key": student_key, "status": status}
@@ -618,9 +621,10 @@ class MockCourseEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCa
     """
     Tests for the mock retrieval of program enrollments data via fake async jobs.
     """
-    def test_unauthenticated(self):
-        response = self.get('programs/dvi-mba/courses/DVIx+BIZ-200+Spring2050/enrollments', None)
-        self.assertEqual(401, response.status_code)
+
+    # For AuthN test
+    method = 'GET'
+    path = 'programs/dvi-mba/courses/DVIx+BIZ-200+Spring2050/enrollments'
 
     def _get_enrollments(self, program_key, course_key):
         return self.get(
@@ -769,3 +773,16 @@ class MockCourseEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCa
         self.assert_job_result(
             response.data['job_url'], expected_state, expected_path,
         )
+
+
+class MockJobRetrievalTests(MockAPITestMixin, APITestCase):
+    """Test case to make sure only AuthN'ed users can get job statuses"""
+
+    # We need not define any tests functions here, because:
+    #  (1) MockAPITestMixin superclass will check that this 401s
+    #      if a user is not authenticated, and
+    #  (2) Happy-path (authenticated) job gets are handled by
+    #      MockProgramEnrollmentGetTests and MockCourseEnrollmentGetTests
+
+    method = 'GET'
+    path = 'jobs/a6393974-cf86-4e3b-a21a-d27e17932447'

@@ -5,8 +5,11 @@ from posixpath import join as urljoin
 from requests.exceptions import HTTPError
 
 from django.conf import settings
-
 from edx_rest_api_client import client as rest_client
+
+from registrar.apps.enrollments.serializers import (
+    ProgramEnrollmentSerializer,
+)
 
 
 def get_client(host_base_url):
@@ -48,6 +51,51 @@ def post_lms_program_enrollment(program_uuid, enrollments, client=None):
         if response.status_code == 422:
             return response
         raise
+
+
+def get_program_enrollments(program_uuid, client=None):
+    """
+    Fetches program enrollments from the LMS.
+
+    Arguments:
+        program_uuid (str): UUID-4 string
+
+    Returns: list[dict]
+        A list of enrollment dictionaries, validated by
+        ProgramEnrollmentSerializer.
+
+    Raises:
+        - HTTPError if there is an issue communicating with LMS
+        - ValidationError if enrollment data from LMS is invalid
+    """
+    url = urljoin(
+        settings.LMS_BASE_URL,
+        'api/program_enrollments/v1/programs/{}/enrollments'.format(program_uuid),
+    )
+    enrollments = _get_all_paginated_results(url, client)
+    ProgramEnrollmentSerializer(
+        data=enrollments, many=True
+    ).is_valid(
+        raise_exception=True
+    )
+    return enrollments
+
+
+def _get_all_paginated_results(url, client=None):
+    """
+    Builds a list of all results from a cursor-paginated endpoint.
+
+    Repeatedly performs request on 'next' URL until 'next' is null.
+    """
+    if not client:
+        client = get_client(settings.LMS_BASE_URL)
+    results = []
+    next_url = url
+    while next_url:
+        response_data = _make_request('GET', next_url, client).json()
+        results += response_data['results']
+        next_url = response_data.get('next')
+    return results
 
 
 def _make_request(method, url, client, **kwargs):

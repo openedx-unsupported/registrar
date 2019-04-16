@@ -54,44 +54,54 @@ class JwtMixin(object):
         return 'JWT {token}'.format(token=jwt_token)
 
 
-class RequestMixin(JwtMixin):
+class AuthRequestMixin(JwtMixin):
     """
     Mixin with authenticated get/post/put/patch/delete helper functions.
 
     Expects implementing classes to provide ``self.client`` attribute.
+
+    Also tests that endpoint returns a 401 if unauthenticated.
     """
+    # Define in subclasss
+    api_root = None  # Prepended to all non-absolute request URLs
+    method = None  # Used in test_unauthenticated
+    path = None  # Used in test_unauthenticated
+
+    def test_unauthenticated(self):
+        response = self.request(self.method, self.api_root + self.path, None)
+        self.assertEqual(response.status_code, 401)
 
     def get(self, path, user):
         """
         Perform a GET on the given path, optionally with a user.
         """
-        return self._request('get', path, user)
+        return self.request('get', path, user)
 
     def post(self, path, data, user):
         """
         Perform a POST on the given path, optionally with a user.
         """
-        return self._request('post', path, user, data)
+        return self.request('post', path, user, data)
 
     def put(self, path, data, user):
         """
         Perform a PUT on the given path, optionally with a user.
         """
-        return self._request('put', path, user, data)
+        return self.request('put', path, user, data)
 
     def patch(self, path, data, user):
         """
         Perform a PATCH on the given path, optionally with a user.
         """
-        return self._request('patch', path, user, data)
+        return self.request('patch', path, user, data)
 
     def delete(self, path, user):
         """
         Perform a DELETE on the given, optionally with a user.
         """
-        return self._request('delete', path, user)
+        return self.request('delete', path, user)
 
-    def _request(self, method, path, user, data=None):
+    def request(self, method, path, user, data=None):
         """
         Perform an HTTP request of the given method.
 

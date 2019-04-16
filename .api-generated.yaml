@@ -49,6 +49,15 @@ endpoints:
       name: course_id
       required: true
       type: string
+    - description: format of file to generate
+      enum:
+      - json
+      - csv
+      example: json
+      in: query
+      name: fmt
+      required: false
+      type: string
     responses:
       200:
         description: OK
@@ -105,6 +114,15 @@ endpoints:
       in: path
       name: program_key
       required: true
+      type: string
+    - description: format of file to generate
+      enum:
+      - json
+      - csv
+      example: json
+      in: query
+      name: fmt
+      required: false
       type: string
     responses:
       200:
@@ -410,6 +428,16 @@ endpoints:
         httpMethod: GET
         type: http_proxy
         uri: https://${stageVariables.registrar_host}/api-docs/
+format_param:
+  description: format of file to generate
+  enum:
+  - json
+  - csv
+  example: json
+  in: query
+  name: fmt
+  required: false
+  type: string
 info:
   description: "Registrar API\n"
   title: Registrar API
@@ -670,6 +698,15 @@ paths:
         name: course_id
         required: true
         type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
       responses:
         200:
           description: OK
@@ -829,6 +866,15 @@ paths:
         in: path
         name: program_key
         required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
         type: string
       responses:
         200:

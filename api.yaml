@@ -45,6 +45,14 @@ course_path_param: &course_path_param
   type: string
   description: edX course run identifier
   example: 'course-v1:ExU+Science-101+Fall2050'
+format_param: &format_param
+  in: query
+  name: fmt
+  required: false
+  type: string
+  enum: [json, csv]
+  description: format of file to generate
+  example: 'json'
 program_enrollment_body: &program_enrollment_body
   in: body
   name: body
@@ -199,6 +207,7 @@ endpoints:
     description: Submit a job to retrieve program enrollment data
     parameters:
       - *program_path_param
+      - *format_param
     responses:
       200:
         description: OK
@@ -298,6 +307,7 @@ endpoints:
     parameters:
       - *program_path_param
       - *course_path_param
+      - *format_param
     responses:
       200:
         description: OK

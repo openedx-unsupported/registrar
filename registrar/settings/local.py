@@ -61,7 +61,11 @@ ENABLE_AUTO_AUTH = True
 LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 
 # CELERY
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_ALWAYS_EAGER = True
+
+# Media
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

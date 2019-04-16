@@ -40,6 +40,13 @@ ORGANIZATION_PERMISSIONS = {
 }
 
 
+# A user with this permission can view the status of all jobs.
+# A user without it can only view their own.
+# This permission should be reserved for edX staff.
+JOB_GLOBAL_READ_KEY = 'job_global_read'
+JOB_GLOBAL_READ = APP_PREFIX + JOB_GLOBAL_READ_KEY
+
+
 class OrganizationRole(object):
     """
     A collection of Organization access permissions that can be assigned

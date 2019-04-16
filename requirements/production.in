@@ -2,6 +2,7 @@
 -r base.in
 -r nonlocal.in
 
+boto3>=1.4.4
 gevent
 gunicorn
 mysqlclient

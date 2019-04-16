@@ -31,6 +31,9 @@ default.db
 media/cache/
 assets/
 
+# Generated files
+registrar/media/
+
 # Unit test / coverage reports
 .coverage
 htmlcov
