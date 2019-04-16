@@ -1,10 +1,10 @@
 #!/bin/sh
 # This file generates the JSON enrollment data files for
-# the V0 API. It deletes any existing JSON files.
+# the V1 mock API. It deletes any existing JSON files.
 # Run this from the root directory of Registrar:
 # $ scripts/generate_mock_files.sh
 
-DATA_PATH=registrar/static/api/v0
+DATA_PATH=registrar/static/api/v1_mock
 PGM_DATA_PATH=$DATA_PATH/program-enrollments
 CRS_DATA_PATH=$DATA_PATH/course-enrollments
 PGM_ENROLLS=scripts/fake_program_enrollments.py

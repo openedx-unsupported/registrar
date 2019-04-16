@@ -1,12 +1,12 @@
-""" API v0 URLs. """
+""" API v1_mock URLs. """
 
 from django.conf.urls import url
 
-from registrar.apps.api.v0 import views
+from registrar.apps.api.v1_mock import views
 from registrar.apps.core.constants import PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN
 
 
-app_name = 'v0'
+app_name = 'v1-mock'
 
 urlpatterns = [
     url(

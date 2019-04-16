@@ -306,87 +306,87 @@ consumes:
 
 paths:
 
-  ### V0 API ###
-  '/v0/jobs/{job_id}/':
+  ### V1 Mock API ###
+  '/v1-mock/jobs/{job_id}/':
     get:
       <<: *get_job_status
-      operationId: registrar_v0_get_job_status
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_get_job_status
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
-        uri: 'https://${stageVariables.registrar_host}/api/v0/jobs/{job_id}/'
-  '/v0/programs/':
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/'
+  '/v1-mock/programs/':
     get:
       <<: *list_programs
-      operationId: registrar_v0_list_programs
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_list_programs
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/'
-  '/v0/programs/{program_key}/':
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/'
+  '/v1-mock/programs/{program_key}/':
     get:
       <<: *get_program
-      operationId: registrar_v0_get_program
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_get_program
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/'
-  '/v0/programs/{program_key}/courses/':
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/'
+  '/v1-mock/programs/{program_key}/courses/':
     get:
       <<: *list_courses
-      operationId: registrar_v0_list_courses
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_list_courses
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/'
-  '/v0/programs/{program_key}/courses/{course_id}/enrollments/':
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/'
+  '/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/':
     get:
       <<: *get_course_enrollments
-      operationId: registrar_v0_get_course_enrollments
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_get_course_enrollments
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/'
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/'
     post:
       <<: *post_course_enrollments
-      operationId: registrar_v0_post_course_enrollments
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_post_course_enrollments
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
         httpMethod: POST
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/'
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/'
     patch:
       <<: *patch_course_enrollments
-      operationId: registrar_v0_patch_course_enrollments
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_patch_course_enrollments
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
         httpMethod: PATCH
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/'
-  '/v0/programs/{program_key}/enrollments/':
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/'
+  '/v1-mock/programs/{program_key}/enrollments/':
     get:
       <<: *get_program_enrollments
-      operationId: registrar_v0_get_program_enrollments
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_get_program_enrollments
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/'
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/'
     post:
       <<: *post_program_enrollments
-      operationId: registrar_v0_post_program_enrollments
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_post_program_enrollments
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
         httpMethod: POST
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/'
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/'
     patch:
       <<: *patch_program_enrollments
-      operationId: registrar_v0_patch_program_enrollments
-      tags: ['v0 - Mock API']
+      operationId: registrar_v1_mock_patch_program_enrollments
+      tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
         <<: *api_gateway_integration
         httpMethod: PATCH
-        uri: 'https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/'
+        uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/'
 
 
   ### V1 API ###

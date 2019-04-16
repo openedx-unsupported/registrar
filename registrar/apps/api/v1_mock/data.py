@@ -182,7 +182,7 @@ FAKE_PROGRAM_COURSE_RUNS = {
 }
 
 
-_FAKE_JOB_CACHE_PREFIX = 'api-v0-job:'
+_FAKE_JOB_CACHE_PREFIX = 'api-v1_mock-job:'
 _FAKE_JOB_CACHE_LIFETIME = 60 * 60 * 24  # Clean up jobs after one day
 
 
@@ -208,7 +208,7 @@ def invoke_fake_program_enrollment_listing_job(
     """
     result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM[program_key]
     if result_filename:
-        result_filepath = '/static/api/v0/program-enrollments/{}'.format(result_filename)
+        result_filepath = '/static/api/v1_mock/program-enrollments/{}'.format(result_filename)
     else:
         result_filepath = None
     return _invoke_fake_job(result_filepath, original_url, min_duration, max_duration)
@@ -252,7 +252,7 @@ def invoke_fake_course_enrollment_listing_job(
     """
     result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE[program_key][course_key]
     if result_filename:
-        result_filepath = '/static/api/v0/course-enrollments/{}'.format(result_filename)
+        result_filepath = '/static/api/v1_mock/course-enrollments/{}'.format(result_filename)
     else:
         result_filepath = None
     return _invoke_fake_job(result_filepath, original_url, min_duration, max_duration)
