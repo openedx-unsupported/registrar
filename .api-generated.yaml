@@ -528,8 +528,8 @@ paths:
 
         uri: https://${stageVariables.registrar_host}/api-docs/
 
-  ### V0 API ###
-  /v0/jobs/{job_id}/:
+  ### V1 Mock API ###
+  /v1-mock/jobs/{job_id}/:
     get:
       summary: Get the status of a job
       parameters:
@@ -545,14 +545,14 @@ paths:
           description: OK
           schema:
             $ref: '#/models/JobStatus'
-      operationId: registrar_v0_get_job_status
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_get_job_status
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/jobs/{job_id}/
-  /v0/programs/:
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/
+  /v1-mock/programs/:
     get:
       summary: List programs
       description: List all programs, requires an organization key for non-admins
@@ -575,14 +575,14 @@ paths:
         404:
           description: Organization was not found.
 
-      operationId: registrar_v0_list_programs
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_list_programs
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/
-  /v0/programs/{program_key}/:
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/
+  /v1-mock/programs/{program_key}/:
     get:
       summary: Get Program
       parameters:
@@ -602,14 +602,14 @@ paths:
         404:
           description: Program was not found.
 
-      operationId: registrar_v0_get_program
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_get_program
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/
-  /v0/programs/{program_key}/courses/:
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/
+  /v1-mock/programs/{program_key}/courses/:
     get:
       summary: List program courses
       parameters:
@@ -631,14 +631,14 @@ paths:
         404:
           description: Program was not found.
 
-      operationId: registrar_v0_list_courses
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_list_courses
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/
-  /v0/programs/{program_key}/courses/{course_id}/enrollments/:
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/
+  /v1-mock/programs/{program_key}/courses/{course_id}/enrollments/:
     get:
       summary: Request course enrollment data
       description: Submit a job to retrieve course enrollment data
@@ -667,13 +667,13 @@ paths:
           description: >
             Course does not exist within program, or program was not found.
 
-      operationId: registrar_v0_get_course_enrollments
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_get_course_enrollments
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
     post:
       summary: Enroll students in a course
       parameters:
@@ -729,13 +729,13 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: conflict
 
-      operationId: registrar_v0_post_course_enrollments
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_post_course_enrollments
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
     patch:
       summary: Modify course enrollments
       parameters:
@@ -794,14 +794,14 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: not-found
 
-      operationId: registrar_v0_patch_course_enrollments
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_patch_course_enrollments
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/courses/{course_id}/enrollments/
-  /v0/programs/{program_key}/enrollments/:
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
+  /v1-mock/programs/{program_key}/enrollments/:
     get:
       summary: Request program enrollment data
       description: Submit a job to retrieve program enrollment data
@@ -822,13 +822,13 @@ paths:
         404:
           description: Program was not found.
 
-      operationId: registrar_v0_get_program_enrollments
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_get_program_enrollments
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
     post:
       summary: Enroll students in a program
       parameters:
@@ -878,13 +878,13 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: conflict
 
-      operationId: registrar_v0_post_program_enrollments
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_post_program_enrollments
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
     patch:
       summary: Modify program enrollments
       parameters:
@@ -937,13 +937,13 @@ paths:
               student_0128fe4a: invalid-status
               student_aae45c81: not-found
 
-      operationId: registrar_v0_patch_program_enrollments
-      tags: [v0 - Mock API]
+      operationId: registrar_v1_mock_patch_program_enrollments
+      tags: [v1 - Mock API]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: GET
 
-        uri: https://${stageVariables.registrar_host}/api/v0/programs/{program_key}/enrollments/
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
 
 
   ### V1 API ###

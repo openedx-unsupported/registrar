@@ -1,4 +1,4 @@
-""" Tests for the v0 API views. """
+""" Tests for the v1_mock API views. """
 
 import uuid
 
@@ -7,7 +7,7 @@ import mock
 from rest_framework.test import APITestCase
 
 from registrar.apps.api.tests.mixins import RequestMixin
-from registrar.apps.api.v0.data import (
+from registrar.apps.api.v1_mock.data import (
     FAKE_PROGRAMS,
     invoke_fake_course_enrollment_listing_job,
     invoke_fake_program_enrollment_listing_job,
@@ -17,8 +17,8 @@ from registrar.apps.core.tests.factories import GroupFactory, UserFactory
 
 
 class MockAPITestMixin(RequestMixin):
-    """ Base mixin for tests for the v0 API. """
-    api_root = '/api/v0/'
+    """ Base mixin for tests for the v1_mock API. """
+    api_root = '/api/v1-mock/'
     path_suffix = None  # Define me in subclasses
 
     @property
@@ -416,7 +416,7 @@ class MockProgramEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestC
     @ddt.unpack
     def test_program_get_202(self, program_key, job_duration, expected_state, expected_fname):
         with mock.patch(
-                'registrar.apps.api.v0.views.invoke_fake_program_enrollment_listing_job',
+                'registrar.apps.api.v1_mock.views.invoke_fake_program_enrollment_listing_job',
                 new=_mock_invoke_program_job(job_duration),
         ):
             response = self._get_enrollments(program_key)
@@ -425,7 +425,7 @@ class MockProgramEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestC
         original_url = '{}programs/{}/enrollments'.format(
             self.api_root, program_key,
         )
-        RESULTS_ROOT = '/static/api/v0/program-enrollments/'
+        RESULTS_ROOT = '/static/api/v1_mock/program-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
             response.data['job_url'], original_url, expected_state, expected_path,
@@ -768,7 +768,7 @@ class MockCourseEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCa
     @ddt.unpack
     def test_course_get_202(self, program_key, course_key, job_duration, expected_state, expected_fname):
         with mock.patch(
-                'registrar.apps.api.v0.views.invoke_fake_course_enrollment_listing_job',
+                'registrar.apps.api.v1_mock.views.invoke_fake_course_enrollment_listing_job',
                 new=_mock_invoke_course_job(job_duration),
         ):
             response = self._get_enrollments(program_key, course_key)
@@ -777,7 +777,7 @@ class MockCourseEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCa
         original_url = '{}programs/{}/courses/{}/enrollments'.format(
             self.api_root, program_key, course_key,
         )
-        RESULTS_ROOT = '/static/api/v0/course-enrollments/'
+        RESULTS_ROOT = '/static/api/v1_mock/course-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
             response.data['job_url'], original_url, expected_state, expected_path,

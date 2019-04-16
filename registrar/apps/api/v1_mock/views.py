@@ -30,7 +30,7 @@ from registrar.apps.api.serializers import (
     CourseEnrollmentRequestSerializer,
     CourseEnrollmentModificationRequestSerializer,
 )
-from registrar.apps.api.v0.data import (
+from registrar.apps.api.v1_mock.data import (
     invoke_fake_course_enrollment_listing_job,
     invoke_fake_program_enrollment_listing_job,
     FAKE_ORG_DICT,
@@ -56,7 +56,7 @@ class MockProgramListView(ListAPIView):
     """
     A view for listing program objects.
 
-    Path: /api/v0/programs?org={org_key}
+    Path: /api/v1-mock/programs?org={org_key}
 
     All programs within organization specified by `org_key` are returned.
     For users with global organization access, `org_key` can be omitted in order
@@ -146,7 +146,7 @@ class MockProgramRetrieveView(MockProgramSpecificViewMixin, RetrieveAPIView):
     """
     A view for retrieving a single program object.
 
-    Path: /api/v0/programs/{program_key}
+    Path: /api/v1-mock/programs/{program_key}
 
     Returns:
      * 200: OK
@@ -170,7 +170,7 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
     """
     A view for listing courses in a program.
 
-    Path: /api/v0/programs/{program_key}/courses
+    Path: /api/v1-mock/programs/{program_key}/courses
 
     Returns:
      * 200: OK
@@ -249,7 +249,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
-    Path: /api/v0/programs/{program_key}/enrollments
+    Path: /api/v1-mock/programs/{program_key}/enrollments
 
     Accepts: [POST, PATCH, GET]
 
@@ -269,7 +269,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
     Example Response:
     {
         "job_id": "fake-job-for-hhp-masters-ce",
-        "job_url": "http://localhost/api/v0/jobs/fake-job-for-hhp-masters-ce"
+        "job_url": "http://localhost/api/v1-mock/jobs/fake-job-for-hhp-masters-ce"
     }
 
     ------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
             self.program.key, self.request.build_absolute_uri()
         )
         fake_job_url = self.request.build_absolute_uri(
-            reverse('api:v0:job-status', kwargs={'job_id': fake_job_id})
+            reverse('api:v1-mock:job-status', kwargs={'job_id': fake_job_id})
         )
         fake_job_acceptance = FakeJobAcceptance(fake_job_id, fake_job_url)
 
@@ -325,7 +325,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
     """
     A view for enrolling students in a course.
 
-    Path: /api/v0/programs/{program_key}/courses/{course_id}/enrollments
+    Path: /api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments
 
     Accepts: [POST]
 
@@ -371,7 +371,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
             self.program.key, self.course.key, self.request.build_absolute_uri()
         )
         fake_job_url = self.request.build_absolute_uri(
-            reverse('api:v0:job-status', kwargs={'job_id': fake_job_id})
+            reverse('api:v1-mock:job-status', kwargs={'job_id': fake_job_id})
         )
         fake_job_acceptance = FakeJobAcceptance(fake_job_id, fake_job_url)
 
@@ -385,7 +385,7 @@ class MockJobStatusRetrieveView(RetrieveAPIView):
     """
     A view for getting the status of a job.
 
-    Path: /api/v0/jobs/{job_id}
+    Path: /api/v1-mock/jobs/{job_id}
 
     Accepts: [GET]
 
@@ -396,11 +396,11 @@ class MockJobStatusRetrieveView(RetrieveAPIView):
     Example:
     {
         "original_url":
-            "http://localhost/api/v0/programs/dvi-mba/enrollments/",
+            "http://localhost/api/v1-mock/programs/dvi-mba/enrollments/",
         "created": "2019-03-27T18:19:19.189272Z",
         "state": "Succeeded",
         "result":
-            "http://localhost/static/api/v0/program-enrollments/thirty.json"
+            "http://localhost/static/api/v1-mock/program-enrollments/thirty.json"
     }
     """
 
