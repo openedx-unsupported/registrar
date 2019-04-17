@@ -12,14 +12,22 @@ from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthenticat
 from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.status import HTTP_413_REQUEST_ENTITY_TOO_LARGE
+from rest_framework.views import APIView
 
 import registrar.apps.api.segment as segment
-from registrar.apps.api.serializers import ProgramSerializer, CourseRunSerializer
+from registrar.apps.api.serializers import (
+    CourseRunSerializer,
+    ProgramEnrollmentRequestSerializer,
+    ProgramSerializer,
+)
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.models import Organization
-from registrar.apps.enrollments.data import get_discovery_program
+from registrar.apps.enrollments.data import get_discovery_program, post_lms_program_enrollment
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +67,10 @@ class AuthMixin(object):
         if resolve(request.path_info).url_name == 'api-docs':
             self.check_doc_permissions(request)
             return
+        try:
+            self.permission_required = self.get_permission_required(request)
+        except AttributeError:
+            pass
 
         if isinstance(self.permission_required, str):
             required = [self.permission_required]
@@ -194,6 +206,61 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
 
     def get_object(self):
         return self.program
+
+
+class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
+    """
+    A view for enrolling students in a program, or retrieving/modifying program enrollment data.
+
+    Path: /api/v1/programs/{program_key}/enrollments
+
+    Accepts: [POST]
+
+    ------------------------------------------------------------------------------------
+    GET
+    ------------------------------------------------------------------------------------
+
+    Not implemented.
+
+    ------------------------------------------------------------------------------------
+    POST / PATCH
+    ------------------------------------------------------------------------------------
+
+    Create or modify program enrollments. Checks user permissions and forwards request
+    to the LMS program_enrollments endpoint.  Accepts up to 25 enrollments
+
+    Returns:
+     * 200: Returns a map of students and their enrollment status.
+     * 207: Not all students enrolled. Returns resulting enrollment status.
+     * 401: User is not authenticated
+     * 403: User lacks read access for the organization of specified program.
+     * 404: Program does not exist.
+     * 413: Payload too large, over 25 students supplied.
+     * 422: Invalid request, unable to enroll students.
+    """
+    ENROLLMENT_LIMIT = 25
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProgramEnrollmentRequestSerializer(multiple=True)
+
+    def get_permission_required(self, request):
+        if request.method == 'POST':
+            return perms.ORGANIZATION_WRITE_ENROLLMENTS
+
+    def post(self, request, program_key):
+        """ POST handler """
+        if not isinstance(request.data, list):
+            raise ValidationError('expected request body type: List')
+
+        if len(request.data) > self.ENROLLMENT_LIMIT:
+            return Response(
+                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
+            )
+
+        program_uuid = self.program.discovery_uuid
+        response = post_lms_program_enrollment(program_uuid, request.data)
+        return Response(response.json(), status=response.status_code)
 
 
 class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):

@@ -20,6 +20,11 @@ urlpatterns = [
         name="program",
     ),
     url(
+        r'programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
+        views.ProgramEnrollmentView.as_view(),
+        name="program-enrollments",
+    ),
+    url(
         r'programs/{}/courses/$'.format(PROGRAM_KEY_PATTERN),
         views.ProgramCourseListView.as_view(),
         name="program-course-list",

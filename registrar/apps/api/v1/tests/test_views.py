@@ -1,6 +1,7 @@
 """ Tests for API views. """
 
 import json
+import uuid
 from posixpath import join as urljoin
 
 import ddt
@@ -57,7 +58,12 @@ class RegistrarAPITestCase(APITestCase, RequestMixin):
         )
 
         self.stem_admin = UserFactory(username='stem-institute-admin')
+        self.stem_user = UserFactory(username='stem-institute-user')
         self.stem_admin_group = OrganizationGroupFactory(
+            organization=self.stem_org,
+            role=perms.OrganizationReadWriteEnrollmentsRole.name
+        )
+        self.stem_user_group = OrganizationGroupFactory(
             organization=self.stem_org,
             role=perms.OrganizationReadMetadataRole.name
         )
@@ -80,13 +86,13 @@ class RegistrarAPITestCase(APITestCase, RequestMixin):
         )
         self.hum_admin.groups.add(self.hum_admin_group)  # pylint: disable=no-member
 
-    def mock_api_response(self, url, response_data):
+    def mock_api_response(self, url, response_data, method='GET', response_code=200):
         responses.add(
-            responses.GET,
+            getattr(responses, method),
             url,
             body=json.dumps(response_data),
             content_type='application/json',
-            status=200
+            status=response_code
         )
 
 
@@ -300,3 +306,99 @@ class ProgramCourseListViewTests(RegistrarAPITestCase):
     def test_program_not_found(self):
         response = self.get('programs/masters-in-polysci/courses', self.stem_admin)
         self.assertEqual(response.status_code, 404)
+
+
+class ProgramEnrollmentViewTest(RegistrarAPITestCase):
+    """ Tests for the /api/v1/programs/{program_key}/enrollments endpoint """
+
+    def setUp(self):
+        super(ProgramEnrollmentViewTest, self).setUp()
+        program_uuid = self.cs_program.discovery_uuid
+        self.lms_request_url = urljoin(
+            settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
+        ).format(program_uuid)
+
+    def student_enrollment(self, status, student_key=None):
+        return {
+            'status': status,
+            'student_key': student_key or uuid.uuid4().hex[0:10]
+        }
+
+    def test_post_program_unauthorized_at_organization(self):
+        post_data = [
+            self.student_enrollment('enrolled'),
+        ]
+        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.hum_admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_post_program_insufficient_permissions(self):
+        post_data = [
+            self.student_enrollment('enrolled'),
+        ]
+        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_user)
+        self.assertEqual(response.status_code, 403)
+
+    def test_post_program_not_found(self):
+        post_data = [
+            self.student_enrollment('enrolled'),
+        ]
+        response = self.post('programs/uan-salsa-dancing-with-sharks/enrollments/', post_data, self.stem_admin)
+        self.assertEqual(response.status_code, 404)
+
+    @mock_oauth_login
+    @responses.activate
+    def test_post_successful_program_enrollment(self):
+        expected_lms_response = {
+            '001': 'enrolled',
+            '002': 'enrolled',
+            '003': 'pending'
+        }
+        self.mock_api_response(self.lms_request_url, expected_lms_response, method='POST')
+
+        post_data = [
+            self.student_enrollment('enrolled', '001'),
+            self.student_enrollment('enrolled', '002'),
+            self.student_enrollment('pending', '003'),
+        ]
+        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected_lms_response)
+
+    @mock_oauth_login
+    @responses.activate
+    def test_post_backend_unprocessable_response(self):
+        self.mock_api_response(self.lms_request_url, "invalid enrollment record", method='POST', response_code=422)
+
+        post_data = [
+            self.student_enrollment('enrolled', '001'),
+            self.student_enrollment('enrolled', '002'),
+            self.student_enrollment('pending', '003'),
+        ]
+        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.data, "invalid enrollment record")
+
+    @mock_oauth_login
+    @responses.activate
+    def test_post_backend_multi_status_response(self):
+        expected_lms_response = {
+            '001': 'enrolled',
+            '002': 'enrolled',
+            '003': 'invalid-status'
+        }
+        self.mock_api_response(self.lms_request_url, expected_lms_response, method='POST', response_code=207)
+
+        post_data = [
+            self.student_enrollment('enrolled', '001'),
+            self.student_enrollment('enrolled', '002'),
+            self.student_enrollment('not_a_valid_value', '003'),
+        ]
+        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        self.assertEqual(response.status_code, 207)
+        self.assertEqual(response.data, expected_lms_response)
+
+    def test_post_enrollment_payload_limit(self):
+        post_data = [self.student_enrollment('enrolled')] * 26
+
+        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        self.assertEqual(response.status_code, 413)
