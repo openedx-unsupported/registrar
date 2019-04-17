@@ -308,7 +308,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
             raise PermissionDenied()
 
         fake_job_id = invoke_fake_program_enrollment_listing_job(
-            self.program.key, self.request.build_absolute_uri()
+            self.program.key
         )
         fake_job_url = self.request.build_absolute_uri(
             reverse('api:v1-mock:job-status', kwargs={'job_id': fake_job_id})
@@ -368,7 +368,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
             raise PermissionDenied()
 
         fake_job_id = invoke_fake_course_enrollment_listing_job(
-            self.program.key, self.course.key, self.request.build_absolute_uri()
+            self.program.key, self.course.key
         )
         fake_job_url = self.request.build_absolute_uri(
             reverse('api:v1-mock:job-status', kwargs={'job_id': fake_job_id})
@@ -395,8 +395,6 @@ class MockJobStatusRetrieveView(RetrieveAPIView):
 
     Example:
     {
-        "original_url":
-            "http://localhost/api/v1-mock/programs/dvi-mba/enrollments/",
         "created": "2019-03-27T18:19:19.189272Z",
         "state": "Succeeded",
         "result":

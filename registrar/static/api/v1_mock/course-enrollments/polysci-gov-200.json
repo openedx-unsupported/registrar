@@ -1,152 +1,152 @@
 [
     {
-        "student_key": "4012581798",
-        "email": "cwallace@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "9b77482b37",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "9920063123",
-        "email": "ibates@donnaview.edu",
-        "status": "enrolled-waiting"
+        "student_key": "9bf9e112cf",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "7294371305",
-        "email": "agrimes@donnaview.edu",
-        "status": "pending"
+        "student_key": "2a76cf53a1",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "6746289125",
-        "email": "dduncan@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "8af3f290f7",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "1677128121",
-        "email": "ngarrett@donnaview.edu",
-        "status": "enrolled"
+        "student_key": "f678af5799",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "7450473619",
-        "email": "ahodge@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "35f988b025",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "3806588540",
-        "email": "droy@donnaview.edu",
-        "status": "pending"
+        "student_key": "8bc946e1bb",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "7457920788",
-        "email": "wcarter@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "48b3dc5611",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "2729685260",
-        "email": "sbarton@donnaview.edu",
-        "status": "pending"
+        "student_key": "3ff43cf2ad",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "0953818163",
-        "email": "tsimpson@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "76b0f8e8c4",
+        "status": "inactive",
+        "account_exists": false
     },
     {
-        "student_key": "9155429289",
-        "email": "djohnson@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "0726aa0db3",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "0836287073",
-        "email": "bedwards@donnaview.edu",
-        "status": "pending"
+        "student_key": "2342cb9f92",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "9310552336",
-        "email": "dhughes@donnaview.edu",
-        "status": "enrolled"
+        "student_key": "9b8b69c960",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "3568266962",
-        "email": "jyoung@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "ed775b47a9",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "9956837479",
-        "email": "wyoung@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "a31d98b0aa",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "1620271327",
-        "email": "adavis@donnaview.edu",
-        "status": "enrolled"
+        "student_key": "a649d322d4",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "0623303380",
-        "email": "psimon@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "4bcab897f1",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "4534911922",
-        "email": "bwhite@donnaview.edu",
-        "status": "pending"
+        "student_key": "6666b916b8",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "3898681915",
-        "email": "cpatterson@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "e8d6dd42dd",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "5796621693",
-        "email": "kmccarthy@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "16b2226d05",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "3617456614",
-        "email": "rbaker@donnaview.edu",
-        "status": "enrolled"
+        "student_key": "3c32b6970f",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "4355631488",
-        "email": "jlogan@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "ea22a5c185",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "9510782795",
-        "email": "jgreen@donnaview.edu",
-        "status": "pending"
+        "student_key": "893bc678f0",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "6475032842",
-        "email": "rramos@donnaview.edu",
-        "status": "enrolled"
+        "student_key": "0abec584b9",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "4749895288",
-        "email": "dmorrow@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "b6dc6bab96",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "3030746080",
-        "email": "jwhite@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "8c6d36a9d2",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "7932455685",
-        "email": "gvillanueva@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "88330e630f",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "2236890175",
-        "email": "awood@donnaview.edu",
-        "status": "pending-waiting"
+        "student_key": "dee949365f",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "7367208834",
-        "email": "ewilson@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "66047d1fd5",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "9852659957",
-        "email": "scarney@donnaview.edu",
-        "status": "withdrawn"
+        "student_key": "84e0db8bff",
+        "status": "inactive",
+        "account_exists": false
     }
 ]

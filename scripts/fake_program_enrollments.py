@@ -2,34 +2,21 @@
 """
 Script to generate fake JSON result files for program enrollment GET endpoint.
 
+Requires Python>=3.6
+
 Usage:
-    python3 fake_program_enrollments.py <count> <student_key_length> <email_domain>
+    python3 fake_program_enrollments.py <student_key_length> <count>
 Example:
-    python3 fake_program_enrollments.py 100 10 example.edu
-
-Requires Python 3 and Faker.
-
-Note: This breaks if ``student_key_length`` exceeds 18.
+    python3 fake_program_enrollments.py 16 100
 """
 
 import json
 import sys
 import random
 
-from faker import Faker
 
-
-fake = Faker()
-
-
-STATUS_CHOICES = {
-    'enrolled',
-    'enrolled-waiting',
-    'pending',
-    'pending-waiting',
-    'suspended',
-    'canceled',
-}
+STATUS_CHOICES = ['enrolled', 'pending', 'suspended', 'canceled']
+STATUS_WEIGHTS = [0.5, 0.3, 0.1, 0.1]
 
 
 def main(args):
@@ -44,65 +31,59 @@ def main(args):
     """
     help_text = (
         'Usage: python fake_program_enrollments.py ' +
-        '<count> <student_key_length> <email_domain>'
+        '<student_key_length> <count>'
     )
-    if len(args) != 3:
+    if len(args) != 2:
         print(help_text)
         return 1
     try:
-        count = int(args[0])
-        key_length = int(args[1])
+        key_length = int(args[0])
+        count = int(args[1])
     except ValueError:
         print(help_text)
         return 1
-    enrolls = generate_fake_enrollments(count, key_length, args[2])
+    enrolls = generate_fake_enrollments(key_length, count)
     print(json.dumps(enrolls, indent=4))
     return 0
 
 
-def generate_fake_enrollments(count, key_length, email_domain):
+def generate_fake_enrollments(key_length, count):
     """
     Generate fake program enrollment list.
 
     Arguments:
-        count (int): number of enrollment dicts to generate
         key_length (int): number of digits for student keys
-        email_domain (str): domain for student emails
+        count (int): number of enrollment dicts to generate
 
     Returns: list[dict]
     """
-    field_lists = {}
-
-    key_space = range(10 ** key_length)
-    key_numbers = random.sample(key_space, count)
-    field_lists['student_key'] = [str(n).zfill(key_length) for n in key_numbers]
-
-    emails = set()
-    while len(emails) < count:
-        emails.add(generate_fake_email(email_domain))
-    field_lists['email'] = list(emails)
-
-    choices = list(STATUS_CHOICES)
-    field_lists['status'] = [random.choice(choices) for _ in range(count)]
-
-    return [
-        {key: values[i] for key, values in field_lists.items()}
-        for i in range(count)
-    ]
+    enrollments = {}
+    while len(enrollments) < count:
+        key = generate_fake_student_key(key_length)
+        if key in enrollments:
+            continue  # Skip duplicate keys
+        enrollments[key] = {
+            'student_key': key,
+            'status': random.choices(STATUS_CHOICES, weights=STATUS_WEIGHTS)[0],
+            'account_exists': random.random() < 0.6,
+        }
+    return list(enrollments.values())
 
 
-def generate_fake_email(email_domain):
+def generate_fake_student_key(key_length):
     """
-    Generate a fake email address.
+    Generate a fake student key (a hex string)
 
     Args:
-        email_domain (str): the part of the email after the @
+        key_length (int): number of hex digits for student key
 
     Returns: str
     """
-    return '{}{}@{}'.format(
-        fake.first_name()[0], fake.last_name(), email_domain,
-    ).lower()
+    hex_digits = (
+        [str(i) for i in range(10)] +
+        [chr(i) for i in range(ord('a'), ord('g'))]
+    )
+    return ''.join(random.choice(hex_digits) for _ in range(key_length))
 
 
 if __name__ == '__main__':

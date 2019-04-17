@@ -28,85 +28,18 @@ course_path_param:
   type: string
   description: edX course run identifier
   example: course-v1:ExU+Science-101+Fall2050
-enrollment_body:
+program_enrollment_body:
   in: body
   name: body
   required: true
   schema:
-    $ref: '#/models/EnrollmentRequests'
-
-post_enrollment_responses:
-  200:
-    description: All students were successfully listed.
-    schema:
-      $ref: '#/models/EnrollmentResult'
-    examples:
-      application/json:
-        student_0128fe4a: pending
-        student_aae45c81: enrolled
-  207:
-    description: Some, but not all, students were successfully listed.
-    schema:
-      $ref: '#/models/EnrollmentResult'
-    examples:
-      application/json:
-        student_0128fe4a: pending
-        student_aae45c81: conflict
-  403:
-    description: >
-      User is not authorized to modify enrollments for program course.
-  404:
-    description: >
-      Course does not exist within program, or program was not found.
-  413:
-    description: >
-      Payload too large; at most 25 students may be supplied per request.
-  422:
-    description: None of the students were successfully listed.
-    schema:
-      $ref: '#/models/EnrollmentResult'
-    examples:
-      application/json:
-        student_0128fe4a: invalid-status
-        student_aae45c81: conflict
-
-patch_enrollment_responses:
-  200:
-    description: All students' enrollments were successfully modified.
-    schema:
-      $ref: '#/models/EnrollmentResult'
-    examples:
-      application/json:
-        student_0128fe4a: enrolled
-        student_aae45c81: withdrawn
-  207:
-    description: >
-      Some, but not all, students' enrollments were successfully modified.
-    schema:
-      $ref: '#/models/EnrollmentResult'
-    examples:
-      application/json:
-        student_0128fe4a: enrolled
-        student_aae45c81: not-found
-  403:
-    description: >
-      User is not authorized to modify enrollments for program course.
-  404:
-    description: >
-      Course does not exist within program, or program was not found.
-  413:
-    description: >
-      Payload too large; at most 25 students' enrollments may be modified per
-      request.
-  422:
-    description: >
-      None of the students' enrollments were successfully modified.
-    schema:
-      $ref: '#/models/EnrollmentResult'
-    examples:
-      application/json:
-        student_0128fe4a: invalid-status
-        student_aae45c81: not-found
+    $ref: '#/models/ProgramEnrollmentRequests'
+course_enrollment_body:
+  in: body
+  name: body
+  required: true
+  schema:
+    $ref: '#/models/CourseEnrollmentRequests'
 
 student_key:
   type: string
@@ -116,24 +49,15 @@ student_key:
     sensitive personal information like a student’s official university ID
     number, social security number, or some other government-issued ID number.
   example: student_0128fe4a
-email:
+program_input_status:
   type: string
-  format: email
-  description: .edu email address of student
-  example: cgonzales@example.edu
-input_status:
-  type: string
-  # TODO: The exact set of status strings that we will accept has not been
-  # determined.
   enum:
   - enrolled
   - pending
   - suspended
   - canceled
-output_status:
+program_output_status:
   type: string
-  # TODO: The exact set of status strings that we will return has not been
-  # determined.
   enum:
   - enrolled
   - pending
@@ -142,6 +66,23 @@ output_status:
   - invalid-status
   - duplicated
   - conflict
+  - not-found
+  - illegal-operation
+  - internal-error
+course_input_status:
+  type: string
+  enum:
+  - active
+  - inactive
+course_output_status:
+  type: string
+  enum:
+  - active
+  - inactive
+  - invalid-status
+  - duplicated
+  - conflict
+  - not-in-program
   - not-found
   - illegal-operation
   - internal-error
@@ -263,12 +204,12 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/EnrollmentRequests'
+        $ref: '#/models/ProgramEnrollmentRequests'
     responses:
       200:
         description: All students were successfully listed.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/ProgramEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: pending
@@ -276,7 +217,7 @@ endpoints:
       207:
         description: Some, but not all, students were successfully listed.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/ProgramEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: pending
@@ -293,12 +234,11 @@ endpoints:
       422:
         description: None of the students were successfully listed.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/ProgramEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: invalid-status
             student_aae45c81: conflict
-
 
   patch_program_enrollments:
     summary: Modify program enrollments
@@ -313,21 +253,21 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/EnrollmentRequests'
+        $ref: '#/models/ProgramEnrollmentRequests'
     responses:
       200:
         description: All students' enrollments were successfully modified.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/ProgramEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: enrolled
-            student_aae45c81: withdrawn
+            student_aae45c81: canceled
       207:
         description: >
           Some, but not all, students' enrollments were successfully modified.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/ProgramEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: enrolled
@@ -340,18 +280,17 @@ endpoints:
           Course does not exist within program, or program was not found.
       413:
         description: >
-          Payload too large; at most 25 students' enrollments may be modified per
-          request.
+          Payload too large; at most 25 students' enrollments may be modified
+          per request.
       422:
         description: >
           None of the students' enrollments were successfully modified.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/ProgramEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: invalid-status
             student_aae45c81: not-found
-
 
   get_course_enrollments:
     summary: Request course enrollment data
@@ -400,23 +339,23 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/EnrollmentRequests'
+        $ref: '#/models/CourseEnrollmentRequests'
     responses:
       200:
         description: All students were successfully listed.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
-            student_0128fe4a: pending
-            student_aae45c81: enrolled
+            student_0128fe4a: inactive
+            student_aae45c81: active
       207:
         description: Some, but not all, students were successfully listed.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
-            student_0128fe4a: pending
+            student_0128fe4a: inactive
             student_aae45c81: conflict
       403:
         description: >
@@ -430,12 +369,11 @@ endpoints:
       422:
         description: None of the students were successfully listed.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: invalid-status
             student_aae45c81: conflict
-
 
   patch_course_enrollments:
     summary: Modify course enrollments
@@ -456,24 +394,24 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/EnrollmentRequests'
+        $ref: '#/models/CourseEnrollmentRequests'
     responses:
       200:
         description: All students' enrollments were successfully modified.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
-            student_0128fe4a: enrolled
-            student_aae45c81: withdrawn
+            student_0128fe4a: active
+            student_aae45c81: inactive
       207:
         description: >
           Some, but not all, students' enrollments were successfully modified.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
-            student_0128fe4a: enrolled
+            student_0128fe4a: active
             student_aae45c81: not-found
       403:
         description: >
@@ -483,18 +421,17 @@ endpoints:
           Course does not exist within program, or program was not found.
       413:
         description: >
-          Payload too large; at most 25 students' enrollments may be modified per
-          request.
+          Payload too large; at most 25 students' enrollments may be modified
+          per request.
       422:
         description: >
           None of the students' enrollments were successfully modified.
         schema:
-          $ref: '#/models/EnrollmentResult'
+          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: invalid-status
             student_aae45c81: not-found
-
 
 
 ################################################################################
@@ -683,23 +620,23 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/EnrollmentRequests'
+          $ref: '#/models/CourseEnrollmentRequests'
       responses:
         200:
           description: All students were successfully listed.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/CourseEnrollmentResult'
           examples:
             application/json:
-              student_0128fe4a: pending
-              student_aae45c81: enrolled
+              student_0128fe4a: inactive
+              student_aae45c81: active
         207:
           description: Some, but not all, students were successfully listed.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/CourseEnrollmentResult'
           examples:
             application/json:
-              student_0128fe4a: pending
+              student_0128fe4a: inactive
               student_aae45c81: conflict
         403:
           description: >
@@ -713,7 +650,7 @@ paths:
         422:
           description: None of the students were successfully listed.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/CourseEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: invalid-status
@@ -745,24 +682,24 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/EnrollmentRequests'
+          $ref: '#/models/CourseEnrollmentRequests'
       responses:
         200:
           description: All students' enrollments were successfully modified.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/CourseEnrollmentResult'
           examples:
             application/json:
-              student_0128fe4a: enrolled
-              student_aae45c81: withdrawn
+              student_0128fe4a: active
+              student_aae45c81: inactive
         207:
           description: >
             Some, but not all, students' enrollments were successfully modified.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/CourseEnrollmentResult'
           examples:
             application/json:
-              student_0128fe4a: enrolled
+              student_0128fe4a: active
               student_aae45c81: not-found
         403:
           description: >
@@ -772,17 +709,18 @@ paths:
             Course does not exist within program, or program was not found.
         413:
           description: >
-            Payload too large; at most 25 students' enrollments may be modified per
-            request.
+            Payload too large; at most 25 students' enrollments may be modified
+            per request.
         422:
           description: >
             None of the students' enrollments were successfully modified.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/CourseEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: invalid-status
               student_aae45c81: not-found
+
 
       operationId: registrar_v1_mock_patch_course_enrollments
       tags: [v1 - Mock API]
@@ -832,12 +770,12 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/EnrollmentRequests'
+          $ref: '#/models/ProgramEnrollmentRequests'
       responses:
         200:
           description: All students were successfully listed.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/ProgramEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: pending
@@ -845,7 +783,7 @@ paths:
         207:
           description: Some, but not all, students were successfully listed.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/ProgramEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: pending
@@ -862,7 +800,7 @@ paths:
         422:
           description: None of the students were successfully listed.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/ProgramEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: invalid-status
@@ -888,21 +826,21 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/EnrollmentRequests'
+          $ref: '#/models/ProgramEnrollmentRequests'
       responses:
         200:
           description: All students' enrollments were successfully modified.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/ProgramEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: enrolled
-              student_aae45c81: withdrawn
+              student_aae45c81: canceled
         207:
           description: >
             Some, but not all, students' enrollments were successfully modified.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/ProgramEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: enrolled
@@ -915,13 +853,13 @@ paths:
             Course does not exist within program, or program was not found.
         413:
           description: >
-            Payload too large; at most 25 students' enrollments may be modified per
-            request.
+            Payload too large; at most 25 students' enrollments may be modified
+            per request.
         422:
           description: >
             None of the students' enrollments were successfully modified.
           schema:
-            $ref: '#/models/EnrollmentResult'
+            $ref: '#/models/ProgramEnrollmentResult'
           examples:
             application/json:
               student_0128fe4a: invalid-status
@@ -1040,7 +978,7 @@ models:
         type: string
         format: uri
         example: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
-  EnrollmentRequests:
+  ProgramEnrollmentRequests:
     type: array
     items:
       type: object
@@ -1055,8 +993,6 @@ models:
           example: student_0128fe4a
         status:
           type: string
-  # TODO: The exact set of status strings that we will accept has not been
-  # determined.
           enum:
           - enrolled
           - pending
@@ -1067,12 +1003,33 @@ models:
       status: pending
     - student_key: student_aae45c81
       status: enrolled
-  EnrollmentResult:
+  CourseEnrollmentRequests:
+    type: array
+    items:
+      type: object
+      properties:
+        student_key:
+          type: string
+          description: >
+            Key that uniquely identifies student within organization.
+            For data privacy reasons, this cannot be, or include,
+            sensitive personal information like a student’s official university ID
+            number, social security number, or some other government-issued ID number.
+          example: student_0128fe4a
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+    example:
+    - student_key: student_0128fe4a
+      status: inactive
+    - student_key: student_aae45c81
+      status: active
+  ProgramEnrollmentResult:
     type: object
     additionalProperties:
       type: string
-  # TODO: The exact set of status strings that we will return has not been
-  # determined.
       enum:
       - enrolled
       - pending
@@ -1084,12 +1041,27 @@ models:
       - not-found
       - illegal-operation
       - internal-error
+    description: Mapping from student_keys to program enrollment statuses
+  CourseEnrollmentResult:
+    type: object
+    additionalProperties:
+      type: string
+      enum:
+      - active
+      - inactive
+      - invalid-status
+      - duplicated
+      - conflict
+      - not-in-program
+      - not-found
+      - illegal-operation
+      - internal-error
 
 ################################################################################
 #                        Base Endpoint Definitions                             #
 ################################################################################
 
-    description: Mapping from student_keys to enrollment statuses
+    description: Mapping from student_keys to course enrollment statuses
   NewJob:
     type: object
     properties:
@@ -1106,11 +1078,6 @@ models:
   JobStatus:
     type: object
     properties:
-      original_url:
-        type: string
-        format: uri
-        description: The URL of the request that initated the job
-        example: https://.../api/v1/programs/uexample-master-of-science/enrollments
       created:
         type: string
         format: date-time

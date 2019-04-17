@@ -1,52 +1,52 @@
 [
     {
-        "student_key": "5825056846",
-        "email": "kwilliams@holmeshaven.edu",
-        "status": "suspended"
+        "student_key": "4602b3df65a4",
+        "status": "enrolled",
+        "account_exists": false
     },
     {
-        "student_key": "0157882591",
-        "email": "gyang@holmeshaven.edu",
-        "status": "suspended"
+        "student_key": "239d78fcb907",
+        "status": "enrolled",
+        "account_exists": true
     },
     {
-        "student_key": "4981369517",
-        "email": "bhoover@holmeshaven.edu",
-        "status": "pending-waiting"
+        "student_key": "5bdc4a2d43e8",
+        "status": "pending",
+        "account_exists": false
     },
     {
-        "student_key": "9731443455",
-        "email": "swhite@holmeshaven.edu",
-        "status": "enrolled-waiting"
+        "student_key": "5677acb1cf5b",
+        "status": "suspended",
+        "account_exists": true
     },
     {
-        "student_key": "9462955995",
-        "email": "jholder@holmeshaven.edu",
-        "status": "pending"
+        "student_key": "b246966d6bf8",
+        "status": "pending",
+        "account_exists": true
     },
     {
-        "student_key": "6901003198",
-        "email": "agrimes@holmeshaven.edu",
-        "status": "pending"
+        "student_key": "bda1cf3a84f7",
+        "status": "enrolled",
+        "account_exists": true
     },
     {
-        "student_key": "2056595515",
-        "email": "ssimpson@holmeshaven.edu",
-        "status": "enrolled"
+        "student_key": "85faa29af857",
+        "status": "enrolled",
+        "account_exists": true
     },
     {
-        "student_key": "1719318529",
-        "email": "mmorgan@holmeshaven.edu",
-        "status": "pending"
+        "student_key": "d51c5455a516",
+        "status": "enrolled",
+        "account_exists": false
     },
     {
-        "student_key": "6497543108",
-        "email": "jmcconnell@holmeshaven.edu",
-        "status": "enrolled"
+        "student_key": "dfa42af8786f",
+        "status": "enrolled",
+        "account_exists": true
     },
     {
-        "student_key": "5691722399",
-        "email": "mpeterson@holmeshaven.edu",
-        "status": "pending-waiting"
+        "student_key": "e483c0ea7b09",
+        "status": "pending",
+        "account_exists": false
     }
 ]

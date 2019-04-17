@@ -41,7 +41,6 @@ FakeJobAcceptance = namedtuple('FakeJobAcceptance', [
 
 # Info about the invokation of job. Stored in the cache.
 _FakeJobInfo = namedtuple('_FakeJobInfo', [
-    'original_url',
     'created',
     'duration_seconds',
     'result_filepath',  # None indicates task should fail after duration_seconds
@@ -49,7 +48,6 @@ _FakeJobInfo = namedtuple('_FakeJobInfo', [
 
 FakeJobStatus = namedtuple('FakeJobStatus', [
     'job_id',
-    'original_url',
     'created',
     'state',
     'result',
@@ -199,7 +197,6 @@ _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM = {
 
 def invoke_fake_program_enrollment_listing_job(
         program_key,
-        original_url,
         min_duration=5,
         max_duration=5
 ):
@@ -211,7 +208,7 @@ def invoke_fake_program_enrollment_listing_job(
         result_filepath = '/static/api/v1_mock/program-enrollments/{}'.format(result_filename)
     else:
         result_filepath = None
-    return _invoke_fake_job(result_filepath, original_url, min_duration, max_duration)
+    return _invoke_fake_job(result_filepath, min_duration, max_duration)
 
 
 _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE = {
@@ -242,7 +239,6 @@ _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE = {
 def invoke_fake_course_enrollment_listing_job(
         program_key,
         course_key,
-        original_url,
         min_duration=5,
         max_duration=5
 ):
@@ -255,10 +251,10 @@ def invoke_fake_course_enrollment_listing_job(
         result_filepath = '/static/api/v1_mock/course-enrollments/{}'.format(result_filename)
     else:
         result_filepath = None
-    return _invoke_fake_job(result_filepath, original_url, min_duration, max_duration)
+    return _invoke_fake_job(result_filepath, min_duration, max_duration)
 
 
-def _invoke_fake_job(result_filepath, original_url, min_duration, max_duration):
+def _invoke_fake_job(result_filepath, min_duration, max_duration):
     """
     Create fake job that produces ``result_filepath``.
 
@@ -269,7 +265,6 @@ def _invoke_fake_job(result_filepath, original_url, min_duration, max_duration):
 
     Arguments:
         result_filepath (str)
-        original_url (str): original URL of the request
         min_duration (int): inclusive lower bound for number of seconds job
             should appear as 'In Progress'
         max_duration (int): inclusive upper bound for number of seconds job
@@ -282,7 +277,7 @@ def _invoke_fake_job(result_filepath, original_url, min_duration, max_duration):
     created = datetime.now()
     duration_seconds = random.randrange(min_duration, max_duration + 1)
     job_info = _FakeJobInfo(
-        original_url, created, duration_seconds, result_filepath,
+        created, duration_seconds, result_filepath,
     )
     cache_key = _FAKE_JOB_CACHE_PREFIX + job_id
     cache.set(cache_key, job_info, _FAKE_JOB_CACHE_LIFETIME)
@@ -326,5 +321,5 @@ def get_fake_job_status(job_id, to_absolute_uri):
         result = to_absolute_uri(path)
 
     return FakeJobStatus(
-        job_id, job_info.original_url, job_info.created, state, result,
+        job_id, job_info.created, state, result,
     )

@@ -48,10 +48,9 @@ class ProgramEnrollmentRequestSerializer(serializers.Serializer):
     """
     Serializer for request to create a LearnerProgramEnrollment
     """
-    STATUS_CHOICES = ['pending', 'enrolled']
+    STATUS_CHOICES = ['pending', 'enrolled', 'suspended', 'canceled']
 
     student_key = serializers.CharField(allow_blank=False)
-    email = serializers.CharField(allow_blank=False)
     status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
 
 
@@ -69,7 +68,7 @@ class CourseEnrollmentRequestSerializer(serializers.Serializer):
     """
     Serializer for a request to create a LearnerCourseEnrollment
     """
-    STATUS_CHOICES = ['pending', 'enrolled']
+    STATUS_CHOICES = ['active', 'inactive']
 
     student_key = serializers.CharField(allow_blank=False)
     status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
@@ -79,7 +78,7 @@ class CourseEnrollmentModificationRequestSerializer(serializers.Serializer):
     """
     Serializer for a request to modify a LearnerCourseEnrollment
     """
-    STATUS_CHOICES = ['pending', 'enrolled', 'withdrawn']
+    STATUS_CHOICES = ['active', 'inactive']
 
     student_key = serializers.CharField(allow_blank=False)
     status = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
@@ -115,7 +114,6 @@ class JobStatusSerializer(serializers.Serializer):
         UserTaskStatus.RETRYING,
     }
 
-    original_url = serializers.URLField()
     created = serializers.DateTimeField()
     state = serializers.ChoiceField(allow_blank=False, choices=STATUS_CHOICES)
     result = serializers.URLField(allow_null=True)
