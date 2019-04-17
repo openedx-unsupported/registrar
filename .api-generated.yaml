@@ -1048,6 +1048,58 @@ paths:
       summary: List program courses
       tags:
       - v1
+  /v1/programs/{program_key}/enrollments/:
+    post:
+      operationId: registrar_v1_post_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/ProgramEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: pending
+              student_aae45c81: enrolled
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        207:
+          description: Some, but not all, students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: pending
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students may be supplied per\
+            \ request.\n"
+        422:
+          description: None of the students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+      summary: Enroll students in a program
+      tags:
+      - v1
 produces:
 - application/json
 program_enrollment_body:

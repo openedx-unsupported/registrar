@@ -558,6 +558,11 @@ paths:
       <<: *list_courses
       operationId: registrar_v1_list_courses
       tags: ['v1']
+  '/v1/programs/{program_key}/enrollments/':
+    post:
+      <<: *post_program_enrollments
+      operationId: registrar_v1_post_program_enrollments
+      tags: ['v1']
 
 
 ################################################################################

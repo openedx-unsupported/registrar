@@ -2,6 +2,7 @@
 Module for syncing data with external services.
 """
 from posixpath import join as urljoin
+from requests.exceptions import HTTPError
 
 from django.conf import settings
 
@@ -28,39 +29,41 @@ def get_discovery_program(program_uuid, client=None):
     Fetches program data from discovery service, given a program UUID.
     """
     url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
-    return _get_request(url, client)
+    return _make_request('GET', url, client).json()
 
 
-def get_lms_user_by_email(email, client=None):
+def post_lms_program_enrollment(program_uuid, enrollments, client=None):
     """
-    TODO: the LMS doesn't currently expose an endpoint
-    to get accounts by email address.  I have an edx-platform
-    branch to do this.
+    Enroll students in a program
+
+    Returns:
+        A HTTP response object that includes both response data and status_code
     """
-    url = urljoin(settings.LMS_BASE_URL, 'api/user/v1/accounts?email={}').format(email)
-    return _get_request(url, client)
+    url = urljoin(settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/').format(program_uuid)
+
+    try:
+        return _make_request('POST', url, client, data=enrollments)
+    except HTTPError as e:
+        response = e.response
+        if response.status_code == 422:
+            return response
+        raise
 
 
-# pylint: disable=unused-argument
-def enroll_in_course(user, course_id, client=None):
+def _make_request(method, url, client, **kwargs):
     """
-    TODO: LMS enrollment API only allows you to enroll
-    the currently logged-in user (I think).
-    """
-    pass
-
-
-def _get_request(url, client=None):
-    """
-    Helper method to make a GET request using
+    Helper method to make an http request using
     an authN'd client.
     """
+    if method not in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
+        raise Exception('invalid http method: ' + method)
+
     if not client:
         client = get_client(settings.LMS_BASE_URL)
 
-    response = client.get(url)
+    response = client.request(method, url, **kwargs)
 
-    if response.status_code == 200:
-        return response.json()
+    if response.status_code >= 200 and response.status_code < 300:
+        return response
     else:
         response.raise_for_status()
