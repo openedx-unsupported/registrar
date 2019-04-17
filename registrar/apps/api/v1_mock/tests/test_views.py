@@ -42,11 +42,10 @@ class MockAPITestMixin(RequestMixin):
 class MockJobTestMixin(object):
     """ Mixin for testing the results of a job """
 
-    def assert_job_result(self, job_url, original_url, expected_state, expected_path):
+    def assert_job_result(self, job_url, expected_state, expected_path):
         """
         Gets the job at ``job_url``. Asserts:
          * Response is 200
-         * Provided ``original_url`` matches job's
          * Job dict has 'created' key
          * Provided ``expected_state`` matches job's
          * Provided ``expected_path`` is substring of job's result
@@ -54,7 +53,6 @@ class MockJobTestMixin(object):
         job_response = self.get(job_url, self.user)
         self.assertEqual(200, job_response.status_code)
         job_data = job_response.data
-        self.assertIn(original_url, job_data['original_url'])
         self.assertIn('created', job_data)
         self.assertEqual(job_data['state'], expected_state)
         if expected_path:
@@ -166,16 +164,15 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
 class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
     """ Test for mock program enrollment """
 
-    def student_enrollment(self, email, status, student_key=None):
+    def student_enrollment(self, status, student_key=None):
         return {
-            'email': email,
             'status': status,
             'student_key': student_key or uuid.uuid4().hex[0:10]
         }
 
     def test_unauthenticated(self):
         post_data = [
-            self.student_enrollment('jjohn@mit.edu', 'enrolled')
+            self.student_enrollment('enrolled')
         ]
         response = self.post(
             'programs/upz-masters-ancient-history/enrollments/',
@@ -186,7 +183,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_program_unauthorized(self):
         post_data = [
-            self.student_enrollment('jjohn@mit.edu', 'enrolled')
+            self.student_enrollment('enrolled')
         ]
         response = self.post(
             'programs/dvi-masters-polysci/enrollments/',
@@ -197,7 +194,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_program_not_found(self):
         post_data = [
-            self.student_enrollment('jjohn@mit.edu', 'enrolled')
+            self.student_enrollment('enrolled')
         ]
         response = self.post(
             'programs/uan-shark-tap-dancing/enrollments/',
@@ -208,9 +205,9 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_successful_program_enrollment(self):
         post_data = [
-            self.student_enrollment('hefferWolfe@mit.edu', 'enrolled', '001'),
-            self.student_enrollment('invader_zim@mit.edu', 'enrolled', '002'),
-            self.student_enrollment('snarf@mit.edu', 'pending', '003'),
+            self.student_enrollment('enrolled', '001'),
+            self.student_enrollment('enrolled', '002'),
+            self.student_enrollment('pending', '003'),
         ]
         response = self.post(
             'programs/hhp-masters-theo-physics/enrollments/',
@@ -227,8 +224,8 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_partially_valid_enrollment(self):
         post_data = [
-            self.student_enrollment('hefferWolfe@mit.edu', 'new', '001'),
-            self.student_enrollment('snarf@mit.edu', 'pending', '003'),
+            self.student_enrollment('new', '001'),
+            self.student_enrollment('pending', '003'),
         ]
         response = self.post(
             'programs/hhp-masters-theo-physics/enrollments/',
@@ -253,9 +250,9 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_duplicate_enrollment(self):
         post_data = [
-            self.student_enrollment('hefferWolfe@mit.edu', 'enrolled', '001'),
-            self.student_enrollment('invader_zim@mit.edu', 'enrolled', '002'),
-            self.student_enrollment('hefferWolfe@mit.edu', 'enrolled', '001'),
+            self.student_enrollment('enrolled', '001'),
+            self.student_enrollment('enrolled', '002'),
+            self.student_enrollment('pending', '001'),
         ]
         response = self.post(
             'programs/hhp-masters-theo-physics/enrollments/',
@@ -271,10 +268,8 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_enrollment_payload_limit(self):
         post_data = []
-        for i in range(26):
-            post_data += self.student_enrollment(
-                'user{}@mit.edu'.format(i), 'enrolled'
-            )
+        for _ in range(26):
+            post_data += self.student_enrollment('enrolled')
 
         response = self.post(
             'programs/hhp-masters-theo-physics/enrollments/',
@@ -373,9 +368,9 @@ def _mock_invoke_program_job(duration):
     ignores supplied ``min_duration`` and ``max_duration`` and replaces them
     both with the ``duration`` argument to this function.
     """
-    def inner(program_key, original_url, min_duration=5, max_duration=5):  # pylint: disable=unused-argument
+    def inner(program_key, min_duration=5, max_duration=5):  # pylint: disable=unused-argument
         return invoke_fake_program_enrollment_listing_job(
-            program_key, original_url, duration, duration,
+            program_key, duration, duration,
         )
     return inner
 
@@ -422,13 +417,10 @@ class MockProgramEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestC
             response = self._get_enrollments(program_key)
 
         self.assertEqual(202, response.status_code)
-        original_url = '{}programs/{}/enrollments'.format(
-            self.api_root, program_key,
-        )
         RESULTS_ROOT = '/static/api/v1_mock/program-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
-            response.data['job_url'], original_url, expected_state, expected_path,
+            response.data['job_url'], expected_state, expected_path,
         )
 
 
@@ -443,15 +435,15 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
 
     def test_200_ok(self):
         post_data = [
-            self.learner_enrollment("A", "enrolled"),
-            self.learner_enrollment("B", "pending"),
+            self.learner_enrollment("A", "active"),
+            self.learner_enrollment("B", "inactive"),
         ]
         response = self.post(self.path, post_data, self.user)
         self.assertEqual(200, response.status_code)
         self.assertDictEqual(
             {
-                "A": "enrolled",
-                "B": "pending",
+                "A": "active",
+                "B": "inactive",
             },
             response.data
         )
@@ -459,10 +451,10 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
     def test_207_multi_status(self):
         """ Also tests duplicates """
         post_data = [
-            self.learner_enrollment("A", "enrolled"),
-            self.learner_enrollment("A", "enrolled"),
+            self.learner_enrollment("A", "active"),
+            self.learner_enrollment("A", "inactive"),
             self.learner_enrollment("B", "not-a-status"),
-            self.learner_enrollment("C", "enrolled"),
+            self.learner_enrollment("C", "active"),
         ]
         response = self.post(self.path, post_data, self.user)
         self.assertEqual(207, response.status_code)
@@ -470,25 +462,25 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
             {
                 'A': 'duplicated',
                 'B': 'invalid-status',
-                'C': 'enrolled',
+                'C': 'active',
             },
             response.data
         )
 
     def test_403_forbidden(self):
         path_403 = 'programs/dvi-masters-polysci/courses/course-v1:DVIx+GOV-200+Spring2050/enrollments/'
-        post_data = [self.learner_enrollment("A", "enrolled")]
+        post_data = [self.learner_enrollment("A", "active")]
         response = self.post(path_403, post_data, self.user)
         self.assertEqual(403, response.status_code)
 
     def test_413_payload_too_large(self):
-        post_data = [self.learner_enrollment(str(i), "enrolled") for i in range(30)]
+        post_data = [self.learner_enrollment(str(i), "active") for i in range(30)]
         response = self.post(self.path, post_data, self.user)
         self.assertEqual(413, response.status_code)
 
     def test_404_not_found_program(self):
         path_404 = 'programs/nonexistant-program/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
-        post_data = [self.learner_enrollment("A", "enrolled")]
+        post_data = [self.learner_enrollment("A", "active")]
         response = self.post(path_404, post_data, self.user)
         self.assertEqual(404, response.status_code)
 
@@ -498,7 +490,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
     )
     def test_404_not_found_course(self, course):
         path_404 = 'programs/hhp-masters-ce/courses/{}/enrollments/'.format(course)
-        post_data = [self.learner_enrollment("A", "enrolled")]
+        post_data = [self.learner_enrollment("A", "active")]
         response = self.post(path_404, post_data, self.user)
         self.assertEqual(404, response.status_code)
 
@@ -509,10 +501,10 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
 
     @ddt.data(
-        [{'status': 'enrolled'}],
+        [{'status': 'active'}],
         [{'student_key': '000'}],
         ["this isn't even a dict!"],
-        [{'student_key': '000', 'status': 'enrolled'}, "bad_data"],
+        [{'student_key': '000', 'status': 'active'}, "bad_data"],
     )
     def test_422_unprocessable_entity_bad_data(self, post_data):
         response = self.post(self.path, post_data, self.user)
@@ -531,17 +523,15 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
 
     def test_200_ok(self):
         patch_data = [
-            self.learner_modification("A", "enrolled"),
-            self.learner_modification("B", "pending"),
-            self.learner_modification("C", "withdrawn")
+            self.learner_modification("A", "active"),
+            self.learner_modification("B", "inactive"),
         ]
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(200, response.status_code)
         self.assertDictEqual(
             {
-                "A": "enrolled",
-                "B": "pending",
-                "C": "withdrawn",
+                "A": "active",
+                "B": "inactive",
             },
             response.data
         )
@@ -549,10 +539,10 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     def test_207_multi_status(self):
         """ Also tests duplicates """
         patch_data = [
-            self.learner_modification("A", "enrolled"),
-            self.learner_modification("A", "enrolled"),
+            self.learner_modification("A", "active"),
+            self.learner_modification("A", "inactive"),
             self.learner_modification("B", "not-a-status"),
-            self.learner_modification("C", "enrolled"),
+            self.learner_modification("C", "active"),
         ]
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(207, response.status_code)
@@ -560,25 +550,25 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             {
                 'A': 'duplicated',
                 'B': 'invalid-status',
-                'C': 'enrolled',
+                'C': 'active',
             },
             response.data
         )
 
     def test_403_forbidden(self):
         path_403 = 'programs/dvi-masters-polysci/courses/course-v1:DVIx+GOV-200+Spring2050/enrollments/'
-        patch_data = [self.learner_modification("A", "enrolled")]
+        patch_data = [self.learner_modification("A", "active")]
         response = self.patch(path_403, patch_data, self.user)
         self.assertEqual(403, response.status_code)
 
     def test_413_payload_too_large(self):
-        patch_data = [self.learner_modification(str(i), "enrolled") for i in range(30)]
+        patch_data = [self.learner_modification(str(i), "active") for i in range(30)]
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(413, response.status_code)
 
     def test_404_not_found_program(self):
         path_404 = 'programs/nonexistant-program/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
-        patch_data = [self.learner_modification("A", "enrolled")]
+        patch_data = [self.learner_modification("A", "active")]
         response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
 
@@ -588,7 +578,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     )
     def test_404_not_found_course(self, course):
         path_404 = 'programs/hhp-masters-ce/courses/{}/enrollments/'.format(course)
-        patch_data = [self.learner_modification("A", "enrolled")]
+        patch_data = [self.learner_modification("A", "active")]
         response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
 
@@ -599,10 +589,10 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
 
     @ddt.data(
-        [{'status': 'enrolled'}],
+        [{'status': 'active'}],
         [{'student_key': '000'}],
         ["this isn't even a dict!"],
-        [{'student_key': '000', 'status': 'enrolled'}, "bad_data"],
+        [{'student_key': '000', 'status': 'active'}, "bad_data"],
     )
     def test_422_unprocessable_entity_bad_data(self, patch_data):
         response = self.patch(self.path, patch_data, self.user)
@@ -616,9 +606,9 @@ def _mock_invoke_course_job(duration):
     ignores supplied ``min_duration`` and ``max_duration`` and replaces them
     both with the ``duration`` argument to this function.
     """
-    def inner(program_key, course_key, original_url, min_duration=5, max_duration=5):  # pylint: disable=unused-argument
+    def inner(program_key, course_key, min_duration=5, max_duration=5):  # pylint: disable=unused-argument
         return invoke_fake_course_enrollment_listing_job(
-            program_key, course_key, original_url, duration, duration,
+            program_key, course_key, duration, duration,
         )
     return inner
 
@@ -774,11 +764,8 @@ class MockCourseEnrollmentGetTests(MockAPITestMixin, MockJobTestMixin, APITestCa
             response = self._get_enrollments(program_key, course_key)
 
         self.assertEqual(202, response.status_code)
-        original_url = '{}programs/{}/courses/{}/enrollments'.format(
-            self.api_root, program_key, course_key,
-        )
         RESULTS_ROOT = '/static/api/v1_mock/course-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
-            response.data['job_url'], original_url, expected_state, expected_path,
+            response.data['job_url'], expected_state, expected_path,
         )

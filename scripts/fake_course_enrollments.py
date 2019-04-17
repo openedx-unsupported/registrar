@@ -6,10 +6,12 @@ The input to the script is the desired enrollment count and the file path of
 a JSON program enrollment list. The output is a JSON list of a subset
 input program enrollments.
 
+Requires Python>=3.6
+
 Usage:
-    python3 fake_course_enrollments.py <count> <program_enrollment_input_file>
+    python3 fake_course_enrollments.py <program_enrollment_input_file> <count>
 Example:
-    python3 fake_course_enrollments.py 25 pgm-enrolls.json
+    python3 fake_course_enrollments.py pgm-enrolls.json 25
 """
 
 import json
@@ -21,17 +23,13 @@ import random
 # enrollment statuses.
 STATUS_MAP = {
     'enrolled':
-        {'enrolled', 'pending', 'withdrawn'},
-    'enrolled-waiting':
-        {'enrolled-waiting', 'pending-waiting'},
+        (['active', 'inactive'], [0.75, 0.25]),
     'pending':
-        {'pending', 'withdrawn'},
-    'pending-waiting':
-        {'pending-waiting'},
+        (['active', 'inactive'], [0.75, 0.25]),
     'suspended':
-        {'enrolled', 'pending', 'withdrawn'},
+        (['inactive'], [1]),
     'canceled':
-        {'withdrawn'},
+        (['inactive'], [1]),
 }
 
 
@@ -47,38 +45,43 @@ def main(args):
     """
     help_text = (
         'Usage: python fake_course_enrollments.py ' +
-        '<count> <program_enrollment_input_file>'
+        '<program_enrollment_input_file> <count>'
     )
-    if len(args) !=2:
+    if len(args) != 2:
         print(help_text)
         return 1
     try:
-        count = int(args[0])
+        with open(args[0]) as f:
+            text = f.read()
+        program_enrollments = json.loads(text)
+    except IOError:
+        print('Count not read input file', args[0])
+        return 1
+    try:
+        count = int(args[1])
     except ValueError:
         print(help_text)
         return 1
-    enrolls = generate_fake_enrollments(count, args[1])
+    enrolls = generate_fake_enrollments(program_enrollments, count)
     print(json.dumps(enrolls, indent=4))
     return 0
 
 
-def generate_fake_enrollments(count, in_path):
+def generate_fake_enrollments(program_enrollments, count):
     """
     Generate fake course enrollment list.
 
     Arguments:
+        program_enrollments (list[dict]):
+            pool of program enrollments to draw from
         count (int): number of enrollment dicts to generate
-        in_path (str): file path to draw program enrollments from
 
     Returns: list[dict]
     """
-    with open(in_path) as f:
-        text = f.read()
-    program_enrollments = json.loads(text)
     course_enrollments = random.sample(program_enrollments, count)
     for enrollment in course_enrollments:
-        status_choices = list(STATUS_MAP[enrollment['status']])
-        enrollment['status'] = random.choice(status_choices)
+        choices, weights = STATUS_MAP[enrollment['status']]
+        enrollment['status'] = random.choices(choices, weights=weights)[0]
     return course_enrollments
 
 

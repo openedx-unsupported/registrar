@@ -1,22 +1,22 @@
 [
     {
-        "student_key": "5825056846",
-        "email": "kwilliams@holmeshaven.edu",
-        "status": "enrolled"
+        "student_key": "bda1cf3a84f7",
+        "status": "inactive",
+        "account_exists": true
     },
     {
-        "student_key": "0157882591",
-        "email": "gyang@holmeshaven.edu",
-        "status": "enrolled"
+        "student_key": "d51c5455a516",
+        "status": "active",
+        "account_exists": false
     },
     {
-        "student_key": "6901003198",
-        "email": "agrimes@holmeshaven.edu",
-        "status": "pending"
+        "student_key": "239d78fcb907",
+        "status": "active",
+        "account_exists": true
     },
     {
-        "student_key": "9731443455",
-        "email": "swhite@holmeshaven.edu",
-        "status": "enrolled-waiting"
+        "student_key": "85faa29af857",
+        "status": "active",
+        "account_exists": true
     }
 ]
