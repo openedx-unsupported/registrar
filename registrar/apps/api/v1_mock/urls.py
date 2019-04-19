@@ -35,7 +35,7 @@ urlpatterns = [
         name="program-enrollment",
     ),
     url(
-        r'jobs/(?P<job_id>[0-9a-f-]+)$',
+        r'jobs/(?P<job_id>[0-9a-f-]+)/$',
         views.MockJobStatusRetrieveView.as_view(),
         name="job-status",
     ),
