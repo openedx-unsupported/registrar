@@ -1,81 +1,18 @@
-################################################################################
-# Please read before updating!                                                 #
-#   api.yaml -                                                                 #
-#       This is the source of the api spec.  Any api-doc changes should be     #
-#       made to this file      .                                               #
-#   .api-generated.yaml -                                                      #
-#       This is an expanded version of api.yaml since the consuming tools are  #
-#       unable to parse YAML anchors. This file is generated using:            #
-#         `make api_generated`                                                 #
-################################################################################
-swagger: '2.0'
-
-x-amazon-apigateway-integration:
-  type: aws_proxy
-  httpMethod: GET
-
-program_path_param:
-  in: path
-  name: program_key
-  required: true
-  type: string
-  description: edX program key
-  example: uexample-master-of-science
-course_path_param:
-  in: path
-  name: course_id
-  required: true
-  type: string
-  description: edX course run identifier
-  example: course-v1:ExU+Science-101+Fall2050
-program_enrollment_body:
-  in: body
-  name: body
-  required: true
-  schema:
-    $ref: '#/models/ProgramEnrollmentRequests'
+basePath: /api
+consumes:
+- application/json
 course_enrollment_body:
   in: body
   name: body
   required: true
   schema:
     $ref: '#/models/CourseEnrollmentRequests'
-
-student_key:
-  type: string
-  description: >
-    Key that uniquely identifies student within organization.
-    For data privacy reasons, this cannot be, or include,
-    sensitive personal information like a student’s official university ID
-    number, social security number, or some other government-issued ID number.
-  example: student_0128fe4a
-program_input_status:
-  type: string
-  enum:
-  - enrolled
-  - pending
-  - suspended
-  - canceled
-program_output_status:
-  type: string
-  enum:
-  - enrolled
-  - pending
-  - suspended
-  - canceled
-  - invalid-status
-  - duplicated
-  - conflict
-  - not-found
-  - illegal-operation
-  - internal-error
 course_input_status:
-  type: string
   enum:
   - active
   - inactive
-course_output_status:
   type: string
+course_output_status:
   enum:
   - active
   - inactive
@@ -86,22 +23,63 @@ course_output_status:
   - not-found
   - illegal-operation
   - internal-error
-
-################################################################################
-#                        Base Endpoint Definitions                             #
-################################################################################
-
+  type: string
+course_path_param:
+  description: edX course run identifier
+  example: course-v1:ExU+Science-101+Fall2050
+  in: path
+  name: course_id
+  required: true
+  type: string
 endpoints:
-
-  get_program:
-    summary: Get Program
+  get_course_enrollments:
+    description: Submit a job to retrieve course enrollment data
     parameters:
-    - in: path
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
       name: program_key
       required: true
       type: string
-      description: edX program key
+    - description: edX course run identifier
+      example: course-v1:ExU+Science-101+Fall2050
+      in: path
+      name: course_id
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/NewJob'
+      403:
+        description: "User is not authorized to retrieve enrollments for program course.\n"
+      404:
+        description: "Course does not exist within program, or program was not found.\n"
+    summary: Request course enrollment data
+  get_job_status:
+    parameters:
+    - description: UUID-4 job identifier
+      example: 3869c0d5-e88f-4088-bf1d-409222492869
+      format: uuid
+      in: path
+      name: job_id
+      required: true
+      type: string
+    responses:
+      200:
+        description: OK
+        schema:
+          $ref: '#/models/JobStatus'
+    summary: Get the status of a job
+  get_program:
+    parameters:
+    - description: edX program key
       example: uexample-master-of-science
+      in: path
+      name: program_key
+      required: true
+      type: string
     responses:
       200:
         description: OK
@@ -111,76 +89,16 @@ endpoints:
         description: User is not authorized to view program.
       404:
         description: Program was not found.
-
-  list_programs:
-    summary: List programs
-    description: List all programs, requires an organization key for non-admins
-    parameters:
-    - in: query
-      name: org
-      required: false
-      type: string
-      description: Organization key
-      example: uexample
-    responses:
-      200:
-        description: OK
-        schema:
-          type: array
-          items:
-            $ref: '#/models/Program'
-      403:
-        description: User is not authorized to list specified programs.
-      404:
-        description: Organization was not found.
-
-  get_job_status:
-    summary: Get the status of a job
-    parameters:
-    - in: path
-      name: job_id
-      required: true
-      type: string
-      format: uuid
-      description: UUID-4 job identifier
-      example: 3869c0d5-e88f-4088-bf1d-409222492869
-    responses:
-      200:
-        description: OK
-        schema:
-          $ref: '#/models/JobStatus'
-
-  list_program_courses:
-    summary: List program courses
-    parameters:
-    - in: path
-      name: program_key
-      required: true
-      type: string
-      description: edX program key
-      example: uexample-master-of-science
-    responses:
-      200:
-        description: OK
-        schema:
-          type: array
-          items:
-            $ref: '#/models/Course'
-      403:
-        description: User is not authorized to list courses of program.
-      404:
-        description: Program was not found.
-
+    summary: Get Program
   get_program_enrollments:
-    summary: Request program enrollment data
     description: Submit a job to retrieve program enrollment data
     parameters:
-    - in: path
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
       name: program_key
       required: true
       type: string
-      description: edX program key
-      example: uexample-master-of-science
     responses:
       200:
         description: OK
@@ -190,206 +108,62 @@ endpoints:
         description: User is not authorized to retrieve enrollment of program.
       404:
         description: Program was not found.
-
-  post_program_enrollments:
-    summary: Enroll students in a program
+    summary: Request program enrollment data
+  list_program_courses:
     parameters:
-    - in: path
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
       name: program_key
       required: true
       type: string
-      description: edX program key
-      example: uexample-master-of-science
-    - in: body
-      name: body
-      required: true
-      schema:
-        $ref: '#/models/ProgramEnrollmentRequests'
-    responses:
-      200:
-        description: All students were successfully listed.
-        schema:
-          $ref: '#/models/ProgramEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: pending
-            student_aae45c81: enrolled
-      207:
-        description: Some, but not all, students were successfully listed.
-        schema:
-          $ref: '#/models/ProgramEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: pending
-            student_aae45c81: conflict
-      403:
-        description: >
-          User is not authorized to modify enrollments for program course.
-      404:
-        description: >
-          Course does not exist within program, or program was not found.
-      413:
-        description: >
-          Payload too large; at most 25 students may be supplied per request.
-      422:
-        description: None of the students were successfully listed.
-        schema:
-          $ref: '#/models/ProgramEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: invalid-status
-            student_aae45c81: conflict
-
-  patch_program_enrollments:
-    summary: Modify program enrollments
-    parameters:
-    - in: path
-      name: program_key
-      required: true
-      type: string
-      description: edX program key
-      example: uexample-master-of-science
-    - in: body
-      name: body
-      required: true
-      schema:
-        $ref: '#/models/ProgramEnrollmentRequests'
-    responses:
-      200:
-        description: All students' enrollments were successfully modified.
-        schema:
-          $ref: '#/models/ProgramEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: enrolled
-            student_aae45c81: canceled
-      207:
-        description: >
-          Some, but not all, students' enrollments were successfully modified.
-        schema:
-          $ref: '#/models/ProgramEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: enrolled
-            student_aae45c81: not-found
-      403:
-        description: >
-          User is not authorized to modify enrollments for program course.
-      404:
-        description: >
-          Course does not exist within program, or program was not found.
-      413:
-        description: >
-          Payload too large; at most 25 students' enrollments may be modified
-          per request.
-      422:
-        description: >
-          None of the students' enrollments were successfully modified.
-        schema:
-          $ref: '#/models/ProgramEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: invalid-status
-            student_aae45c81: not-found
-
-  get_course_enrollments:
-    summary: Request course enrollment data
-    description: Submit a job to retrieve course enrollment data
-    parameters:
-    - in: path
-      name: program_key
-      required: true
-      type: string
-      description: edX program key
-      example: uexample-master-of-science
-    - in: path
-      name: course_id
-      required: true
-      type: string
-      description: edX course run identifier
-      example: course-v1:ExU+Science-101+Fall2050
     responses:
       200:
         description: OK
         schema:
-          $ref: '#/models/NewJob'
+          items:
+            $ref: '#/models/Course'
+          type: array
       403:
-        description: >
-          User is not authorized to retrieve enrollments for program course.
+        description: User is not authorized to list courses of program.
       404:
-        description: >
-          Course does not exist within program, or program was not found.
-
-  post_course_enrollments:
-    summary: Enroll students in a course
+        description: Program was not found.
+    summary: List program courses
+  list_programs:
+    description: List all programs, requires an organization key for non-admins
     parameters:
-    - in: path
-      name: program_key
-      required: true
+    - description: Organization key
+      example: uexample
+      in: query
+      name: org
+      required: false
       type: string
-      description: edX program key
-      example: uexample-master-of-science
-    - in: path
-      name: course_id
-      required: true
-      type: string
-      description: edX course run identifier
-      example: course-v1:ExU+Science-101+Fall2050
-    - in: body
-      name: body
-      required: true
-      schema:
-        $ref: '#/models/CourseEnrollmentRequests'
     responses:
       200:
-        description: All students were successfully listed.
+        description: OK
         schema:
-          $ref: '#/models/CourseEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: inactive
-            student_aae45c81: active
-      207:
-        description: Some, but not all, students were successfully listed.
-        schema:
-          $ref: '#/models/CourseEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: inactive
-            student_aae45c81: conflict
+          items:
+            $ref: '#/models/Program'
+          type: array
       403:
-        description: >
-          User is not authorized to modify enrollments for program course.
+        description: User is not authorized to list specified programs.
       404:
-        description: >
-          Course does not exist within program, or program was not found.
-      413:
-        description: >
-          Payload too large; at most 25 students may be supplied per request.
-      422:
-        description: None of the students were successfully listed.
-        schema:
-          $ref: '#/models/CourseEnrollmentResult'
-        examples:
-          application/json:
-            student_0128fe4a: invalid-status
-            student_aae45c81: conflict
-
+        description: Organization was not found.
+    summary: List programs
   patch_course_enrollments:
-    summary: Modify course enrollments
     parameters:
-    - in: path
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
       name: program_key
       required: true
       type: string
-      description: edX program key
-      example: uexample-master-of-science
-    - in: path
+    - description: edX course run identifier
+      example: course-v1:ExU+Science-101+Fall2050
+      in: path
       name: course_id
       required: true
       type: string
-      description: edX course run identifier
-      example: course-v1:ExU+Science-101+Fall2050
     - in: body
       name: body
       required: true
@@ -398,638 +172,306 @@ endpoints:
     responses:
       200:
         description: All students' enrollments were successfully modified.
-        schema:
-          $ref: '#/models/CourseEnrollmentResult'
         examples:
           application/json:
             student_0128fe4a: active
             student_aae45c81: inactive
-      207:
-        description: >
-          Some, but not all, students' enrollments were successfully modified.
         schema:
           $ref: '#/models/CourseEnrollmentResult'
+      207:
+        description: "Some, but not all, students' enrollments were successfully modified.\n"
         examples:
           application/json:
             student_0128fe4a: active
             student_aae45c81: not-found
-      403:
-        description: >
-          User is not authorized to modify enrollments for program course.
-      404:
-        description: >
-          Course does not exist within program, or program was not found.
-      413:
-        description: >
-          Payload too large; at most 25 students' enrollments may be modified
-          per request.
-      422:
-        description: >
-          None of the students' enrollments were successfully modified.
         schema:
           $ref: '#/models/CourseEnrollmentResult'
+      403:
+        description: "User is not authorized to modify enrollments for program course.\n"
+      404:
+        description: "Course does not exist within program, or program was not found.\n"
+      413:
+        description: "Payload too large; at most 25 students' enrollments may be modified\
+          \ per request.\n"
+      422:
+        description: "None of the students' enrollments were successfully modified.\n"
         examples:
           application/json:
             student_0128fe4a: invalid-status
             student_aae45c81: not-found
-
-
-################################################################################
-#                              API Information                                 #
-################################################################################
+        schema:
+          $ref: '#/models/CourseEnrollmentResult'
+    summary: Modify course enrollments
+  patch_program_enrollments:
+    parameters:
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
+      name: program_key
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/ProgramEnrollmentRequests'
+    responses:
+      200:
+        description: All students' enrollments were successfully modified.
+        examples:
+          application/json:
+            student_0128fe4a: enrolled
+            student_aae45c81: canceled
+        schema:
+          $ref: '#/models/ProgramEnrollmentResult'
+      207:
+        description: "Some, but not all, students' enrollments were successfully modified.\n"
+        examples:
+          application/json:
+            student_0128fe4a: enrolled
+            student_aae45c81: not-found
+        schema:
+          $ref: '#/models/ProgramEnrollmentResult'
+      403:
+        description: "User is not authorized to modify enrollments for program course.\n"
+      404:
+        description: "Course does not exist within program, or program was not found.\n"
+      413:
+        description: "Payload too large; at most 25 students' enrollments may be modified\
+          \ per request.\n"
+      422:
+        description: "None of the students' enrollments were successfully modified.\n"
+        examples:
+          application/json:
+            student_0128fe4a: invalid-status
+            student_aae45c81: not-found
+        schema:
+          $ref: '#/models/ProgramEnrollmentResult'
+    summary: Modify program enrollments
+  post_course_enrollments:
+    parameters:
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
+      name: program_key
+      required: true
+      type: string
+    - description: edX course run identifier
+      example: course-v1:ExU+Science-101+Fall2050
+      in: path
+      name: course_id
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/CourseEnrollmentRequests'
+    responses:
+      200:
+        description: All students were successfully listed.
+        examples:
+          application/json:
+            student_0128fe4a: inactive
+            student_aae45c81: active
+        schema:
+          $ref: '#/models/CourseEnrollmentResult'
+      207:
+        description: Some, but not all, students were successfully listed.
+        examples:
+          application/json:
+            student_0128fe4a: inactive
+            student_aae45c81: conflict
+        schema:
+          $ref: '#/models/CourseEnrollmentResult'
+      403:
+        description: "User is not authorized to modify enrollments for program course.\n"
+      404:
+        description: "Course does not exist within program, or program was not found.\n"
+      413:
+        description: "Payload too large; at most 25 students may be supplied per request.\n"
+      422:
+        description: None of the students were successfully listed.
+        examples:
+          application/json:
+            student_0128fe4a: invalid-status
+            student_aae45c81: conflict
+        schema:
+          $ref: '#/models/CourseEnrollmentResult'
+    summary: Enroll students in a course
+  post_program_enrollments:
+    parameters:
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
+      name: program_key
+      required: true
+      type: string
+    - in: body
+      name: body
+      required: true
+      schema:
+        $ref: '#/models/ProgramEnrollmentRequests'
+    responses:
+      200:
+        description: All students were successfully listed.
+        examples:
+          application/json:
+            student_0128fe4a: pending
+            student_aae45c81: enrolled
+        schema:
+          $ref: '#/models/ProgramEnrollmentResult'
+      207:
+        description: Some, but not all, students were successfully listed.
+        examples:
+          application/json:
+            student_0128fe4a: pending
+            student_aae45c81: conflict
+        schema:
+          $ref: '#/models/ProgramEnrollmentResult'
+      403:
+        description: "User is not authorized to modify enrollments for program course.\n"
+      404:
+        description: "Course does not exist within program, or program was not found.\n"
+      413:
+        description: "Payload too large; at most 25 students may be supplied per request.\n"
+      422:
+        description: None of the students were successfully listed.
+        examples:
+          application/json:
+            student_0128fe4a: invalid-status
+            student_aae45c81: conflict
+        schema:
+          $ref: '#/models/ProgramEnrollmentResult'
+    summary: Enroll students in a program
 info:
+  description: "Registrar API\n"
   title: Registrar API
-  description: |
-    Registrar API
-
-basePath: /api
-produces:
-- application/json
-consumes:
-- application/json
-
-
-################################################################################
-#                             Path Config                                      #
-################################################################################
-
-paths:
-
-  ### V1 Mock API ###
-  /v1-mock/jobs/{job_id}/:
-    get:
-      summary: Get the status of a job
-      parameters:
-      - in: path
-        name: job_id
-        required: true
-        type: string
-        format: uuid
-        description: UUID-4 job identifier
-        example: 3869c0d5-e88f-4088-bf1d-409222492869
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/models/JobStatus'
-      operationId: registrar_v1_mock_get_job_status
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/
-  /v1-mock/programs/:
-    get:
-      summary: List programs
-      description: List all programs, requires an organization key for non-admins
-      parameters:
-      - in: query
-        name: org
-        required: false
-        type: string
-        description: Organization key
-        example: uexample
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/models/Program'
-        403:
-          description: User is not authorized to list specified programs.
-        404:
-          description: Organization was not found.
-
-      operationId: registrar_v1_mock_list_programs
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/
-  /v1-mock/programs/{program_key}/:
-    get:
-      summary: Get Program
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/models/Program'
-        403:
-          description: User is not authorized to view program.
-        404:
-          description: Program was not found.
-
-      operationId: registrar_v1_mock_get_program
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/
-  /v1-mock/programs/{program_key}/courses/:
-    get:
-      summary: List program courses
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/models/Course'
-        403:
-          description: User is not authorized to list courses of program.
-        404:
-          description: Program was not found.
-
-      operationId: registrar_v1_mock_list_courses
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/
-  /v1-mock/programs/{program_key}/courses/{course_id}/enrollments/:
-    get:
-      summary: Request course enrollment data
-      description: Submit a job to retrieve course enrollment data
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      - in: path
-        name: course_id
-        required: true
-        type: string
-        description: edX course run identifier
-        example: course-v1:ExU+Science-101+Fall2050
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/models/NewJob'
-        403:
-          description: >
-            User is not authorized to retrieve enrollments for program course.
-        404:
-          description: >
-            Course does not exist within program, or program was not found.
-
-      operationId: registrar_v1_mock_get_course_enrollments
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
-    post:
-      summary: Enroll students in a course
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      - in: path
-        name: course_id
-        required: true
-        type: string
-        description: edX course run identifier
-        example: course-v1:ExU+Science-101+Fall2050
-      - in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/models/CourseEnrollmentRequests'
-      responses:
-        200:
-          description: All students were successfully listed.
-          schema:
-            $ref: '#/models/CourseEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: inactive
-              student_aae45c81: active
-        207:
-          description: Some, but not all, students were successfully listed.
-          schema:
-            $ref: '#/models/CourseEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: inactive
-              student_aae45c81: conflict
-        403:
-          description: >
-            User is not authorized to modify enrollments for program course.
-        404:
-          description: >
-            Course does not exist within program, or program was not found.
-        413:
-          description: >
-            Payload too large; at most 25 students may be supplied per request.
-        422:
-          description: None of the students were successfully listed.
-          schema:
-            $ref: '#/models/CourseEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: invalid-status
-              student_aae45c81: conflict
-
-      operationId: registrar_v1_mock_post_course_enrollments
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
-    patch:
-      summary: Modify course enrollments
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      - in: path
-        name: course_id
-        required: true
-        type: string
-        description: edX course run identifier
-        example: course-v1:ExU+Science-101+Fall2050
-      - in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/models/CourseEnrollmentRequests'
-      responses:
-        200:
-          description: All students' enrollments were successfully modified.
-          schema:
-            $ref: '#/models/CourseEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: active
-              student_aae45c81: inactive
-        207:
-          description: >
-            Some, but not all, students' enrollments were successfully modified.
-          schema:
-            $ref: '#/models/CourseEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: active
-              student_aae45c81: not-found
-        403:
-          description: >
-            User is not authorized to modify enrollments for program course.
-        404:
-          description: >
-            Course does not exist within program, or program was not found.
-        413:
-          description: >
-            Payload too large; at most 25 students' enrollments may be modified
-            per request.
-        422:
-          description: >
-            None of the students' enrollments were successfully modified.
-          schema:
-            $ref: '#/models/CourseEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: invalid-status
-              student_aae45c81: not-found
-
-
-      operationId: registrar_v1_mock_patch_course_enrollments
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
-  /v1-mock/programs/{program_key}/enrollments/:
-    get:
-      summary: Request program enrollment data
-      description: Submit a job to retrieve program enrollment data
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/models/NewJob'
-        403:
-          description: User is not authorized to retrieve enrollment of program.
-        404:
-          description: Program was not found.
-
-      operationId: registrar_v1_mock_get_program_enrollments
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
-    post:
-      summary: Enroll students in a program
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      - in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/models/ProgramEnrollmentRequests'
-      responses:
-        200:
-          description: All students were successfully listed.
-          schema:
-            $ref: '#/models/ProgramEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: pending
-              student_aae45c81: enrolled
-        207:
-          description: Some, but not all, students were successfully listed.
-          schema:
-            $ref: '#/models/ProgramEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: pending
-              student_aae45c81: conflict
-        403:
-          description: >
-            User is not authorized to modify enrollments for program course.
-        404:
-          description: >
-            Course does not exist within program, or program was not found.
-        413:
-          description: >
-            Payload too large; at most 25 students may be supplied per request.
-        422:
-          description: None of the students were successfully listed.
-          schema:
-            $ref: '#/models/ProgramEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: invalid-status
-              student_aae45c81: conflict
-
-      operationId: registrar_v1_mock_post_program_enrollments
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
-    patch:
-      summary: Modify program enrollments
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      - in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/models/ProgramEnrollmentRequests'
-      responses:
-        200:
-          description: All students' enrollments were successfully modified.
-          schema:
-            $ref: '#/models/ProgramEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: enrolled
-              student_aae45c81: canceled
-        207:
-          description: >
-            Some, but not all, students' enrollments were successfully modified.
-          schema:
-            $ref: '#/models/ProgramEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: enrolled
-              student_aae45c81: not-found
-        403:
-          description: >
-            User is not authorized to modify enrollments for program course.
-        404:
-          description: >
-            Course does not exist within program, or program was not found.
-        413:
-          description: >
-            Payload too large; at most 25 students' enrollments may be modified
-            per request.
-        422:
-          description: >
-            None of the students' enrollments were successfully modified.
-          schema:
-            $ref: '#/models/ProgramEnrollmentResult'
-          examples:
-            application/json:
-              student_0128fe4a: invalid-status
-              student_aae45c81: not-found
-
-      operationId: registrar_v1_mock_patch_program_enrollments
-      tags: [v1 - Mock API]
-      x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: GET
-
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
-
-
-  ### V1 API ###
-  /v1/programs/:
-    get:
-      summary: List programs
-      description: List all programs, requires an organization key for non-admins
-      parameters:
-      - in: query
-        name: org
-        required: false
-        type: string
-        description: Organization key
-        example: uexample
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/models/Program'
-        403:
-          description: User is not authorized to list specified programs.
-        404:
-          description: Organization was not found.
-
-      operationId: registrar_v1_list_programs
-      tags: [v1]
-  /v1/programs/{program_key}/:
-    get:
-      summary: Get Program
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/models/Program'
-        403:
-          description: User is not authorized to view program.
-        404:
-          description: Program was not found.
-
-      operationId: registrar_v1_get_program
-      tags: [v1]
-  /v1/programs/{program_key}/courses/:
-    get:
-      summary: List program courses
-      parameters:
-      - in: path
-        name: program_key
-        required: true
-        type: string
-        description: edX program key
-        example: uexample-master-of-science
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/models/Course'
-        403:
-          description: User is not authorized to list courses of program.
-        404:
-          description: Program was not found.
-
-      operationId: registrar_v1_list_courses
-      tags: [v1]
-
-
-################################################################################
-#     Data Models                                                              #
-################################################################################
 models:
-  Program:
-    type: object
-    properties:
-      program_key:
-        type: string
-        example: uexample-master-of-science
-      program_title:
-        type: string
-        example: Master of Science
-      program_url:
-        type: string
-        format: uri
-        example: https://uexample.edx.org/uexample-master-of-science
   Course:
-    type: object
     properties:
       course_id:
-        type: string
         example: course-v1:ExU+Science-101+Fall2050
+        type: string
       course_title:
-        type: string
         example: Introduction to Science
-      course_url:
         type: string
-        format: uri
+      course_url:
         example: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
-  ProgramEnrollmentRequests:
-    type: array
+        format: uri
+        type: string
+    type: object
+  CourseEnrollmentRequests:
+    example:
+    - status: inactive
+      student_key: student_0128fe4a
+    - status: active
+      student_key: student_aae45c81
     items:
-      type: object
       properties:
-        student_key:
-          type: string
-          description: >
-            Key that uniquely identifies student within organization.
-            For data privacy reasons, this cannot be, or include,
-            sensitive personal information like a student’s official university ID
-            number, social security number, or some other government-issued ID number.
-          example: student_0128fe4a
         status:
+          enum:
+          - active
+          - inactive
           type: string
+        student_key:
+          description: "Key that uniquely identifies student within organization.\
+            \ For data privacy reasons, this cannot be, or include, sensitive personal\
+            \ information like a student’s official university ID number, social security\
+            \ number, or some other government-issued ID number.\n"
+          example: student_0128fe4a
+          type: string
+      type: object
+    type: array
+  CourseEnrollmentResult:
+    additionalProperties:
+      enum:
+      - active
+      - inactive
+      - invalid-status
+      - duplicated
+      - conflict
+      - not-in-program
+      - not-found
+      - illegal-operation
+      - internal-error
+      type: string
+    description: Mapping from student_keys to course enrollment statuses
+    type: object
+  JobStatus:
+    properties:
+      created:
+        description: The ISO-format date-time that the job was created
+        format: date-time
+        type: string
+      result:
+        description: URL to result file; null if result unavailable
+        example: https://.../files/result.json
+        format: uri
+        nullable: true
+        type: string
+      state:
+        enum:
+        - Queued
+        - In Progress
+        - Canceled
+        - Failed
+        - Succeeded
+        example: In Progress
+        type: string
+    type: object
+  NewJob:
+    properties:
+      job_id:
+        description: UUID-4 job identifier
+        example: 3869c0d5-e88f-4088-bf1d-409222492869
+        format: uuid
+        type: string
+      job_url:
+        description: URL to get status of job
+        example: https://.../api/v1/jobs/3869c0d5-e88f-4088-bf1d-409222492869
+        format: uri
+        type: string
+    type: object
+  Program:
+    properties:
+      program_key:
+        example: uexample-master-of-science
+        type: string
+      program_title:
+        example: Master of Science
+        type: string
+      program_url:
+        example: https://uexample.edx.org/uexample-master-of-science
+        format: uri
+        type: string
+    type: object
+  ProgramEnrollmentRequests:
+    example:
+    - status: pending
+      student_key: student_0128fe4a
+    - status: enrolled
+      student_key: student_aae45c81
+    items:
+      properties:
+        status:
           enum:
           - enrolled
           - pending
           - suspended
           - canceled
-    example:
-    - student_key: student_0128fe4a
-      status: pending
-    - student_key: student_aae45c81
-      status: enrolled
-  CourseEnrollmentRequests:
-    type: array
-    items:
-      type: object
-      properties:
+          type: string
         student_key:
-          type: string
-          description: >
-            Key that uniquely identifies student within organization.
-            For data privacy reasons, this cannot be, or include,
-            sensitive personal information like a student’s official university ID
-            number, social security number, or some other government-issued ID number.
+          description: "Key that uniquely identifies student within organization.\
+            \ For data privacy reasons, this cannot be, or include, sensitive personal\
+            \ information like a student’s official university ID number, social security\
+            \ number, or some other government-issued ID number.\n"
           example: student_0128fe4a
-        status:
           type: string
-          enum:
-          - active
-          - inactive
-    example:
-    - student_key: student_0128fe4a
-      status: inactive
-    - student_key: student_aae45c81
-      status: active
+      type: object
+    type: array
   ProgramEnrollmentResult:
-    type: object
     additionalProperties:
-      type: string
       enum:
       - enrolled
       - pending
@@ -1041,54 +483,517 @@ models:
       - not-found
       - illegal-operation
       - internal-error
-    description: Mapping from student_keys to program enrollment statuses
-  CourseEnrollmentResult:
-    type: object
-    additionalProperties:
       type: string
-      enum:
-      - active
-      - inactive
-      - invalid-status
-      - duplicated
-      - conflict
-      - not-in-program
-      - not-found
-      - illegal-operation
-      - internal-error
-
-################################################################################
-#                        Base Endpoint Definitions                             #
-################################################################################
-
-    description: Mapping from student_keys to course enrollment statuses
-  NewJob:
+    description: Mapping from student_keys to program enrollment statuses
     type: object
-    properties:
-      job_id:
-        type: string
-        format: uuid
-        description: UUID-4 job identifier
+paths:
+  /v1-mock/jobs/{job_id}/:
+    get:
+      operationId: registrar_v1_mock_get_job_status
+      parameters:
+      - description: UUID-4 job identifier
         example: 3869c0d5-e88f-4088-bf1d-409222492869
-      job_url:
+        format: uuid
+        in: path
+        name: job_id
+        required: true
         type: string
-        format: uri
-        description: URL to get status of job
-        example: https://.../api/v1/jobs/3869c0d5-e88f-4088-bf1d-409222492869
-  JobStatus:
-    type: object
-    properties:
-      created:
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/JobStatus'
+      summary: Get the status of a job
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/
+  /v1-mock/programs/:
+    get:
+      description: List all programs, requires an organization key for non-admins
+      operationId: registrar_v1_mock_list_programs
+      parameters:
+      - description: Organization key
+        example: uexample
+        in: query
+        name: org
+        required: false
         type: string
-        format: date-time
-        description: The ISO-format date-time that the job was created
-      state:
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/models/Program'
+            type: array
+        403:
+          description: User is not authorized to list specified programs.
+        404:
+          description: Organization was not found.
+      summary: List programs
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/
+  /v1-mock/programs/{program_key}/:
+    get:
+      operationId: registrar_v1_mock_get_program
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
         type: string
-        enum: [Queued, In Progress, Canceled, Failed, Succeeded]
-        example: In Progress
-      result:
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/Program'
+        403:
+          description: User is not authorized to view program.
+        404:
+          description: Program was not found.
+      summary: Get Program
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/
+  /v1-mock/programs/{program_key}/courses/:
+    get:
+      operationId: registrar_v1_mock_list_courses
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
         type: string
-        format: uri
-        nullable: true
-        description: URL to result file; null if result unavailable
-        example: https://.../files/result.json
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/models/Course'
+            type: array
+        403:
+          description: User is not authorized to list courses of program.
+        404:
+          description: Program was not found.
+      summary: List program courses
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/
+  /v1-mock/programs/{program_key}/courses/{course_id}/enrollments/:
+    get:
+      description: Submit a job to retrieve course enrollment data
+      operationId: registrar_v1_mock_get_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: "User is not authorized to retrieve enrollments for program\
+            \ course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+      summary: Request course enrollment data
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
+    patch:
+      operationId: registrar_v1_mock_patch_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/CourseEnrollmentRequests'
+      responses:
+        200:
+          description: All students' enrollments were successfully modified.
+          examples:
+            application/json:
+              student_0128fe4a: active
+              student_aae45c81: inactive
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        207:
+          description: "Some, but not all, students' enrollments were successfully\
+            \ modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: active
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students' enrollments may be\
+            \ modified per request.\n"
+        422:
+          description: "None of the students' enrollments were successfully modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+      summary: Modify course enrollments
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: PATCH
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
+    post:
+      operationId: registrar_v1_mock_post_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/CourseEnrollmentRequests'
+      responses:
+        200:
+          description: All students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: inactive
+              student_aae45c81: active
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        207:
+          description: Some, but not all, students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: inactive
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students may be supplied per\
+            \ request.\n"
+        422:
+          description: None of the students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+      summary: Enroll students in a course
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
+  /v1-mock/programs/{program_key}/enrollments/:
+    get:
+      description: Submit a job to retrieve program enrollment data
+      operationId: registrar_v1_mock_get_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: User is not authorized to retrieve enrollment of program.
+        404:
+          description: Program was not found.
+      summary: Request program enrollment data
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
+    patch:
+      operationId: registrar_v1_mock_patch_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/ProgramEnrollmentRequests'
+      responses:
+        200:
+          description: All students' enrollments were successfully modified.
+          examples:
+            application/json:
+              student_0128fe4a: enrolled
+              student_aae45c81: canceled
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        207:
+          description: "Some, but not all, students' enrollments were successfully\
+            \ modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: enrolled
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students' enrollments may be\
+            \ modified per request.\n"
+        422:
+          description: "None of the students' enrollments were successfully modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+      summary: Modify program enrollments
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: PATCH
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
+    post:
+      operationId: registrar_v1_mock_post_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/models/ProgramEnrollmentRequests'
+      responses:
+        200:
+          description: All students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: pending
+              student_aae45c81: enrolled
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        207:
+          description: Some, but not all, students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: pending
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students may be supplied per\
+            \ request.\n"
+        422:
+          description: None of the students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+      summary: Enroll students in a program
+      tags:
+      - v1 - Mock API
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: aws_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
+  /v1/programs/:
+    get:
+      description: List all programs, requires an organization key for non-admins
+      operationId: registrar_v1_list_programs
+      parameters:
+      - description: Organization key
+        example: uexample
+        in: query
+        name: org
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/models/Program'
+            type: array
+        403:
+          description: User is not authorized to list specified programs.
+        404:
+          description: Organization was not found.
+      summary: List programs
+      tags:
+      - v1
+  /v1/programs/{program_key}/:
+    get:
+      operationId: registrar_v1_get_program
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/Program'
+        403:
+          description: User is not authorized to view program.
+        404:
+          description: Program was not found.
+      summary: Get Program
+      tags:
+      - v1
+  /v1/programs/{program_key}/courses/:
+    get:
+      operationId: registrar_v1_list_courses
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/models/Course'
+            type: array
+        403:
+          description: User is not authorized to list courses of program.
+        404:
+          description: Program was not found.
+      summary: List program courses
+      tags:
+      - v1
+produces:
+- application/json
+program_enrollment_body:
+  in: body
+  name: body
+  required: true
+  schema:
+    $ref: '#/models/ProgramEnrollmentRequests'
+program_input_status:
+  enum:
+  - enrolled
+  - pending
+  - suspended
+  - canceled
+  type: string
+program_output_status:
+  enum:
+  - enrolled
+  - pending
+  - suspended
+  - canceled
+  - invalid-status
+  - duplicated
+  - conflict
+  - not-found
+  - illegal-operation
+  - internal-error
+  type: string
+program_path_param:
+  description: edX program key
+  example: uexample-master-of-science
+  in: path
+  name: program_key
+  required: true
+  type: string
+student_key:
+  description: "Key that uniquely identifies student within organization. For data\
+    \ privacy reasons, this cannot be, or include, sensitive personal information\
+    \ like a student’s official university ID number, social security number, or some\
+    \ other government-issued ID number.\n"
+  example: student_0128fe4a
+  type: string
+swagger: '2.0'
+x-amazon-apigateway-integration:
+  httpMethod: GET
+  type: aws_proxy
