@@ -12,8 +12,24 @@
 swagger: '2.0'
 
 x-amazon-apigateway-integration: &api_gateway_integration
-  type: aws_proxy
+  type: http_proxy
   httpMethod: GET
+
+x-amazon-apigateway-integration-job: &api_gateway_integration_job
+  <<: *api_gateway_integration
+  requestParameters:
+    integration.request.path.job_id: "method.request.path.job_id"
+
+x-amazon-apigateway-integration-program: &api_gateway_integration_program
+  <<: *api_gateway_integration
+  requestParameters:
+    integration.request.path.program_key: "method.request.path.program_key"
+
+x-amazon-apigateway-integration-course: &api_gateway_integration_course
+  <<: *api_gateway_integration
+  requestParameters:
+    integration.request.path.program_key: "method.request.path.program_key"
+    integration.request.path.course_id: "method.request.path.course_id"
 
 program_path_param: &program_path_param
   in: path
@@ -34,14 +50,17 @@ program_enrollment_body: &program_enrollment_body
   name: body
   required: true
   schema:
-    $ref: '#/models/ProgramEnrollmentRequests'
+    type: array
+    items:
+      $ref: '#/models/ProgramEnrollmentRequest'
 course_enrollment_body: &course_enrollment_body
   in: body
   name: body
   required: true
   schema:
-    $ref: '#/models/CourseEnrollmentRequests'
-
+    type: array
+    items:
+      $ref: '#/models/CourseEnrollmentRequest'
 student_key: &student_key
   type: string
   description: >
@@ -49,7 +68,6 @@ student_key: &student_key
     For data privacy reasons, this cannot be, or include,
     sensitive personal information like a student’s official university ID
     number, social security number, or some other government-issued ID number.
-  example: student_0128fe4a
 program_input_status: &program_input_status
   type: string
   enum:
@@ -103,6 +121,11 @@ endpoints:
         description: OK
         schema:
           $ref: '#/models/Program'
+        examples:
+          application/json:
+            program_title: Master of Science
+            program_key: uexample-master-of-science
+            program_url: https://uexample.edx.org/uexample-master-of-science
       403:
         description: User is not authorized to view program.
       404:
@@ -117,7 +140,6 @@ endpoints:
         required: false
         type: string
         description: Organization key
-        example: uexample
     responses:
       200:
         description: OK
@@ -125,6 +147,11 @@ endpoints:
           type: array
           items:
             $ref: '#/models/Program'
+        examples:
+          application/json:
+            - program_title: Master of Science
+              program_key: uexample-master-of-science
+              program_url: https://uexample.edx.org/uexample-master-of-science
       403:
         description: User is not authorized to list specified programs.
       404:
@@ -157,6 +184,11 @@ endpoints:
           type: array
           items:
             $ref: '#/models/Course'
+        examples:
+          application/json:
+            - course_id: course-v1:ExU+Science-101+Fall2050,
+              course_title: Introduction to Science,
+              course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
       403:
         description: User is not authorized to list courses of program.
       404:
@@ -363,6 +395,48 @@ endpoints:
             student_0128fe4a: invalid-status
             student_aae45c81: not-found
 
+  swagger:
+    get:
+      operationId: registrar_get_api_docs
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration
+        uri: 'https://${stageVariables.registrar_host}/api-docs/'
+      responses:
+        200:
+          description: OK
+
+  static:
+    x-amazon-apigateway-any-method:
+      parameters:
+        - name: "proxy"
+          in: "path"
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration
+        uri: "https://${stageVariables.registrar_host}/static/{proxy}"
+        requestParameters:
+          integration.request.path.proxy: "method.request.path.proxy"
+      responses:
+        200:
+          description: OK
+
+  login:
+    get:
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration
+        uri: "https://${stageVariables.registrar_host}/login/edx-oauth2/"
+      responses:
+        302:
+          description: Found
+
+  logout:
+    get:
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration
+        uri: "https://${stageVariables.registrar_host}/logout/"
+      responses:
+        302:
+          description: Found
+
 
 ################################################################################
 #                              API Information                                 #
@@ -392,7 +466,7 @@ paths:
       operationId: registrar_v1_mock_get_job_status
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_job
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/'
   '/v1-mock/programs/':
     get:
@@ -408,7 +482,7 @@ paths:
       operationId: registrar_v1_mock_get_program
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_program
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/'
   '/v1-mock/programs/{program_key}/courses/':
     get:
@@ -416,7 +490,7 @@ paths:
       operationId: registrar_v1_mock_list_courses
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_program
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/'
   '/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/':
     get:
@@ -424,14 +498,14 @@ paths:
       operationId: registrar_v1_mock_get_course_enrollments
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_course
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/'
     post:
       <<: *post_course_enrollments
       operationId: registrar_v1_mock_post_course_enrollments
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_course
         httpMethod: POST
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/'
     patch:
@@ -439,7 +513,7 @@ paths:
       operationId: registrar_v1_mock_patch_course_enrollments
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_course
         httpMethod: PATCH
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/'
   '/v1-mock/programs/{program_key}/enrollments/':
@@ -448,14 +522,14 @@ paths:
       operationId: registrar_v1_mock_get_program_enrollments
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_program
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/'
     post:
       <<: *post_program_enrollments
       operationId: registrar_v1_mock_post_program_enrollments
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_program
         httpMethod: POST
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/'
     patch:
@@ -463,7 +537,7 @@ paths:
       operationId: registrar_v1_mock_patch_program_enrollments
       tags: ['v1 - Mock API']
       x-amazon-apigateway-integration:
-        <<: *api_gateway_integration
+        <<: *api_gateway_integration_program
         httpMethod: PATCH
         uri: 'https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/'
 
@@ -495,51 +569,31 @@ models:
     properties:
       program_key:
         type: string
-        example: uexample-master-of-science
       program_title:
         type: string
-        example: Master of Science
       program_url:
         type: string
         format: uri
-        example: https://uexample.edx.org/uexample-master-of-science
   Course:
     type: object
     properties:
       course_id:
         type: string
-        example: 'course-v1:ExU+Science-101+Fall2050'
       course_title:
         type: string
-        example: Introduction to Science
       course_url:
         type: string
         format: uri
-        example: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
-  ProgramEnrollmentRequests:
-    type: array
-    items:
-      type: object
-      properties:
-        student_key: *student_key
-        status: *program_input_status
-    example:
-      - student_key: student_0128fe4a
-        status: pending
-      - student_key: student_aae45c81
-        status: enrolled
-  CourseEnrollmentRequests:
-    type: array
-    items:
-      type: object
-      properties:
-        student_key: *student_key
-        status: *course_input_status
-    example:
-      - student_key: student_0128fe4a
-        status: inactive
-      - student_key: student_aae45c81
-        status: active
+  ProgramEnrollmentRequest:
+    type: object
+    properties:
+      student_key: *student_key
+      status: *program_input_status
+  CourseEnrollmentRequest:
+    type: object
+    properties:
+      student_key: *student_key
+      status: *course_input_status
   ProgramEnrollmentResult:
     type: object
     additionalProperties: *program_output_status
@@ -555,12 +609,10 @@ models:
         type: string
         format: uuid
         description: UUID-4 job identifier
-        example: 3869c0d5-e88f-4088-bf1d-409222492869
       job_url:
         type: string
         format: uri
         description: URL to get status of job
-        example: https://.../api/v1/jobs/3869c0d5-e88f-4088-bf1d-409222492869
   JobStatus:
     type: object
     properties:
@@ -571,10 +623,8 @@ models:
       state:
         type: string
         enum: [Queued, In Progress, Canceled, Failed, Succeeded]
-        example: In Progress
       result:
         type: string
         format: uri
         nullable: true
         description: URL to result file; null if result unavailable
-        example: https://.../files/result.json
