@@ -6,7 +6,9 @@ course_enrollment_body:
   name: body
   required: true
   schema:
-    $ref: '#/models/CourseEnrollmentRequests'
+    items:
+      $ref: '#/models/CourseEnrollmentRequest'
+    type: array
 course_input_status:
   enum:
   - active
@@ -83,6 +85,11 @@ endpoints:
     responses:
       200:
         description: OK
+        examples:
+          application/json:
+            program_key: uexample-master-of-science
+            program_title: Master of Science
+            program_url: https://uexample.edx.org/uexample-master-of-science
         schema:
           $ref: '#/models/Program'
       403:
@@ -120,6 +127,11 @@ endpoints:
     responses:
       200:
         description: OK
+        examples:
+          application/json:
+          - course_id: course-v1:ExU+Science-101+Fall2050,
+            course_title: Introduction to Science,
+            course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
         schema:
           items:
             $ref: '#/models/Course'
@@ -133,7 +145,6 @@ endpoints:
     description: List all programs, requires an organization key for non-admins
     parameters:
     - description: Organization key
-      example: uexample
       in: query
       name: org
       required: false
@@ -141,6 +152,11 @@ endpoints:
     responses:
       200:
         description: OK
+        examples:
+          application/json:
+          - program_key: uexample-master-of-science
+            program_title: Master of Science
+            program_url: https://uexample.edx.org/uexample-master-of-science
         schema:
           items:
             $ref: '#/models/Program'
@@ -150,6 +166,24 @@ endpoints:
       404:
         description: Organization was not found.
     summary: List programs
+  login:
+    get:
+      responses:
+        302:
+          description: Found
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/login/edx-oauth2/
+  logout:
+    get:
+      responses:
+        302:
+          description: Found
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/logout/
   patch_course_enrollments:
     parameters:
     - description: edX program key
@@ -168,7 +202,9 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/CourseEnrollmentRequests'
+        items:
+          $ref: '#/models/CourseEnrollmentRequest'
+        type: array
     responses:
       200:
         description: All students' enrollments were successfully modified.
@@ -214,7 +250,9 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/ProgramEnrollmentRequests'
+        items:
+          $ref: '#/models/ProgramEnrollmentRequest'
+        type: array
     responses:
       200:
         description: All students' enrollments were successfully modified.
@@ -266,7 +304,9 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/CourseEnrollmentRequests'
+        items:
+          $ref: '#/models/CourseEnrollmentRequest'
+        type: array
     responses:
       200:
         description: All students were successfully listed.
@@ -311,7 +351,9 @@ endpoints:
       name: body
       required: true
       schema:
-        $ref: '#/models/ProgramEnrollmentRequests'
+        items:
+          $ref: '#/models/ProgramEnrollmentRequest'
+        type: array
     responses:
       200:
         description: All students were successfully listed.
@@ -344,6 +386,30 @@ endpoints:
         schema:
           $ref: '#/models/ProgramEnrollmentResult'
     summary: Enroll students in a program
+  static:
+    x-amazon-apigateway-any-method:
+      parameters:
+      - in: path
+        name: proxy
+      responses:
+        200:
+          description: OK
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        requestParameters:
+          integration.request.path.proxy: method.request.path.proxy
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/static/{proxy}
+  swagger:
+    get:
+      operationId: registrar_get_api_docs
+      responses:
+        200:
+          description: OK
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api-docs/
 info:
   description: "Registrar API\n"
   title: Registrar API
@@ -351,38 +417,27 @@ models:
   Course:
     properties:
       course_id:
-        example: course-v1:ExU+Science-101+Fall2050
         type: string
       course_title:
-        example: Introduction to Science
         type: string
       course_url:
-        example: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
         format: uri
         type: string
     type: object
-  CourseEnrollmentRequests:
-    example:
-    - status: inactive
-      student_key: student_0128fe4a
-    - status: active
-      student_key: student_aae45c81
-    items:
-      properties:
-        status:
-          enum:
-          - active
-          - inactive
-          type: string
-        student_key:
-          description: "Key that uniquely identifies student within organization.\
-            \ For data privacy reasons, this cannot be, or include, sensitive personal\
-            \ information like a student’s official university ID number, social security\
-            \ number, or some other government-issued ID number.\n"
-          example: student_0128fe4a
-          type: string
-      type: object
-    type: array
+  CourseEnrollmentRequest:
+    properties:
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+      student_key:
+        description: "Key that uniquely identifies student within organization. For\
+          \ data privacy reasons, this cannot be, or include, sensitive personal information\
+          \ like a student’s official university ID number, social security number,\
+          \ or some other government-issued ID number.\n"
+        type: string
+    type: object
   CourseEnrollmentResult:
     additionalProperties:
       enum:
@@ -406,7 +461,6 @@ models:
         type: string
       result:
         description: URL to result file; null if result unavailable
-        example: https://.../files/result.json
         format: uri
         nullable: true
         type: string
@@ -417,59 +471,45 @@ models:
         - Canceled
         - Failed
         - Succeeded
-        example: In Progress
         type: string
     type: object
   NewJob:
     properties:
       job_id:
         description: UUID-4 job identifier
-        example: 3869c0d5-e88f-4088-bf1d-409222492869
         format: uuid
         type: string
       job_url:
         description: URL to get status of job
-        example: https://.../api/v1/jobs/3869c0d5-e88f-4088-bf1d-409222492869
         format: uri
         type: string
     type: object
   Program:
     properties:
       program_key:
-        example: uexample-master-of-science
         type: string
       program_title:
-        example: Master of Science
         type: string
       program_url:
-        example: https://uexample.edx.org/uexample-master-of-science
         format: uri
         type: string
     type: object
-  ProgramEnrollmentRequests:
-    example:
-    - status: pending
-      student_key: student_0128fe4a
-    - status: enrolled
-      student_key: student_aae45c81
-    items:
-      properties:
-        status:
-          enum:
-          - enrolled
-          - pending
-          - suspended
-          - canceled
-          type: string
-        student_key:
-          description: "Key that uniquely identifies student within organization.\
-            \ For data privacy reasons, this cannot be, or include, sensitive personal\
-            \ information like a student’s official university ID number, social security\
-            \ number, or some other government-issued ID number.\n"
-          example: student_0128fe4a
-          type: string
-      type: object
-    type: array
+  ProgramEnrollmentRequest:
+    properties:
+      status:
+        enum:
+        - enrolled
+        - pending
+        - suspended
+        - canceled
+        type: string
+      student_key:
+        description: "Key that uniquely identifies student within organization. For\
+          \ data privacy reasons, this cannot be, or include, sensitive personal information\
+          \ like a student’s official university ID number, social security number,\
+          \ or some other government-issued ID number.\n"
+        type: string
+    type: object
   ProgramEnrollmentResult:
     additionalProperties:
       enum:
@@ -508,7 +548,9 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: GET
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.job_id: method.request.path.job_id
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/
   /v1-mock/programs/:
     get:
@@ -516,7 +558,6 @@ paths:
       operationId: registrar_v1_mock_list_programs
       parameters:
       - description: Organization key
-        example: uexample
         in: query
         name: org
         required: false
@@ -524,6 +565,11 @@ paths:
       responses:
         200:
           description: OK
+          examples:
+            application/json:
+            - program_key: uexample-master-of-science
+              program_title: Master of Science
+              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             items:
               $ref: '#/models/Program'
@@ -537,7 +583,7 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: GET
-        type: aws_proxy
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/
   /v1-mock/programs/{program_key}/:
     get:
@@ -552,6 +598,11 @@ paths:
       responses:
         200:
           description: OK
+          examples:
+            application/json:
+              program_key: uexample-master-of-science
+              program_title: Master of Science
+              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             $ref: '#/models/Program'
         403:
@@ -563,7 +614,9 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: GET
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/
   /v1-mock/programs/{program_key}/courses/:
     get:
@@ -578,6 +631,11 @@ paths:
       responses:
         200:
           description: OK
+          examples:
+            application/json:
+            - course_id: course-v1:ExU+Science-101+Fall2050,
+              course_title: Introduction to Science,
+              course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
           schema:
             items:
               $ref: '#/models/Course'
@@ -591,7 +649,9 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: GET
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/
   /v1-mock/programs/{program_key}/courses/{course_id}/enrollments/:
     get:
@@ -625,7 +685,10 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: GET
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.course_id: method.request.path.course_id
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
     patch:
       operationId: registrar_v1_mock_patch_course_enrollments
@@ -646,7 +709,9 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/CourseEnrollmentRequests'
+          items:
+            $ref: '#/models/CourseEnrollmentRequest'
+          type: array
       responses:
         200:
           description: All students' enrollments were successfully modified.
@@ -685,7 +750,10 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: PATCH
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.course_id: method.request.path.course_id
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
     post:
       operationId: registrar_v1_mock_post_course_enrollments
@@ -706,7 +774,9 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/CourseEnrollmentRequests'
+          items:
+            $ref: '#/models/CourseEnrollmentRequest'
+          type: array
       responses:
         200:
           description: All students were successfully listed.
@@ -744,7 +814,10 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: POST
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.course_id: method.request.path.course_id
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
   /v1-mock/programs/{program_key}/enrollments/:
     get:
@@ -771,7 +844,9 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: GET
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
     patch:
       operationId: registrar_v1_mock_patch_program_enrollments
@@ -786,7 +861,9 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/ProgramEnrollmentRequests'
+          items:
+            $ref: '#/models/ProgramEnrollmentRequest'
+          type: array
       responses:
         200:
           description: All students' enrollments were successfully modified.
@@ -825,7 +902,9 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: PATCH
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
     post:
       operationId: registrar_v1_mock_post_program_enrollments
@@ -840,7 +919,9 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/models/ProgramEnrollmentRequests'
+          items:
+            $ref: '#/models/ProgramEnrollmentRequest'
+          type: array
       responses:
         200:
           description: All students were successfully listed.
@@ -878,7 +959,9 @@ paths:
       - v1 - Mock API
       x-amazon-apigateway-integration:
         httpMethod: POST
-        type: aws_proxy
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
   /v1/programs/:
     get:
@@ -886,7 +969,6 @@ paths:
       operationId: registrar_v1_list_programs
       parameters:
       - description: Organization key
-        example: uexample
         in: query
         name: org
         required: false
@@ -894,6 +976,11 @@ paths:
       responses:
         200:
           description: OK
+          examples:
+            application/json:
+            - program_key: uexample-master-of-science
+              program_title: Master of Science
+              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             items:
               $ref: '#/models/Program'
@@ -918,6 +1005,11 @@ paths:
       responses:
         200:
           description: OK
+          examples:
+            application/json:
+              program_key: uexample-master-of-science
+              program_title: Master of Science
+              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             $ref: '#/models/Program'
         403:
@@ -940,6 +1032,11 @@ paths:
       responses:
         200:
           description: OK
+          examples:
+            application/json:
+            - course_id: course-v1:ExU+Science-101+Fall2050,
+              course_title: Introduction to Science,
+              course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
           schema:
             items:
               $ref: '#/models/Course'
@@ -958,7 +1055,9 @@ program_enrollment_body:
   name: body
   required: true
   schema:
-    $ref: '#/models/ProgramEnrollmentRequests'
+    items:
+      $ref: '#/models/ProgramEnrollmentRequest'
+    type: array
 program_input_status:
   enum:
   - enrolled
@@ -991,9 +1090,24 @@ student_key:
     \ privacy reasons, this cannot be, or include, sensitive personal information\
     \ like a student’s official university ID number, social security number, or some\
     \ other government-issued ID number.\n"
-  example: student_0128fe4a
   type: string
 swagger: '2.0'
 x-amazon-apigateway-integration:
   httpMethod: GET
-  type: aws_proxy
+  type: http_proxy
+x-amazon-apigateway-integration-course:
+  httpMethod: GET
+  requestParameters:
+    integration.request.path.course_id: method.request.path.course_id
+    integration.request.path.program_key: method.request.path.program_key
+  type: http_proxy
+x-amazon-apigateway-integration-job:
+  httpMethod: GET
+  requestParameters:
+    integration.request.path.job_id: method.request.path.job_id
+  type: http_proxy
+x-amazon-apigateway-integration-program:
+  httpMethod: GET
+  requestParameters:
+    integration.request.path.program_key: method.request.path.program_key
+  type: http_proxy
