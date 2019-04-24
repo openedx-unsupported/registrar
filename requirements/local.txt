@@ -16,9 +16,9 @@ aws-sam-translator==1.11.0  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 babel==2.6.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.9.136            # via aws-sam-translator, moto
+boto3==1.9.137            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.12.136        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.137        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
 certifi==2019.3.9         # via requests
 cffi==1.12.3              # via cryptography
@@ -44,7 +44,7 @@ django-user-tasks==0.1.5
 django-waffle==0.16.0
 django==1.11.20
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
-djangorestframework==3.9.2
+djangorestframework==3.9.3
 docker-pycreds==0.4.0     # via docker
 docker==3.7.2             # via moto
 docutils==0.14            # via botocore, sphinx
@@ -140,4 +140,4 @@ werkzeug==0.15.2          # via moto
 wrapt==1.11.1             # via astroid, aws-xray-sdk
 xmltodict==0.12.0         # via moto
 yamllint==1.15.0
-zipp==0.3.3               # via importlib-metadata
+zipp==0.4.0               # via importlib-metadata
