@@ -5,6 +5,8 @@ import logging
 import analytics
 from django.conf import settings
 
+from registrar.apps.core.utils import get_user_organizations
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,3 +23,14 @@ def track(
         analytics.track(user_id, event, properties, context, timestamp, anonymous_id, integrations)
     else:
         logger.debug("{{{}, {}}} not tracked because SEGMENT_KEY not set".format(user_id, event))
+
+
+def get_tracking_properties(user, **kwargs):
+    """
+    Helper function to construct the properties for tracking events
+    """
+    user_orgs = get_user_organizations(user)
+    property_dict = kwargs.copy()
+    property_dict['user_organizations'] = [org.name for org in user_orgs]
+
+    return property_dict

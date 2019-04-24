@@ -159,7 +159,7 @@ class ProgramListView(AuthMixin, ListAPIView):
             programs = programs.filter(managing_organization__key=org_key)
         segment.track(
             self.request.user.username,
-            'List Programs',
+            'registrar.v1.list_programs',
             {'organization_key': org_key}
         )
         return programs
