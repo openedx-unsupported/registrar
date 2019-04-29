@@ -68,8 +68,14 @@ class AuthRequestMixin(JwtMixin):
     path = None  # Used in test_unauthenticated
 
     def test_unauthenticated(self):
-        response = self.request(self.method, self.api_root + self.path, None)
-        self.assertEqual(response.status_code, 401)
+        if isinstance(self.method, str):
+            methods = [self.method]
+        else:
+            methods = self.method
+
+        for method in methods:
+            response = self.request(method, self.api_root + self.path, None)
+            self.assertEqual(response.status_code, 401)
 
     def get(self, path, user):
         """

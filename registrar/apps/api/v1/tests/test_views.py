@@ -87,7 +87,7 @@ class RegistrarAPITestCase(APITestCase):
 
     def mock_api_response(self, url, response_data, method='GET', response_code=200):
         responses.add(
-            getattr(responses, method),
+            getattr(responses, method.upper()),
             url,
             body=json.dumps(response_data),
             content_type='application/json',
@@ -338,9 +338,10 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(response.status_code, 404)
 
 
-class ProgramEnrollmentPostTests(RegistrarAPITestCase, AuthRequestMixin):
-    """ Tests for the POST /api/v1/programs/{program_key}/enrollments endpoint """
-    method = 'POST'
+@ddt.ddt
+class ProgramEnrollmentWriteTests(RegistrarAPITestCase, AuthRequestMixin):
+    """ Test write requests to the /api/v1/programs/{program_key}/enrollments endpoint """
+    method = ['POST', 'PATCH']
     path = 'programs/masters-in-english/enrollments'
 
     @classmethod
@@ -351,89 +352,103 @@ class ProgramEnrollmentPostTests(RegistrarAPITestCase, AuthRequestMixin):
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
+    def mock_enrollments_response(self, method, expected_response, response_code=200):
+        self.mock_api_response(self.lms_request_url, expected_response, method=method, response_code=response_code)
+
     def student_enrollment(self, status, student_key=None):
         return {
             'status': status,
             'student_key': student_key or uuid.uuid4().hex[0:10]
         }
 
-    def test_post_program_unauthorized_at_organization(self):
-        post_data = [
+    @ddt.data('post', 'patch')
+    def test_program_unauthorized_at_organization(self, method):
+        req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.hum_admin)
+
+        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.hum_admin)
         self.assertEqual(response.status_code, 403)
 
-    def test_post_program_insufficient_permissions(self):
-        post_data = [
+    @ddt.data('post', 'patch')
+    def test_program_insufficient_permissions(self, method):
+        req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_user)
+        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_user)
         self.assertEqual(response.status_code, 403)
 
-    def test_post_program_not_found(self):
-        post_data = [
+    @ddt.data('post', 'patch')
+    def test_program_not_found(self, method):
+        req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = self.post('programs/uan-salsa-dancing-with-sharks/enrollments/', post_data, self.stem_admin)
+        response = getattr(self, method)(
+            'programs/uan-salsa-dancing-with-sharks/enrollments/', req_data, self.stem_admin
+        )
         self.assertEqual(response.status_code, 404)
 
+    @ddt.data('post', 'patch')
     @mock_oauth_login
     @responses.activate
-    def test_post_successful_program_enrollment(self):
+    def test_successful_program_enrollment_write(self, method):
         expected_lms_response = {
             '001': 'enrolled',
             '002': 'enrolled',
             '003': 'pending'
         }
-        self.mock_api_response(self.lms_request_url, expected_lms_response, method='POST')
+        self.mock_enrollments_response(method, expected_lms_response)
 
-        post_data = [
+        req_data = [
             self.student_enrollment('enrolled', '001'),
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('pending', '003'),
         ]
-        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, expected_lms_response)
 
+    @ddt.data('post', 'patch')
     @mock_oauth_login
     @responses.activate
-    def test_post_backend_unprocessable_response(self):
-        self.mock_api_response(self.lms_request_url, "invalid enrollment record", method='POST', response_code=422)
+    def test_backend_unprocessable_response(self, method):
+        self.mock_enrollments_response(method, "invalid enrollment record", response_code=422)
 
-        post_data = [
+        req_data = [
             self.student_enrollment('enrolled', '001'),
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('pending', '003'),
         ]
-        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
         self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.data, "invalid enrollment record")
+        self.assertEqual(response.data, 'invalid enrollment record')
 
+    @ddt.data('post', 'patch')
     @mock_oauth_login
     @responses.activate
-    def test_post_backend_multi_status_response(self):
+    def test_backend_multi_status_response(self, method):
         expected_lms_response = {
             '001': 'enrolled',
             '002': 'enrolled',
             '003': 'invalid-status'
         }
-        self.mock_api_response(self.lms_request_url, expected_lms_response, method='POST', response_code=207)
+        self.mock_enrollments_response(method, expected_lms_response, response_code=207)
 
-        post_data = [
+        req_data = [
             self.student_enrollment('enrolled', '001'),
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('not_a_valid_value', '003'),
         ]
-        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+
+        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
         self.assertEqual(response.status_code, 207)
         self.assertEqual(response.data, expected_lms_response)
 
-    def test_post_enrollment_payload_limit(self):
-        post_data = [self.student_enrollment('enrolled')] * 26
+    @ddt.data('post', 'patch')
+    def test_write_enrollment_payload_limit(self, method):
+        req_data = [self.student_enrollment('enrolled')] * 26
 
-        response = self.post('programs/masters-in-cs/enrollments/', post_data, self.stem_admin)
+        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
         self.assertEqual(response.status_code, 413)
 
 

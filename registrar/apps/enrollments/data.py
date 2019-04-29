@@ -35,17 +35,19 @@ def get_discovery_program(program_uuid, client=None):
     return _make_request('GET', url, client).json()
 
 
-def post_lms_program_enrollment(program_uuid, enrollments, client=None):
+def write_program_enrollments(program_uuid, enrollments, update=False, client=None):
     """
-    Enroll students in a program
+    Create or update program enrollments in the LMS.
 
     Returns:
         A HTTP response object that includes both response data and status_code
     """
     url = urljoin(settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/').format(program_uuid)
 
+    method = 'PATCH' if update else 'POST'
+
     try:
-        return _make_request('POST', url, client, data=enrollments)
+        return _make_request(method, url, client, data=enrollments)
     except HTTPError as e:
         response = e.response
         if response.status_code == 422:

@@ -20,12 +20,11 @@ from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_202_ACCEPTED,
-    HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-)
+from rest_framework.status import HTTP_202_ACCEPTED
 from rest_framework.views import APIView
 
+from registrar.apps.api import exceptions
+from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
@@ -38,9 +37,8 @@ from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import get_job_status, start_job
 from registrar.apps.core.models import Organization
-from registrar.apps.enrollments.data import get_discovery_program, post_lms_program_enrollment
+from registrar.apps.enrollments.data import get_discovery_program, write_program_enrollments
 from registrar.apps.enrollments.tasks import list_program_enrollments
-
 
 logger = logging.getLogger(__name__)
 
@@ -315,18 +313,18 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
     """
-    ENROLLMENT_LIMIT = 25
+    # pylint: disable=unused-argument
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return JobAcceptanceSerializer
-        if self.request.method == 'POST':
+        if self.request.method == 'POST' or self.request.method == 'PATCH':
             return ProgramEnrollmentRequestSerializer(multiple=True)
 
     def get_permission_required(self, request):
         if request.method == 'GET':
             return perms.ORGANIZATION_READ_ENROLLMENTS
-        if request.method == 'POST':
+        if request.method == 'POST' or self.request.method == 'PATCH':
             return perms.ORGANIZATION_WRITE_ENROLLMENTS
         return []
 
@@ -349,19 +347,39 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         data = {'job_id': job_id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
 
-    def post(self, request, program_key):
-        """ POST handler """
-        if not isinstance(request.data, list):
+    def validate_enrollment_data(self, enrollments):
+        """
+        Validate enrollments request body
+        """
+        if not isinstance(enrollments, list):
             raise ValidationError('expected request body type: List')
 
-        if len(request.data) > self.ENROLLMENT_LIMIT:
-            return Response(
-                'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
-            )
+        if len(enrollments) > ENROLLMENT_WRITE_MAX_SIZE:
+            raise exceptions.EnrollmentPayloadTooLarge()
 
+    def write_program_enrollments(self, request):
+        """
+        Handle Create/Update requests for enrollments
+        """
+        self.validate_enrollment_data(request.data)
         program_uuid = self.program.discovery_uuid
-        response = post_lms_program_enrollment(program_uuid, request.data)
+
+        if request.method == 'POST':
+            response = write_program_enrollments(program_uuid, request.data)
+        elif request.method == 'PATCH':
+            response = write_program_enrollments(program_uuid, request.data, update=True)
+        else:
+            raise Exception('unexpected request method.  Expected [POST, PATCH]')
+
         return Response(response.json(), status=response.status_code)
+
+    def post(self, request, program_key):
+        """ POST handler """
+        return self.write_program_enrollments(request)
+
+    def patch(self, request, program_key):
+        """ PATCH handler """
+        return self.write_program_enrollments(request)
 
 
 class JobStatusRetrieveView(RetrieveAPIView):
