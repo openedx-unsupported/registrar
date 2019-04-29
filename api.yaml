@@ -573,6 +573,10 @@ paths:
       <<: *post_program_enrollments
       operationId: registrar_v1_post_program_enrollments
       tags: ['v1']
+    patch:
+      <<: *patch_program_enrollments
+      operationsId: registrar_v1_patch_program_enrollments
+      tags: ['v1']
 
 
 ################################################################################
