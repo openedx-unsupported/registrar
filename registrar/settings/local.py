@@ -66,6 +66,8 @@ CELERY_ALWAYS_EAGER = True
 # Media
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
+# Publicly-exposed base URLs for service and API
+API_ROOT = 'http://localhost:18734/api'
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

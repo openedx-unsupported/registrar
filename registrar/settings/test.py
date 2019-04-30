@@ -42,3 +42,6 @@ AWS_STORAGE_BUCKET_NAME = 'registrar-test'
 AWS_QUERYSTRING_AUTH = True
 AWS_QUERYSTRING_EXPIRE = 3600
 AWS_DEFAULT_ACL = None
+
+# Publicly-exposed base URLs for service and API, respectively
+API_ROOT = 'http://localhost/api'

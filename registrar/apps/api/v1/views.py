@@ -11,7 +11,7 @@ from django.core.exceptions import (
 )
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.urls import resolve, reverse
+from django.urls import resolve
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
@@ -33,6 +33,7 @@ from registrar.apps.api.serializers import (
     ProgramEnrollmentRequestSerializer,
     ProgramSerializer,
 )
+from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import get_job_status, start_job
@@ -341,9 +342,7 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
             self.program.key,
             file_format,
         )
-        job_url = self.request.build_absolute_uri(
-            reverse('api:v1:job-status', kwargs={'job_id': job_id})
-        )
+        job_url = build_absolute_api_url('api:v1:job-status', job_id=job_id)
         data = {'job_id': job_id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
 

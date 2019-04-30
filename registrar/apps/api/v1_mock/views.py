@@ -6,7 +6,6 @@ import logging
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.urls import reverse
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
@@ -32,6 +31,7 @@ from registrar.apps.api.serializers import (
     CourseEnrollmentRequestSerializer,
     CourseEnrollmentModificationRequestSerializer,
 )
+from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.api.v1_mock.data import (
     invoke_fake_course_enrollment_listing_job,
     invoke_fake_program_enrollment_listing_job,
@@ -426,8 +426,8 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
         fake_job_id = invoke_fake_program_enrollment_listing_job(
             self.program.key
         )
-        fake_job_url = self.request.build_absolute_uri(
-            reverse('api:v1-mock:job-status', kwargs={'job_id': fake_job_id})
+        fake_job_url = build_absolute_api_url(
+            'api:v1-mock:job-status', job_id=fake_job_id
         )
         fake_job_acceptance = FakeJobAcceptance(fake_job_id, fake_job_url)
 
@@ -508,8 +508,8 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
         fake_job_id = invoke_fake_course_enrollment_listing_job(
             self.program.key, self.course.key
         )
-        fake_job_url = self.request.build_absolute_uri(
-            reverse('api:v1-mock:job-status', kwargs={'job_id': fake_job_id})
+        fake_job_url = build_absolute_api_url(
+            'api:v1-mock:job-status', job_id=fake_job_id
         )
         fake_job_acceptance = FakeJobAcceptance(fake_job_id, fake_job_url)
 

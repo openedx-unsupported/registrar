@@ -131,7 +131,7 @@ LOCALE_PATHS = (
 MEDIA_ROOT = root('media')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-MEDIA_URL = '/media/'
+MEDIA_URL = '/api/media/'
 # END MEDIA CONFIGURATION
 
 # STATIC FILE CONFIGURATION
@@ -241,3 +241,6 @@ LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 
 # API key for segment.io event tracking
 SEGMENT_KEY = None
+
+# Publicly-exposed base URLs for service and API
+API_ROOT = 'http://replace-me/api'
