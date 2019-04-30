@@ -1,11 +1,10 @@
 """ Utilities for storing the results of jobs. """
-
-from urllib.parse import urljoin
-
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage, get_storage_class
+
+from registrar.apps.api.utils import to_absolute_api_url
 
 
 class JobResultStorageBase(object):
@@ -49,12 +48,8 @@ class FileSystemJobResultStorage(JobResultStorageBase):
     def _get_url(self, result_path):
         """
         Given the path of a job result, return a URL to the result.
-
-        TODO: This doesn't work, because we don't currently have a way to
-        return absolute URLs outisde the context of a request. We end up
-        just returning something along the lines of '/media/abcd.json'.
         """
-        return urljoin(settings.MEDIA_URL, result_path)
+        return to_absolute_api_url(settings.MEDIA_URL, result_path)
 
 
 class S3JobResultStorage(JobResultStorageBase):
