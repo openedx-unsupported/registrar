@@ -244,3 +244,17 @@ SEGMENT_KEY = None
 
 # Publicly-exposed base URLs for service and API
 API_ROOT = 'http://replace-me/api'
+
+# Celery Broker
+CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "")
+CELERY_BROKER_HOSTNAME = os.environ.get("CELERY_BROKER_HOSTNAME", "")
+CELERY_BROKER_VHOST = os.environ.get("CELERY_BROKER_VHOST", "")
+CELERY_BROKER_USER = os.environ.get("CELERY_BROKER_USER", "")
+CELERY_BROKER_PASSWORD = os.environ.get("CELERY_BROKER_PASSWORD", "")
+BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
+    CELERY_BROKER_TRANSPORT,
+    CELERY_BROKER_USER,
+    CELERY_BROKER_PASSWORD,
+    CELERY_BROKER_HOSTNAME,
+    CELERY_BROKER_VHOST
+)
