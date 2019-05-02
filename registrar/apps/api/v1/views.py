@@ -1,22 +1,17 @@
 """
 The public-facing REST API.
 """
-from collections.abc import Iterable
 import logging
 
 from django.core.exceptions import (
-    ImproperlyConfigured,
     ObjectDoesNotExist,
     PermissionDenied,
 )
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.urls import resolve
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from guardian.shortcuts import get_objects_for_user
-from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import NotAuthenticated, ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -25,111 +20,32 @@ from rest_framework.views import APIView
 
 from registrar.apps.api import exceptions
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
+from registrar.apps.api.mixins import (
+    AuthMixin,
+    CourseSpecificViewMixin,
+    JobInvokerMixin,
+    ProgramSpecificViewMixin,
+)
 import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
-    CourseRunSerializer,
     JobAcceptanceSerializer,
     JobStatusSerializer,
+)
+from registrar.apps.enrollments.models import Program
+from registrar.apps.core import permissions as perms
+from registrar.apps.core.jobs import get_job_status
+from registrar.apps.core.models import Organization
+from registrar.apps.enrollments.data import get_discovery_program, write_program_enrollments
+from registrar.apps.enrollments.serializers import (
+    CourseRunSerializer,
+    DiscoveryProgramSerializer,
     ProgramEnrollmentRequestSerializer,
     ProgramSerializer,
 )
-from registrar.apps.api.utils import build_absolute_api_url
-from registrar.apps.enrollments.models import Program
-from registrar.apps.core import permissions as perms
-from registrar.apps.core.jobs import get_job_status, start_job
-from registrar.apps.core.models import Organization
-from registrar.apps.enrollments.data import get_discovery_program, write_program_enrollments
 from registrar.apps.enrollments.tasks import list_program_enrollments
 
+
 logger = logging.getLogger(__name__)
-
-
-class AuthMixin(object):
-    """
-    Mixin providing AuthN/AuthZ functionality for all our views to use.
-
-    This mixin overrides `APIView.check_permissions` to use Django Guardian.
-    It replicates, to the extent that we require, the functionality of
-    Django Guardian's `PermissionRequiredMixin`, which unfortunately doesn't
-    play nicely with Django REST Framework.
-    """
-    authentication_classes = (JwtAuthentication, SessionAuthentication)
-    permission_required = []
-    raise_404_if_unauthorized = False
-
-    def get_permission_object(self):
-        """
-        Get an object against which required permissions will be checked.
-
-        If None, permissions will be checked globally.
-        """
-        return None
-
-    def get_permission_required(self, _request):
-        """
-        Gets permission(s) to be checked.
-
-        Must return a string or an iterable of strings.
-        Can be overridden in subclass.
-        Default to class-level `permission_required` attribute.
-        """
-        return self.permission_required
-
-    def check_permissions(self, request):
-        """
-        Check that the authenticated user can access this view.
-
-        Ensure that the user has all of the permissions specified in
-        `permission_required` granted on the object returned by
-        `get_permission_object`. If not, an HTTP 403 (or, HTTP 404 if
-        `raise_404_if_unauthorized` is True) is raised.
-
-        Overrides APIView.check_permissions.
-        """
-        if resolve(request.path_info).url_name == 'api-docs':
-            self.check_doc_permissions(request)
-            return
-
-        if not request.user.is_authenticated:
-            raise NotAuthenticated()
-
-        required = self.get_permission_required(request)
-        if isinstance(required, str):
-            required = [required]
-        elif isinstance(required, Iterable):
-            required = list(required)
-        else:
-            raise ImproperlyConfigured(
-                'get_permission_required must return string or iterable; ' +
-                'returned {}'.format(required)
-            )
-
-        if all(request.user.has_perm(perm) for perm in required):
-            return
-        obj = self.get_permission_object()
-        if obj and all(request.user.has_perm(perm, obj) for perm in required):
-            return
-        if self.raise_404_if_unauthorized:
-            raise Http404()
-        else:
-            raise PermissionDenied()
-
-    def check_doc_permissions(self, request):
-        """
-        Check whether the endpoint being requested should show up in the
-        Swagger UI.
-
-        When loading /api-docs/, Swagger does `check_permissions` on all
-        API endpoints in order to decide which ones to show to the user.
-        However, we assign permissions on a per-Oranization-instance
-        basis using Guardian, whereas /api-docs/ is Organization-agnostic.
-
-        To compensate for this, we handle permission checks coming from
-        /api-docs/ differently: we simply check if the user has the appropriate
-        permission on *any* Organization instance.
-        """
-        if not get_objects_for_user(request.user, self.permission_required):
-            raise PermissionDenied()
 
 
 class ProgramListView(AuthMixin, ListAPIView):
@@ -180,37 +96,6 @@ class ProgramListView(AuthMixin, ListAPIView):
             return None
 
 
-class ProgramSpecificViewMixin(AuthMixin):
-    """
-    A mixin for views that operate on or within a specific program.
-
-    Provides a `program` property. On first access, the property is loaded
-    based on the `program_key` URL parameter, and cached for subsequent
-    calls. This avoids redundant database queries between `get_object/queryset`
-    and `get_permission_object`.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(ProgramSpecificViewMixin, self).__init__(*args, **kwargs)
-        self._program = None
-
-    @property
-    def program(self):
-        """
-        The program specified by the `program_key` URL parameter.
-        """
-        if not self._program:
-            program_key = self.kwargs['program_key']
-            self._program = get_object_or_404(Program, key=program_key)
-        return self._program
-
-    def get_permission_object(self):
-        """
-        Returns an organization object against which permissions should be checked.
-        """
-        return self.program.managing_organization
-
-
 class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     """
     A view for retrieving a single program object.
@@ -222,7 +107,6 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 403: User lacks read access organization of specified program.
      * 404: Program does not exist.
     """
-
     serializer_class = ProgramSerializer
     permission_required = perms.ORGANIZATION_READ_METADATA
 
@@ -241,42 +125,17 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
      * 403: User lacks read access organization of specified program.
      * 404: Program does not exist.
     """
-
     serializer_class = CourseRunSerializer
     permission_required = perms.ORGANIZATION_READ_METADATA
 
     def get_queryset(self):
         uuid = self.program.discovery_uuid
-        try:
-            discovery_program = get_discovery_program(uuid)
-        except HTTPError as error:
-            error_string = (
-                'Failed to retrieve program data from course-discovery ' +
-                '(key = {}, uuid = {}, http status = {})'.format(
-                    self.program.key, uuid, error.response.status_code,
-                )
-            )
-            logger.exception(error_string)
-            raise Exception(error_string)
-
-        curricula = discovery_program.get('curricula')
-
-        # this make two temporary assumptions (zwh 03/19)
-        #  1. one *active* curriculum per program
-        #  2. no programs are nested within a curriculum
-        course_runs = []
-        if curricula:
-            try:
-                curriculum = next(c for c in curricula if c['is_active'])
-                for course in curriculum.get('courses') or []:
-                    course_runs = course_runs + course.get('course_runs')
-            except StopIteration:
-                pass
-
-        return course_runs
+        discovery_program = DiscoveryProgram.get(uuid)
+        return discovery_program.course_runs
 
 
-class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
+
+class ProgramEnrollmentView(ProgramSpecificViewMixin, JobInvokerMixin, APIView):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
@@ -325,7 +184,7 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         if self.request.method == 'GET':
             return JobAcceptanceSerializer
         if self.request.method == 'POST' or self.request.method == 'PATCH':
-            return ProgramEnrollmentRequestSerializer(multiple=True)
+            return ProgramEnrollmentRequestSerializer(many=True)
 
     def get_permission_required(self, request):
         if request.method == 'GET':
@@ -338,18 +197,7 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         """
         Submit a user task that retrieves program enrollment data.
         """
-        file_format = request.query_params.get('fmt', 'json')
-        if file_format not in {'json', 'csv'}:
-            raise Http404()
-        job_id = start_job(
-            self.request.user,
-            list_program_enrollments,
-            self.program.key,
-            file_format,
-        )
-        job_url = build_absolute_api_url('api:v1:job-status', job_id=job_id)
-        data = {'job_id': job_id, 'job_url': job_url}
-        return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
+        return self.invoke_job(list_program_enrollments, self.program_key)
 
     def validate_enrollment_data(self, enrollments):
         """
@@ -367,19 +215,12 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         """
         self.validate_enrollment_data(request.data)
         program_uuid = self.program.discovery_uuid
-
-        program = get_discovery_program(program_uuid)
-
-        try:
-            curriculum = next(c for c in program['curricula'] if c['is_active'])
-        except StopIteration:
-            logger.exception('No active curriculum found for program: {}'.format(program_uuid))
-            raise Exception('Program configuration error. No curriculum found.')
+        discovery_program = get_discovery_program(program_uuid)
 
         enrollments = [{
             'student_key': enrollment.get('student_key'),
             'status': enrollment.get('status'),
-            'curriculum_uuid': curriculum.get('uuid')
+            'curriculum_uuid': discovery_program.active_curriculum_uuid
         } for enrollment in request.data]
 
         if request.method == 'POST':
@@ -398,6 +239,56 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
     def patch(self, request, program_key):
         """ PATCH handler """
         return self.write_program_enrollments(request)
+
+
+class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
+    """
+    A view for enrolling students in a program course run.
+
+    Path: /api/v1/programs/{program_key}/courses/{course_id}/enrollments
+
+    Accepts: [GET]
+
+    ------------------------------------------------------------------------------------
+    GET
+    ------------------------------------------------------------------------------------
+
+    Invokes a Django User Task that retrieves student enrollment
+    data for a given program course run.
+
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks enrollment read access to organization of specified course run.
+     * 404: Course run does not exist within specified program.
+
+    Example Response:
+    {
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+    }
+    """
+    # pylint: disable=unused-argument
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return JobAcceptanceSerializer
+
+    def get_permission_required(self, request):
+        if request.method == 'GET':
+            return perms.ORGANIZATION_READ_ENROLLMENTS
+        return []
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves course run enrollment data.
+        """
+        self.validate_course_id()
+        return self.invoke_job(
+            list_course_run_enrollments,
+            self.program_key,
+            self.kwargs['course_id'],
+        )
 
 
 class JobStatusRetrieveView(RetrieveAPIView):

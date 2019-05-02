@@ -21,9 +21,9 @@ log = get_task_logger(__name__)
 
 
 @shared_task(base=UserTask, bind=True)
-def list_program_enrollments(self, job_id, user_id, program_key, file_format):  # pylint: disable=unused-argument
+def list_program_enrollments(self, job_id, user_id, file_format, program_key):  # pylint: disable=unused-argument
     """
-    A user task for debugging.  Creates user artifact containing given text.
+    A user task for retrieving program enrollments from LMS.
     """
     try:
         program = Program.objects.get(key=program_key)
@@ -36,7 +36,7 @@ def list_program_enrollments(self, job_id, user_id, program_key, file_format):  
     except HTTPError as err:
         post_job_failure(
             job_id,
-            "HTTP error {} on when getting enrollments at {}".format(
+            "HTTP error {} when getting enrollments at {}".format(
                 err.response.status_code, err.request.url
             ),
         )
@@ -54,7 +54,47 @@ def list_program_enrollments(self, job_id, user_id, program_key, file_format):  
         serialized = serialize_program_enrollments_to_csv(enrollments)
     else:
         raise ValueError('Invalid file_format: {}'.format(file_format))
-    post_job_success(self.request.id, serialized, file_format)
+    post_job_success(job_id, serialized, file_format)
+
+
+@shared_task(base=UserTask, bind=True)
+def list_course_run_enrollments(
+        self, job_id, user_id, file_format, program_key, course_id   # pylint: disable=unused-argument
+):
+    """
+    A user task for retrieving program course run enrollments from LMS.
+    """
+    try:
+        program = Program.objects.get(key=program_key)
+    except Program.DoesNotExist:
+        post_job_failure(job_id, "Bad program key: {}".format(program_key))
+        return
+
+    try:
+        enrollments = get_course_run_enrollments(program.discovery_uuid, course_id)
+    except HTTPError as err:
+        post_job_failure(
+            job_id,
+            "HTTP error {} when getting enrollments at {}".format(
+                err.response.status_code, err.request.url
+            ),
+        )
+        return
+    except ValidationError as err:
+        post_job_failure(
+            job_id,
+            "Invalid enrollment data from LMS: {}".format(err),
+        )
+        return
+
+    if file_format == 'json':
+        serialized = json.dumps(enrollments, indent=4)
+    elif file_format == 'csv':
+        serialized = serialize_course_enrollments_to_csv(enrollments)
+    else:
+        raise ValueError('Invalid file_format: {}'.format(file_format))
+    post_job_success(job_id, serialized, file_format)
+
 
 
 @shared_task(bind=True)
