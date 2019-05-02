@@ -262,12 +262,17 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
         curricula = discovery_program.get('curricula')
 
         # this make two temporary assumptions (zwh 03/19)
-        #  1. one curriculum per program
+        #  1. one *active* curriculum per program
         #  2. no programs are nested within a curriculum
         course_runs = []
         if curricula:
-            for course in curricula[0].get('courses') or []:
-                course_runs = course_runs + course.get('course_runs')
+            try:
+                curriculum = next(c for c in curricula if c['is_active'])
+                for course in curriculum.get('courses') or []:
+                    course_runs = course_runs + course.get('course_runs')
+            except StopIteration:
+                pass
+
         return course_runs
 
 
@@ -363,10 +368,24 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, APIView):
         self.validate_enrollment_data(request.data)
         program_uuid = self.program.discovery_uuid
 
+        program = get_discovery_program(program_uuid)
+
+        try:
+            curriculum = next(c for c in program['curricula'] if c['is_active'])
+        except StopIteration:
+            logger.exception('No active curriculum found for program: {}'.format(program_uuid))
+            raise Exception('Program configuration error. No curriculum found.')
+
+        enrollments = [{
+            'student_key': enrollment.get('student_key'),
+            'status': enrollment.get('status'),
+            'curriculum_uuid': curriculum.get('uuid')
+        } for enrollment in request.data]
+
         if request.method == 'POST':
-            response = write_program_enrollments(program_uuid, request.data)
+            response = write_program_enrollments(program_uuid, enrollments)
         elif request.method == 'PATCH':
-            response = write_program_enrollments(program_uuid, request.data, update=True)
+            response = write_program_enrollments(program_uuid, enrollments, update=True)
         else:
             raise Exception('unexpected request method.  Expected [POST, PATCH]')
 

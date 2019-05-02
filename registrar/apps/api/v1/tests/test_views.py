@@ -211,25 +211,29 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         user = self.edx_admin if is_staff else self.hum_admin
 
         program_data = {
-            'curricula': [{
-                'courses': [{
-                    'course_runs': [
-                        {
-                            'key': '0001',
-                            'uuid': '123456',
-                            'title': 'Test Course 1',
-                            'marketing_url': 'https://humanities-college.edx.org/masters-in-english/test-course-1',
-                        }
-                    ],
-                }],
-            }],
+            'curricula': [
+                {
+                    'is_active': False,
+                    'courses': []
+                },
+                {
+                    'is_active': True,
+                    'courses': [{
+                        'course_runs': [
+                            {
+                                'key': '0001',
+                                'uuid': '123456',
+                                'title': 'Test Course 1',
+                                'marketing_url': 'https://humanities-college.edx.org/masters-in-english/test-course-1',
+                            }
+                        ],
+                    }]
+                },
+            ]
         }
 
-        program_uuid = self.english_program.discovery_uuid
-        discovery_url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
-        self.mock_api_response(discovery_url, program_data)
-
-        response = self.get('programs/masters-in-english/courses', user)
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+            response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
@@ -252,17 +256,35 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
 
         program_data = {
             'curricula': [{
+                'is_active': True,
                 'courses': [{
                     'course_runs': []
                 }]
             }]
         }
 
-        program_uuid = self.english_program.discovery_uuid
-        discovery_url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
-        self.mock_api_response(discovery_url, program_data)
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+            response = self.get('programs/masters-in-english/courses', user)
 
-        response = self.get('programs/masters-in-english/courses', user)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data, [])
+
+    @mock_oauth_login
+    @responses.activate
+    def test_get_program_with_no_active_curriculum(self):
+        user = self.hum_admin
+
+        program_data = {
+            'curricula': [{
+                'is_active': False,
+                'courses': [{
+                    'course_runs': []
+                }]
+            }]
+        }
+
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+            response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data, [])
@@ -274,6 +296,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
 
         program_data = {
             'curricula': [{
+                'is_active': True,
                 'courses': [
                     {
                         'course_runs': [
@@ -305,11 +328,8 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             }],
         }
 
-        program_uuid = self.cs_program.discovery_uuid
-        discovery_url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
-        self.mock_api_response(discovery_url, program_data)
-
-        response = self.get('programs/masters-in-cs/courses', user)
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+            response = self.get('programs/masters-in-cs/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
@@ -338,10 +358,8 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(response.status_code, 404)
 
 
-@ddt.ddt
-class ProgramEnrollmentWriteTests(RegistrarAPITestCase, AuthRequestMixin):
+class ProgramEnrollmentWriteMixin(object):
     """ Test write requests to the /api/v1/programs/{program_key}/enrollments endpoint """
-    method = ['POST', 'PATCH']
     path = 'programs/masters-in-english/enrollments'
 
     @classmethod
@@ -352,6 +370,13 @@ class ProgramEnrollmentWriteTests(RegistrarAPITestCase, AuthRequestMixin):
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
+        cls.program_curriculum_data = {
+            'curricula': [
+                {'uuid': 'inactive-curriculum-0000', 'is_active': False},
+                {'uuid': 'active-curriculum-0000', 'is_active': True}
+            ]
+        }
+
     def mock_enrollments_response(self, method, expected_response, response_code=200):
         self.mock_api_response(self.lms_request_url, expected_response, method=method, response_code=response_code)
 
@@ -361,78 +386,95 @@ class ProgramEnrollmentWriteTests(RegistrarAPITestCase, AuthRequestMixin):
             'student_key': student_key or uuid.uuid4().hex[0:10]
         }
 
-    @ddt.data('post', 'patch')
-    def test_program_unauthorized_at_organization(self, method):
+    def test_program_unauthorized_at_organization(self):
         req_data = [
             self.student_enrollment('enrolled'),
         ]
 
-        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.hum_admin)
+        response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.hum_admin, req_data)
         self.assertEqual(response.status_code, 403)
 
-    @ddt.data('post', 'patch')
-    def test_program_insufficient_permissions(self, method):
+    def test_program_insufficient_permissions(self):
         req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_user)
+        response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_user, req_data)
         self.assertEqual(response.status_code, 403)
 
-    @ddt.data('post', 'patch')
-    def test_program_not_found(self, method):
+    def test_program_not_found(self):
         req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = getattr(self, method)(
-            'programs/uan-salsa-dancing-with-sharks/enrollments/', req_data, self.stem_admin
+        response = self.request(
+            self.method, 'programs/uan-salsa-dancing-with-sharks/enrollments/', self.stem_admin, req_data
         )
         self.assertEqual(response.status_code, 404)
 
-    @ddt.data('post', 'patch')
     @mock_oauth_login
     @responses.activate
-    def test_successful_program_enrollment_write(self, method):
+    def test_successful_program_enrollment_write(self):
         expected_lms_response = {
             '001': 'enrolled',
             '002': 'enrolled',
             '003': 'pending'
         }
-        self.mock_enrollments_response(method, expected_lms_response)
+        self.mock_enrollments_response(self.method, expected_lms_response)
 
         req_data = [
             self.student_enrollment('enrolled', '001'),
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('pending', '003'),
         ]
-        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, expected_lms_response)
 
-    @ddt.data('post', 'patch')
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=self.program_curriculum_data):
+            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+
+        lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
+        self.assertListEqual(lms_request_body, [
+            {
+                'status': 'enrolled',
+                'student_key': '001',
+                'curriculum_uuid': 'active-curriculum-0000'
+            },
+            {
+                'status': 'enrolled',
+                'student_key': '002',
+                'curriculum_uuid': 'active-curriculum-0000'
+            },
+            {
+                'status': 'pending',
+                'student_key': '003',
+                'curriculum_uuid': 'active-curriculum-0000'
+            }
+        ])
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.data, expected_lms_response)
+
     @mock_oauth_login
     @responses.activate
-    def test_backend_unprocessable_response(self, method):
-        self.mock_enrollments_response(method, "invalid enrollment record", response_code=422)
+    def test_backend_unprocessable_response(self):
+        self.mock_enrollments_response(self.method, "invalid enrollment record", response_code=422)
 
         req_data = [
             self.student_enrollment('enrolled', '001'),
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('pending', '003'),
         ]
-        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
+
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=self.program_curriculum_data):
+            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.data, 'invalid enrollment record')
 
-    @ddt.data('post', 'patch')
     @mock_oauth_login
     @responses.activate
-    def test_backend_multi_status_response(self, method):
+    def test_backend_multi_status_response(self):
         expected_lms_response = {
             '001': 'enrolled',
             '002': 'enrolled',
             '003': 'invalid-status'
         }
-        self.mock_enrollments_response(method, expected_lms_response, response_code=207)
+        self.mock_enrollments_response(self.method, expected_lms_response, response_code=207)
 
         req_data = [
             self.student_enrollment('enrolled', '001'),
@@ -440,16 +482,24 @@ class ProgramEnrollmentWriteTests(RegistrarAPITestCase, AuthRequestMixin):
             self.student_enrollment('not_a_valid_value', '003'),
         ]
 
-        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
+        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=self.program_curriculum_data):
+            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 207)
-        self.assertEqual(response.data, expected_lms_response)
+        self.assertDictEqual(response.data, expected_lms_response)
 
-    @ddt.data('post', 'patch')
-    def test_write_enrollment_payload_limit(self, method):
+    def test_write_enrollment_payload_limit(self):
         req_data = [self.student_enrollment('enrolled')] * 26
 
-        response = getattr(self, method)('programs/masters-in-cs/enrollments/', req_data, self.stem_admin)
+        response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 413)
+
+
+class ProgramEnrollmentPostTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
+    method = 'POST'
+
+
+class ProgramEnrollmentPatchTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
+    method = 'PATCH'
 
 
 @ddt.ddt

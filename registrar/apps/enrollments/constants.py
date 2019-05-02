@@ -1,5 +1,7 @@
 """ Constants for enrollments app """
 
+PROGRAM_CACHE_KEY_TPL = 'program-{uuid}'
+
 PROGRAM_ENROLLMENT_ENROLLED = 'enrolled'
 PROGRAM_ENROLLMENT_PENDING = 'pending'
 PROGRAM_ENROLLMENT_SUSPENDED = 'suspended'
