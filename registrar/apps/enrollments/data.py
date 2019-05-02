@@ -2,11 +2,14 @@
 Module for syncing data with external services.
 """
 from posixpath import join as urljoin
+
+from django.core.cache import cache
+from django.conf import settings
 from requests.exceptions import HTTPError
 
-from django.conf import settings
 from edx_rest_api_client import client as rest_client
 
+from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.serializers import (
     ProgramEnrollmentSerializer,
 )
@@ -31,8 +34,14 @@ def get_discovery_program(program_uuid, client=None):
     """
     Fetches program data from discovery service, given a program UUID.
     """
-    url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
-    return _make_request('GET', url, client).json()
+    program = cache.get(PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid))
+
+    if not program:
+        url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
+        program = _make_request('GET', url, client).json()
+        cache.set(PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid), program, None)
+
+    return program
 
 
 def write_program_enrollments(program_uuid, enrollments, update=False, client=None):
@@ -47,7 +56,7 @@ def write_program_enrollments(program_uuid, enrollments, update=False, client=No
     method = 'PATCH' if update else 'POST'
 
     try:
-        return _make_request(method, url, client, data=enrollments)
+        return _make_request(method, url, client, json=enrollments)
     except HTTPError as e:
         response = e.response
         if response.status_code == 422:
