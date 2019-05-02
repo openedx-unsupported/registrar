@@ -1,4 +1,6 @@
 """ Miscellaneous utilities not specific to any app. """
+import csv
+from io import StringIO
 import re
 
 from registrar.apps.core.models import OrganizationGroup
@@ -30,3 +32,27 @@ def get_user_organizations(user):
         except OrganizationGroup.DoesNotExist:
             pass
     return user_organizations
+
+
+def serialize_to_csv(items, field_names, include_headers=False):
+    """
+    Serialize items into a CSV-formatted string. Column headers optional.
+
+    Booleans are serialized as True and False
+    Uses Windows-style line endings ('\r\n').
+    Trailing newline is included.
+
+    Arguments:
+        items (list[dict])
+        field_names (tuple[str])
+        include_headers (bool)
+
+    Returns: str
+    """
+    outfile = StringIO()
+    writer = csv.DictWriter(outfile, fieldnames=field_names)
+    if include_headers:
+        writer.writeheader()
+    for item in items:
+        writer.writerow(item)
+    return outfile.getvalue()

@@ -1,8 +1,10 @@
 """ Serializers for communicating enrollment data with LMS """
 
 from rest_framework import serializers
+from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.constants import (
     PROGRAM_ENROLLMENT_STATUSES,
+    COURSE_ENROLLMENT_STATUSES,
 )
 
 
@@ -20,20 +22,36 @@ class ProgramEnrollmentSerializer(serializers.Serializer):
 
 def serialize_program_enrollments_to_csv(enrollments):
     """
-    Serialize enrollments into a CSV-formatted string.
-
-    Headers are not included.
+    Serialize program enrollments into a CSV-formatted string.
 
     Arguments:
         enrollments: list[dict]
 
     Returns: str
     """
-    return '\n'.join(
-        '{},{},{}'.format(
-            enrollment['student_key'],
-            enrollment['status'],
-            str(enrollment['account_exists']).lower(),
-        )
-        for enrollment in enrollments
+    return serialize_to_csv(
+        enrollments, ('student_key', 'status', 'account_exists')
+    )
+
+
+class CourseEnrollmentSerializer(serializers.Serializer):
+    """
+    Serializer for program enrollment API response.
+    """
+    student_key = serializers.CharField()
+    status = serializers.ChoiceField(choices=COURSE_ENROLLMENT_STATUSES)
+    account_exists = serializers.BooleanField()
+
+
+def serialize_course_run_enrollments_to_csv(enrollments):
+    """
+    Serialize course run enrollments into a CSV-formatted string.
+
+    Arguments:
+        enrollments: list[dict]
+
+    Returns: str
+    """
+    return serialize_to_csv(
+        enrollments, ('student_key', 'status', 'account_exists')
     )

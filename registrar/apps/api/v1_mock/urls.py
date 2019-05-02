@@ -3,7 +3,11 @@
 from django.conf.urls import url
 
 from registrar.apps.api.v1_mock import views
-from registrar.apps.core.constants import PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN
+from registrar.apps.core.constants import (
+    COURSE_ID_PATTERN,
+    JOB_ID_PATTERN,
+    PROGRAM_KEY_PATTERN,
+)
 
 
 app_name = 'v1-mock'
@@ -32,10 +36,10 @@ urlpatterns = [
     url(
         r'programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
         views.MockCourseEnrollmentView.as_view(),
-        name="program-enrollment",
+        name="program-course-enrollment",
     ),
     url(
-        r'jobs/(?P<job_id>[0-9a-f-]+)/$',
+        r'jobs/{}/$'.format(JOB_ID_PATTERN),
         views.MockJobStatusRetrieveView.as_view(),
         name="job-status",
     ),

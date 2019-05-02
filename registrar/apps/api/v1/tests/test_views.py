@@ -31,6 +31,7 @@ from registrar.apps.core.tests.factories import (
     UserFactory,
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
+from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
@@ -204,14 +205,21 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     method = 'GET'
     path = 'programs/masters-in-english/courses'
 
+    program_uuid = str(uuid.uuid4())
+
+    def _discovery_program(self, curricula):
+        return DiscoveryProgram.from_json(
+            self.program_uuid, {'curricula': curricula}
+        )
+
     @ddt.data(True, False)
     @mock_oauth_login
     @responses.activate
     def test_get_program_courses(self, is_staff):
         user = self.edx_admin if is_staff else self.hum_admin
 
-        program_data = {
-            'curricula': [
+        disco_program = self._discovery_program(
+            [
                 {
                     'is_active': False,
                     'courses': []
@@ -230,9 +238,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                     }]
                 },
             ]
-        }
+        )
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
             response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -254,16 +262,16 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_with_no_course_runs(self):
         user = self.hum_admin
 
-        program_data = {
-            'curricula': [{
+        disco_program = self._discovery_program(
+            [{
                 'is_active': True,
                 'courses': [{
                     'course_runs': []
                 }]
             }]
-        }
+        )
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
             response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -274,16 +282,16 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_with_no_active_curriculum(self):
         user = self.hum_admin
 
-        program_data = {
-            'curricula': [{
+        disco_program = self._discovery_program(
+            [{
                 'is_active': False,
                 'courses': [{
                     'course_runs': []
                 }]
             }]
-        }
+        )
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
             response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -294,8 +302,8 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_with_multiple_courses(self):
         user = self.stem_admin
 
-        program_data = {
-            'curricula': [{
+        disco_program = self._discovery_program(
+            [{
                 'is_active': True,
                 'courses': [
                     {
@@ -326,9 +334,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                     }
                 ],
             }],
-        }
+        )
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=program_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
             response = self.get('programs/masters-in-cs/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -366,16 +374,15 @@ class ProgramEnrollmentWriteMixin(object):
     def setUpClass(cls):
         super().setUpClass()
         program_uuid = cls.cs_program.discovery_uuid
-        cls.lms_request_url = urljoin(
-            settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
-        ).format(program_uuid)
-
-        cls.program_curriculum_data = {
+        cls.disco_program = DiscoveryProgram.from_json(program_uuid, {
             'curricula': [
                 {'uuid': 'inactive-curriculum-0000', 'is_active': False},
                 {'uuid': 'active-curriculum-0000', 'is_active': True}
             ]
-        }
+        })
+        cls.lms_request_url = urljoin(
+            settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
+        ).format(program_uuid)
 
     def mock_enrollments_response(self, method, expected_response, response_code=200):
         self.mock_api_response(self.lms_request_url, expected_response, method=method, response_code=response_code)
@@ -426,7 +433,7 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('pending', '003'),
         ]
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=self.program_curriculum_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
             response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
 
         lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
@@ -461,7 +468,7 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('pending', '003'),
         ]
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=self.program_curriculum_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
             response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.data, 'invalid enrollment record')
@@ -482,7 +489,7 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('not_a_valid_value', '003'),
         ]
 
-        with mock.patch('registrar.apps.api.v1.views.get_discovery_program', return_value=self.program_curriculum_data):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
             response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 207)
         self.assertDictEqual(response.data, expected_lms_response)
@@ -522,8 +529,8 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
     ]
     enrollments_json = json.dumps(enrollments, indent=4)
     enrollments_csv = (
-        "abcd,enrolled,true\n"
-        "efgh,pending,false"
+        "abcd,enrolled,True\r\n"
+        "efgh,pending,False\r\n"
     )
 
     @mock.patch(
@@ -556,6 +563,92 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
 
     def test_program_not_found(self):
         response = self.get('programs/masters-in-polysci/courses', self.hum_admin)
+        self.assertEqual(response.status_code, 404)
+
+
+@ddt.ddt
+class CourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for GET /api/v1/programs/{program_key}/enrollments endpoint """
+    method = 'GET'
+    path = 'programs/masters-in-english/courses/HUMx+English-550+Spring/enrollments'
+
+    program_uuid = str(uuid.uuid4())
+    disco_program = DiscoveryProgram.from_json(program_uuid, {
+        'curricula': [{
+            'is_active': True,
+            'courses': [{
+                'course_runs': [{
+                    'key': 'HUMx+English-550+Spring',
+                    'title': "English 550",
+                    'marketing_url': 'https://example.com/english-550',
+                }]
+            }]
+        }],
+    })
+
+    enrollments = [
+        {
+            'student_key': 'abcd',
+            'status': 'enrolled',
+            'account_exists': True,
+        },
+        {
+            'student_key': 'efgh',
+            'status': 'pending',
+            'account_exists': False,
+        },
+    ]
+    enrollments_json = json.dumps(enrollments, indent=4)
+    enrollments_csv = (
+        "abcd,enrolled,True\r\n"
+        "efgh,pending,False\r\n"
+    )
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    @mock.patch(
+        'registrar.apps.enrollments.tasks.get_course_run_enrollments',
+        return_value=enrollments,
+    )
+    @ddt.data(
+        (None, 'json', enrollments_json),
+        ('json', 'json', enrollments_json),
+        ('csv', 'csv', enrollments_csv),
+    )
+    @ddt.unpack
+    def test_ok(self, format_param, expected_format, expected_contents, _mock1, _mock2):
+        format_suffix = "?fmt=" + format_param if format_param else ""
+        response = self.get(self.path + format_suffix, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        result_url = job_response.data['result']
+        self.assertIn(".{}?".format(expected_format), result_url)
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response.text, expected_contents)
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    def test_permission_denied(self, _mock):
+        response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    @ddt.data(
+        # Bad program
+        ('masters-in-polysci', 'course-v1:HUMx+English-550+Spring'),
+        # Good program, course key formatted correctly, but course does not exist
+        ('masters-in-english', 'course-v1:STEMx+Biology-440+Fall'),
+        # Good program, course key formatted incorrectly
+        ('masters-in-english', 'not-a-course-key-!@#$%^&*(),.?/\'\"\\{}[]~`"'),
+    )
+    @ddt.unpack
+    def test_not_found(self, program_key, course_key, _mock):
+        path_fmt = 'programs/{}/courses/{}/enrollments'
+        response = self.get(
+            path_fmt.format(program_key, course_key), self.hum_admin
+        )
         self.assertEqual(response.status_code, 404)
 
 

@@ -1,6 +1,9 @@
 """
 Module for syncing data with external services.
 """
+from collections import namedtuple
+from datetime import datetime
+import logging
 from posixpath import join as urljoin
 
 from django.core.cache import cache
@@ -11,37 +14,122 @@ from edx_rest_api_client import client as rest_client
 
 from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.serializers import (
+    CourseEnrollmentSerializer,
     ProgramEnrollmentSerializer,
 )
 
 
-def get_client(host_base_url):
-    """
-    Returns an authenticated edX REST API client.
-    """
-    client = rest_client.OAuthAPIClient(
-        host_base_url,
-        settings.BACKEND_SERVICE_EDX_OAUTH2_KEY,
-        settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET
-    )
-    client._check_auth()  # pylint: disable=protected-access
-    if not client.auth.token:
-        raise 'No Auth Token'
-    return client
+logger = logging.getLogger(__name__)
 
 
-def get_discovery_program(program_uuid, client=None):
-    """
-    Fetches program data from discovery service, given a program UUID.
-    """
-    program = cache.get(PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid))
+DiscoveryCourseRun = namedtuple(
+    'DiscoveryCourseRun',
+    ['key', 'title', 'marketing_url'],
+)
 
-    if not program:
-        url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
-        program = _make_request('GET', url, client).json()
-        cache.set(PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid), program, None)
 
-    return program
+class DiscoveryProgram(object):
+    """
+    Data about a program from Course Discovery service.
+
+    Is loaded from Discovery service and cached indefinitely until invalidated.
+
+    Attributes:
+        * version (int)
+        * loaded (datetime): When data was loaded from Course Discovery
+        * uuid (str): Program UUID-4
+        * active_curriculum_uuid (str): UUID-4 of active curriculum.
+        * course_runs (list[DiscoveryCourseRun]):
+            Flattened list of all course runs in program
+    """
+
+    # If we change the schema of this class, bump the `class_version`
+    # so that all old entries will be ignored.
+    class_version = 1
+
+    def __init__(self, version, loaded, uuid, active_curriculum_uuid, course_runs):
+        self.version = version
+        self.loaded = loaded
+        self.uuid = uuid
+        self.active_curriculum_uuid = active_curriculum_uuid
+        self.course_runs = course_runs
+
+    @classmethod
+    def get(cls, program_uuid, client=None):
+        """
+        Get a DiscoveryProgram instance, either by loading it from the cache,
+        or query the Course Discovery service if it is not in the cache.
+
+        Raises HTTPError if program is not cached and Discover returns error.
+        Raises ValidationError if program is not cached and Discovery returns
+            data in a format we don't like.
+        """
+        key = PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
+        program = cache.get(key)
+        if not (program and program.version == cls.class_version):
+            program = cls.load_from_discovery(program_uuid, client)
+            cache.set(key, program, None)
+        return program
+
+    @classmethod
+    def load_from_discovery(cls, program_uuid, client=None):
+        """
+        Load a DiscoveryProgram instance from the Course Discovery service.
+
+        Raises HTTPError if program is not cached AND Discovery returns error.
+        """
+        url = urljoin(
+            settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/'
+        ).format(
+            program_uuid
+        )
+        program_data = _make_request('GET', url, client).json()
+        return cls.from_json(program_uuid, program_data)
+
+    @classmethod
+    def from_json(cls, program_uuid, program_data):
+        """
+        Builds a DiscoveryProgram instance from JSON data that has been
+        returned by the Course Discovery service.
+        """
+        # this make two temporary assumptions (zwh 03/19)
+        #  1. one *active* curriculum per program
+        #  2. no programs are nested within a curriculum
+        try:
+            curriculum = next(
+                c for c in program_data.get('curricula', [])
+                if c.get('is_active')
+            )
+        except StopIteration:
+            logger.exception(
+                'Discovery API returned no active curricula for program {}'.format(
+                    program_uuid
+                )
+            )
+            return DiscoveryProgram(
+                cls.class_version,
+                datetime.now(),
+                program_uuid,
+                None,
+                [],
+            )
+        active_curriculum_uuid = curriculum.get("uuid")
+        course_runs = [
+            DiscoveryCourseRun(
+                key=course_run.get('key'),
+                title=course_run.get('title'),
+                marketing_url=course_run.get('marketing_url'),
+            )
+            for course in curriculum.get("courses", [])
+            for course_run in course.get("course_runs", [])
+        ]
+        return DiscoveryProgram(
+            cls.class_version,
+            datetime.now(),
+            program_uuid,
+            active_curriculum_uuid,
+            course_runs,
+        )
 
 
 def write_program_enrollments(program_uuid, enrollments, update=False, client=None):
@@ -92,6 +180,37 @@ def get_program_enrollments(program_uuid, client=None):
     return enrollments
 
 
+def get_course_run_enrollments(program_uuid, course_id, client=None):
+    """
+    Fetches program course run enrollments from the LMS.
+
+    Arguments:
+        program_uuid (str): UUID-4 string
+        course_id (str): edX course key identifying course run
+
+    Returns: list[dict]
+        A list of enrollment dictionaries, validated by
+        CourseEnrollmentSerializer.
+
+    Raises:
+        - HTTPError if there is an issue communicating with LMS
+        - ValidationError if enrollment data from LMS is invalid
+    """
+    url = urljoin(
+        settings.LMS_BASE_URL,
+        'api/program_enrollments/v1/programs/{}/courses/{}/enrollments'.format(
+            program_uuid, course_id
+        ),
+    )
+    enrollments = _get_all_paginated_results(url, client)
+    CourseEnrollmentSerializer(
+        data=enrollments, many=True
+    ).is_valid(
+        raise_exception=True
+    )
+    return enrollments
+
+
 def _get_all_paginated_results(url, client=None):
     """
     Builds a list of all results from a cursor-paginated endpoint.
@@ -99,7 +218,7 @@ def _get_all_paginated_results(url, client=None):
     Repeatedly performs request on 'next' URL until 'next' is null.
     """
     if not client:
-        client = get_client(settings.LMS_BASE_URL)
+        client = _get_client(settings.LMS_BASE_URL)
     results = []
     next_url = url
     while next_url:
@@ -118,7 +237,7 @@ def _make_request(method, url, client, **kwargs):
         raise Exception('invalid http method: ' + method)
 
     if not client:
-        client = get_client(settings.LMS_BASE_URL)
+        client = _get_client(settings.LMS_BASE_URL)
 
     response = client.request(method, url, **kwargs)
 
@@ -126,3 +245,18 @@ def _make_request(method, url, client, **kwargs):
         return response
     else:
         response.raise_for_status()
+
+
+def _get_client(host_base_url):
+    """
+    Returns an authenticated edX REST API client.
+    """
+    client = rest_client.OAuthAPIClient(
+        host_base_url,
+        settings.BACKEND_SERVICE_EDX_OAUTH2_KEY,
+        settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET,
+    )
+    client._check_auth()  # pylint: disable=protected-access
+    if not client.auth.token:
+        raise 'No Auth Token'
+    return client
