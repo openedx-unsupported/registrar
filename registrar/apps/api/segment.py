@@ -5,6 +5,7 @@ import logging
 import analytics
 from django.conf import settings
 
+from registrar.apps.api.constants import TRACKING_CATEGORY
 from registrar.apps.core.utils import get_user_organizations
 
 logger = logging.getLogger(__name__)
@@ -32,5 +33,6 @@ def get_tracking_properties(user, **kwargs):
     user_orgs = get_user_organizations(user)
     property_dict = kwargs.copy()
     property_dict['user_organizations'] = [org.name for org in user_orgs]
+    property_dict['category'] = TRACKING_CATEGORY
 
     return property_dict

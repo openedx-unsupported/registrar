@@ -1,11 +1,12 @@
 """ Tests for the v1_mock API views. """
-
+import json
 import uuid
 
 import ddt
 import mock
 from rest_framework.test import APITestCase
 
+from registrar.apps.api.constants import TRACKING_CATEGORY
 from registrar.apps.api.tests.mixins import AuthRequestMixin
 from registrar.apps.api.v1_mock.data import (
     FAKE_PROGRAMS,
@@ -37,17 +38,19 @@ class MockAPITestMixin(AuthRequestMixin):
             permissions=OrganizationReadMetadataRole.permissions,
         )
         cls.admin_user = UserFactory(groups=[cls.admin_read_metadata_group])
-        cls.patcher = mock.patch('registrar.apps.api.segment.track', autospec=True)
+        cls.segment_patcher = mock.patch('registrar.apps.api.segment.track', autospec=True)
+        cls.logging_patcher = mock.patch('registrar.apps.api.v1_mock.views.logger', autospec=True)
 
     def setUp(self):
         super().setUp()
-        self.mock_track = self.patcher.start()
+        self.mock_segment_track = self.segment_patcher.start()
+        self.mock_logging = self.logging_patcher.start()
 
     @property
     def path(self):
         return self.api_root + self.path_suffix
 
-    def assert_segment_tracking(self, user=None, **kwargs):
+    def assert_tracking(self, user=None, **kwargs):
         """
         Make sure the segment events are created when the request is made
         """
@@ -56,18 +59,31 @@ class MockAPITestMixin(AuthRequestMixin):
         if 'user_organizations' not in properties:
             properties['user_organizations'] = [self.user_org.name]
 
+        properties['category'] = TRACKING_CATEGORY
+
         if not user:
             user = self.user
 
-        self.mock_track.assert_called_once_with(
+        self.mock_segment_track.assert_called_once_with(
             user.username,
             self.event,
             properties
         )
 
+        self.mock_logging.info.assert_called_once_with(
+            '%s invoked on Registrar with properties %s',
+            self.event,
+            json.dumps(
+                properties,
+                skipkeys=True,
+                sort_keys=True,
+            ),
+        )
+
     def tearDown(self):
         super().tearDown()
-        self.patcher.stop()
+        self.segment_patcher.stop()
+        self.logging_patcher.stop()
 
 
 class MockJobTestMixin(MockAPITestMixin):
@@ -92,7 +108,7 @@ class MockJobTestMixin(MockAPITestMixin):
         else:
             self.assertIsNone(job_data['result'])
         self.event = 'registrar.v1_mock.get_job_status'
-        self.assert_segment_tracking(
+        self.assert_tracking(
             job_id=job_id,
             job_state=job_data['state'],
         )
@@ -109,13 +125,13 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
     def test_list_all_unauthorized(self):
         response = self.get(self.path, self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_segment_tracking(permission_failure='no_org_key')
+        self.assert_tracking(permission_failure='no_org_key')
 
     def test_list_all_admin_user(self):
         response = self.get(self.path, self.admin_user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), len(FAKE_PROGRAMS))
-        self.assert_segment_tracking(
+        self.assert_tracking(
             user=self.admin_user,
             user_organizations=[],
         )
@@ -124,7 +140,7 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
         org_key = 'u-perezburgh'
         response = self.get(self.path + '?org=' + org_key, self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             organization_filter=org_key,
             permission_failure='no_org_permission',
         )
@@ -141,7 +157,7 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
     def test_org_not_found(self):
         response = self.get(self.path + '?org=antarctica-tech', self.user)
         self.assertEqual(response.status_code, 404)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             org_key='antarctica-tech',
             failure='org_not_found',
         )
@@ -156,7 +172,7 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
         response = self.get(self.path + '?org={}'.format(org_key), self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), num_programs)
-        self.assert_segment_tracking(organization_filter=org_key)
+        self.assert_tracking(organization_filter=org_key)
 
 
 @ddt.ddt
@@ -170,7 +186,7 @@ class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
     def test_program_unauthorized(self):
         response = self.get(self.path + 'upz-masters-ancient-history', self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='upz-masters-ancient-history',
             permission_failure='no_program_read_permission',
         )
@@ -178,7 +194,7 @@ class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
     def test_program_not_found(self):
         response = self.get(self.path + 'uan-masters-underwater-basket-weaving', self.user)
         self.assertEqual(response.status_code, 404)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='uan-masters-underwater-basket-weaving',
             failure='program_not_found',
         )
@@ -194,7 +210,7 @@ class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
     def test_program_retrieve(self, program_key):
         response = self.get(self.path + program_key, self.user)
         self.assertEqual(response.status_code, 200)
-        self.assert_segment_tracking(program_key=program_key)
+        self.assert_tracking(program_key=program_key)
 
 
 @ddt.ddt
@@ -209,7 +225,7 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
     def test_program_unauthorized(self):
         response = self.get('programs/upz-masters-ancient-history/courses', self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='upz-masters-ancient-history',
             permission_failure='no_program_read_permission',
         )
@@ -217,7 +233,7 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
     def test_program_not_found(self):
         response = self.get('programs/uan-masters-underwater-basket-weaving/courses', self.user)
         self.assertEqual(response.status_code, 404)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='uan-masters-underwater-basket-weaving',
             failure='program_not_found',
         )
@@ -235,7 +251,7 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
         response = self.get('programs/{}/courses'.format(program_key), self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), num_courses)
-        self.assert_segment_tracking(program_key=program_key)
+        self.assert_tracking(program_key=program_key)
 
 
 class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
@@ -273,7 +289,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             self.user
         )
         self.assertEqual(response.status_code, 403)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='dvi-masters-polysci',
             permission_failure='no_enrollments_write_permission',
         )
@@ -288,7 +304,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             self.user
         )
         self.assertEqual(response.status_code, 404)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='uan-shark-tap-dancing',
             failure='program_not_found',
         )
@@ -311,7 +327,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             '002': 'enrolled',
             '003': 'pending',
         })
-        self.assert_segment_tracking(program_key='hhp-masters-theo-physics')
+        self.assert_tracking(program_key='hhp-masters-theo-physics')
 
     def test_partially_valid_enrollment(self):
         post_data = [
@@ -330,7 +346,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             '003': 'pending',
         })
 
-        self.assert_segment_tracking(program_key='hhp-masters-theo-physics')
+        self.assert_tracking(program_key='hhp-masters-theo-physics')
 
     def test_unprocessable_enrollment(self):
         response = self.post(
@@ -340,7 +356,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, 422)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-theo-physics',
             failure='unprocessable_entity',
         )
@@ -362,7 +378,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             '001': 'duplicated',
             '002': 'enrolled',
         })
-        self.assert_segment_tracking(program_key='hhp-masters-theo-physics')
+        self.assert_tracking(program_key='hhp-masters-theo-physics')
 
     def test_enrollment_payload_limit(self):
         post_data = []
@@ -376,7 +392,7 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, 413)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-theo-physics',
             failure='request_entity_too_large',
         )
@@ -411,7 +427,7 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_segment_tracking(program_key='hhp-masters-ce')
+        self.assert_tracking(program_key='hhp-masters-ce')
 
     def test_207_multi_status(self):
         """ Also tests duplicates """
@@ -431,14 +447,14 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_segment_tracking(program_key='hhp-masters-ce')
+        self.assert_tracking(program_key='hhp-masters-ce')
 
     def test_403_forbidden(self):
         path_403 = 'programs/dvi-masters-polysci/enrollments/'
         patch_data = [self.learner_modification("A", "enrolled")]
         response = self.patch(path_403, patch_data, self.user)
         self.assertEqual(403, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='dvi-masters-polysci',
             permission_failure='no_enrollments_write_permission',
         )
@@ -447,7 +463,7 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         patch_data = [self.learner_modification(str(i), "enrolled") for i in range(30)]
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(413, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             failure='request_entity_too_large',
         )
@@ -457,7 +473,7 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         patch_data = [self.learner_modification("A", "enrolled")]
         response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='nonexistant-program-will-404',
             failure='program_not_found',
         )
@@ -467,7 +483,7 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(422, response.status_code)
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             failure='unprocessable_entity',
         )
@@ -482,7 +498,7 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             failure='unprocessable_entity',
         )
@@ -520,7 +536,7 @@ class MockProgramEnrollmentGetTests(MockJobTestMixin, APITestCase):
     def test_program_unauthorized(self, program_key):
         response = self._get_enrollments(program_key)
         self.assertEqual(403, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key=program_key,
             permission_failure='no_enrollments_read_permission',
         )
@@ -528,7 +544,7 @@ class MockProgramEnrollmentGetTests(MockJobTestMixin, APITestCase):
     def test_program_not_found(self):
         response = self._get_enrollments('not-a-program')
         self.assertEqual(404, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='not-a-program',
             failure='program_not_found',
         )
@@ -551,8 +567,9 @@ class MockProgramEnrollmentGetTests(MockJobTestMixin, APITestCase):
             response = self._get_enrollments(program_key)
 
         self.assertEqual(202, response.status_code)
-        self.assert_segment_tracking(program_key=program_key)
-        self.mock_track.reset_mock()
+        self.assert_tracking(program_key=program_key)
+        self.mock_segment_track.reset_mock()
+        self.mock_logging.reset_mock()
         RESULTS_ROOT = '/static/api/v1_mock/program-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
@@ -585,7 +602,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
         )
@@ -608,7 +625,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
         )
@@ -618,7 +635,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         post_data = [self.learner_enrollment("A", "active")]
         response = self.post(path_403, post_data, self.user)
         self.assertEqual(403, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='dvi-masters-polysci',
             course_key='course-v1:DVIx+GOV-200+Spring2050',
             permission_failure='no_enrollments_write_permission',
@@ -628,7 +645,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         post_data = [self.learner_enrollment(str(i), "active") for i in range(30)]
         response = self.post(self.path, post_data, self.user)
         self.assertEqual(413, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
             failure='request_entity_too_large',
@@ -639,7 +656,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         post_data = [self.learner_enrollment("A", "active")]
         response = self.post(path_404, post_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='nonexistant-program',
             failure='program_not_found',
         )
@@ -653,7 +670,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         post_data = [self.learner_enrollment("A", "active")]
         response = self.post(path_404, post_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key=course,
             failure='course_not_found',
@@ -664,7 +681,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         response = self.post(self.path, post_data, self.user)
         self.assertEqual(422, response.status_code)
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
             failure='unprocessable_entity',
@@ -680,7 +697,7 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         response = self.post(self.path, post_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
             failure='unprocessable_entity',
@@ -713,7 +730,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
         )
@@ -736,7 +753,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
         )
@@ -746,7 +763,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         patch_data = [self.learner_modification("A", "active")]
         response = self.patch(path_403, patch_data, self.user)
         self.assertEqual(403, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='dvi-masters-polysci',
             course_key='course-v1:DVIx+GOV-200+Spring2050',
             permission_failure='no_enrollments_write_permission',
@@ -756,7 +773,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         patch_data = [self.learner_modification(str(i), "active") for i in range(30)]
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(413, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
             failure='request_entity_too_large',
@@ -767,7 +784,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         patch_data = [self.learner_modification("A", "active")]
         response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='nonexistant-program',
             failure='program_not_found',
         )
@@ -781,7 +798,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         patch_data = [self.learner_modification("A", "active")]
         response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key=course,
             failure='course_not_found',
@@ -792,7 +809,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(422, response.status_code)
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
             failure='unprocessable_entity',
@@ -808,7 +825,7 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key='hhp-masters-ce',
             course_key='course-v1:HHPx+MA-102+Fall2050',
             failure='unprocessable_entity',
@@ -853,7 +870,7 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
     def test_program_unauthorized(self, program_key, course_key):
         response = self._get_enrollments(program_key, course_key)
         self.assertEqual(403, response.status_code)
-        self.assert_segment_tracking(
+        self.assert_tracking(
             program_key=program_key,
             course_key=course_key,
             permission_failure='no_enrollments_read_permission'
@@ -870,12 +887,12 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
         response = self._get_enrollments(program_key, course_key)
         self.assertEqual(404, response.status_code)
         if event_failure == 'program_not_found':
-            self.assert_segment_tracking(
+            self.assert_tracking(
                 program_key=program_key,
                 failure=event_failure,
             )
         else:
-            self.assert_segment_tracking(
+            self.assert_tracking(
                 program_key=program_key,
                 course_key=course_key,
                 failure=event_failure,
@@ -997,8 +1014,9 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
             response = self._get_enrollments(program_key, course_key)
 
         self.assertEqual(202, response.status_code)
-        self.assert_segment_tracking(program_key=program_key, course_key=course_key)
-        self.mock_track.reset_mock()
+        self.assert_tracking(program_key=program_key, course_key=course_key)
+        self.mock_segment_track.reset_mock()
+        self.mock_logging.reset_mock()
         RESULTS_ROOT = '/static/api/v1_mock/course-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
