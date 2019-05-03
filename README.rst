@@ -13,25 +13,7 @@ Using with Devstack
 
 The best way to run Registrar is within the edX Devstack: https://github.com/edx/devstack.
 
-After setting up Devstack, clone the Registrar repository::
-
-  make registrar-clone
- 
-Bring up Registrar, along with the other Devstack containers::
-
-  make up-registrar-detached
-
-Install requirements, do migrations, create a superuser, and create an IDA user::
-
-  make registrar-setup
-
-To bring all containers down::
- 
-  make down-registrar
-
-To view all commmands::
-
-  make help-registrar
+See the Devstack README for information on how to install and run Registrar.
 
 Using Standalone
 -----------------
