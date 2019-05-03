@@ -80,7 +80,7 @@ class OrganizationFactory(factory.DjangoModelFactory):
 
     key = factory.LazyAttribute(lambda org: name_to_key(org.name))
     discovery_uuid = factory.Faker('uuid4')
-    name = factory.Sequence(lambda n: "Test Origanization " + str(n))
+    name = factory.Sequence(lambda n: "Test Organization " + str(n))
 
 
 class OrganizationGroupFactory(factory.DjangoModelFactory):

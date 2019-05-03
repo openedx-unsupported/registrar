@@ -2,6 +2,7 @@
 A mock version of the v1 API, providing dummy data for partner integration
 testing.
 """
+import json
 import logging
 
 from django.core.exceptions import PermissionDenied
@@ -56,11 +57,12 @@ def global_read_metadata_perm(user):
     return user.has_perm(perms.ORGANIZATION_READ_METADATA)
 
 
-class SegmentTrackViewMixin(object):
+class TrackViewMixin(object):
     """
-    A mixin to provide segment tracking utility for all the views
+    A mixin to provide tracking utility for all the views
     This mixin relies on the request object from API View. Therefore
     should not be used in non Django Views
+    The tracking would send events to both segment and logging files
     """
     event_map = {
         'POST': None,
@@ -68,7 +70,7 @@ class SegmentTrackViewMixin(object):
         'GET': None,
     }
 
-    def segment_track(self, **kwargs):
+    def track(self, **kwargs):
         """
         Convenient function to faciliate the segment tracking on the view
         """
@@ -80,17 +82,29 @@ class SegmentTrackViewMixin(object):
             )
             return
 
+        tracking_properties = segment.get_tracking_properties(
+            self.request.user,
+            **kwargs,
+        )
+
         segment.track(
             self.request.user.username,
             event_name,
-            segment.get_tracking_properties(
-                self.request.user,
-                **kwargs,
-            )
+            tracking_properties,
+        )
+
+        logger.info(
+            '%s invoked on Registrar with properties %s',
+            event_name,
+            json.dumps(
+                tracking_properties,
+                skipkeys=True,
+                sort_keys=True,
+            ),
         )
 
 
-class MockProgramListView(ListAPIView, SegmentTrackViewMixin):
+class MockProgramListView(ListAPIView, TrackViewMixin):
     """
     A view for listing program objects.
 
@@ -130,12 +144,12 @@ class MockProgramListView(ListAPIView, SegmentTrackViewMixin):
         if not self.org_key and global_read_metadata_perm(request.user):
             return
         elif not self.org_key:
-            self.segment_track(permission_failure='no_org_key')
+            self.track(permission_failure='no_org_key')
             raise PermissionDenied()
         elif self.organization and not self.organization.metadata_readable:
             if global_read_metadata_perm(request.user):
                 return
-            self.segment_track(
+            self.track(
                 organization_filter=self.org_key,
                 permission_failure='no_org_permission'
             )
@@ -146,18 +160,18 @@ class MockProgramListView(ListAPIView, SegmentTrackViewMixin):
             # We've already checked permissions, so if we've made it here
             # without an org_key, the requesting user must have global
             # metadata read permissions
-            self.segment_track()
+            self.track()
             return FAKE_PROGRAMS
         if not self.organization:
-            self.segment_track(failure='org_not_found', org_key=self.org_key)
+            self.track(failure='org_not_found', org_key=self.org_key)
             raise Http404()
 
-        self.segment_track(organization_filter=self.org_key)
+        self.track(organization_filter=self.org_key)
 
         return FAKE_ORG_PROGRAMS[self.org_key]
 
 
-class MockProgramSpecificViewMixin(SegmentTrackViewMixin):
+class MockProgramSpecificViewMixin(TrackViewMixin):
     """
     A mixin for views that operate on or within a specific program.
     """
@@ -169,7 +183,7 @@ class MockProgramSpecificViewMixin(SegmentTrackViewMixin):
         """
         program_key = self.kwargs['program_key']
         if program_key not in FAKE_PROGRAM_DICT:
-            self.segment_track(
+            self.track(
                 program_key=program_key,
                 failure='program_not_found',
             )
@@ -191,7 +205,7 @@ class MockProgramCourseSpecificViewMixin(MockProgramSpecificViewMixin):
         program_course_runs = FAKE_PROGRAM_COURSE_RUNS[self.program.key]
         course = next(filter(lambda run: run.key == course_id, program_course_runs), None)
         if course is None:
-            self.segment_track(
+            self.track(
                 program_key=self.program.key,
                 course_key=course_id,
                 failure='course_not_found',
@@ -220,10 +234,10 @@ class MockProgramRetrieveView(MockProgramSpecificViewMixin, RetrieveAPIView):
 
     def get_object(self):
         if self.program.managing_organization.metadata_readable:
-            self.segment_track(program_key=self.program.key)
+            self.track(program_key=self.program.key)
             return self.program
         else:
-            self.segment_track(
+            self.track(
                 program_key=self.program.key,
                 permission_failure='no_program_read_permission',
             )
@@ -250,10 +264,10 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
 
     def get_queryset(self):
         if self.program.managing_organization.metadata_readable:
-            self.segment_track(program_key=self.program.key)
+            self.track(program_key=self.program.key)
             return FAKE_PROGRAM_COURSE_RUNS[self.program.key]
         else:
-            self.segment_track(
+            self.track(
                 program_key=self.program.key,
                 permission_failure='no_program_read_permission',
             )
@@ -264,7 +278,7 @@ class EchoStatusesMixin(object):
     """
     Provides the validate_and_echo_statuses function
     Classes that inherit from EchoStatusesMixin must implement get_serializer_class
-    and segment_track
+    and trackViewMixin
     """
 
     def validate_and_echo_statuses(self, request):
@@ -277,7 +291,7 @@ class EchoStatusesMixin(object):
             tracking_properties['course_key'] = self.course.key if self.course else None
 
         if not self.program.managing_organization.enrollments_writeable:
-            self.segment_track(
+            self.track(
                 **tracking_properties,
                 permission_failure='no_enrollments_write_permission',
             )
@@ -287,7 +301,7 @@ class EchoStatusesMixin(object):
             raise ValidationError()
 
         if len(request.data) > 25:
-            self.segment_track(
+            self.track(
                 **tracking_properties,
                 failure='request_entity_too_large',
             )
@@ -314,7 +328,7 @@ class EchoStatusesMixin(object):
                             enrollee_serializer.errors['status'][0].code == 'invalid_choice':
                         results[enrollee["student_key"]] = 'invalid-status'
                     else:
-                        self.segment_track(
+                        self.track(
                             **tracking_properties,
                             failure='unprocessable_entity'
                         )
@@ -323,7 +337,7 @@ class EchoStatusesMixin(object):
                             HTTP_422_UNPROCESSABLE_ENTITY
                         )
                 except KeyError:
-                    self.segment_track(
+                    self.track(
                         **tracking_properties,
                         failure='unprocessable_entity'
                     )
@@ -332,16 +346,16 @@ class EchoStatusesMixin(object):
                     )
 
         if not enrolled_students:
-            self.segment_track(
+            self.track(
                 **tracking_properties,
                 failure='unprocessable_entity'
             )
             return Response(results, HTTP_422_UNPROCESSABLE_ENTITY)
         if len(request.data) != len(enrolled_students):
-            self.segment_track(**tracking_properties)
+            self.track(**tracking_properties)
             return Response(results, HTTP_207_MULTI_STATUS)
         else:
-            self.segment_track(**tracking_properties)
+            self.track(**tracking_properties)
             return Response(results)
 
 
@@ -416,13 +430,13 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
         Submit a user task that retrieves program enrollment data.
         """
         if not self.program.managing_organization.enrollments_readable:
-            self.segment_track(
+            self.track(
                 program_key=self.program.key,
                 permission_failure='no_enrollments_read_permission',
             )
             raise PermissionDenied()
 
-        self.segment_track(program_key=self.program.key)
+        self.track(program_key=self.program.key)
         fake_job_id = invoke_fake_program_enrollment_listing_job(
             self.program.key
         )
@@ -492,7 +506,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
         Submit a user task that retrieves course enrollment data.
         """
         if not self.program.managing_organization.enrollments_readable:
-            self.segment_track(
+            self.track(
                 program_key=self.program.key,
                 course_key=self.kwargs['course_id'],
                 permission_failure='no_enrollments_read_permission',
@@ -500,7 +514,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
             raise PermissionDenied()
 
         self.course  # trigger 404  # pylint: disable=pointless-statement
-        self.segment_track(
+        self.track(
             program_key=self.program.key,
             course_key=self.course.key if self.course else None,
         )
@@ -519,7 +533,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
         )
 
 
-class MockJobStatusRetrieveView(RetrieveAPIView, SegmentTrackViewMixin):
+class MockJobStatusRetrieveView(RetrieveAPIView, TrackViewMixin):
     """
     A view for getting the status of a job.
 
@@ -548,7 +562,7 @@ class MockJobStatusRetrieveView(RetrieveAPIView, SegmentTrackViewMixin):
     def get_object(self):
         job_id = self.kwargs.get('job_id')
         job_status = get_fake_job_status(job_id, self.request.build_absolute_uri)
-        self.segment_track(job_id=job_id, job_state=job_status.state)
+        self.track(job_id=job_id, job_state=job_status.state)
         if job_status:
             return job_status
         else:
