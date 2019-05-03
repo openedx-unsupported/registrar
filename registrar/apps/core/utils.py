@@ -30,28 +30,3 @@ def get_user_organizations(user):
         except OrganizationGroup.DoesNotExist:
             pass
     return user_organizations
-
-
-def serialize_to_csv(items, field_names, include_headers=False):
-    """
-    Serialize items into a CSV-formatted string. Column headers optional.
-
-    Arguments:
-        items (list[dict])
-        field_names (tuple[str])
-        include_headers (bool)
-
-    Returns: str
-    """
-    def value_to_string(val):
-        """
-        Stringify a single value for CSV serialization.
-        """
-        return str(val).lower() if isinstance(val, bool) else val
-
-    header = ",".join(field_names) + "\n" if include_headers else ""
-    body = "\n".join(
-        ",".join(value_to_string(row[field_name]) for field_name in field_names)
-        for row in items
-    )
-    return header + body
