@@ -1,7 +1,12 @@
 .DEFAULT_GOAL := test
 
-.PHONY: clean compile_translations dummy_translations extract_translations fake_translations help html_coverage \
-	migrate pull_translations push_translations quality pii_check requirements test update_translations validate
+.PHONY: help clean static upgrade piptools requirements production-requirements \
+        prod-requirements devstack-requirements local-requirements run-local \
+        dbshell-local shell coverage test quality pii_check validate migrate \
+        createsuperuser html_coverage extract_translations dummy_translations \
+        fake_translations pull_translations push_translations \
+        detect_changed_source_translations validate_translations api_generated \
+        validate_api_committed
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
