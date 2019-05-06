@@ -4,7 +4,9 @@ Tests for enrollments/data.py
 Much of data.py is not tested in this file because it is already implicitly
 tested by our view tests.
 """
+
 from datetime import datetime
+import json
 from posixpath import join as urljoin
 import uuid
 
@@ -18,10 +20,14 @@ from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.enrollments.data import (
+    DISCOVERY_PROGRAM_API_TPL,
     DiscoveryCourseRun,
     DiscoveryProgram,
+    LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
+    LMS_PROGRAM_ENROLLMENTS_API_TPL,
     get_course_run_enrollments,
     get_program_enrollments,
+    write_program_course_enrollments,
 )
 
 
@@ -116,9 +122,7 @@ class GetProgramEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     """ Tests for data.get_program_enrollments """
 
     program_uuid = '7fbefaa4-c0e8-431b-af69-8d3ddde543a2'
-    lms_url = '{}/api/program_enrollments/v1/programs/{}/enrollments'.format(
-        settings.LMS_BASE_URL, program_uuid
-    )
+    lms_url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
     status_choices = ['enrolled', 'pending', 'suspended', 'canceled']
 
     def get_enrollments(self):
@@ -130,21 +134,88 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
 
     program_uuid = 'ce5ea4c8-666e-429c-9d2c-a5698f86f6fb'
     course_id = 'course-v1:ABCx+Subject-101+Term'
-    lms_url = '{}/api/program_enrollments/v1/programs/{}/courses/{}/enrollments'.format(
-        settings.LMS_BASE_URL, program_uuid, course_id
-    )
+    lms_url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_id))
     status_choices = ['active', 'inactive']
 
     def get_enrollments(self):
         return get_course_run_enrollments(self.program_uuid, self.course_id)
 
 
+class WriteProgramCourseEnrollmentsTests(TestCase):
+    """
+    Test cases for the method to write program/course enrollment data
+    to the LMS API.
+    """
+    program_key = '99999999-aaaa-bbbb-cccc-123412341234'
+    course_key = 'course-v1:edX+DemoX+Demo_Course'
+    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_key, course_key))
+    ok_response = {
+        'tom': 'active',
+        'lucy': 'active',
+        'craig': 'inactive',
+        'sheryl': 'inactive',
+    }
+    unprocessable_response = {
+        'ted': 'duplicate',
+        'bill': 'conflict',
+    }
+
+    @mock_oauth_login
+    @responses.activate
+    def test_create_program_course_enrollments_happy_path(self):
+        responses.add(
+            responses.POST,
+            self.url,
+            status=200,
+            json=self.ok_response,
+        )
+        enrollments = [
+            {'student_key': 'tom', 'status': 'active'},
+            {'student_key': 'lucy', 'status': 'active'},
+            {'student_key': 'craig', 'status': 'inactive'},
+            {'student_key': 'sheryl', 'status': 'inactive'},
+        ]
+
+        create_response = write_program_course_enrollments(self.program_key, self.course_key, enrollments)
+
+        # there are two requests - 1 for the oauth token and then 1 to create enrollments
+        mock_request = responses.calls[1].request
+        assert 2 == len(responses.calls)
+        assert 200 == create_response.status_code
+        assert self.ok_response == create_response.json()
+        assert self.url == mock_request.url
+        assert enrollments == json.loads(mock_request.body.decode())
+
+    @mock_oauth_login
+    @responses.activate
+    def test_create_program_course_enrollments_unprocessable(self):
+        responses.add(
+            responses.POST,
+            self.url,
+            status=422,
+            json=self.unprocessable_response,
+        )
+        enrollments = [
+            {'student_key': 'ted', 'status': 'duplicate'},
+            {'student_key': 'bill', 'status': 'conflict'},
+        ]
+
+        create_response = write_program_course_enrollments(self.program_key, self.course_key, enrollments)
+
+        # there are two requests - 1 for the oauth token and then 1 to create enrollments
+        mock_request = responses.calls[1].request
+        assert 2 == len(responses.calls)
+        assert 422 == create_response.status_code
+        assert self.unprocessable_response == create_response.json()
+        assert self.url == mock_request.url
+        assert enrollments == json.loads(mock_request.body.decode())
+
+
 class GetDiscoveryProgramTestCase(TestCase):
     """ Test get_discovery_program function """
-
     program_uuid = str(uuid.uuid4())
     curriculum_uuid = str(uuid.uuid4())
-    discovery_url = urljoin(settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/').format(program_uuid)
+    discovery_url = urljoin(settings.DISCOVERY_BASE_URL, DISCOVERY_PROGRAM_API_TPL.format(program_uuid))
     course_run_1 = {
         'key': '0001',
         'uuid': '0000-0001',

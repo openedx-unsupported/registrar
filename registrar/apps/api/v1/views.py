@@ -11,26 +11,22 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from registrar.apps.api import exceptions
-from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.v1.mixins import (
     AuthMixin,
     CourseSpecificViewMixin,
+    EnrollmentMixin,
     JobInvokerMixin,
     ProgramSpecificViewMixin,
 )
 import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
-    JobAcceptanceSerializer,
     JobStatusSerializer,
-    ProgramEnrollmentRequestSerializer,
     ProgramSerializer,
 )
 from registrar.apps.enrollments.models import Program
@@ -40,6 +36,7 @@ from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import (
     DiscoveryProgram,
     write_program_enrollments,
+    write_program_course_enrollments,
 )
 from registrar.apps.enrollments.tasks import (
     list_course_run_enrollments,
@@ -136,7 +133,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
         return discovery_program.course_runs
 
 
-class ProgramEnrollmentView(ProgramSpecificViewMixin, JobInvokerMixin, APIView):
+class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
@@ -179,35 +176,11 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, JobInvokerMixin, APIView):
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
     """
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return JobAcceptanceSerializer
-        if self.request.method == 'POST' or self.request.method == 'PATCH':
-            return ProgramEnrollmentRequestSerializer(many=True)
-
-    def get_permission_required(self, request):
-        if request.method == 'GET':
-            return perms.ORGANIZATION_READ_ENROLLMENTS
-        if request.method == 'POST' or self.request.method == 'PATCH':
-            return perms.ORGANIZATION_WRITE_ENROLLMENTS
-        return []
-
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves program enrollment data.
         """
         return self.invoke_job(list_program_enrollments, self.program.key)
-
-    def validate_enrollment_data(self, enrollments):
-        """
-        Validate enrollments request body
-        """
-        if not isinstance(enrollments, list):
-            raise ValidationError('expected request body type: List')
-
-        if len(enrollments) > ENROLLMENT_WRITE_MAX_SIZE:
-            raise exceptions.EnrollmentPayloadTooLarge()
 
     def write_program_enrollments(self, request):
         """
@@ -231,7 +204,7 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, JobInvokerMixin, APIView):
         elif request.method == 'PATCH':
             response = write_program_enrollments(program_uuid, enrollments, update=True)
         else:
-            raise Exception('unexpected request method.  Expected [POST, PATCH]')
+            raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
 
         return Response(response.json(), status=response.status_code)
 
@@ -244,13 +217,13 @@ class ProgramEnrollmentView(ProgramSpecificViewMixin, JobInvokerMixin, APIView):
         return self.write_program_enrollments(request)
 
 
-class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
+class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentMixin, APIView):
     """
     A view for enrolling students in a program course run.
 
     Path: /api/v1/programs/{program_key}/courses/{course_id}/enrollments
 
-    Accepts: [GET]
+    Accepts: [GET, PATCH, POST]
 
     ------------------------------------------------------------------------------------
     GET
@@ -270,16 +243,23 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
         "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
         "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
     }
+
+    ------------------------------------------------------------------------------------
+    POST / PATCH
+    ------------------------------------------------------------------------------------
+
+    Create or modify program course enrollments. Checks user permissions and forwards request
+    to the LMS program_enrollments endpoint.  Accepts up to 25 enrollments
+
+    Returns:
+     * 200: Returns a map of students and their course enrollment status.
+     * 207: Not all students enrolled. Returns resulting enrollment status.
+     * 401: User is not authenticated
+     * 403: User lacks read access for the organization of specified program.
+     * 404: Program does not exist.
+     * 413: Payload too large, over 25 students supplied.
+     * 422: Invalid request, unable to enroll students.
     """
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return JobAcceptanceSerializer
-
-    def get_permission_required(self, request):
-        if request.method == 'GET':
-            return perms.ORGANIZATION_READ_ENROLLMENTS
-        return []
 
     def get(self, request, *args, **kwargs):
         """
@@ -291,6 +271,33 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
             self.program.key,
             self.kwargs['course_id'],
         )
+
+    def write_program_course_enrollments(self, request, course_id):
+        """
+        Handle create/update requests for program/course enrollments
+        """
+        self.validate_enrollment_data(request.data)
+        program_uuid = self.program.discovery_uuid
+
+        enrollments = request.data
+
+        if request.method == 'POST':
+            response = write_program_course_enrollments(program_uuid, course_id, enrollments)
+        elif request.method == 'PATCH':
+            response = write_program_course_enrollments(program_uuid, course_id, enrollments, update=True)
+        else:
+            raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
+
+        return Response(response.json(), status=response.status_code)
+
+    # pylint: disable=unused-argument
+    def post(self, request, program_key, course_id):
+        """ POST handler """
+        return self.write_program_course_enrollments(request, course_id)
+
+    def patch(self, request, program_key, course_id):
+        """ PATCH handler """
+        return self.write_program_course_enrollments(request, course_id)
 
 
 class JobStatusRetrieveView(RetrieveAPIView):
