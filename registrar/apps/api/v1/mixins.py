@@ -13,13 +13,16 @@ from django.urls import resolve
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED
 
-from registrar.apps.api.serializers import JobAcceptanceSerializer
+from registrar.apps.api import exceptions
+from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
+from registrar.apps.api.serializers import JobAcceptanceSerializer, ProgramEnrollmentRequestSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.enrollments.models import Program
+from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import start_job
 from registrar.apps.enrollments.data import DiscoveryProgram
 
@@ -187,3 +190,32 @@ class JobInvokerMixin(object):
         job_url = build_absolute_api_url('api:v1:job-status', job_id=job_id)
         data = {'job_id': job_id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
+
+
+class EnrollmentMixin(ProgramSpecificViewMixin):
+    """
+    This mixin defines the serializers and required permissions
+    for any views that read or write program/course enrollment data.
+    """
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return JobAcceptanceSerializer
+        if self.request.method == 'POST' or self.request.method == 'PATCH':
+            return ProgramEnrollmentRequestSerializer(multiple=True)
+
+    def get_permission_required(self, request):
+        if request.method == 'GET':
+            return perms.ORGANIZATION_READ_ENROLLMENTS
+        if request.method == 'POST' or self.request.method == 'PATCH':
+            return perms.ORGANIZATION_WRITE_ENROLLMENTS
+        return []
+
+    def validate_enrollment_data(self, enrollments):
+        """
+        Validate enrollments request body
+        """
+        if not isinstance(enrollments, list):
+            raise ValidationError('expected request body type: List')
+
+        if len(enrollments) > ENROLLMENT_WRITE_MAX_SIZE:
+            raise exceptions.EnrollmentPayloadTooLarge()

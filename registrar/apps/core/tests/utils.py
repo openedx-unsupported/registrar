@@ -1,5 +1,6 @@
 """ General utilities for unit tests. """
 
+from functools import wraps
 import json
 
 from django.conf import settings
@@ -11,6 +12,7 @@ def mock_oauth_login(fn):
     Mock request to authenticate registrar as a backend client
     """
     # pylint: disable=missing-docstring
+    @wraps(fn)
     def inner(self, *args, **kwargs):
         responses.add(
             responses.POST,
@@ -18,5 +20,5 @@ def mock_oauth_login(fn):
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200
         )
-        fn(self, *args, **kwargs)
+        return fn(self, *args, **kwargs)
     return inner

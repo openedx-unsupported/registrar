@@ -7,6 +7,7 @@ import uuid
 import boto3
 from celery import shared_task
 from django.conf import settings
+from django.urls import reverse
 import ddt
 from faker import Faker
 from guardian.shortcuts import assign_perm
@@ -17,6 +18,7 @@ import responses
 from rest_framework.test import APITestCase
 from user_tasks.tasks import UserTask
 
+from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import (
@@ -31,7 +33,7 @@ from registrar.apps.core.tests.factories import (
     UserFactory,
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
-from registrar.apps.enrollments.data import DiscoveryProgram
+from registrar.apps.enrollments.data import DiscoveryProgram, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
@@ -380,6 +382,9 @@ class ProgramEnrollmentWriteMixin(object):
                 {'uuid': 'active-curriculum-0000', 'is_active': True}
             ]
         })
+        cls.program_no_curricula = DiscoveryProgram.from_json(program_uuid, {
+            'curricula': []
+        })
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
@@ -495,7 +500,7 @@ class ProgramEnrollmentWriteMixin(object):
         self.assertDictEqual(response.data, expected_lms_response)
 
     def test_write_enrollment_payload_limit(self):
-        req_data = [self.student_enrollment('enrolled')] * 26
+        req_data = [self.student_enrollment('enrolled')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
 
         response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 413)
@@ -717,3 +722,150 @@ def _succeeding_job(self, job_id, user_id):  # pylint: disable=unused-argument
 def _failing_job(self, job_id, user_id, fail_message):  # pylint: disable=unused-argument
     """ A job that just fails, providing `fail_message` as its reason """
     post_job_failure(job_id, fail_message)
+
+
+class ProgramCourseEnrollmentWriteMixin(object):
+    """ Test write requests to the /api/v1/programs/{program_key}/courses/{course_id}/enrollments/ endpoint """
+    # we need to define this for testing unauthenticated requests
+    path = 'programs/masters-in-english/courses/course-v1:edX+DemoX+Demo_Course/enrollments'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.program_uuid = cls.cs_program.discovery_uuid
+        cls.course_id = 'course-v1:edX+DemoX+Demo_Course'
+        cls.lms_request_url = urljoin(
+            settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
+        ).format(cls.program_uuid, cls.course_id)
+
+    def get_url(self, program_key=None, course_id=None):
+        """ Helper to determine the request URL for this test class. """
+        kwargs = {
+            'program_key': program_key or self.cs_program.key,
+            'course_id': course_id or self.course_id,
+        }
+        return reverse('api:v1:program-course-enrollment', kwargs=kwargs)
+
+    def mock_course_enrollments_response(self, method, expected_response, response_code=200):
+        self.mock_api_response(self.lms_request_url, expected_response, method=method, response_code=response_code)
+
+    def student_course_enrollment(self, status, student_key=None):
+        return {
+            'status': status,
+            'student_key': student_key or uuid.uuid4().hex[0:10]
+        }
+
+    def test_program_unauthorized_at_organization(self):
+        req_data = [
+            self.student_course_enrollment('active'),
+        ]
+
+        # The humanities admin can't access data from the CS program
+        response = self.request(self.method, self.get_url(), self.hum_admin, req_data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_program_insufficient_permissions(self):
+        req_data = [
+            self.student_course_enrollment('active'),
+        ]
+        # The STEM learner doesn't have sufficient permissions to enroll learners
+        response = self.request(self.method, self.get_url(), self.stem_user, req_data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_program_not_found(self):
+        req_data = [
+            self.student_course_enrollment('active'),
+        ]
+        # this program just doesn't exist
+        response = self.request(
+            self.method, self.get_url(program_key='uan-salsa-dancing-with-sharks'), self.stem_admin, req_data
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock_oauth_login
+    @responses.activate
+    def test_successful_program_course_enrollment_write(self):
+        expected_lms_response = {
+            '001': 'active',
+            '002': 'active',
+            '003': 'inactive'
+        }
+        self.mock_course_enrollments_response(self.method, expected_lms_response)
+
+        req_data = [
+            self.student_course_enrollment('active', '001'),
+            self.student_course_enrollment('active', '002'),
+            self.student_course_enrollment('inactive', '003'),
+        ]
+
+        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+
+        lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
+        self.assertListEqual(lms_request_body, [
+            {
+                'status': 'active',
+                'student_key': '001',
+            },
+            {
+                'status': 'active',
+                'student_key': '002',
+            },
+            {
+                'status': 'inactive',
+                'student_key': '003',
+            }
+        ])
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.data, expected_lms_response)
+
+    @mock_oauth_login
+    @responses.activate
+    def test_backend_unprocessable_response(self):
+        self.mock_course_enrollments_response(self.method, "invalid enrollment record", response_code=422)
+
+        req_data = [
+            self.student_course_enrollment('active', '001'),
+            self.student_course_enrollment('active', '002'),
+            self.student_course_enrollment('inactive', '003'),
+        ]
+
+        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.data, 'invalid enrollment record')
+
+    @mock_oauth_login
+    @responses.activate
+    def test_backend_multi_status_response(self):
+        expected_lms_response = {
+            '001': 'active',
+            '002': 'active',
+            '003': 'invalid-status'
+        }
+        self.mock_course_enrollments_response(self.method, expected_lms_response, response_code=207)
+
+        req_data = [
+            self.student_course_enrollment('active', '001'),
+            self.student_course_enrollment('active', '002'),
+            self.student_course_enrollment('not_a_valid_value', '003'),
+        ]
+
+        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+
+        self.assertEqual(response.status_code, 207)
+        self.assertDictEqual(response.data, expected_lms_response)
+
+    def test_write_enrollment_payload_limit(self):
+        req_data = [self.student_course_enrollment('active')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
+
+        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+
+        self.assertEqual(response.status_code, 413)
+
+
+class ProgramCourseEnrollmentPostTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
+    method = 'POST'
+
+
+class ProgramCourseEnrollmentPatchTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
+    method = 'PATCH'

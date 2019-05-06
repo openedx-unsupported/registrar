@@ -21,6 +21,10 @@ from registrar.apps.enrollments.serializers import (
 
 logger = logging.getLogger(__name__)
 
+DISCOVERY_PROGRAM_API_TPL = 'api/v1/programs/{}/'
+LMS_PROGRAM_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}/enrollments/'
+LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}/courses/{}/enrollments/'
+
 
 DiscoveryCourseRun = namedtuple(
     'DiscoveryCourseRun',
@@ -139,7 +143,7 @@ def write_program_enrollments(program_uuid, enrollments, update=False, client=No
     Returns:
         A HTTP response object that includes both response data and status_code
     """
-    url = urljoin(settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/').format(program_uuid)
+    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
 
     method = 'PATCH' if update else 'POST'
 
@@ -167,10 +171,7 @@ def get_program_enrollments(program_uuid, client=None):
         - HTTPError if there is an issue communicating with LMS
         - ValidationError if enrollment data from LMS is invalid
     """
-    url = urljoin(
-        settings.LMS_BASE_URL,
-        'api/program_enrollments/v1/programs/{}/enrollments'.format(program_uuid),
-    )
+    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
     enrollments = _get_all_paginated_results(url, client)
     ProgramEnrollmentSerializer(
         data=enrollments, many=True
@@ -196,12 +197,7 @@ def get_course_run_enrollments(program_uuid, course_id, client=None):
         - HTTPError if there is an issue communicating with LMS
         - ValidationError if enrollment data from LMS is invalid
     """
-    url = urljoin(
-        settings.LMS_BASE_URL,
-        'api/program_enrollments/v1/programs/{}/courses/{}/enrollments'.format(
-            program_uuid, course_id
-        ),
-    )
+    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_id))
     enrollments = _get_all_paginated_results(url, client)
     CourseEnrollmentSerializer(
         data=enrollments, many=True
@@ -209,6 +205,26 @@ def get_course_run_enrollments(program_uuid, course_id, client=None):
         raise_exception=True
     )
     return enrollments
+
+
+def write_program_course_enrollments(program_uuid, course_key, enrollments, update=False, client=None):
+    """
+    Create or update program course enrollments in the LMS.
+
+    Returns:
+        A HTTP response object that includes both response data and status_code
+    """
+    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL).format(program_uuid, course_key)
+
+    method = 'PATCH' if update else 'POST'
+
+    try:
+        return _make_request(method, url, client, json=enrollments)
+    except HTTPError as e:
+        response = e.response
+        if response.status_code == 422:
+            return response
+        raise
 
 
 def _get_all_paginated_results(url, client=None):
