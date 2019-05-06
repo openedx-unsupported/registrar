@@ -2,7 +2,12 @@
 # http://open-edx-proposals.readthedocs.io/en/latest/oeps/oep-0002.html#specification
 
 nick: regis
+tags:
+  - masters
 oeps:
-  oep-30:
-    state: true
+  oep-2: true     # Repository metadata
+  oep-7: true     # Python 3
+  oep-13: true    # REST API guidelines
+  oep-0018: true  # Dependency management
+  oep-30: true    # PII annotation
 owner: edx/neem
