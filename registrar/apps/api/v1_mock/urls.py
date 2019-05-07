@@ -14,32 +14,32 @@ app_name = 'v1-mock'
 
 urlpatterns = [
     url(
-        r'programs/$',
+        r'^programs/$',
         views.MockProgramListView.as_view(),
         name="program-list",
     ),
     url(
-        r'programs/{}/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/$'.format(PROGRAM_KEY_PATTERN),
         views.MockProgramRetrieveView.as_view(),
         name="program",
     ),
     url(
-        r'programs/{}/courses/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/courses/$'.format(PROGRAM_KEY_PATTERN),
         views.MockProgramCourseListView.as_view(),
         name="program-course-list",
     ),
     url(
-        r'programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
         views.MockProgramEnrollmentView.as_view(),
         name="program-enrollment",
     ),
     url(
-        r'programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
+        r'^programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
         views.MockCourseEnrollmentView.as_view(),
         name="program-course-enrollment",
     ),
     url(
-        r'jobs/{}/$'.format(JOB_ID_PATTERN),
+        r'^jobs/{}/$'.format(JOB_ID_PATTERN),
         views.MockJobStatusRetrieveView.as_view(),
         name="job-status",
     ),

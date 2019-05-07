@@ -14,37 +14,37 @@ app_name = 'v1'
 
 urlpatterns = [
     url(
-        r'programs/$',
+        r'^programs/$',
         views.ProgramListView.as_view(),
         name="program-list",
     ),
     url(
-        r'programs/{}/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/$'.format(PROGRAM_KEY_PATTERN),
         views.ProgramRetrieveView.as_view(),
         name="program",
     ),
     url(
-        r'programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
         views.ProgramEnrollmentView.as_view(),
         name="program-enrollments",
     ),
     url(
-        r'programs/{}/courses/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/courses/$'.format(PROGRAM_KEY_PATTERN),
         views.ProgramCourseListView.as_view(),
         name="program-course-list",
     ),
     url(
-        r'programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
+        r'^programs/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN),
         views.ProgramEnrollmentView.as_view(),
         name="program-enrollment",
     ),
     url(
-        r'programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
+        r'^programs/{}/courses/{}/enrollments/$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
         views.CourseEnrollmentView.as_view(),
         name="program-course-enrollment",
     ),
     url(
-        r'jobs/{}/$'.format(JOB_ID_PATTERN),
+        r'^jobs/{}/$'.format(JOB_ID_PATTERN),
         views.JobStatusRetrieveView.as_view(),
         name="job-status",
     ),

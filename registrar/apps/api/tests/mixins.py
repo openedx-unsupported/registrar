@@ -121,6 +121,11 @@ class AuthRequestMixin(JwtMixin):
         if data:
             kwargs['data'] = json.dumps(data)
             kwargs['content_type'] = 'application/json'
-        if not (path.startswith('http://') or path.startswith('https://')):
+        path_is_absolute = (
+            path.startswith('http://') or
+            path.startswith('https://') or
+            path.startswith('/')
+        )
+        if not path_is_absolute:
             path = self.api_root + path
         return getattr(self.client, method.lower())(path, **kwargs)
