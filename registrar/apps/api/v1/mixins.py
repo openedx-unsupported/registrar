@@ -39,6 +39,7 @@ class AuthMixin(object):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_required = []
     raise_404_if_unauthorized = False
+    staff_only = False
 
     def get_permission_object(self):
         """
@@ -76,6 +77,9 @@ class AuthMixin(object):
         if not request.user.is_authenticated:
             raise NotAuthenticated()
 
+        if self.staff_only and not request.user.is_staff:
+            self.unauthorized_response()
+
         required = self.get_permission_required(request)
         if isinstance(required, str):
             required = [required]
@@ -92,6 +96,9 @@ class AuthMixin(object):
         obj = self.get_permission_object()
         if obj and all(request.user.has_perm(perm, obj) for perm in required):
             return
+        self.unauthorized_response()
+
+    def unauthorized_response(self):
         if self.raise_404_if_unauthorized:
             raise Http404()
         else:
