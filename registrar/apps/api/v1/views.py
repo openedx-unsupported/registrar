@@ -43,7 +43,6 @@ from registrar.apps.enrollments.tasks import (
     list_program_enrollments,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
