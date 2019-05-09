@@ -18,9 +18,7 @@ class Program(TimeStampedModel):
 
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
-    title = models.CharField(max_length=255, null=True)
     managing_organization = models.ForeignKey(Organization, related_name='programs')
-    url = models.URLField(null=True)
 
     def __str__(self):
-        return self.title
+        return self.key
