@@ -21,14 +21,15 @@ def name_to_key(name):
 def get_user_organizations(user):
     """
     Get the Org Group of the user passed in.
+
+    Returns: set[Organization]
     """
     user_groups = user.groups.all()
-    user_organizations = []
+    user_organizations = set()
     for group in user_groups:
         try:
             user_org_group = OrganizationGroup.objects.get(id=group.id)
-            if user_org_group.organization:
-                user_organizations.append(user_org_group.organization)
+            user_organizations.add(user_org_group.organization)
         except OrganizationGroup.DoesNotExist:
             pass
     return user_organizations

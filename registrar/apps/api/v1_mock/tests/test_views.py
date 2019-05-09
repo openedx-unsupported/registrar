@@ -1,19 +1,17 @@
 """ Tests for the v1_mock API views. """
-import json
 import uuid
 
 import ddt
 import mock
 from rest_framework.test import APITestCase
 
-from registrar.apps.api.constants import TRACKING_CATEGORY
-from registrar.apps.api.tests.mixins import AuthRequestMixin
+from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
 from registrar.apps.api.v1_mock.data import (
     FAKE_PROGRAMS,
     invoke_fake_course_enrollment_listing_job,
     invoke_fake_program_enrollment_listing_job,
 )
-from registrar.apps.core.permissions import OrganizationReadMetadataRole
+from registrar.apps.core import permissions as perms
 from registrar.apps.core.tests.factories import (
     GroupFactory,
     UserFactory,
@@ -22,10 +20,10 @@ from registrar.apps.core.tests.factories import (
 )
 
 
-class MockAPITestMixin(AuthRequestMixin):
+class MockAPITestMixin(AuthRequestMixin, TrackTestMixin):
     """ Base mixin for tests for the v1_mock API. """
     api_root = '/api/v1-mock/'
-    event = None
+    event = None  # Override in subclass if testing tracking
 
     @classmethod
     def setUpClass(cls):
@@ -35,55 +33,13 @@ class MockAPITestMixin(AuthRequestMixin):
         cls.user = UserFactory(groups=[cls.user_org_group])
         cls.admin_read_metadata_group = GroupFactory(
             name='admin_read_metadata',
-            permissions=OrganizationReadMetadataRole.permissions,
+            permissions=perms.OrganizationReadMetadataRole.permissions,
         )
         cls.admin_user = UserFactory(groups=[cls.admin_read_metadata_group])
-        cls.segment_patcher = mock.patch('registrar.apps.api.segment.track', autospec=True)
-        cls.logging_patcher = mock.patch('registrar.apps.api.v1_mock.views.logger', autospec=True)
-
-    def setUp(self):
-        super().setUp()
-        self.mock_segment_track = self.segment_patcher.start()
-        self.mock_logging = self.logging_patcher.start()
 
     @property
     def path(self):
         return self.api_root + self.path_suffix
-
-    def assert_tracking(self, user=None, **kwargs):
-        """
-        Make sure the segment events are created when the request is made
-        """
-        properties = kwargs.copy()
-
-        if 'user_organizations' not in properties:
-            properties['user_organizations'] = [self.user_org.name]
-
-        properties['category'] = TRACKING_CATEGORY
-
-        if not user:
-            user = self.user
-
-        self.mock_segment_track.assert_called_once_with(
-            user.username,
-            self.event,
-            properties
-        )
-
-        self.mock_logging.info.assert_called_once_with(
-            '%s invoked on Registrar with properties %s',
-            self.event,
-            json.dumps(
-                properties,
-                skipkeys=True,
-                sort_keys=True,
-            ),
-        )
-
-    def tearDown(self):
-        super().tearDown()
-        self.segment_patcher.stop()
-        self.logging_patcher.stop()
 
 
 class MockJobTestMixin(MockAPITestMixin):
@@ -98,7 +54,12 @@ class MockJobTestMixin(MockAPITestMixin):
          * Provided ``expected_path`` is substring of job's result
          * Segment event is created for job retrival
         """
-        job_response = self.get(job_url, self.user)
+        with self.assert_tracking(
+                event='registrar.v1_mock.get_job_status',
+                job_id=job_id,
+                job_state=expected_state,
+        ):
+            job_response = self.get(job_url, self.user)
         self.assertEqual(200, job_response.status_code)
         job_data = job_response.data
         self.assertIn('created', job_data)
@@ -107,11 +68,6 @@ class MockJobTestMixin(MockAPITestMixin):
             self.assertIn(expected_path, job_data['result'])
         else:
             self.assertIsNone(job_data['result'])
-        self.event = 'registrar.v1_mock.get_job_status'
-        self.assert_tracking(
-            job_id=job_id,
-            job_state=job_data['state'],
-        )
 
 
 @ddt.ddt
@@ -123,27 +79,26 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
     event = 'registrar.v1_mock.list_programs'
 
     def test_list_all_unauthorized(self):
-        response = self.get(self.path, self.user)
+        with self.assert_tracking(
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get(self.path, self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_tracking(permission_failure='no_org_key')
 
     def test_list_all_admin_user(self):
-        response = self.get(self.path, self.admin_user)
+        with self.assert_tracking(user=self.admin_user):
+            response = self.get(self.path, self.admin_user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), len(FAKE_PROGRAMS))
-        self.assert_tracking(
-            user=self.admin_user,
-            user_organizations=[],
-        )
 
     def test_list_org_unauthorized(self):
         org_key = 'u-perezburgh'
-        response = self.get(self.path + '?org=' + org_key, self.user)
+        with self.assert_tracking(
+                organization_filter=org_key,
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get(self.path + '?org=' + org_key, self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_tracking(
-            organization_filter=org_key,
-            permission_failure='no_org_permission',
-        )
 
     def test_list_org_no_perm_but_admin(self):
         """
@@ -155,12 +110,12 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
         self.assertEqual(len(response.data), 1)
 
     def test_org_not_found(self):
-        response = self.get(self.path + '?org=antarctica-tech', self.user)
+        with self.assert_tracking(
+                organization_filter='antarctica-tech',
+                failure='org_not_found',
+        ):
+            response = self.get(self.path + '?org=antarctica-tech', self.user)
         self.assertEqual(response.status_code, 404)
-        self.assert_tracking(
-            org_key='antarctica-tech',
-            failure='org_not_found',
-        )
 
     @ddt.data(
         ('brianchester-college', 1),
@@ -169,10 +124,10 @@ class MockProgramListViewTests(MockAPITestMixin, APITestCase):
     )
     @ddt.unpack
     def test_success(self, org_key, num_programs):
-        response = self.get(self.path + '?org={}'.format(org_key), self.user)
+        with self.assert_tracking(organization_filter=org_key):
+            response = self.get(self.path + '?org={}'.format(org_key), self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), num_programs)
-        self.assert_tracking(organization_filter=org_key)
 
 
 @ddt.ddt
@@ -184,20 +139,22 @@ class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
     event = 'registrar.v1_mock.get_program_detail'
 
     def test_program_unauthorized(self):
-        response = self.get(self.path + 'upz-masters-ancient-history', self.user)
+        with self.assert_tracking(
+                program_key='upz-masters-ancient-history',
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get(self.path + 'upz-masters-ancient-history', self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_tracking(
-            program_key='upz-masters-ancient-history',
-            permission_failure='no_program_read_permission',
-        )
 
     def test_program_not_found(self):
-        response = self.get(self.path + 'uan-masters-underwater-basket-weaving', self.user)
+        with self.assert_tracking(
+                program_key='uan-masters-underwater-basket-weaving',
+                failure='program_not_found',
+        ):
+            response = self.get(
+                self.path + 'uan-masters-underwater-basket-weaving', self.user
+            )
         self.assertEqual(response.status_code, 404)
-        self.assert_tracking(
-            program_key='uan-masters-underwater-basket-weaving',
-            failure='program_not_found',
-        )
 
     @ddt.data(
         'bcc-masters-english-lit',
@@ -208,9 +165,9 @@ class MockProgramRetrieveViewTests(MockAPITestMixin, APITestCase):
         'hhp-masters-enviro',
     )
     def test_program_retrieve(self, program_key):
-        response = self.get(self.path + program_key, self.user)
+        with self.assert_tracking(program_key=program_key):
+            response = self.get(self.path + program_key, self.user)
         self.assertEqual(response.status_code, 200)
-        self.assert_tracking(program_key=program_key)
 
 
 @ddt.ddt
@@ -223,20 +180,20 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
     event = 'registrar.v1_mock.get_program_courses'
 
     def test_program_unauthorized(self):
-        response = self.get('programs/upz-masters-ancient-history/courses', self.user)
+        with self.assert_tracking(
+                program_key='upz-masters-ancient-history',
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get('programs/upz-masters-ancient-history/courses', self.user)
         self.assertEqual(response.status_code, 403)
-        self.assert_tracking(
-            program_key='upz-masters-ancient-history',
-            permission_failure='no_program_read_permission',
-        )
 
     def test_program_not_found(self):
-        response = self.get('programs/uan-masters-underwater-basket-weaving/courses', self.user)
+        with self.assert_tracking(
+                program_key='uan-masters-underwater-basket-weaving',
+                failure='program_not_found',
+        ):
+            response = self.get('programs/uan-masters-underwater-basket-weaving/courses', self.user)
         self.assertEqual(response.status_code, 404)
-        self.assert_tracking(
-            program_key='uan-masters-underwater-basket-weaving',
-            failure='program_not_found',
-        )
 
     @ddt.data(
         ('bcc-masters-english-lit', 4),
@@ -248,10 +205,10 @@ class MockCourseListViewTests(MockAPITestMixin, APITestCase):
     )
     @ddt.unpack
     def test_program_retrieve(self, program_key, num_courses):
-        response = self.get('programs/{}/courses'.format(program_key), self.user)
+        with self.assert_tracking(program_key=program_key):
+            response = self.get('programs/{}/courses'.format(program_key), self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), num_courses)
-        self.assert_tracking(program_key=program_key)
 
 
 class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
@@ -283,31 +240,31 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
         post_data = [
             self.student_enrollment('enrolled')
         ]
-        response = self.post(
-            'programs/dvi-masters-polysci/enrollments/',
-            post_data,
-            self.user
-        )
+        with self.assert_tracking(
+                program_key='dvi-masters-polysci',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.post(
+                'programs/dvi-masters-polysci/enrollments/',
+                post_data,
+                self.user
+            )
         self.assertEqual(response.status_code, 403)
-        self.assert_tracking(
-            program_key='dvi-masters-polysci',
-            permission_failure='no_enrollments_write_permission',
-        )
 
     def test_program_not_found(self):
         post_data = [
             self.student_enrollment('enrolled')
         ]
-        response = self.post(
-            'programs/uan-shark-tap-dancing/enrollments/',
-            post_data,
-            self.user
-        )
+        with self.assert_tracking(
+                program_key='uan-shark-tap-dancing',
+                failure='program_not_found',
+        ):
+            response = self.post(
+                'programs/uan-shark-tap-dancing/enrollments/',
+                post_data,
+                self.user
+            )
         self.assertEqual(response.status_code, 404)
-        self.assert_tracking(
-            program_key='uan-shark-tap-dancing',
-            failure='program_not_found',
-        )
 
     def test_successful_program_enrollment(self):
         post_data = [
@@ -315,51 +272,47 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('pending', '003'),
         ]
-        response = self.post(
-            'programs/hhp-masters-theo-physics/enrollments/',
-            post_data,
-            self.user
-        )
-
+        with self.assert_tracking(program_key='hhp-masters-theo-physics'):
+            response = self.post(
+                'programs/hhp-masters-theo-physics/enrollments/',
+                post_data,
+                self.user
+            )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {
             '001': 'enrolled',
             '002': 'enrolled',
             '003': 'pending',
         })
-        self.assert_tracking(program_key='hhp-masters-theo-physics')
 
     def test_partially_valid_enrollment(self):
         post_data = [
             self.student_enrollment('new', '001'),
             self.student_enrollment('pending', '003'),
         ]
-        response = self.post(
-            'programs/hhp-masters-theo-physics/enrollments/',
-            post_data,
-            self.user
-        )
-
+        with self.assert_tracking(program_key='hhp-masters-theo-physics', status_code=207):
+            response = self.post(
+                'programs/hhp-masters-theo-physics/enrollments/',
+                post_data,
+                self.user
+            )
         self.assertEqual(response.status_code, 207)
         self.assertEqual(response.data, {
             '001': 'invalid-status',
             '003': 'pending',
         })
 
-        self.assert_tracking(program_key='hhp-masters-theo-physics')
-
     def test_unprocessable_enrollment(self):
-        response = self.post(
-            'programs/hhp-masters-theo-physics/enrollments/',
-            [{'status': 'enrolled'}],
-            self.user
-        )
-
+        with self.assert_tracking(
+                program_key='hhp-masters-theo-physics',
+                failure='unprocessable_entity',
+        ):
+            response = self.post(
+                'programs/hhp-masters-theo-physics/enrollments/',
+                [{'status': 'enrolled'}],
+                self.user
+            )
         self.assertEqual(response.status_code, 422)
-        self.assert_tracking(
-            program_key='hhp-masters-theo-physics',
-            failure='unprocessable_entity',
-        )
 
     def test_duplicate_enrollment(self):
         post_data = [
@@ -367,35 +320,34 @@ class MockProgramEnrollmentPostTests(MockAPITestMixin, APITestCase):
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('pending', '001'),
         ]
-        response = self.post(
-            'programs/hhp-masters-theo-physics/enrollments/',
-            post_data,
-            self.user
-        )
-
+        with self.assert_tracking(program_key='hhp-masters-theo-physics', status_code=207):
+            response = self.post(
+                'programs/hhp-masters-theo-physics/enrollments/',
+                post_data,
+                self.user
+            )
         self.assertEqual(response.status_code, 207)
         self.assertEqual(response.data, {
             '001': 'duplicated',
             '002': 'enrolled',
         })
-        self.assert_tracking(program_key='hhp-masters-theo-physics')
 
     def test_enrollment_payload_limit(self):
         post_data = []
         for _ in range(26):
             post_data += self.student_enrollment('enrolled')
 
-        response = self.post(
-            'programs/hhp-masters-theo-physics/enrollments/',
-            post_data,
-            self.user
-        )
+        with self.assert_tracking(
+                program_key='hhp-masters-theo-physics',
+                failure='request_entity_too_large',
+        ):
+            response = self.post(
+                'programs/hhp-masters-theo-physics/enrollments/',
+                post_data,
+                self.user
+            )
 
         self.assertEqual(response.status_code, 413)
-        self.assert_tracking(
-            program_key='hhp-masters-theo-physics',
-            failure='request_entity_too_large',
-        )
 
 
 @ddt.ddt
@@ -416,7 +368,8 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             self.learner_modification("C", "suspended"),
             self.learner_modification("D", "canceled"),
         ]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(program_key='hhp-masters-ce'):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(200, response.status_code)
         self.assertDictEqual(
             {
@@ -427,7 +380,6 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_tracking(program_key='hhp-masters-ce')
 
     def test_207_multi_status(self):
         """ Also tests duplicates """
@@ -437,7 +389,8 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             self.learner_modification("B", "not-a-status"),
             self.learner_modification("C", "enrolled"),
         ]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(program_key='hhp-masters-ce', status_code=207):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(207, response.status_code)
         self.assertDictEqual(
             {
@@ -447,46 +400,45 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_tracking(program_key='hhp-masters-ce')
 
     def test_403_forbidden(self):
         path_403 = 'programs/dvi-masters-polysci/enrollments/'
         patch_data = [self.learner_modification("A", "enrolled")]
-        response = self.patch(path_403, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='dvi-masters-polysci',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.patch(path_403, patch_data, self.user)
         self.assertEqual(403, response.status_code)
-        self.assert_tracking(
-            program_key='dvi-masters-polysci',
-            permission_failure='no_enrollments_write_permission',
-        )
 
     def test_413_payload_too_large(self):
         patch_data = [self.learner_modification(str(i), "enrolled") for i in range(30)]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                failure='request_entity_too_large',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(413, response.status_code)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            failure='request_entity_too_large',
-        )
 
     def test_404_not_found(self):
         path_404 = 'programs/nonexistant-program-will-404/enrollments/'
         patch_data = [self.learner_modification("A", "enrolled")]
-        response = self.patch(path_404, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='nonexistant-program-will-404',
+                failure='program_not_found',
+        ):
+            response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_tracking(
-            program_key='nonexistant-program-will-404',
-            failure='program_not_found',
-        )
 
     def test_422_unprocessable_entity(self):
         patch_data = [{'student_key': 'A', 'status': 'this-is-not-a-status'}]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                failure='unprocessable_entity',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(422, response.status_code)
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            failure='unprocessable_entity',
-        )
 
     @ddt.data(
         [{'status': 'enrolled'}],
@@ -495,13 +447,13 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         [{'student_key': '000', 'status': 'enrolled'}, "bad_data"],
     )
     def test_422_unprocessable_entity_bad_data(self, patch_data):
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                failure='unprocessable_entity',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            failure='unprocessable_entity',
-        )
 
 
 def _mock_invoke_program_job(duration):
@@ -534,20 +486,20 @@ class MockProgramEnrollmentGetTests(MockJobTestMixin, APITestCase):
         'bcc-masters-english-lit',
     )
     def test_program_unauthorized(self, program_key):
-        response = self._get_enrollments(program_key)
+        with self.assert_tracking(
+                program_key=program_key,
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
+        ):
+            response = self._get_enrollments(program_key)
         self.assertEqual(403, response.status_code)
-        self.assert_tracking(
-            program_key=program_key,
-            permission_failure='no_enrollments_read_permission',
-        )
 
     def test_program_not_found(self):
-        response = self._get_enrollments('not-a-program')
+        with self.assert_tracking(
+                program_key='not-a-program',
+                failure='program_not_found',
+        ):
+            response = self._get_enrollments('not-a-program')
         self.assertEqual(404, response.status_code)
-        self.assert_tracking(
-            program_key='not-a-program',
-            failure='program_not_found',
-        )
 
     @ddt.data(
         ('dvi-masters-polysci', 10, 'In Progress', None),
@@ -564,12 +516,10 @@ class MockProgramEnrollmentGetTests(MockJobTestMixin, APITestCase):
                 'registrar.apps.api.v1_mock.views.invoke_fake_program_enrollment_listing_job',
                 new=_mock_invoke_program_job(job_duration),
         ):
-            response = self._get_enrollments(program_key)
+            with self.assert_tracking(program_key=program_key, status_code=202):
+                response = self._get_enrollments(program_key)
 
         self.assertEqual(202, response.status_code)
-        self.assert_tracking(program_key=program_key)
-        self.mock_segment_track.reset_mock()
-        self.mock_logging.reset_mock()
         RESULTS_ROOT = '/static/api/v1_mock/program-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
@@ -593,7 +543,11 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
             self.learner_enrollment("A", "active"),
             self.learner_enrollment("B", "inactive"),
         ]
-        response = self.post(self.path, post_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+        ):
+            response = self.post(self.path, post_data, self.user)
         self.assertEqual(200, response.status_code)
         self.assertDictEqual(
             {
@@ -601,10 +555,6 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
                 "B": "inactive",
             },
             response.data
-        )
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
         )
 
     def test_207_multi_status(self):
@@ -615,7 +565,12 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
             self.learner_enrollment("B", "not-a-status"),
             self.learner_enrollment("C", "active"),
         ]
-        response = self.post(self.path, post_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                status_code=207,
+        ):
+            response = self.post(self.path, post_data, self.user)
         self.assertEqual(207, response.status_code)
         self.assertDictEqual(
             {
@@ -625,41 +580,38 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-        )
 
     def test_403_forbidden(self):
         path_403 = 'programs/dvi-masters-polysci/courses/course-v1:DVIx+GOV-200+Spring2050/enrollments/'
         post_data = [self.learner_enrollment("A", "active")]
-        response = self.post(path_403, post_data, self.user)
+        with self.assert_tracking(
+                program_key='dvi-masters-polysci',
+                course_key='course-v1:DVIx+GOV-200+Spring2050',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.post(path_403, post_data, self.user)
         self.assertEqual(403, response.status_code)
-        self.assert_tracking(
-            program_key='dvi-masters-polysci',
-            course_key='course-v1:DVIx+GOV-200+Spring2050',
-            permission_failure='no_enrollments_write_permission',
-        )
 
     def test_413_payload_too_large(self):
         post_data = [self.learner_enrollment(str(i), "active") for i in range(30)]
-        response = self.post(self.path, post_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='request_entity_too_large',
+        ):
+            response = self.post(self.path, post_data, self.user)
         self.assertEqual(413, response.status_code)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-            failure='request_entity_too_large',
-        )
 
     def test_404_not_found_program(self):
         path_404 = 'programs/nonexistant-program/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
         post_data = [self.learner_enrollment("A", "active")]
-        response = self.post(path_404, post_data, self.user)
+        with self.assert_tracking(
+                program_key='nonexistant-program',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='program_not_found',
+        ):
+            response = self.post(path_404, post_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_tracking(
-            program_key='nonexistant-program',
-            failure='program_not_found',
-        )
 
     @ddt.data(
         "course-v1:HHPx+FAKE-3333+Spring1776",  # nonexistant
@@ -668,24 +620,24 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
     def test_404_not_found_course(self, course):
         path_404 = 'programs/hhp-masters-ce/courses/{}/enrollments/'.format(course)
         post_data = [self.learner_enrollment("A", "active")]
-        response = self.post(path_404, post_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key=course,
+                failure='course_not_found',
+        ):
+            response = self.post(path_404, post_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key=course,
-            failure='course_not_found',
-        )
 
     def test_422_unprocessable_entity(self):
         post_data = [self.learner_enrollment('A', 'this-is-not-a-status')]
-        response = self.post(self.path, post_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='unprocessable_entity',
+        ):
+            response = self.post(self.path, post_data, self.user)
         self.assertEqual(422, response.status_code)
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-            failure='unprocessable_entity',
-        )
 
     @ddt.data(
         [{'status': 'active'}],
@@ -694,14 +646,14 @@ class MockCourseEnrollmentPostTests(MockAPITestMixin, APITestCase):
         [{'student_key': '000', 'status': 'active'}, "bad_data"],
     )
     def test_422_unprocessable_entity_bad_data(self, post_data):
-        response = self.post(self.path, post_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='unprocessable_entity',
+        ):
+            response = self.post(self.path, post_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-            failure='unprocessable_entity',
-        )
 
 
 @ddt.ddt
@@ -721,7 +673,11 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             self.learner_modification("A", "active"),
             self.learner_modification("B", "inactive"),
         ]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(200, response.status_code)
         self.assertDictEqual(
             {
@@ -729,10 +685,6 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
                 "B": "inactive",
             },
             response.data
-        )
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
         )
 
     def test_207_multi_status(self):
@@ -743,7 +695,12 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             self.learner_modification("B", "not-a-status"),
             self.learner_modification("C", "active"),
         ]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                status_code=207,
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(207, response.status_code)
         self.assertDictEqual(
             {
@@ -753,41 +710,38 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             },
             response.data
         )
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-        )
 
     def test_403_forbidden(self):
         path_403 = 'programs/dvi-masters-polysci/courses/course-v1:DVIx+GOV-200+Spring2050/enrollments/'
         patch_data = [self.learner_modification("A", "active")]
-        response = self.patch(path_403, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='dvi-masters-polysci',
+                course_key='course-v1:DVIx+GOV-200+Spring2050',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.patch(path_403, patch_data, self.user)
         self.assertEqual(403, response.status_code)
-        self.assert_tracking(
-            program_key='dvi-masters-polysci',
-            course_key='course-v1:DVIx+GOV-200+Spring2050',
-            permission_failure='no_enrollments_write_permission',
-        )
 
     def test_413_payload_too_large(self):
         patch_data = [self.learner_modification(str(i), "active") for i in range(30)]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='request_entity_too_large',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(413, response.status_code)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-            failure='request_entity_too_large',
-        )
 
     def test_404_not_found_program(self):
         path_404 = 'programs/nonexistant-program/courses/course-v1:HHPx+MA-102+Fall2050/enrollments/'
         patch_data = [self.learner_modification("A", "active")]
-        response = self.patch(path_404, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='nonexistant-program',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='program_not_found',
+        ):
+            response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_tracking(
-            program_key='nonexistant-program',
-            failure='program_not_found',
-        )
 
     @ddt.data(
         "course-v1:HHPx+FAKE-3333+Spring1776",  # nonexistant
@@ -796,24 +750,24 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
     def test_404_not_found_course(self, course):
         path_404 = 'programs/hhp-masters-ce/courses/{}/enrollments/'.format(course)
         patch_data = [self.learner_modification("A", "active")]
-        response = self.patch(path_404, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key=course,
+                failure='course_not_found',
+        ):
+            response = self.patch(path_404, patch_data, self.user)
         self.assertEqual(404, response.status_code)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key=course,
-            failure='course_not_found',
-        )
 
     def test_422_unprocessable_entity(self):
         patch_data = [self.learner_modification('A', 'this-is-not-a-status')]
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='unprocessable_entity',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(422, response.status_code)
         self.assertDictEqual({'A': 'invalid-status'}, response.data)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-            failure='unprocessable_entity',
-        )
 
     @ddt.data(
         [{'status': 'active'}],
@@ -822,14 +776,14 @@ class MockCourseEnrollmentPatchTests(MockAPITestMixin, APITestCase):
         [{'student_key': '000', 'status': 'active'}, "bad_data"],
     )
     def test_422_unprocessable_entity_bad_data(self, patch_data):
-        response = self.patch(self.path, patch_data, self.user)
+        with self.assert_tracking(
+                program_key='hhp-masters-ce',
+                course_key='course-v1:HHPx+MA-102+Fall2050',
+                failure='unprocessable_entity',
+        ):
+            response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
-        self.assert_tracking(
-            program_key='hhp-masters-ce',
-            course_key='course-v1:HHPx+MA-102+Fall2050',
-            failure='unprocessable_entity',
-        )
 
 
 def _mock_invoke_course_job(duration):
@@ -868,13 +822,13 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
     )
     @ddt.unpack
     def test_program_unauthorized(self, program_key, course_key):
-        response = self._get_enrollments(program_key, course_key)
+        with self.assert_tracking(
+                program_key=program_key,
+                course_key=course_key,
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
+        ):
+            response = self._get_enrollments(program_key, course_key)
         self.assertEqual(403, response.status_code)
-        self.assert_tracking(
-            program_key=program_key,
-            course_key=course_key,
-            permission_failure='no_enrollments_read_permission'
-        )
 
     @ddt.data(
         ('not-a-program', 'NOTORGx+not-a-course+Bad2010', 'program_not_found'),
@@ -884,19 +838,13 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
     )
     @ddt.unpack
     def test_course_not_found(self, program_key, course_key, event_failure):
-        response = self._get_enrollments(program_key, course_key)
-        self.assertEqual(404, response.status_code)
-        if event_failure == 'program_not_found':
-            self.assert_tracking(
-                program_key=program_key,
+        with self.assert_tracking(
                 failure=event_failure,
-            )
-        else:
-            self.assert_tracking(
                 program_key=program_key,
                 course_key=course_key,
-                failure=event_failure,
-            )
+        ):
+            response = self._get_enrollments(program_key, course_key)
+        self.assertEqual(404, response.status_code)
 
     @ddt.data(
         (
@@ -1011,12 +959,10 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
                 'registrar.apps.api.v1_mock.views.invoke_fake_course_enrollment_listing_job',
                 new=_mock_invoke_course_job(job_duration),
         ):
-            response = self._get_enrollments(program_key, course_key)
+            with self.assert_tracking(program_key=program_key, course_key=course_key, status_code=202):
+                response = self._get_enrollments(program_key, course_key)
 
         self.assertEqual(202, response.status_code)
-        self.assert_tracking(program_key=program_key, course_key=course_key)
-        self.mock_segment_track.reset_mock()
-        self.mock_logging.reset_mock()
         RESULTS_ROOT = '/static/api/v1_mock/course-enrollments/'
         expected_path = RESULTS_ROOT + expected_fname if expected_fname else None
         self.assert_job_result(
@@ -1024,10 +970,11 @@ class MockCourseEnrollmentGetTests(MockJobTestMixin, APITestCase):
         )
 
 
+@ddt.ddt
 class MockJobRetrievalTests(MockAPITestMixin, APITestCase):
     """Test case to make sure only AuthN'ed users can get job statuses"""
 
-    # We need not define any tests functions here, because:
+    # We only need to test 404s here, because:
     #  (1) MockAPITestMixin superclass will check that this 401s
     #      if a user is not authenticated, and
     #  (2) Happy-path (authenticated) job gets are handled by
@@ -1035,3 +982,20 @@ class MockJobRetrievalTests(MockAPITestMixin, APITestCase):
 
     method = 'GET'
     path = 'jobs/a6393974-cf86-4e3b-a21a-d27e17932447'
+    event = 'registrar.v1_mock.get_job_status'
+
+    def test_404_no_url_match(self):
+        response = self.get('jobs/this-will-not-match-the-url', self.user)
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_not_uuid(self):
+        bad_job_id = '0123456789-abcdef'
+        with self.assert_tracking(job_id=bad_job_id, failure='job_not_found'):
+            response = self.get('jobs/' + bad_job_id, self.user)
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_job_not_found(self):
+        bad_job_id = 'c82b646b-6f64-4b6f-a52b-9d6887e58ae0'
+        with self.assert_tracking(job_id=bad_job_id, failure='job_not_found'):
+            response = self.get('jobs/' + bad_job_id, self.user)
+        self.assertEqual(response.status_code, 404)

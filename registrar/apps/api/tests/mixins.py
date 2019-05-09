@@ -1,13 +1,88 @@
 """
 Mixins for Registrar API tests.
 """
+from contextlib import contextmanager
 import json
 from time import time
 
-import jwt
 from django.conf import settings
+import jwt
+import mock
+
+from registrar.apps.api.constants import TRACKING_CATEGORY
+from registrar.apps.core.utils import get_user_organizations
+
 
 JWT_AUTH = 'JWT_AUTH'
+
+
+class TrackTestMixin(object):
+    """
+    Mixin enabling testing of tracking.
+
+    Mocks out tracking functions and provides `assert_tracking` context manager.
+
+    Expects:
+    * to be subclass of Django test case
+    * to be provided fields self.user and self.user_org
+    """
+    event = None  # Override in subclass
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.segment_patcher = mock.patch('registrar.apps.api.segment.track', autospec=True)
+        cls.logging_patcher = mock.patch('registrar.apps.api.mixins.logger', autospec=True)
+        cls.mock_segment_track = cls.segment_patcher.start()
+        cls.mock_logging = cls.logging_patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.segment_patcher.stop()
+        cls.logging_patcher.stop()
+
+    @contextmanager
+    def assert_tracking(self, user=None, event=None, status_code=None, **kwargs):
+        """
+        Context manager to make sure event was tracked within given kwargs
+        exactly once.
+        """
+        properties = kwargs.copy()
+        properties['category'] = TRACKING_CATEGORY
+        user = user or self.user
+        if 'user_organizations' not in properties:
+            properties['user_organizations'] = [
+                org.name for org in get_user_organizations(user)
+            ]
+        event = event or self.event
+        if not status_code:
+            if kwargs.get('missing_permissions'):
+                status_code = 403
+            elif kwargs.get('failure', '').endswith('_not_found'):
+                status_code = 404
+            elif kwargs.get('failure') == 'request_entity_too_large':
+                status_code = 413
+            elif kwargs.get('failure') == 'unprocessable_entity':
+                status_code = 422
+            else:
+                status_code = 200
+        properties['status_code'] = status_code
+        self.mock_segment_track.reset_mock()
+        self.mock_logging.reset_mock()
+
+        yield  # Call the code that we expect to fire the event
+
+        self.mock_segment_track.assert_called_once_with(
+            user.username,
+            event,
+            properties
+        )
+        self.mock_logging.info.assert_called_once_with(
+            '%s invoked on Registrar with properties %s',
+            event,
+            json.dumps(properties, skipkeys=True, sort_keys=True),
+        )
 
 
 class JwtMixin(object):

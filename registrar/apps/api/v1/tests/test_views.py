@@ -18,7 +18,7 @@ from rest_framework.test import APITestCase
 from user_tasks.tasks import UserTask
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
-from registrar.apps.api.tests.mixins import AuthRequestMixin
+from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import (
     post_job_failure,
@@ -36,7 +36,7 @@ from registrar.apps.enrollments.data import DiscoveryProgram, LMS_PROGRAM_COURSE
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
-class RegistrarAPITestCase(APITestCase):
+class RegistrarAPITestCase(TrackTestMixin, APITestCase):
     """ Base for tests of the Registrar API """
 
     api_root = '/api/v1/'
@@ -125,20 +125,27 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
 
     method = 'GET'
     path = 'programs'
+    event = 'registrar.v1.list_programs'
 
     def test_all_programs(self):
-        response = self.get('programs', self.edx_admin)
+        with self.assert_tracking(user=self.edx_admin):
+            response = self.get('programs', self.edx_admin)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 4)
 
     def test_all_programs_unauthorized(self):
-        response = self.get('programs', self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get('programs', self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
     @ddt.data(True, False)
     def test_list_programs(self, is_staff):
         user = self.edx_admin if is_staff else self.stem_admin
-        response = self.get('programs?org=stem-institute', user)
+        with self.assert_tracking(user=user, organization_filter='stem-institute'):
+            response = self.get('programs?org=stem-institute', user)
         self.assertEqual(response.status_code, 200)
         response_programs = sorted(response.data, key=lambda p: p['program_key'])
         self.assertListEqual(
@@ -154,11 +161,21 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         )
 
     def test_list_programs_unauthorized(self):
-        response = self.get('programs?org=stem-institute', self.hum_admin)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+                organization_filter='stem-institute',
+        ):
+            response = self.get('programs?org=stem-institute', self.hum_admin)
         self.assertEqual(response.status_code, 403)
 
     def test_org_not_found(self):
-        response = self.get('programs?org=business-univ', self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                failure='org_not_found',
+                organization_filter='business-univ',
+        ):
+            response = self.get('programs?org=business-univ', self.stem_admin)
         self.assertEqual(response.status_code, 404)
 
 
@@ -168,11 +185,13 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
 
     method = 'GET'
     path = 'programs/masters-in-english'
+    event = 'registrar.v1.get_program_detail'
 
     @ddt.data(True, False)
     def test_get_program(self, is_staff):
         user = self.edx_admin if is_staff else self.hum_admin
-        response = self.get('programs/masters-in-english', user)
+        with self.assert_tracking(user=user, program_key='masters-in-english'):
+            response = self.get('programs/masters-in-english', user)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.data,
@@ -182,11 +201,21 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
         )
 
     def test_get_program_unauthorized(self):
-        response = self.get('programs/masters-in-english', self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-english',
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get('programs/masters-in-english', self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
     def test_program_not_found(self):
-        response = self.get('programs/masters-in-polysci', self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-polysci',
+                failure='program_not_found',
+        ):
+            response = self.get('programs/masters-in-polysci', self.stem_admin)
         self.assertEqual(response.status_code, 404)
 
 
@@ -196,6 +225,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
 
     method = 'GET'
     path = 'programs/masters-in-english/courses'
+    event = 'registrar.v1.get_program_courses'
 
     program_uuid = str(uuid.uuid4())
 
@@ -232,8 +262,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             ]
         )
 
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
-            response = self.get('programs/masters-in-english/courses', user)
+        with self.assert_tracking(user=user, program_key='masters-in-english'):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
+                response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
@@ -246,7 +277,12 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         )
 
     def test_get_program_courses_unauthorized(self):
-        response = self.get('programs/masters-in-cs/courses', self.hum_admin)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-cs',
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
+        ):
+            response = self.get('programs/masters-in-cs/courses', self.hum_admin)
         self.assertEqual(response.status_code, 403)
 
     @mock_oauth_login
@@ -263,8 +299,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             }]
         )
 
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
-            response = self.get('programs/masters-in-english/courses', user)
+        with self.assert_tracking(user=user, program_key='masters-in-english'):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
+                response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data, [])
@@ -283,8 +320,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             }]
         )
 
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
-            response = self.get('programs/masters-in-english/courses', user)
+        with self.assert_tracking(user=user, program_key='masters-in-english'):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
+                response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data, [])
@@ -328,8 +366,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             }],
         )
 
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
-            response = self.get('programs/masters-in-cs/courses', user)
+        with self.assert_tracking(user=user, program_key='masters-in-cs'):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program):
+                response = self.get('programs/masters-in-cs/courses', user)
 
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
@@ -354,7 +393,12 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         )
 
     def test_program_not_found(self):
-        response = self.get('programs/masters-in-polysci/courses', self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-polysci',
+                failure='program_not_found'
+        ):
+            response = self.get('programs/masters-in-polysci/courses', self.stem_admin)
         self.assertEqual(response.status_code, 404)
 
 
@@ -393,23 +437,51 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('enrolled'),
         ]
 
-        response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.hum_admin, req_data)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-cs',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.request(
+                self.method,
+                'programs/masters-in-cs/enrollments/',
+                self.hum_admin,
+                req_data,
+            )
         self.assertEqual(response.status_code, 403)
 
     def test_program_insufficient_permissions(self):
         req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_user, req_data)
+        with self.assert_tracking(
+                user=self.stem_user,
+                program_key='masters-in-cs',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.request(
+                self.method,
+                'programs/masters-in-cs/enrollments/',
+                self.stem_user,
+                req_data,
+            )
         self.assertEqual(response.status_code, 403)
 
     def test_program_not_found(self):
         req_data = [
             self.student_enrollment('enrolled'),
         ]
-        response = self.request(
-            self.method, 'programs/uan-salsa-dancing-with-sharks/enrollments/', self.stem_admin, req_data
-        )
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='uan-salsa-dancing-with-sharks',
+                failure='program_not_found',
+        ):
+            response = self.request(
+                self.method,
+                'programs/uan-salsa-dancing-with-sharks/enrollments/',
+                self.stem_admin,
+                req_data,
+            )
         self.assertEqual(response.status_code, 404)
 
     @mock_oauth_login
@@ -428,8 +500,14 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('pending', '003'),
         ]
 
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
-            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+        with self.assert_tracking(user=self.stem_admin, program_key='masters-in-cs'):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+                response = self.request(
+                    self.method,
+                    'programs/masters-in-cs/enrollments/',
+                    self.stem_admin,
+                    req_data,
+                )
 
         lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
         self.assertListEqual(lms_request_body, [
@@ -463,8 +541,18 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('pending', '003'),
         ]
 
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
-            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-cs',
+                failure='unprocessable_entity',
+        ):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+                response = self.request(
+                    self.method,
+                    'programs/masters-in-cs/enrollments/',
+                    self.stem_admin,
+                    req_data,
+                )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.data, 'invalid enrollment record')
 
@@ -483,25 +571,41 @@ class ProgramEnrollmentWriteMixin(object):
             self.student_enrollment('enrolled', '002'),
             self.student_enrollment('not_a_valid_value', '003'),
         ]
-
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
-            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-cs',
+                status_code=207,
+        ):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+                response = self.request(
+                    self.method,
+                    'programs/masters-in-cs/enrollments/',
+                    self.stem_admin,
+                    req_data,
+                )
         self.assertEqual(response.status_code, 207)
         self.assertDictEqual(response.data, expected_lms_response)
 
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_enrollment('enrolled')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
 
-        response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-cs',
+                failure='request_entity_too_large',
+        ):
+            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 413)
 
 
 class ProgramEnrollmentPostTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
     method = 'POST'
+    event = 'registrar.v1.post_program_enrollment'
 
 
 class ProgramEnrollmentPatchTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
     method = 'PATCH'
+    event = 'registrar.v1.patch_program_enrollment'
 
 
 @ddt.ddt
@@ -509,6 +613,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
     """ Tests for GET /api/v1/programs/{program_key}/enrollments endpoint """
     method = 'GET'
     path = 'programs/masters-in-english/enrollments'
+    event = 'registrar.v1.get_program_enrollment'
 
     enrollments = [
         {
@@ -540,9 +645,22 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
     @ddt.unpack
     def test_ok(self, format_param, expected_format, expected_contents, _mock):
         format_suffix = "?fmt=" + format_param if format_param else ""
-        response = self.get(self.path + format_suffix, self.hum_admin)
+        kwargs = {'result_format': format_param} if format_param else {}
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                status_code=202,
+                **kwargs
+        ):
+            response = self.get(self.path + format_suffix, self.hum_admin)
         self.assertEqual(response.status_code, 202)
-        job_response = self.get(response.data['job_url'], self.hum_admin)
+        with self.assert_tracking(
+                event='registrar.v1.get_job_status',
+                user=self.hum_admin,
+                job_id=response.data['job_id'],
+                job_state='Succeeded',
+        ):
+            job_response = self.get(response.data['job_url'], self.hum_admin)
         self.assertEqual(job_response.status_code, 200)
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
@@ -553,19 +671,30 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         self.assertEqual(file_response.text, expected_contents)
 
     def test_permission_denied(self):
-        response = self.get(self.path, self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-english',
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
+        ):
+            response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
     def test_program_not_found(self):
-        response = self.get('programs/masters-in-polysci/courses', self.hum_admin)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-polysci',
+                failure='program_not_found',
+        ):
+            response = self.get('programs/masters-in-polysci/enrollments', self.hum_admin)
         self.assertEqual(response.status_code, 404)
 
 
 @ddt.ddt
-class CourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     """ Tests for GET /api/v1/programs/{program_key}/enrollments endpoint """
     method = 'GET'
     path = 'programs/masters-in-english/courses/HUMx+English-550+Spring/enrollments'
+    event = 'registrar.v1.get_course_enrollment'
 
     program_uuid = str(uuid.uuid4())
     disco_program = DiscoveryProgram.from_json(program_uuid, {
@@ -612,9 +741,23 @@ class CourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMix
     @ddt.unpack
     def test_ok(self, format_param, expected_format, expected_contents, _mock1, _mock2):
         format_suffix = "?fmt=" + format_param if format_param else ""
-        response = self.get(self.path + format_suffix, self.hum_admin)
+        kwargs = {'result_format': format_param} if format_param else {}
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                course_key='HUMx+English-550+Spring',
+                status_code=202,
+                **kwargs
+        ):
+            response = self.get(self.path + format_suffix, self.hum_admin)
         self.assertEqual(response.status_code, 202)
-        job_response = self.get(response.data['job_url'], self.hum_admin)
+        with self.assert_tracking(
+                event='registrar.v1.get_job_status',
+                user=self.hum_admin,
+                job_id=response.data['job_id'],
+                job_state='Succeeded',
+        ):
+            job_response = self.get(response.data['job_url'], self.hum_admin)
         self.assertEqual(job_response.status_code, 200)
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
@@ -626,24 +769,36 @@ class CourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMix
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
     def test_permission_denied(self, _mock):
-        response = self.get(self.path, self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-english',
+                course_key='HUMx+English-550+Spring',
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
+        ):
+            response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
     @ddt.data(
         # Bad program
-        ('masters-in-polysci', 'course-v1:HUMx+English-550+Spring'),
+        ('masters-in-polysci', 'course-v1:HUMx+English-550+Spring', 'program_not_found'),
         # Good program, course key formatted correctly, but course does not exist
-        ('masters-in-english', 'course-v1:STEMx+Biology-440+Fall'),
-        # Good program, course key formatted incorrectly
-        ('masters-in-english', 'not-a-course-key-!@#$%^&*(),.?/\'\"\\{}[]~`"'),
+        ('masters-in-english', 'course-v1:STEMx+Biology-440+Fall', 'course_not_found'),
+        # Good program, course key matches URL but is formatted incorrectly
+        ('masters-in-english', 'not-a-course-key:a+b+c', 'course_not_found'),
     )
     @ddt.unpack
-    def test_not_found(self, program_key, course_key, _mock):
+    def test_not_found(self, program_key, course_key, expected_failure, _mock):
         path_fmt = 'programs/{}/courses/{}/enrollments'
-        response = self.get(
-            path_fmt.format(program_key, course_key), self.hum_admin
-        )
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key=program_key,
+                course_key=course_key,
+                failure=expected_failure,
+        ):
+            response = self.get(
+                path_fmt.format(program_key, course_key), self.hum_admin
+            )
         self.assertEqual(response.status_code, 404)
 
 
@@ -651,10 +806,16 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
     """ Tests for GET /api/v1/jobs/{job_id} endpoint """
     method = 'GET'
     path = 'jobs/a6393974-cf86-4e3b-a21a-d27e17932447'
+    event = 'registrar.v1.get_job_status'
 
     def test_successful_job(self):
         job_id = start_job(self.stem_admin, _succeeding_job)
-        job_respose = self.get('jobs/' + job_id, self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                job_id=job_id,
+                job_state='Succeeded',
+        ):
+            job_respose = self.get('jobs/' + job_id, self.stem_admin)
         self.assertEqual(job_respose.status_code, 200)
 
         job_status = job_respose.data
@@ -671,7 +832,12 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
     def test_failed_job(self, mock_jobs_logger):
         FAIL_MESSAGE = "everything is broken"
         job_id = start_job(self.stem_admin, _failing_job, FAIL_MESSAGE)
-        job_respose = self.get('jobs/' + job_id, self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                job_id=job_id,
+                job_state='Failed',
+        ):
+            job_respose = self.get('jobs/' + job_id, self.stem_admin)
         self.assertEqual(job_respose.status_code, 200)
 
         job_status = job_respose.data
@@ -686,18 +852,33 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
 
     def test_job_permission_denied(self):
         job_id = start_job(self.stem_admin, _succeeding_job)
-        job_respose = self.get('jobs/' + job_id, self.hum_admin)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                job_id=job_id,
+                missing_permissions=[perms.JOB_GLOBAL_READ],
+        ):
+            job_respose = self.get('jobs/' + job_id, self.hum_admin)
         self.assertEqual(job_respose.status_code, 403)
 
     def test_job_global_read_permission(self):
         job_id = start_job(self.stem_admin, _succeeding_job)
         assign_perm(JOB_GLOBAL_READ, self.hum_admin)
-        job_respose = self.get('jobs/' + job_id, self.hum_admin)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                job_id=job_id,
+                job_state='Succeeded',
+        ):
+            job_respose = self.get('jobs/' + job_id, self.hum_admin)
         self.assertEqual(job_respose.status_code, 200)
 
     def test_job_does_not_exist(self):
         nonexistant_job_id = str(uuid.uuid4())
-        job_respose = self.get('jobs/' + nonexistant_job_id, self.stem_admin)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                job_id=nonexistant_job_id,
+                failure='job_not_found',
+        ):
+            job_respose = self.get('jobs/' + nonexistant_job_id, self.stem_admin)
         self.assertEqual(job_respose.status_code, 404)
 
 
@@ -751,7 +932,15 @@ class ProgramCourseEnrollmentWriteMixin(object):
         ]
 
         # The humanities admin can't access data from the CS program
-        response = self.request(self.method, self.get_url(), self.hum_admin, req_data)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key=self.cs_program.key,
+                course_key=self.course_id,
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.hum_admin, req_data
+            )
         self.assertEqual(response.status_code, 403)
 
     def test_program_insufficient_permissions(self):
@@ -759,7 +948,15 @@ class ProgramCourseEnrollmentWriteMixin(object):
             self.student_course_enrollment('active'),
         ]
         # The STEM learner doesn't have sufficient permissions to enroll learners
-        response = self.request(self.method, self.get_url(), self.stem_user, req_data)
+        with self.assert_tracking(
+                user=self.stem_user,
+                program_key=self.cs_program.key,
+                course_key=self.course_id,
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.stem_user, req_data
+            )
         self.assertEqual(response.status_code, 403)
 
     def test_program_not_found(self):
@@ -767,9 +964,18 @@ class ProgramCourseEnrollmentWriteMixin(object):
             self.student_course_enrollment('active'),
         ]
         # this program just doesn't exist
-        response = self.request(
-            self.method, self.get_url(program_key='uan-salsa-dancing-with-sharks'), self.stem_admin, req_data
-        )
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='uan-salsa-dancing-with-sharks',
+                course_key=self.course_id,
+                failure='program_not_found',
+        ):
+            response = self.request(
+                self.method,
+                self.get_url(program_key='uan-salsa-dancing-with-sharks'),
+                self.stem_admin,
+                req_data,
+            )
         self.assertEqual(response.status_code, 404)
 
     @mock_oauth_login
@@ -788,7 +994,14 @@ class ProgramCourseEnrollmentWriteMixin(object):
             self.student_course_enrollment('inactive', '003'),
         ]
 
-        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_key=self.course_id,
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.stem_admin, req_data
+            )
 
         lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
         self.assertListEqual(lms_request_body, [
@@ -819,7 +1032,15 @@ class ProgramCourseEnrollmentWriteMixin(object):
             self.student_course_enrollment('inactive', '003'),
         ]
 
-        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_key=self.course_id,
+                failure='unprocessable_entity',
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.stem_admin, req_data
+            )
 
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.data, 'invalid enrollment record')
@@ -840,7 +1061,15 @@ class ProgramCourseEnrollmentWriteMixin(object):
             self.student_course_enrollment('not_a_valid_value', '003'),
         ]
 
-        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_key=self.course_id,
+                status_code=207,
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.stem_admin, req_data
+            )
 
         self.assertEqual(response.status_code, 207)
         self.assertDictEqual(response.data, expected_lms_response)
@@ -848,14 +1077,24 @@ class ProgramCourseEnrollmentWriteMixin(object):
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_course_enrollment('active')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
 
-        response = self.request(self.method, self.get_url(), self.stem_admin, req_data)
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_key=self.course_id,
+                failure='request_entity_too_large',
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.stem_admin, req_data
+            )
 
         self.assertEqual(response.status_code, 413)
 
 
 class ProgramCourseEnrollmentPostTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
     method = 'POST'
+    event = 'registrar.v1.post_course_enrollment'
 
 
 class ProgramCourseEnrollmentPatchTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
     method = 'PATCH'
+    event = 'registrar.v1.patch_course_enrollment'
