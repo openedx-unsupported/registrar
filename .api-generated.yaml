@@ -1009,6 +1009,31 @@ paths:
           integration.request.path.program_key: method.request.path.program_key
         type: http_proxy
         uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
+  /v1/jobs/{job_id}/:
+    get:
+      operationId: registrar_v1_get_job_status
+      parameters:
+      - description: UUID-4 job identifier
+        example: 3869c0d5-e88f-4088-bf1d-409222492869
+        format: uuid
+        in: path
+        name: job_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/JobStatus'
+      summary: Get the status of a job
+      tags:
+      - v1
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        requestParameters:
+          integration.request.path.job_id: method.request.path.job_id
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/jobs/{job_id}/
   /v1/programs/:
     get:
       description: List all programs, requires an organization key for non-admins
@@ -1038,6 +1063,10 @@ paths:
       summary: List programs
       tags:
       - v1
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/
   /v1/programs/{program_key}/:
     get:
       operationId: registrar_v1_get_program
@@ -1065,6 +1094,12 @@ paths:
       summary: Get Program
       tags:
       - v1
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/
   /v1/programs/{program_key}/courses/:
     get:
       operationId: registrar_v1_list_courses
@@ -1094,9 +1129,227 @@ paths:
       summary: List program courses
       tags:
       - v1
-  /v1/programs/{program_key}/enrollments/:
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/
+  /v1/programs/{program_key}/courses/{course_id}/enrollments/:
+    get:
+      description: Submit a job to retrieve course enrollment data
+      operationId: registrar_v1_get_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: "User is not authorized to retrieve enrollments for program\
+            \ course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+      summary: Request course enrollment data
+      tags:
+      - v1
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        requestParameters:
+          integration.request.path.course_id: method.request.path.course_id
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/
     patch:
-      operationsId: registrar_v1_patch_program_enrollments
+      operationId: registrar_v1_patch_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/CourseEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students' enrollments were successfully modified.
+          examples:
+            application/json:
+              student_0128fe4a: active
+              student_aae45c81: inactive
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        207:
+          description: "Some, but not all, students' enrollments were successfully\
+            \ modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: active
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students' enrollments may be\
+            \ modified per request.\n"
+        422:
+          description: "None of the students' enrollments were successfully modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+      summary: Modify course enrollments
+      tags:
+      - v1
+      x-amazon-apigateway-integration:
+        httpMethod: PATCH
+        requestParameters:
+          integration.request.path.course_id: method.request.path.course_id
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/
+    post:
+      operationId: registrar_v1_post_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/CourseEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: inactive
+              student_aae45c81: active
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        207:
+          description: Some, but not all, students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: inactive
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students may be supplied per\
+            \ request.\n"
+        422:
+          description: None of the students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+      summary: Enroll students in a course
+      tags:
+      - v1
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        requestParameters:
+          integration.request.path.course_id: method.request.path.course_id
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/
+  /v1/programs/{program_key}/enrollments/:
+    get:
+      description: Submit a job to retrieve program enrollment data
+      operationId: registrar_v1_get_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: User is not authorized to retrieve enrollment of program.
+        404:
+          description: Program was not found.
+      summary: Request program enrollment data
+      tags:
+      - v1
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/
+    patch:
+      operationId: registrar_v1_patch_program_enrollments
       parameters:
       - description: edX program key
         example: uexample-master-of-science
@@ -1147,6 +1400,12 @@ paths:
       summary: Modify program enrollments
       tags:
       - v1
+      x-amazon-apigateway-integration:
+        httpMethod: PATCH
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/
     post:
       operationId: registrar_v1_post_program_enrollments
       parameters:
@@ -1198,6 +1457,12 @@ paths:
       summary: Enroll students in a program
       tags:
       - v1
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        requestParameters:
+          integration.request.path.program_key: method.request.path.program_key
+        type: http_proxy
+        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/
 produces:
 - application/json
 program_enrollment_body:
