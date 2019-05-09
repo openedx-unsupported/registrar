@@ -8,7 +8,6 @@ from django.core.exceptions import (
     PermissionDenied,
 )
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -16,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.v1.mixins import (
     AuthMixin,
     CourseSpecificViewMixin,
@@ -23,7 +23,6 @@ from registrar.apps.api.v1.mixins import (
     JobInvokerMixin,
     ProgramSpecificViewMixin,
 )
-import registrar.apps.api.segment as segment
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobStatusSerializer,
@@ -46,7 +45,7 @@ from registrar.apps.enrollments.tasks import (
 logger = logging.getLogger(__name__)
 
 
-class ProgramListView(AuthMixin, ListAPIView):
+class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
@@ -64,17 +63,14 @@ class ProgramListView(AuthMixin, ListAPIView):
 
     serializer_class = ProgramSerializer
     permission_required = perms.ORGANIZATION_READ_METADATA
+    event_method_map = {'GET': 'registrar.v1.list_programs'}
+    event_parameter_map = {'org': 'organization_filter'}
 
     def get_queryset(self):
         org_key = self.request.GET.get('org', None)
         programs = Program.objects.all()
         if org_key:
             programs = programs.filter(managing_organization__key=org_key)
-        segment.track(
-            self.request.user.username,
-            'registrar.v1.list_programs',
-            {'organization_key': org_key}
-        )
         return programs
 
     def get_permission_object(self):
@@ -87,7 +83,11 @@ class ProgramListView(AuthMixin, ListAPIView):
         """
         org_key = self.request.GET.get('org')
         if org_key:
-            return get_object_or_404(Organization, key=org_key)
+            try:
+                return Organization.objects.get(key=org_key)
+            except Organization.DoesNotExist:
+                self.add_tracking_data(failure='org_not_found')
+                raise Http404()
         else:
             # By returning None, Guardian will check for global Organization
             # access instead of access against a specific Organization
@@ -107,6 +107,8 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     """
     serializer_class = ProgramSerializer
     permission_required = perms.ORGANIZATION_READ_METADATA
+    event_method_map = {'GET': 'registrar.v1.get_program_detail'}
+    event_parameter_map = {'program_key': 'program_key'}
 
     def get_object(self):
         return self.program
@@ -125,6 +127,8 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     """
     serializer_class = CourseRunSerializer
     permission_required = perms.ORGANIZATION_READ_METADATA
+    event_method_map = {'GET': 'registrar.v1.get_program_courses'}
+    event_parameter_map = {'program_key': 'program_key'}
 
     def get_queryset(self):
         uuid = self.program.discovery_uuid
@@ -175,13 +179,23 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
     """
+    event_method_map = {
+        'GET': 'registrar.v1.get_program_enrollment',
+        'POST': 'registrar.v1.post_program_enrollment',
+        'PATCH': 'registrar.v1.patch_program_enrollment',
+    }
+    event_parameter_map = {
+        'program_key': 'program_key',
+        'fmt': 'result_format',
+    }
+
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves program enrollment data.
         """
         return self.invoke_job(list_program_enrollments, self.program.key)
 
-    def write_program_enrollments(self, request):
+    def handle_program_enrollments(self, request):
         """
         Handle Create/Update requests for enrollments
         """
@@ -205,15 +219,16 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         else:
             raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
 
+        self.add_tracking_data_from_lms_response(response)
         return Response(response.json(), status=response.status_code)
 
     def post(self, request, program_key):
         """ POST handler """
-        return self.write_program_enrollments(request)
+        return self.handle_program_enrollments(request)
 
     def patch(self, request, program_key):  # pylint: disable=unused-argument
         """ PATCH handler """
-        return self.write_program_enrollments(request)
+        return self.handle_program_enrollments(request)
 
 
 class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentMixin, APIView):
@@ -259,6 +274,16 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
     """
+    event_method_map = {
+        'GET': 'registrar.v1.get_course_enrollment',
+        'POST': 'registrar.v1.post_course_enrollment',
+        'PATCH': 'registrar.v1.patch_course_enrollment',
+    }
+    event_parameter_map = {
+        'program_key': 'program_key',
+        'course_id': 'course_key',
+        'fmt': 'result_format',
+    }
 
     def get(self, request, *args, **kwargs):
         """
@@ -271,7 +296,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             self.kwargs['course_id'],
         )
 
-    def write_program_course_enrollments(self, request, course_id):
+    def handle_program_course_enrollments(self, request, course_id):
         """
         Handle create/update requests for program/course enrollments
         """
@@ -287,19 +312,20 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         else:
             raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
 
+        self.add_tracking_data_from_lms_response(response)
         return Response(response.json(), status=response.status_code)
 
     # pylint: disable=unused-argument
     def post(self, request, program_key, course_id):
         """ POST handler """
-        return self.write_program_course_enrollments(request, course_id)
+        return self.handle_program_course_enrollments(request, course_id)
 
     def patch(self, request, program_key, course_id):
         """ PATCH handler """
-        return self.write_program_course_enrollments(request, course_id)
+        return self.handle_program_course_enrollments(request, course_id)
 
 
-class JobStatusRetrieveView(RetrieveAPIView):
+class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
     """
     A view for getting the status of a job.
 
@@ -322,12 +348,17 @@ class JobStatusRetrieveView(RetrieveAPIView):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = JobStatusSerializer
+    event_method_map = {'GET': 'registrar.v1.get_job_status'}
+    event_parameter_map = {'job_id': 'job_id'}
 
     def get_object(self):
         try:
-            job_status = get_job_status(self.request.user, self.kwargs['job_id'])
+            status = get_job_status(self.request.user, self.kwargs['job_id'])
         except PermissionDenied:
+            self.add_tracking_data(missing_permissions=[perms.JOB_GLOBAL_READ])
             raise
         except ObjectDoesNotExist:
+            self.add_tracking_data(failure='job_not_found')
             raise Http404()
-        return job_status
+        self.add_tracking_data(job_state=status.state)
+        return status

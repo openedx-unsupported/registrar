@@ -2,9 +2,6 @@
 A mock version of the v1 API, providing dummy data for partner integration
 testing.
 """
-import json
-import logging
-
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
@@ -21,7 +18,7 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.api import segment
+from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobAcceptanceSerializer,
@@ -46,8 +43,6 @@ from registrar.apps.api.v1_mock.data import (
 )
 from registrar.apps.core import permissions as perms
 
-logger = logging.getLogger(__name__)
-
 
 def global_read_metadata_perm(user):
     """
@@ -57,54 +52,7 @@ def global_read_metadata_perm(user):
     return user.has_perm(perms.ORGANIZATION_READ_METADATA)
 
 
-class TrackViewMixin(object):
-    """
-    A mixin to provide tracking utility for all the views
-    This mixin relies on the request object from API View. Therefore
-    should not be used in non Django Views
-    The tracking would send events to both segment and logging files
-    """
-    event_map = {
-        'POST': None,
-        'PATCH': None,
-        'GET': None,
-    }
-
-    def track(self, **kwargs):
-        """
-        Convenient function to faciliate the segment tracking on the view
-        """
-        event_name = self.event_map.get(self.request.method)
-        if not event_name:
-            logger.error(
-                'Segment tracking event name not found for request method [%s]',
-                self.request.method
-            )
-            return
-
-        tracking_properties = segment.get_tracking_properties(
-            self.request.user,
-            **kwargs,
-        )
-
-        segment.track(
-            self.request.user.username,
-            event_name,
-            tracking_properties,
-        )
-
-        logger.info(
-            '%s invoked on Registrar with properties %s',
-            event_name,
-            json.dumps(
-                tracking_properties,
-                skipkeys=True,
-                sort_keys=True,
-            ),
-        )
-
-
-class MockProgramListView(ListAPIView, TrackViewMixin):
+class MockProgramListView(TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
@@ -124,7 +72,8 @@ class MockProgramListView(ListAPIView, TrackViewMixin):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = ProgramSerializer
-    event_map = {'GET': 'registrar.v1_mock.list_programs'}
+    event_method_map = {'GET': 'registrar.v1_mock.list_programs'}
+    event_parameter_map = {'org': 'organization_filter'}
 
     @property
     def org_key(self):
@@ -144,14 +93,15 @@ class MockProgramListView(ListAPIView, TrackViewMixin):
         if not self.org_key and global_read_metadata_perm(request.user):
             return
         elif not self.org_key:
-            self.track(permission_failure='no_org_key')
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA]
+            )
             raise PermissionDenied()
         elif self.organization and not self.organization.metadata_readable:
             if global_read_metadata_perm(request.user):
                 return
-            self.track(
-                organization_filter=self.org_key,
-                permission_failure='no_org_permission'
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA]
             )
             raise PermissionDenied()
 
@@ -160,14 +110,10 @@ class MockProgramListView(ListAPIView, TrackViewMixin):
             # We've already checked permissions, so if we've made it here
             # without an org_key, the requesting user must have global
             # metadata read permissions
-            self.track()
             return FAKE_PROGRAMS
         if not self.organization:
-            self.track(failure='org_not_found', org_key=self.org_key)
+            self.add_tracking_data(failure='org_not_found')
             raise Http404()
-
-        self.track(organization_filter=self.org_key)
-
         return FAKE_ORG_PROGRAMS[self.org_key]
 
 
@@ -183,10 +129,7 @@ class MockProgramSpecificViewMixin(TrackViewMixin):
         """
         program_key = self.kwargs['program_key']
         if program_key not in FAKE_PROGRAM_DICT:
-            self.track(
-                program_key=program_key,
-                failure='program_not_found',
-            )
+            self.add_tracking_data(failure='program_not_found')
             raise Http404()
         return FAKE_PROGRAM_DICT[program_key]
 
@@ -205,11 +148,7 @@ class MockProgramCourseSpecificViewMixin(MockProgramSpecificViewMixin):
         program_course_runs = FAKE_PROGRAM_COURSE_RUNS[self.program.key]
         course = next(filter(lambda run: run.key == course_id, program_course_runs), None)
         if course is None:
-            self.track(
-                program_key=self.program.key,
-                course_key=course_id,
-                failure='course_not_found',
-            )
+            self.add_tracking_data(failure='course_not_found')
             raise Http404()
         return course
 
@@ -230,16 +169,15 @@ class MockProgramRetrieveView(MockProgramSpecificViewMixin, RetrieveAPIView):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = ProgramSerializer
-    event_map = {'GET': 'registrar.v1_mock.get_program_detail'}
+    event_method_map = {'GET': 'registrar.v1_mock.get_program_detail'}
+    event_parameter_map = {'program_key': 'program_key'}
 
     def get_object(self):
         if self.program.managing_organization.metadata_readable:
-            self.track(program_key=self.program.key)
             return self.program
         else:
-            self.track(
-                program_key=self.program.key,
-                permission_failure='no_program_read_permission',
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA]
             )
             raise PermissionDenied()
 
@@ -260,21 +198,20 @@ class MockProgramCourseListView(MockProgramSpecificViewMixin, ListAPIView):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseRunSerializer
-    event_map = {'GET': 'registrar.v1_mock.get_program_courses'}
+    event_method_map = {'GET': 'registrar.v1_mock.get_program_courses'}
+    event_parameter_map = {'program_key': 'program_key'}
 
     def get_queryset(self):
         if self.program.managing_organization.metadata_readable:
-            self.track(program_key=self.program.key)
             return FAKE_PROGRAM_COURSE_RUNS[self.program.key]
         else:
-            self.track(
-                program_key=self.program.key,
-                permission_failure='no_program_read_permission',
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_READ_METADATA]
             )
             raise PermissionDenied()
 
 
-class EchoStatusesMixin(object):
+class EchoStatusesMixin(TrackViewMixin):
     """
     Provides the validate_and_echo_statuses function
     Classes that inherit from EchoStatusesMixin must implement get_serializer_class
@@ -284,27 +221,18 @@ class EchoStatusesMixin(object):
     def validate_and_echo_statuses(self, request):
         """ Enroll up to 25 students in program/course """
 
-        tracking_properties = {
-            'program_key': self.program.key
-        }
-        if hasattr(self, 'course'):
-            tracking_properties['course_key'] = self.course.key if self.course else None
-
         if not self.program.managing_organization.enrollments_writeable:
-            self.track(
-                **tracking_properties,
-                permission_failure='no_enrollments_write_permission',
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS]
             )
             raise PermissionDenied()
 
         if not isinstance(request.data, list):
+            self.add_tracking_data(failure='unprocessable_entity')
             raise ValidationError()
 
         if len(request.data) > 25:
-            self.track(
-                **tracking_properties,
-                failure='request_entity_too_large',
-            )
+            self.add_tracking_data(failure='request_entity_too_large')
             return Response(
                 'enrollment limit 25', HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
@@ -328,38 +256,27 @@ class EchoStatusesMixin(object):
                             enrollee_serializer.errors['status'][0].code == 'invalid_choice':
                         results[enrollee["student_key"]] = 'invalid-status'
                     else:
-                        self.track(
-                            **tracking_properties,
-                            failure='unprocessable_entity'
-                        )
+                        self.add_tracking_data(failure='unprocessable_entity')
                         return Response(
                             'invalid enrollment record',
                             HTTP_422_UNPROCESSABLE_ENTITY
                         )
                 except KeyError:
-                    self.track(
-                        **tracking_properties,
-                        failure='unprocessable_entity'
-                    )
+                    self.add_tracking_data(failure='unprocessable_entity')
                     return Response(
                         'student key required', HTTP_422_UNPROCESSABLE_ENTITY
                     )
 
         if not enrolled_students:
-            self.track(
-                **tracking_properties,
-                failure='unprocessable_entity'
-            )
+            self.add_tracking_data(failure='unprocessable_entity')
             return Response(results, HTTP_422_UNPROCESSABLE_ENTITY)
-        if len(request.data) != len(enrolled_students):
-            self.track(**tracking_properties)
+        if len(enrolled_students) != len(request.data):
             return Response(results, HTTP_207_MULTI_STATUS)
         else:
-            self.track(**tracking_properties)
             return Response(results)
 
 
-class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatusesMixin):
+class MockProgramEnrollmentView(MockProgramSpecificViewMixin, EchoStatusesMixin, APIView):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
@@ -401,11 +318,12 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
     """
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    event_map = {
+    event_method_map = {
         'GET': 'registrar.v1_mock.get_program_enrollment',
         'POST': 'registrar.v1_mock.post_program_enrollment',
         'PATCH': 'registrar.v1_mock.patch_program_enrollment',
     }
+    event_parameter_map = {'program_key': 'program_key'}
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -430,13 +348,11 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
         Submit a user task that retrieves program enrollment data.
         """
         if not self.program.managing_organization.enrollments_readable:
-            self.track(
-                program_key=self.program.key,
-                permission_failure='no_enrollments_read_permission',
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS]
             )
             raise PermissionDenied()
 
-        self.track(program_key=self.program.key)
         fake_job_id = invoke_fake_program_enrollment_listing_job(
             self.program.key
         )
@@ -451,7 +367,7 @@ class MockProgramEnrollmentView(APIView, MockProgramSpecificViewMixin, EchoStatu
         )
 
 
-class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, EchoStatusesMixin):
+class MockCourseEnrollmentView(MockProgramCourseSpecificViewMixin, EchoStatusesMixin, APIView):
     """
     A view for enrolling students in a course.
 
@@ -475,10 +391,14 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
 
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    event_map = {
+    event_method_map = {
         'GET': 'registrar.v1_mock.get_course_enrollment',
         'POST': 'registrar.v1_mock.post_course_enrollment',
         'PATCH': 'registrar.v1_mock.patch_course_enrollment',
+    }
+    event_parameter_map = {
+        'program_key': 'program_key',
+        'course_id': 'course_key',
     }
 
     def get_serializer_class(self):
@@ -506,18 +426,12 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
         Submit a user task that retrieves course enrollment data.
         """
         if not self.program.managing_organization.enrollments_readable:
-            self.track(
-                program_key=self.program.key,
-                course_key=self.kwargs['course_id'],
-                permission_failure='no_enrollments_read_permission',
+            self.add_tracking_data(
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS]
             )
             raise PermissionDenied()
 
         self.course  # trigger 404  # pylint: disable=pointless-statement
-        self.track(
-            program_key=self.program.key,
-            course_key=self.course.key if self.course else None,
-        )
 
         fake_job_id = invoke_fake_course_enrollment_listing_job(
             self.program.key, self.course.key
@@ -533,7 +447,7 @@ class MockCourseEnrollmentView(APIView, MockProgramCourseSpecificViewMixin, Echo
         )
 
 
-class MockJobStatusRetrieveView(RetrieveAPIView, TrackViewMixin):
+class MockJobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
     """
     A view for getting the status of a job.
 
@@ -557,13 +471,15 @@ class MockJobStatusRetrieveView(RetrieveAPIView, TrackViewMixin):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = JobStatusSerializer
-    event_map = {'GET': 'registrar.v1_mock.get_job_status'}
+    event_method_map = {'GET': 'registrar.v1_mock.get_job_status'}
+    event_parameter_map = {'job_id': 'job_id'}
 
     def get_object(self):
         job_id = self.kwargs.get('job_id')
         job_status = get_fake_job_status(job_id, self.request.build_absolute_uri)
-        self.track(job_id=job_id, job_state=job_status.state)
         if job_status:
+            self.add_tracking_data(job_state=job_status.state)
             return job_status
         else:
+            self.add_tracking_data(failure='job_not_found')
             raise Http404

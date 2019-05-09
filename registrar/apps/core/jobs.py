@@ -65,6 +65,8 @@ def get_job_status(user, job_id):
         PermissionDenied: User may not read job status.
             Only (1) the creator of the job, and (2) users
             granted who have been `JOB_GLOBAL_READ` may read a job's status.
+
+    Returns: JobStatus
     """
     try:
         task_status = UserTaskStatus.objects.get(task_id=job_id)

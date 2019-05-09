@@ -1,5 +1,5 @@
 """
-Mixins for the public REST API.
+Mixins for the public V1 REST API.
 """
 from collections.abc import Iterable
 
@@ -8,7 +8,6 @@ from django.core.exceptions import (
     PermissionDenied,
 )
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.urls import resolve
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from guardian.shortcuts import get_objects_for_user
@@ -19,6 +18,7 @@ from rest_framework.status import HTTP_202_ACCEPTED
 
 from registrar.apps.api import exceptions
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
+from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import JobAcceptanceSerializer, ProgramEnrollmentRequestSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.enrollments.models import Program
@@ -27,7 +27,7 @@ from registrar.apps.core.jobs import start_job
 from registrar.apps.enrollments.data import DiscoveryProgram
 
 
-class AuthMixin(object):
+class AuthMixin(TrackViewMixin):
     """
     Mixin providing AuthN/AuthZ functionality for all our views to use.
 
@@ -78,7 +78,8 @@ class AuthMixin(object):
             raise NotAuthenticated()
 
         if self.staff_only and not request.user.is_staff:
-            self.unauthorized_response()
+            self.add_tracking_data(failure='user_is_not_staff')
+            self._unauthorized_response()
 
         required = self.get_permission_required(request)
         if isinstance(required, str):
@@ -91,14 +92,29 @@ class AuthMixin(object):
                 'returned {}'.format(required)
             )
 
-        if all(request.user.has_perm(perm) for perm in required):
-            return
+        missing_global_permissions = {
+            perm for perm in required
+            if not request.user.has_perm(perm)
+        }
         obj = self.get_permission_object()
-        if obj and all(request.user.has_perm(perm, obj) for perm in required):
-            return
-        self.unauthorized_response()
+        if not missing_global_permissions:
+            missing_permissions = set()
+        elif obj:
+            missing_permissions = {
+                perm for perm in required
+                if not request.user.has_perm(perm, obj)
+            }
+        else:
+            missing_permissions = missing_global_permissions
 
-    def unauthorized_response(self):
+        if missing_permissions:
+            self.add_tracking_data(missing_permissions=list(missing_permissions))
+            self._unauthorized_response()
+
+    def _unauthorized_response(self):
+        """
+        Raise 403 or 404, depending on `self.raise_404_if_unauthorized`.
+        """
         if self.raise_404_if_unauthorized:
             raise Http404()
         else:
@@ -143,7 +159,11 @@ class ProgramSpecificViewMixin(AuthMixin):
         """
         if not self._program:
             program_key = self.kwargs['program_key']
-            self._program = get_object_or_404(Program, key=program_key)
+            try:
+                self._program = Program.objects.get(key=program_key)
+            except Program.DoesNotExist:
+                self.add_tracking_data(failure='program_not_found')
+                raise Http404()
         return self._program
 
     def get_permission_object(self):
@@ -175,6 +195,7 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
             run.key for run in discovery_program.course_runs
         }
         if course_id not in program_course_run_ids:
+            self.add_tracking_data(failure='course_not_found')
             raise Http404()
 
 
@@ -192,6 +213,7 @@ class JobInvokerMixin(object):
         """
         file_format = self.request.query_params.get('fmt', 'json')
         if file_format not in {'json', 'csv'}:
+            self.add_tracking_data(failure='result_format_not_supported')
             raise Http404()
         job_id = start_job(self.request.user, task_fn, file_format, *args, **kwargs)
         job_url = build_absolute_api_url('api:v1:job-status', job_id=job_id)
@@ -222,7 +244,18 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         Validate enrollments request body
         """
         if not isinstance(enrollments, list):
+            self.add_tracking_data(failure='unprocessable_entity')
             raise ValidationError('expected request body type: List')
 
         if len(enrollments) > ENROLLMENT_WRITE_MAX_SIZE:
+            self.add_tracking_data(failure='request_entity_too_large')
             raise exceptions.EnrollmentPayloadTooLarge()
+
+    def add_tracking_data_from_lms_response(self, response):
+        """
+        Given an API response from the LMS, add necessary tracking data.
+        """
+        if response.status_code == 413:
+            self.add_tracking_data(failure='request_entity_too_large')
+        elif response.status_code == 422:
+            self.add_tracking_data(failure='unprocessable_entity')
