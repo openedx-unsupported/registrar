@@ -553,30 +553,86 @@ paths:
 
 
   ### V1 API ###
+  '/v1/jobs/{job_id}/':
+    get:
+      <<: *get_job_status
+      operationId: registrar_v1_get_job_status
+      tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_job
+        uri: 'https://${stageVariables.registrar_host}/api/v1/jobs/{job_id}/'
   '/v1/programs/':
     get:
       <<: *list_programs
       operationId: registrar_v1_list_programs
       tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/'
   '/v1/programs/{program_key}/':
     get:
       <<: *get_program
       operationId: registrar_v1_get_program
       tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_program
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/'
   '/v1/programs/{program_key}/courses/':
     get:
       <<: *list_courses
       operationId: registrar_v1_list_courses
       tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_program
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/'
+  '/v1/programs/{program_key}/courses/{course_id}/enrollments/':
+    get:
+      <<: *get_course_enrollments
+      operationId: registrar_v1_get_course_enrollments
+      tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_course
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/'
+    post:
+      <<: *post_course_enrollments
+      operationId: registrar_v1_post_course_enrollments
+      tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_course
+        httpMethod: POST
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/'
+    patch:
+      <<: *patch_course_enrollments
+      operationId: registrar_v1_patch_course_enrollments
+      tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_course
+        httpMethod: PATCH
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/'
   '/v1/programs/{program_key}/enrollments/':
+    get:
+      <<: *get_program_enrollments
+      operationId: registrar_v1_get_program_enrollments
+      tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_program
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/'
     post:
       <<: *post_program_enrollments
       operationId: registrar_v1_post_program_enrollments
       tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_program
+        httpMethod: POST
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/'
     patch:
       <<: *patch_program_enrollments
-      operationsId: registrar_v1_patch_program_enrollments
+      operationId: registrar_v1_patch_program_enrollments
       tags: ['v1']
+      x-amazon-apigateway-integration:
+        <<: *api_gateway_integration_program
+        httpMethod: PATCH
+        uri: 'https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/'
 
 
 ################################################################################
