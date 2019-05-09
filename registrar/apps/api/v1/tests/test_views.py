@@ -1,5 +1,4 @@
 """ Tests for API views. """
-
 import json
 from posixpath import join as urljoin
 import uuid
@@ -51,12 +50,12 @@ class RegistrarAPITestCase(APITestCase):
 
         cls.stem_org = OrganizationFactory(name='STEM Institute')
         cls.cs_program = ProgramFactory(
+            key="masters-in-cs",
             managing_organization=cls.stem_org,
-            title="Master's in CS"
         )
         cls.mech_program = ProgramFactory(
+            key="masters-in-me",
             managing_organization=cls.stem_org,
-            title="Master's in ME"
         )
 
         cls.stem_admin = UserFactory(username='stem-institute-admin')
@@ -73,12 +72,12 @@ class RegistrarAPITestCase(APITestCase):
 
         cls.hum_org = OrganizationFactory(name='Humanities College')
         cls.phil_program = ProgramFactory(
+            key="masters-in-philosophy",
             managing_organization=cls.hum_org,
-            title="Master's in Philosophy"
         )
         cls.english_program = ProgramFactory(
+            key="masters-in-english",
             managing_organization=cls.hum_org,
-            title="Master's in English"
         )
 
         cls.hum_admin = UserFactory(username='humanities-college-admin')
@@ -146,16 +145,10 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             response_programs,
             [
                 {
-                    'program_title': "Master's in CS",
                     'program_key': 'masters-in-cs',
-                    'program_url':
-                        'https://stem-institute.edx.org/masters-in-cs',
                 },
                 {
-                    'program_title': "Master's in ME",
                     'program_key': 'masters-in-me',
-                    'program_url':
-                        'https://stem-institute.edx.org/masters-in-me',
                 },
             ]
         )
@@ -184,10 +177,7 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
         self.assertDictEqual(
             response.data,
             {
-                'program_title': "Master's in English",
                 'program_key': 'masters-in-english',
-                'program_url':
-                    'https://humanities-college.edx.org/masters-in-english',
             },
         )
 
