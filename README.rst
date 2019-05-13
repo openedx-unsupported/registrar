@@ -67,39 +67,6 @@ Run the server::
 Finally, navigate to https://localhost:8000.
 
 
-How Authentication Works
-------------------------
-
-Authentication from the Registrar service against LMS or Discovery
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following steps will help your local Registrar container communicate with your local
-Discovery and LMS services.
-
-#. Create a ``registrar_worker`` user on LMS.
-
-#. Setup a Django Oauth Toolkit (DOT) application for ``registrar_worker`` in your local LMS.
-   See examples at http://localhost:18000/admin/oauth2_provider/application/
-
-#. When making API calls into LMS or Discovery service within Registrar,
-   leverage the edx-rest-api-client library https://github.com/edx/edx-rest-api-client/blob/master/edx_rest_api_client/client.py#L88
-   by providing `settings.BACKEND_SERVICE_EDX_OAUTH2_KEY` and `settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET`.
-
-
-Authentication from External system against Registrar API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-#. Configure the registrar service with the proper value for JWT token authentication. This should be automatically done using the configuration playbook at https://github.com/edx/configuration/blob/master/playbooks/roles/edx_django_service/defaults/main.yml#L158
-
-#. Create a new worker user for the school's system on LMS
-
-#. Using the worker user above, setup a Django Oauth Toolkit (DOT) application on LMS. This is done at http://localhost:18000/admin/oauth2_provider/application/
-
-#. Send the school their client_key and client_secret created from the step above
-
-#. The school's system need to use the client_key and client_secret above to get auth token from LMS, then use the auth token for API calls against registrar service
-
-
 API Documentation
 -----------------
 
