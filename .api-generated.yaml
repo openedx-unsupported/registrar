@@ -97,8 +97,6 @@ endpoints:
         examples:
           application/json:
             program_key: uexample-master-of-science
-            program_title: Master of Science
-            program_url: https://uexample.edx.org/uexample-master-of-science
         schema:
           $ref: '#/models/Program'
       403:
@@ -173,8 +171,6 @@ endpoints:
         examples:
           application/json:
           - program_key: uexample-master-of-science
-            program_title: Master of Science
-            program_url: https://uexample.edx.org/uexample-master-of-science
         schema:
           items:
             $ref: '#/models/Program'
@@ -516,11 +512,6 @@ models:
     properties:
       program_key:
         type: string
-      program_title:
-        type: string
-      program_url:
-        format: uri
-        type: string
     type: object
   ProgramEnrollmentRequest:
     properties:
@@ -596,8 +587,6 @@ paths:
           examples:
             application/json:
             - program_key: uexample-master-of-science
-              program_title: Master of Science
-              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             items:
               $ref: '#/models/Program'
@@ -629,8 +618,6 @@ paths:
           examples:
             application/json:
               program_key: uexample-master-of-science
-              program_title: Master of Science
-              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             $ref: '#/models/Program'
         403:
@@ -1050,8 +1037,6 @@ paths:
           examples:
             application/json:
             - program_key: uexample-master-of-science
-              program_title: Master of Science
-              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             items:
               $ref: '#/models/Program'
@@ -1083,8 +1068,6 @@ paths:
           examples:
             application/json:
               program_key: uexample-master-of-science
-              program_title: Master of Science
-              program_url: https://uexample.edx.org/uexample-master-of-science
           schema:
             $ref: '#/models/Program'
         403:

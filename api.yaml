@@ -131,9 +131,7 @@ endpoints:
           $ref: '#/models/Program'
         examples:
           application/json:
-            program_title: Master of Science
             program_key: uexample-master-of-science
-            program_url: https://uexample.edx.org/uexample-master-of-science
       403:
         description: User is not authorized to view program.
       404:
@@ -157,9 +155,7 @@ endpoints:
             $ref: '#/models/Program'
         examples:
           application/json:
-            - program_title: Master of Science
-              program_key: uexample-master-of-science
-              program_url: https://uexample.edx.org/uexample-master-of-science
+            - program_key: uexample-master-of-science
       403:
         description: User is not authorized to list specified programs.
       404:
@@ -644,11 +640,6 @@ models:
     properties:
       program_key:
         type: string
-      program_title:
-        type: string
-      program_url:
-        type: string
-        format: uri
   Course:
     type: object
     properties:
