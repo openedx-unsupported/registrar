@@ -10,4 +10,4 @@ oeps:
   oep-13: true    # REST API guidelines
   oep-0018: true  # Dependency management
   oep-30: true    # PII annotation
-owner: edx/neem
+owner: schenedx
