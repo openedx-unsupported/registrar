@@ -209,8 +209,8 @@ endpoints:
       - *program_path_param
       - *format_param
     responses:
-      200:
-        description: OK
+      202:
+        description: Job submitted.
         schema:
           $ref: '#/models/NewJob'
       403:
@@ -309,8 +309,8 @@ endpoints:
       - *course_path_param
       - *format_param
     responses:
-      200:
-        description: OK
+      202:
+        description: Job submitted.
         schema:
           $ref: '#/models/NewJob'
       403:
