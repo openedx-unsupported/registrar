@@ -106,6 +106,11 @@ CELERY_SEND_TASK_SENT_EVENT = True
 # let logging work as configured:
 CELERYD_HIJACK_ROOT_LOGGER = False
 
+# only registrar workers should receive registrar tasks.
+# explicitly define this to avoid name collisions with other services
+# using the same broker and the standard default queue name of "celery"
+CELERY_DEFAULT_QUEUE = 'registrar'
+
 ############################# END CELERY #################################3
 
 # Internationalization
