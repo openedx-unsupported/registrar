@@ -42,6 +42,8 @@ class DiscoveryProgram(object):
         * version (int)
         * loaded (datetime): When data was loaded from Course Discovery
         * uuid (str): Program UUID-4
+        * title (str): Program title
+        * url (str): Program marketing-url
         * active_curriculum_uuid (str): UUID-4 of active curriculum.
         * course_runs (list[DiscoveryCourseRun]):
             Flattened list of all course runs in program
@@ -51,12 +53,10 @@ class DiscoveryProgram(object):
     # so that all old entries will be ignored.
     class_version = 1
 
-    def __init__(self, version, loaded, uuid, active_curriculum_uuid, course_runs):
-        self.version = version
-        self.loaded = loaded
-        self.uuid = uuid
-        self.active_curriculum_uuid = active_curriculum_uuid
-        self.course_runs = course_runs
+    def __init__(self, **kwargs):
+        self.loaded = datetime.now()
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     @classmethod
     def get(cls, program_uuid, client=None):
@@ -96,6 +96,8 @@ class DiscoveryProgram(object):
         Builds a DiscoveryProgram instance from JSON data that has been
         returned by the Course Discovery service.
         """
+        program_title = program_data.get('title')
+        program_url = program_data.get('marketing_url')
         # this make two temporary assumptions (zwh 03/19)
         #  1. one *active* curriculum per program
         #  2. no programs are nested within a curriculum
@@ -111,11 +113,12 @@ class DiscoveryProgram(object):
                 )
             )
             return DiscoveryProgram(
-                cls.class_version,
-                datetime.now(),
-                program_uuid,
-                None,
-                [],
+                version=cls.class_version,
+                uuid=program_uuid,
+                title=program_title,
+                url=program_url,
+                active_curriculum_uuid=None,
+                course_runs=[],
             )
         active_curriculum_uuid = curriculum.get("uuid")
         course_runs = [
@@ -128,11 +131,12 @@ class DiscoveryProgram(object):
             for course_run in course.get("course_runs", [])
         ]
         return DiscoveryProgram(
-            cls.class_version,
-            datetime.now(),
-            program_uuid,
-            active_curriculum_uuid,
-            course_runs,
+            version=cls.class_version,
+            uuid=program_uuid,
+            title=program_title,
+            url=program_url,
+            active_curriculum_uuid=active_curriculum_uuid,
+            course_runs=course_runs,
         )
 
 

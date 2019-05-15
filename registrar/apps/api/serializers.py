@@ -20,10 +20,12 @@ class ProgramSerializer(serializers.ModelSerializer):
     Serializer for Programs.
     """
     program_key = serializers.CharField(source='key')
+    program_title = serializers.CharField(source='title')
+    program_url = serializers.URLField(source='url')
 
     class Meta:
         model = Program
-        fields = ('program_key',)
+        fields = ('program_key', 'program_title', 'program_url')
 
 
 class ProgramEnrollmentRequestSerializer(serializers.Serializer):
