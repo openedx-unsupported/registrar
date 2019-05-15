@@ -222,7 +222,11 @@ class GetDiscoveryProgramTestCase(TestCase):
         'title': 'Test Course 1',
         'marketing_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-1',
     }
+    program_title = "Master's in CS"
+    program_url = 'https://stem-institute.edx.org/masters-in-cs'
     programs_response = {
+        'title': program_title,
+        'marketing_url': program_url,
         'curricula': [{
             'uuid': curriculum_uuid,
             'is_active': True,
@@ -233,6 +237,8 @@ class GetDiscoveryProgramTestCase(TestCase):
         version=0,
         loaded=datetime.now(),
         uuid=program_uuid,
+        title=program_title,
+        url=program_url,
         active_curriculum_uuid=curriculum_uuid,
         course_runs=[
             DiscoveryCourseRun(
@@ -251,6 +257,8 @@ class GetDiscoveryProgramTestCase(TestCase):
         """ Asserts DiscoveryProgram equality, ignoring `loaded` field. """
         self.assertEqual(this_program.version, 1)
         self.assertEqual(this_program.uuid, that_program.uuid)
+        self.assertEqual(this_program.title, that_program.title)
+        self.assertEqual(this_program.url, that_program.url)
         self.assertEqual(this_program.active_curriculum_uuid, that_program.active_curriculum_uuid)
         self.assertEqual(this_program.course_runs, that_program.course_runs)
 

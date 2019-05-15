@@ -6,6 +6,7 @@ import uuid
 import boto3
 from celery import shared_task
 from django.conf import settings
+from django.core.cache import cache
 from django.urls import reverse
 import ddt
 from faker import Faker
@@ -16,6 +17,7 @@ import requests
 import responses
 from rest_framework.test import APITestCase
 from user_tasks.tasks import UserTask
+
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
@@ -32,6 +34,7 @@ from registrar.apps.core.tests.factories import (
     UserFactory,
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
+from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.data import DiscoveryProgram, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
@@ -40,6 +43,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
     """ Base for tests of the Registrar API """
 
     api_root = '/api/v1/'
+    TEST_PROGRAM_URL_TPL = 'http://registrar-test-data.edx.org/{key}/'
 
     @classmethod
     def setUpClass(cls):
@@ -96,6 +100,31 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             status=response_code
         )
 
+    def _discovery_program(self, program_uuid, title, url, curricula):
+        return DiscoveryProgram.from_json(
+            program_uuid,
+            {
+                'title': title,
+                'marketing_url': url,
+                'curricula': curricula
+            }
+        )
+
+    def _add_programs_to_cache(self):
+        programs = [self.cs_program, self.mech_program, self.english_program, self.phil_program]
+        for program in programs:
+            self._add_program_to_cache(
+                program,
+                str(program.key).replace('-', ' '),
+                self.TEST_PROGRAM_URL_TPL.format(key=program.key),
+            )
+
+    def _add_program_to_cache(self, program, title, url):
+        cache.set(
+            PROGRAM_CACHE_KEY_TPL.format(uuid=program.discovery_uuid),
+            self._discovery_program(program.discovery_uuid, title, url, [])
+        )
+
 
 class S3MockMixin(object):
     """
@@ -127,6 +156,10 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     path = 'programs'
     event = 'registrar.v1.list_programs'
 
+    def setUp(self):
+        super().setUp()
+        self._add_programs_to_cache()
+
     def test_all_programs(self):
         with self.assert_tracking(user=self.edx_admin):
             response = self.get('programs', self.edx_admin)
@@ -153,9 +186,13 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             [
                 {
                     'program_key': 'masters-in-cs',
+                    'program_title': 'masters in cs',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-cs/',
                 },
                 {
                     'program_key': 'masters-in-me',
+                    'program_title': 'masters in me',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-me/',
                 },
             ]
         )
@@ -187,6 +224,10 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
     path = 'programs/masters-in-english'
     event = 'registrar.v1.get_program_detail'
 
+    def setUp(self):
+        super().setUp()
+        self._add_programs_to_cache()
+
     @ddt.data(True, False)
     def test_get_program(self, is_staff):
         user = self.edx_admin if is_staff else self.hum_admin
@@ -197,6 +238,8 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
             response.data,
             {
                 'program_key': 'masters-in-english',
+                'program_title': 'masters in english',
+                'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
             },
         )
 
@@ -228,11 +271,8 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     event = 'registrar.v1.get_program_courses'
 
     program_uuid = str(uuid.uuid4())
-
-    def _discovery_program(self, curricula):
-        return DiscoveryProgram.from_json(
-            self.program_uuid, {'curricula': curricula}
-        )
+    program_title = Faker().sentence(nb_words=6)  # pylint: disable=no-member
+    program_url = Faker().uri()  # pylint: disable=no-member
 
     @ddt.data(True, False)
     @mock_oauth_login
@@ -241,6 +281,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         user = self.edx_admin if is_staff else self.hum_admin
 
         disco_program = self._discovery_program(
+            self.program_uuid,
+            self.program_title,
+            self.program_url,
             [
                 {
                     'is_active': False,
@@ -291,6 +334,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         user = self.hum_admin
 
         disco_program = self._discovery_program(
+            self.program_uuid,
+            self.program_title,
+            self.program_url,
             [{
                 'is_active': True,
                 'courses': [{
@@ -312,6 +358,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         user = self.hum_admin
 
         disco_program = self._discovery_program(
+            self.program_uuid,
+            self.program_title,
+            self.program_url,
             [{
                 'is_active': False,
                 'courses': [{
@@ -333,6 +382,9 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         user = self.stem_admin
 
         disco_program = self._discovery_program(
+            self.program_uuid,
+            self.program_title,
+            self.program_url,
             [{
                 'is_active': True,
                 'courses': [
