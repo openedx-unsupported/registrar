@@ -25,6 +25,7 @@ from registrar import api_renderer
 from registrar.apps.api import urls as api_urls
 from registrar.apps.core import views as core_views
 
+
 admin.autodiscover()
 
 app_name = 'registrar'

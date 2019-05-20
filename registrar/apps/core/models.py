@@ -1,13 +1,14 @@
 """ Core models. """
 
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
+
 from registrar.apps.core import permissions as perms
+
 
 ACCESS_ADMIN = ('admin', 2)
 ACCESS_WRITE = ('write', 1)

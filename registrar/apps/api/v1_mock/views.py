@@ -4,10 +4,11 @@ testing.
 """
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from edx_rest_framework_extensions.auth.jwt.authentication import (
+    JwtAuthentication,
+)
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
-from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -17,29 +18,30 @@ from rest_framework.status import (
     HTTP_413_REQUEST_ENTITY_TOO_LARGE,
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
+from rest_framework.views import APIView
 
 from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import (
+    CourseEnrollmentModificationRequestSerializer,
+    CourseEnrollmentRequestSerializer,
     CourseRunSerializer,
     JobAcceptanceSerializer,
     JobStatusSerializer,
-    ProgramSerializer,
-    ProgramEnrollmentRequestSerializer,
     ProgramEnrollmentModificationRequestSerializer,
-    CourseEnrollmentRequestSerializer,
-    CourseEnrollmentModificationRequestSerializer,
+    ProgramEnrollmentRequestSerializer,
+    ProgramSerializer,
 )
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.api.v1_mock.data import (
-    invoke_fake_course_enrollment_listing_job,
-    invoke_fake_program_enrollment_listing_job,
     FAKE_ORG_DICT,
     FAKE_ORG_PROGRAMS,
-    FAKE_PROGRAMS,
     FAKE_PROGRAM_COURSE_RUNS,
     FAKE_PROGRAM_DICT,
+    FAKE_PROGRAMS,
     FakeJobAcceptance,
     get_fake_job_status,
+    invoke_fake_course_enrollment_listing_job,
+    invoke_fake_program_enrollment_listing_job,
 )
 from registrar.apps.core import permissions as perms
 

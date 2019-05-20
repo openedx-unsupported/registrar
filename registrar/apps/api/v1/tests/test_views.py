@@ -1,23 +1,22 @@
 """ Tests for API views. """
 import json
-from posixpath import join as urljoin
 import uuid
+from posixpath import join as urljoin
 
 import boto3
-from celery import shared_task
-from django.conf import settings
-from django.core.cache import cache
-from django.urls import reverse
 import ddt
-from faker import Faker
-from guardian.shortcuts import assign_perm
 import mock
 import moto
 import requests
 import responses
+from celery import shared_task
+from django.conf import settings
+from django.core.cache import cache
+from django.urls import reverse
+from faker import Faker
+from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.tasks import UserTask
-
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
@@ -35,7 +34,10 @@ from registrar.apps.core.tests.factories import (
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
-from registrar.apps.enrollments.data import DiscoveryProgram, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
+from registrar.apps.enrollments.data import (
+    LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
+    DiscoveryProgram,
+)
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 

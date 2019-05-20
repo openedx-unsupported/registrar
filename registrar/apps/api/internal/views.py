@@ -1,11 +1,13 @@
 """ Internal utility API views """
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from edx_rest_framework_extensions.auth.jwt.authentication import (
+    JwtAuthentication,
+)
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.views import APIView
 
 from registrar.apps.api.v1.mixins import AuthMixin
 from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL

@@ -6,10 +6,10 @@ from rest_framework.test import APITestCase
 
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.tests.factories import (
+    USER_PASSWORD,
     OrganizationFactory,
     OrganizationGroupFactory,
     UserFactory,
-    USER_PASSWORD
 )
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 

@@ -3,9 +3,7 @@ Factories for creating enrollment data.
 """
 import factory
 
-from registrar.apps.enrollments.models import (
-    Program,
-)
+from registrar.apps.enrollments.models import Program
 
 
 # pylint: disable=missing-docstring

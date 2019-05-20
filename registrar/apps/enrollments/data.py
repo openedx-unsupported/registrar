@@ -1,16 +1,15 @@
 """
 Module for syncing data with external services.
 """
+import logging
 from collections import namedtuple
 from datetime import datetime
-import logging
 from posixpath import join as urljoin
 
-from django.core.cache import cache
 from django.conf import settings
-from requests.exceptions import HTTPError
-
+from django.core.cache import cache
 from edx_rest_api_client import client as rest_client
+from requests.exceptions import HTTPError
 
 from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.serializers import (

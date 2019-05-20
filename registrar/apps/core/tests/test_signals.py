@@ -2,11 +2,11 @@
 Tests for signal handlers in this app
 """
 import ddt
-from django.test import TestCase
 from django.apps import apps
+from django.test import TestCase
 
-from registrar.apps.core.models import User, PendingUserOrganizationGroup
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.models import PendingUserOrganizationGroup, User
 from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     PendingUserOrganizationGroupFactory,

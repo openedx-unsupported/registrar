@@ -7,6 +7,7 @@ from logging import getLogger
 
 from django.apps import AppConfig
 
+
 logger = getLogger(__name__)
 
 

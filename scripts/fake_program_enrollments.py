@@ -11,8 +11,8 @@ Example:
 """
 
 import json
-import sys
 import random
+import sys
 
 
 STATUS_CHOICES = ['enrolled', 'pending', 'suspended', 'canceled']

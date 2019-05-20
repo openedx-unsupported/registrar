@@ -1,10 +1,11 @@
 """ Serializers for communicating enrollment data with LMS """
 
 from rest_framework import serializers
+
 from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.constants import (
-    PROGRAM_ENROLLMENT_STATUSES,
     COURSE_ENROLLMENT_STATUSES,
+    PROGRAM_ENROLLMENT_STATUSES,
 )
 
 

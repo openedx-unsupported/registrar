@@ -5,26 +5,26 @@ Much of data.py is not tested in this file because it is already implicitly
 tested by our view tests.
 """
 
-from datetime import datetime
 import json
-from posixpath import join as urljoin
 import uuid
+from datetime import datetime
+from posixpath import join as urljoin
 
+import mock
+import responses
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
-import mock
 from requests.exceptions import HTTPError
-import responses
 from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.enrollments.data import (
     DISCOVERY_PROGRAM_API_TPL,
-    DiscoveryCourseRun,
-    DiscoveryProgram,
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
     LMS_PROGRAM_ENROLLMENTS_API_TPL,
+    DiscoveryCourseRun,
+    DiscoveryProgram,
     get_course_run_enrollments,
     get_program_enrollments,
     write_program_course_enrollments,

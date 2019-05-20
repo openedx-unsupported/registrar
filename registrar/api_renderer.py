@@ -4,6 +4,7 @@ Renders a yaml API spec to an HTML/JavaScript view
 import copy
 import json
 import os
+
 import yaml
 from django.conf import settings
 from django.shortcuts import render

@@ -9,10 +9,7 @@ from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     UserFactory,
 )
-from registrar.apps.core.utils import (
-    get_user_organizations,
-    serialize_to_csv,
-)
+from registrar.apps.core.utils import get_user_organizations, serialize_to_csv
 
 
 @ddt.ddt

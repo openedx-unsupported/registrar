@@ -1,6 +1,5 @@
 """ Tests for internal API views """
 import ddt
-
 from django.core.cache import cache
 
 from registrar.apps.api.tests.mixins import AuthRequestMixin

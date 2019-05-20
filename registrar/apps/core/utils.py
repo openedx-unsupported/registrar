@@ -1,7 +1,7 @@
 """ Miscellaneous utilities not specific to any app. """
 import csv
-from io import StringIO
 import re
+from io import StringIO
 
 from registrar.apps.core.models import OrganizationGroup
 
