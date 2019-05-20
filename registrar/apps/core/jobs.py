@@ -13,9 +13,9 @@ from the UserTask ID. For this reason, we attempt not to expose the relationship
 between job_ids and UserTask IDs outside of this module.
 """
 
-from collections import namedtuple
 import logging
 import uuid
+from collections import namedtuple
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from user_tasks.models import UserTaskArtifact, UserTaskStatus

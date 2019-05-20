@@ -3,12 +3,11 @@ Mixins for the public V1 REST API.
 """
 from collections.abc import Iterable
 
-from django.core.exceptions import (
-    ImproperlyConfigured,
-    PermissionDenied,
-)
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from edx_rest_framework_extensions.auth.jwt.authentication import (
+    JwtAuthentication,
+)
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.response import Response
@@ -19,10 +18,10 @@ from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import JobAcceptanceSerializer
 from registrar.apps.api.utils import build_absolute_api_url
-from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import start_job
 from registrar.apps.enrollments.data import DiscoveryProgram
+from registrar.apps.enrollments.models import Program
 
 
 class AuthMixin(TrackViewMixin):

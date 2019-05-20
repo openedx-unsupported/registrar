@@ -10,7 +10,6 @@ from rest_framework.exceptions import ValidationError
 from user_tasks.models import UserTaskArtifact
 from user_tasks.tasks import UserTask
 
-
 from registrar.apps.core.jobs import post_job_failure, post_job_success
 from registrar.apps.enrollments.data import (
     get_course_run_enrollments,

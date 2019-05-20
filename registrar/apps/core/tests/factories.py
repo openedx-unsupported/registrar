@@ -3,16 +3,19 @@ Factories for creating core data.
 """
 
 import re
+
 import factory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from guardian.shortcuts import assign_perm
-from registrar.apps.core.permissions import OrganizationReadMetadataRole
+
 from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     PendingUserOrganizationGroup,
 )
+from registrar.apps.core.permissions import OrganizationReadMetadataRole
+
 
 # pylint: disable=missing-docstring
 

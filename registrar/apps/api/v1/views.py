@@ -3,12 +3,11 @@ The public-facing REST API.
 """
 import logging
 
-from django.core.exceptions import (
-    ObjectDoesNotExist,
-    PermissionDenied,
-)
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from edx_rest_framework_extensions.auth.jwt.authentication import (
+    JwtAuthentication,
+)
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +15,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from registrar.apps.api.mixins import TrackViewMixin
+from registrar.apps.api.serializers import (
+    CourseRunSerializer,
+    JobStatusSerializer,
+    ProgramSerializer,
+)
 from registrar.apps.api.v1.mixins import (
     AuthMixin,
     CourseSpecificViewMixin,
@@ -23,24 +27,20 @@ from registrar.apps.api.v1.mixins import (
     JobInvokerMixin,
     ProgramSpecificViewMixin,
 )
-from registrar.apps.api.serializers import (
-    CourseRunSerializer,
-    JobStatusSerializer,
-    ProgramSerializer,
-)
-from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import get_job_status
 from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import (
     DiscoveryProgram,
-    write_program_enrollments,
     write_program_course_enrollments,
+    write_program_enrollments,
 )
+from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tasks import (
     list_course_run_enrollments,
     list_program_enrollments,
 )
+
 
 logger = logging.getLogger(__name__)
 

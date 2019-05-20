@@ -2,10 +2,10 @@
 Fake data for the mock API.
 """
 
-from collections import namedtuple
-from datetime import datetime
 import random
 import uuid
+from collections import namedtuple
+from datetime import datetime
 
 from django.core.cache import cache
 from user_tasks.models import UserTaskStatus

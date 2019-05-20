@@ -1,24 +1,25 @@
 """
 Unit tests for the enrollment.tasks module.
 """
-from collections import namedtuple
 import uuid
-import mock
+from collections import namedtuple
 
+import mock
 from django.test import TestCase
-from rest_framework.exceptions import ValidationError
 from requests.exceptions import HTTPError
+from rest_framework.exceptions import ValidationError
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
-from registrar.apps.core.tests.factories import UserFactory, OrganizationFactory
+from registrar.apps.core.tests.factories import OrganizationFactory, UserFactory
 from registrar.apps.enrollments import tasks
-from registrar.apps.enrollments.tests.factories import ProgramFactory
 from registrar.apps.enrollments.constants import (
-    PROGRAM_ENROLLMENT_ENROLLED,
-    PROGRAM_ENROLLMENT_PENDING,
     COURSE_ENROLLMENT_ACTIVE,
     COURSE_ENROLLMENT_INACTIVE,
+    PROGRAM_ENROLLMENT_ENROLLED,
+    PROGRAM_ENROLLMENT_PENDING,
 )
+from registrar.apps.enrollments.tests.factories import ProgramFactory
+
 
 FakeRequest = namedtuple('FakeRequest', ['url'])
 FakeResponse = namedtuple('FakeResponse', ['status_code'])

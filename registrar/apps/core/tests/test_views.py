@@ -1,12 +1,12 @@
 """Test core.views."""
 
-from django.db import DatabaseError
+import mock
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.urls import reverse
+from django.db import DatabaseError
 from django.test import TestCase
 from django.test.utils import override_settings
-import mock
+from django.urls import reverse
 
 from registrar.apps.core.constants import Status
 

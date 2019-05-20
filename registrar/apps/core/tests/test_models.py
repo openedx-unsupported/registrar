@@ -6,15 +6,18 @@ from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
 from social_django.models import UserSocialAuth
 
-from registrar.apps.core.tests.factories import UserFactory
-from registrar.apps.core.models import User
-from registrar.apps.core.tests.factories import OrganizationFactory, OrganizationGroupFactory
+import registrar.apps.core.permissions as perm
 from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     PendingUserOrganizationGroup,
+    User,
 )
-import registrar.apps.core.permissions as perm
+from registrar.apps.core.tests.factories import (
+    OrganizationFactory,
+    OrganizationGroupFactory,
+    UserFactory,
+)
 
 
 class UserTests(TestCase):

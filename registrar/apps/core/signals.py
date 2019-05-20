@@ -5,6 +5,7 @@ from logging import getLogger
 
 from registrar.apps.core.models import PendingUserOrganizationGroup
 
+
 logger = getLogger(__name__)
 
 

@@ -2,11 +2,13 @@
 Convenience functions for working with the segment.io analytics library
 """
 import logging
+
 import analytics
 from django.conf import settings
 
 from registrar.apps.api.constants import TRACKING_CATEGORY
 from registrar.apps.core.utils import get_user_organizations
+
 
 logger = logging.getLogger(__name__)
 

@@ -14,9 +14,9 @@ from registrar.apps.api.v1_mock.data import (
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.tests.factories import (
     GroupFactory,
-    UserFactory,
     OrganizationFactory,
-    OrganizationGroupFactory
+    OrganizationGroupFactory,
+    UserFactory,
 )
 
 

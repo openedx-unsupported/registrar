@@ -1,13 +1,13 @@
 """
 Mixins for Registrar API tests.
 """
-from contextlib import contextmanager
 import json
+from contextlib import contextmanager
 from time import time
 
-from django.conf import settings
 import jwt
 import mock
+from django.conf import settings
 
 from registrar.apps.api.constants import TRACKING_CATEGORY
 from registrar.apps.core.utils import get_user_organizations

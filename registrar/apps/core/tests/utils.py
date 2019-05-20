@@ -1,10 +1,10 @@
 """ General utilities for unit tests. """
 
-from functools import wraps
 import json
+from functools import wraps
 
-from django.conf import settings
 import responses
+from django.conf import settings
 
 
 def mock_oauth_login(fn):

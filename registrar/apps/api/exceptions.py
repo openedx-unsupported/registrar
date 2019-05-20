@@ -1,8 +1,9 @@
 """
 Custom exceptions extending those definined by DRF.
 """
-from rest_framework.exceptions import APIException
 from rest_framework import status
+from rest_framework.exceptions import APIException
+
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 
 

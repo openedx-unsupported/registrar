@@ -15,8 +15,8 @@ Example:
 """
 
 import json
-import sys
 import random
+import sys
 
 
 # Map from program enrollment statuses to sets of possible course
