@@ -79,7 +79,7 @@ class TrackViewMixin(object):
         * HTTP response status code
         """
         event_name = self.event_method_map.get(self.request.method)
-        if not event_name:
+        if not event_name:  # pragma: no cover
             logger.error(
                 'Segment tracking event name not found for request method ' +
                 '%s on view %s',

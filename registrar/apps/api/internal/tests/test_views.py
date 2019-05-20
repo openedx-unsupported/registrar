@@ -14,7 +14,7 @@ class FlushCacheTests(RegistrarAPITestCase, AuthRequestMixin):
     """
     Tests for the program cache flushing endpoint
     """
-    method = 'DELETE'
+    method = ['DELETE']
     path = 'cache'
     api_root = '/api/internal/'
 
@@ -61,7 +61,7 @@ class FlushCacheTests(RegistrarAPITestCase, AuthRequestMixin):
 
     def test_flush_all_programs_unauthorized(self):
         response = self.delete('cache/', self.stem_admin)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assert_programs_in_cache()
 
     def flush_specific_program(self, program, user):
@@ -85,15 +85,14 @@ class FlushCacheTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_flush_specific_program_unauthorized(self):
         for program in self.programs:
             response = self.flush_specific_program(program, self.stem_admin)
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 404)
             self.assert_programs_in_cache()
 
     @ddt.data(True, False)
     def test_program_not_found(self, is_staff):
         user = self.edx_staff_user if is_staff else self.stem_admin
         response = self.delete('cache/program-10000-fake/', user)
-        expected_code = 404 if is_staff else 403
-        self.assertEqual(expected_code, response.status_code)
+        self.assertEqual(404, response.status_code)
         self.assert_programs_in_cache()
 
     def test_delete_program_twice(self):

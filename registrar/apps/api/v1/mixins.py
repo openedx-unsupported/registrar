@@ -8,9 +8,7 @@ from django.core.exceptions import (
     PermissionDenied,
 )
 from django.http import Http404
-from django.urls import resolve
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from guardian.shortcuts import get_objects_for_user
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.response import Response
@@ -19,7 +17,7 @@ from rest_framework.status import HTTP_202_ACCEPTED
 from registrar.apps.api import exceptions
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.mixins import TrackViewMixin
-from registrar.apps.api.serializers import JobAcceptanceSerializer, ProgramEnrollmentRequestSerializer
+from registrar.apps.api.serializers import JobAcceptanceSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.enrollments.models import Program
 from registrar.apps.core import permissions as perms
@@ -47,7 +45,7 @@ class AuthMixin(TrackViewMixin):
 
         If None, permissions will be checked globally.
         """
-        return None
+        return None  # pragma: no cover
 
     def get_permission_required(self, _request):
         """
@@ -70,10 +68,6 @@ class AuthMixin(TrackViewMixin):
 
         Overrides APIView.check_permissions.
         """
-        if resolve(request.path_info).url_name == 'api-docs':
-            self.check_doc_permissions(request)
-            return
-
         if not request.user.is_authenticated:
             raise NotAuthenticated()
 
@@ -86,7 +80,7 @@ class AuthMixin(TrackViewMixin):
             required = [required]
         elif isinstance(required, Iterable):
             required = list(required)
-        else:
+        else:  # pragma: no cover
             raise ImproperlyConfigured(
                 'get_permission_required must return string or iterable; ' +
                 'returned {}'.format(required)
@@ -118,23 +112,6 @@ class AuthMixin(TrackViewMixin):
         if self.raise_404_if_unauthorized:
             raise Http404()
         else:
-            raise PermissionDenied()
-
-    def check_doc_permissions(self, request):
-        """
-        Check whether the endpoint being requested should show up in the
-        Swagger UI.
-
-        When loading /api-docs/, Swagger does `check_permissions` on all
-        API endpoints in order to decide which ones to show to the user.
-        However, we assign permissions on a per-Oranization-instance
-        basis using Guardian, whereas /api-docs/ is Organization-agnostic.
-
-        To compensate for this, we handle permission checks coming from
-        /api-docs/ differently: we simply check if the user has the appropriate
-        permission on *any* Organization instance.
-        """
-        if not get_objects_for_user(request.user, self.permission_required):
             raise PermissionDenied()
 
 
@@ -223,21 +200,15 @@ class JobInvokerMixin(object):
 
 class EnrollmentMixin(ProgramSpecificViewMixin):
     """
-    This mixin defines the serializers and required permissions
+    This mixin defines the required permissions
     for any views that read or write program/course enrollment data.
     """
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return JobAcceptanceSerializer
-        if self.request.method == 'POST' or self.request.method == 'PATCH':
-            return ProgramEnrollmentRequestSerializer(multiple=True)
-
     def get_permission_required(self, request):
         if request.method == 'GET':
             return perms.ORGANIZATION_READ_ENROLLMENTS
         if request.method == 'POST' or self.request.method == 'PATCH':
             return perms.ORGANIZATION_WRITE_ENROLLMENTS
-        return []
+        return []  # pragma: no cover
 
     def validate_enrollment_data(self, enrollments):
         """
@@ -255,7 +226,7 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         """
         Given an API response from the LMS, add necessary tracking data.
         """
-        if response.status_code == 413:
+        if response.status_code == 413:  # pragma: no cover
             self.add_tracking_data(failure='request_entity_too_large')
         elif response.status_code == 422:
             self.add_tracking_data(failure='unprocessable_entity')

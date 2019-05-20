@@ -14,5 +14,5 @@ class ApiConfig(AppConfig):
         """
         Initialize Segment analytics module by setting the write_key.
         """
-        if settings.SEGMENT_KEY:
+        if settings.SEGMENT_KEY:  # pragma: no cover
             analytics.write_key = settings.SEGMENT_KEY

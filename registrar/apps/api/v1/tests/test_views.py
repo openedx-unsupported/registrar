@@ -586,6 +586,20 @@ class ProgramEnrollmentWriteMixin(object):
         self.assertEqual(response.status_code, 207)
         self.assertDictEqual(response.data, expected_lms_response)
 
+    @mock_oauth_login
+    @responses.activate
+    def test_backend_server_error(self):
+        self.mock_enrollments_response(self.method, 'Internal Server Error', response_code=500)
+
+        req_data = [
+            self.student_enrollment('active', '001'),
+            self.student_enrollment('active', '002'),
+            self.student_enrollment('inactive', '003'),
+        ]
+        with self.assertRaisesRegex(requests.exceptions.HTTPError, 'Internal Server Error'):
+            with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+                self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_enrollment('enrolled')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
 
@@ -686,6 +700,10 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
                 failure='program_not_found',
         ):
             response = self.get('programs/masters-in-polysci/enrollments', self.hum_admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_invalid_format_404(self):
+        response = self.get(self.path + '?fmt=invalidformat', self.hum_admin)
         self.assertEqual(response.status_code, 404)
 
 
@@ -895,6 +913,7 @@ def _failing_job(self, job_id, user_id, fail_message):  # pylint: disable=unused
     post_job_failure(job_id, fail_message)
 
 
+@ddt.ddt
 class ProgramCourseEnrollmentWriteMixin(object):
     """ Test write requests to the /api/v1/programs/{program_key}/courses/{course_id}/enrollments/ endpoint """
     # we need to define this for testing unauthenticated requests
@@ -1074,6 +1093,19 @@ class ProgramCourseEnrollmentWriteMixin(object):
         self.assertEqual(response.status_code, 207)
         self.assertDictEqual(response.data, expected_lms_response)
 
+    @mock_oauth_login
+    @responses.activate
+    def test_backend_server_error(self):
+        self.mock_course_enrollments_response(self.method, 'Internal Server Error', response_code=500)
+
+        req_data = [
+            self.student_course_enrollment('active', '001'),
+            self.student_course_enrollment('active', '002'),
+            self.student_course_enrollment('inactive', '003'),
+        ]
+        with self.assertRaisesRegex(requests.exceptions.HTTPError, 'Internal Server Error'):
+            self.request(self.method, self.get_url(), self.stem_admin, req_data)
+
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_course_enrollment('active')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
 
@@ -1088,6 +1120,12 @@ class ProgramCourseEnrollmentWriteMixin(object):
             )
 
         self.assertEqual(response.status_code, 413)
+
+    @ddt.data("this is a string", {'this is a': 'dict'})
+    def test_request_not_a_list(self, payload):
+        response = self.request(self.method, self.get_url(), self.stem_admin, payload)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('expected request body type: List', response.data)
 
 
 class ProgramCourseEnrollmentPostTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):

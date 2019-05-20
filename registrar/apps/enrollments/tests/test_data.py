@@ -78,7 +78,7 @@ class GetEnrollmentsTestMixin(object):
 
     def get_enrollments(self):
         """ Override in subclass """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @mock_oauth_login
     @responses.activate

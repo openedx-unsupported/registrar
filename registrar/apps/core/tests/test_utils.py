@@ -9,7 +9,10 @@ from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     UserFactory,
 )
-from registrar.apps.core.utils import get_user_organizations
+from registrar.apps.core.utils import (
+    get_user_organizations,
+    serialize_to_csv,
+)
 
 
 @ddt.ddt
@@ -49,3 +52,39 @@ class GetUserOrganizationsTests(TestCase):
         orgs = get_user_organizations(user)
         org_keys = {org.key for org in orgs}
         self.assertEqual(org_keys, expected_org_keys)
+
+
+def _create_enrollment(student_key, status, account_created):
+    return {
+        'student_key': student_key,
+        'status': status,
+        'account_created': account_created,
+    }
+
+
+@ddt.ddt
+class SerializeToCSVTests(TestCase):
+    """ Tests for serialize_to_csv """
+
+    field_names = ('student_key', 'status', 'account_created')
+    test_data = [
+        _create_enrollment('student_1111', 'active', True),
+        _create_enrollment('student_2222', 'inactive', True),
+        _create_enrollment('student_3333', 'active', False),
+        _create_enrollment('student_4444', 'inactive', False),
+    ]
+    expected_headers = 'student_key,status,account_created\r\n'
+    expected_csv = (
+        'student_1111,active,True\r\n'
+        'student_2222,inactive,True\r\n'
+        'student_3333,active,False\r\n'
+        'student_4444,inactive,False\r\n'
+    )
+
+    @ddt.data(True, False)
+    def test_serialize_data(self, include_headers):
+        result = serialize_to_csv(self.test_data, self.field_names, include_headers)
+        if include_headers:
+            self.assertEqual(self.expected_headers + self.expected_csv, result)
+        else:
+            self.assertEqual(self.expected_csv, result)

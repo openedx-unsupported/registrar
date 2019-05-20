@@ -101,7 +101,7 @@ def _get_result(job_id, task_status):
         status=task_status, name=_RESULT_ARTIFACT_NAME
     )
     if artifacts:
-        if artifacts.count() > 1:
+        if artifacts.count() > 1:  # pragma: no cover
             logger.error(
                 'Multiple UserTaskArtifacts for job ' +
                 '(job_id = {}, UserTaskStatus.uuid = {}). '.format(
@@ -158,7 +158,7 @@ def _affirm_job_in_progress(job_id, task_status):
         job_id (str): UUID-4 string identifying Job
         task_status (UserTaskStatus): user task status associated with job
     """
-    if task_status.state != UserTaskStatus.IN_PROGRESS:
+    if task_status.state != UserTaskStatus.IN_PROGRESS:  # pragma: no cover
         raise ValueError(
             'Job can only be marked as Succeeded from state In Progress' +
             '(job_id = {})'.format(job_id)

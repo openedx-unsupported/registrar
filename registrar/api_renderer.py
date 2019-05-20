@@ -19,7 +19,7 @@ def render_yaml_spec(request):
     Render swagger ui using the api yaml spec
     """
     spec = copy.deepcopy(API_SPEC)
-    if not request.user.is_authenticated:
+    if not request.user.is_authenticated:  # pragma: no branch
         spec['paths'] = {}
 
     return render(

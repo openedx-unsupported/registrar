@@ -37,7 +37,7 @@ class JobResultStorageBase(object):
 
         Must be overriden in subclass.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class FileSystemJobResultStorage(JobResultStorageBase):
@@ -49,7 +49,7 @@ class FileSystemJobResultStorage(JobResultStorageBase):
         """
         Given the path of a job result, return a URL to the result.
         """
-        return to_absolute_api_url(settings.MEDIA_URL, result_path)
+        return to_absolute_api_url(settings.MEDIA_URL, result_path)  # pragma: no cover
 
 
 class S3JobResultStorage(JobResultStorageBase):
@@ -86,7 +86,7 @@ def get_job_result_store():
         return S3JobResultStorage(default_storage)
     elif class_name == 'FileSystemStorage':
         return FileSystemJobResultStorage(default_storage)
-    else:
+    else:  # pragma: no cover
         raise ImproperlyConfigured(
             'Unsupported storage backend for job reults: {}'.format(class_name)
         )

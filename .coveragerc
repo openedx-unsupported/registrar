@@ -5,6 +5,7 @@ source=registrar
 omit =
     registrar/settings*
     registrar/conf*
+    *celery.py
     *wsgi.py
     *migrations*
     *admin.py

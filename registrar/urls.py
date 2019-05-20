@@ -43,5 +43,5 @@ if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma:
     import debug_toolbar
     urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
 
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

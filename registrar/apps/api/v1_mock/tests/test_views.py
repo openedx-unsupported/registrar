@@ -37,10 +37,6 @@ class MockAPITestMixin(AuthRequestMixin, TrackTestMixin):
         )
         cls.admin_user = UserFactory(groups=[cls.admin_read_metadata_group])
 
-    @property
-    def path(self):
-        return self.api_root + self.path_suffix
-
 
 class MockJobTestMixin(MockAPITestMixin):
     """ Mixin for testing the results of a job """
@@ -442,6 +438,7 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
 
     @ddt.data(
         [{'status': 'enrolled'}],
+        [{'status': 'not-a-status'}],
         [{'student_key': '000'}],
         ["this isn't even a dict!"],
         [{'student_key': '000', 'status': 'enrolled'}, "bad_data"],
@@ -454,6 +451,10 @@ class MockProgramEnrollmentPatchTests(MockAPITestMixin, APITestCase):
             response = self.patch(self.path, patch_data, self.user)
         self.assertEqual(response.status_code, 422)
         self.assertIn('invalid enrollment record', response.data)
+
+    def test_payload_not_list(self):
+        response = self.patch(self.path, 'this is definitely not a list', self.user)
+        self.assertEqual(response.status_code, 400)
 
 
 def _mock_invoke_program_job(duration):
