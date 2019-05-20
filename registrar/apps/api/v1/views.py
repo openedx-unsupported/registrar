@@ -106,7 +106,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 404: Program does not exist.
     """
     serializer_class = ProgramSerializer
-    permission_required = perms.ORGANIZATION_READ_METADATA
+    permission_required = [perms.ORGANIZATION_READ_METADATA]
     event_method_map = {'GET': 'registrar.v1.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
 

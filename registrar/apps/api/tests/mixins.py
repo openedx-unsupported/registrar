@@ -51,7 +51,7 @@ class TrackTestMixin(object):
         properties = kwargs.copy()
         properties['category'] = TRACKING_CATEGORY
         user = user or self.user
-        if 'user_organizations' not in properties:
+        if 'user_organizations' not in properties:  # pragma: no branch
             properties['user_organizations'] = [
                 org.name for org in get_user_organizations(user)
             ]
@@ -168,7 +168,7 @@ class AuthRequestMixin(JwtMixin):
         """
         Perform a PUT on the given path, optionally with a user.
         """
-        return self.request('put', path, user, data)
+        return self.request('put', path, user, data)  # pragma: no cover
 
     def patch(self, path, data, user):
         """

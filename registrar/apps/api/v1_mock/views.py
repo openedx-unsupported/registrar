@@ -264,7 +264,7 @@ class EchoStatusesMixin(TrackViewMixin):
                 except KeyError:
                     self.add_tracking_data(failure='unprocessable_entity')
                     return Response(
-                        'student key required', HTTP_422_UNPROCESSABLE_ENTITY
+                        'invalid enrollment record', HTTP_422_UNPROCESSABLE_ENTITY
                     )
 
         if not enrolled_students:
@@ -328,7 +328,7 @@ class MockProgramEnrollmentView(MockProgramSpecificViewMixin, EchoStatusesMixin,
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return ProgramEnrollmentRequestSerializer
-        elif self.request.method == 'PATCH':
+        elif self.request.method == 'PATCH':  # pragma: no branch
             return ProgramEnrollmentModificationRequestSerializer
 
     def post(self, request, *args, **kwargs):
@@ -404,7 +404,7 @@ class MockCourseEnrollmentView(MockProgramCourseSpecificViewMixin, EchoStatusesM
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CourseEnrollmentRequestSerializer
-        elif self.request.method == 'PATCH':
+        elif self.request.method == 'PATCH':  # pragma: no branch
             return CourseEnrollmentModificationRequestSerializer
 
     def post(self, request, *args, **kwargs):

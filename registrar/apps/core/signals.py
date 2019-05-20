@@ -14,9 +14,6 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     OrganizationGroup and delete the pending record.
     """
     user_instance = kwargs.get("instance")
-    if user_instance is None:
-        logger.error('User is null when we handle the user save signal!')
-        return
     pending_org_groups = PendingUserOrganizationGroup.objects.filter(user_email=user_instance.email)
     for pending_group in pending_org_groups:
         logger.info(

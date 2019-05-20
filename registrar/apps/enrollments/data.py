@@ -233,7 +233,7 @@ def _get_all_paginated_results(url, client=None):
 
     Repeatedly performs request on 'next' URL until 'next' is null.
     """
-    if not client:
+    if not client:  # pragma: no branch
         client = _get_client(settings.LMS_BASE_URL)
     results = []
     next_url = url
@@ -249,7 +249,7 @@ def _make_request(method, url, client, **kwargs):
     Helper method to make an http request using
     an authN'd client.
     """
-    if method not in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
+    if method not in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:  # pragma: no cover
         raise Exception('invalid http method: ' + method)
 
     if not client:
@@ -273,6 +273,6 @@ def _get_client(host_base_url):
         settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET,
     )
     client._check_auth()  # pylint: disable=protected-access
-    if not client.auth.token:
+    if not client.auth.token:  # pragma: no cover
         raise 'No Auth Token'
     return client

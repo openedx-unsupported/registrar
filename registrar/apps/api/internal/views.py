@@ -30,6 +30,7 @@ class FlushProgramCacheView(AuthMixin, APIView):
     event_method_map = {'DELETE': 'registrar.internal.flush_program_cache'}
     event_parameter_map = {'program_key': 'program_key'}
     authentication_classes = (JwtAuthentication, SessionAuthentication)
+    raise_404_if_unauthorized = True
     staff_only = True
 
     # pylint: disable=unused-argument

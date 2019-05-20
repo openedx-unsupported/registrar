@@ -21,4 +21,4 @@ class Program(TimeStampedModel):
     managing_organization = models.ForeignKey(Organization, related_name='programs')
 
     def __str__(self):
-        return self.key
+        return self.key  # pragma: no cover
