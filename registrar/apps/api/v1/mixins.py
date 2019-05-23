@@ -5,6 +5,7 @@ from collections.abc import Iterable
 
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
+from django.utils.functional import cached_property
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -46,15 +47,21 @@ class AuthMixin(TrackViewMixin):
         """
         return None  # pragma: no cover
 
-    def get_permission_required(self, _request):
+    def get_required_permissions(self, _request):
         """
-        Gets permission(s) to be checked.
-
-        Must return a string or an iterable of strings.
-        Can be overridden in subclass.
-        Default to class-level `permission_required` attribute.
+        Returns list of permissions in format <app_label>.<codename> that
+        should be checked against request.user and object. By default, it
+        returns list from `permission_required` attribute.
         """
-        return self.permission_required
+        if isinstance(self.permission_required, str):
+            return [self.permission_required]
+        elif isinstance(self.permission_required, Iterable):
+            return [p for p in self.permission_required]
+        else:  # pragma: no cover
+            raise ImproperlyConfigured(
+                'permission_required must be a string or iterable; ' +
+                'was {}'.format(self.permission_required)
+            )
 
     def check_permissions(self, request):
         """
@@ -74,17 +81,7 @@ class AuthMixin(TrackViewMixin):
             self.add_tracking_data(failure='user_is_not_staff')
             self._unauthorized_response()
 
-        required = self.get_permission_required(request)
-        if isinstance(required, str):
-            required = [required]
-        elif isinstance(required, Iterable):
-            required = list(required)
-        else:  # pragma: no cover
-            raise ImproperlyConfigured(
-                'get_permission_required must return string or iterable; ' +
-                'returned {}'.format(required)
-            )
-
+        required = self.get_required_permissions(request)
         missing_global_permissions = {
             perm for perm in required
             if not request.user.has_perm(perm)
@@ -117,30 +114,19 @@ class AuthMixin(TrackViewMixin):
 class ProgramSpecificViewMixin(AuthMixin):
     """
     A mixin for views that operate on or within a specific program.
-
-    Provides a `program` property. On first access, the property is loaded
-    based on the `program_key` URL parameter, and cached for subsequent
-    calls. This avoids redundant database queries between `get_object/queryset`
-    and `get_permission_object`.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._program = None
-
-    @property
+    @cached_property
     def program(self):
         """
         The program specified by the `program_key` URL parameter.
         """
-        if not self._program:
-            program_key = self.kwargs['program_key']
-            try:
-                self._program = Program.objects.get(key=program_key)
-            except Program.DoesNotExist:
-                self.add_tracking_data(failure='program_not_found')
-                raise Http404()
-        return self._program
+        program_key = self.kwargs['program_key']
+        try:
+            return Program.objects.get(key=program_key)
+        except Program.DoesNotExist:
+            self.add_tracking_data(failure='program_not_found')
+            raise Http404()
 
     def get_permission_object(self):
         """
@@ -202,11 +188,11 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
     This mixin defines the required permissions
     for any views that read or write program/course enrollment data.
     """
-    def get_permission_required(self, request):
+    def get_required_permissions(self, request):
         if request.method == 'GET':
-            return perms.ORGANIZATION_READ_ENROLLMENTS
+            return [perms.ORGANIZATION_READ_ENROLLMENTS]
         if request.method == 'POST' or self.request.method == 'PATCH':
-            return perms.ORGANIZATION_WRITE_ENROLLMENTS
+            return [perms.ORGANIZATION_WRITE_ENROLLMENTS]
         return []  # pragma: no cover
 
     def validate_enrollment_data(self, enrollments):
