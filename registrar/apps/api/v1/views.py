@@ -5,6 +5,7 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
+from django.utils.functional import cached_property
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -14,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from registrar.apps.api.constants import PERMISSION_QUERY_PARAM_MAP
 from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
@@ -62,16 +64,46 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
 
     serializer_class = ProgramSerializer
-    permission_required = perms.ORGANIZATION_READ_METADATA
     event_method_map = {'GET': 'registrar.v1.list_programs'}
-    event_parameter_map = {'org': 'organization_filter'}
+    event_parameter_map = {
+        'org': 'organization_filter',
+        'user_has_perm': 'permission_filter',
+    }
 
     def get_queryset(self):
-        org_key = self.request.GET.get('org', None)
         programs = Program.objects.all()
-        if org_key:
-            programs = programs.filter(managing_organization__key=org_key)
+        if self.organization_filter:
+            programs = programs.filter(
+                managing_organization=self.organization_filter
+            )
+        if self.permission_filter:
+            programs = (
+                program for program in programs
+                if self.request.user.has_perm(
+                    self.permission_filter, program.managing_organization
+                )
+            )
         return programs
+
+    def get_required_permissions(self, _request):
+        """
+        Returns permissions that user must have on object returned by
+        `get_permission_object`.
+
+        If the user specifies a `user_has_perm` filter, then we filter
+        programs based on the user's permissions in `get_queryset`, so we
+        don't want to require any permissions. In the case that the user does
+        not have the specified permissions, they will get a 200 with an empty
+        list.
+
+        If the user does NOT specify a `user_has_perm` filter, then we
+        enforce that they have metadata-reading permission, and return a 403
+        if they do not have it for the specified organization(s).
+        """
+        if self.permission_filter:
+            return []
+        else:
+            return [perms.ORGANIZATION_READ_METADATA]
 
     def get_permission_object(self):
         """
@@ -81,6 +113,18 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         permission for the organization specified by `org` (or globally
         on the Organization class), Guardian will raise a 403.
         """
+        # If this call returns None, Guardian will check for global Organization
+        # access instead of access against a specific Organization.
+        return self.organization_filter
+
+    @cached_property
+    def organization_filter(self):
+        """
+        Return the organization by which results will be filtered,
+        or None if on filter specified.
+
+        Raises 404 for non-existant organiation.
+        """
         org_key = self.request.GET.get('org')
         if org_key:
             try:
@@ -89,9 +133,24 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
                 self.add_tracking_data(failure='org_not_found')
                 raise Http404()
         else:
-            # By returning None, Guardian will check for global Organization
-            # access instead of access against a specific Organization
             return None
+
+    @cached_property
+    def permission_filter(self):
+        """
+        Return the user permissions by which results will be filtered,
+        or None if on filter specified.
+
+        Raises 404 for bad permission query param.
+        """
+        perm_query_param = self.request.GET.get('user_has_perm', None)
+        if not perm_query_param:
+            return None
+        elif perm_query_param in PERMISSION_QUERY_PARAM_MAP:
+            return PERMISSION_QUERY_PARAM_MAP[perm_query_param]
+        else:
+            self.add_tracking_data(failure='no_such_perm')
+            raise Http404()
 
 
 class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):

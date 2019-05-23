@@ -26,6 +26,7 @@ from registrar.apps.core.jobs import (
     post_job_success,
     start_job,
 )
+from registrar.apps.core.models import Organization, OrganizationGroup
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
@@ -48,11 +49,16 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
     TEST_PROGRAM_URL_TPL = 'http://registrar-test-data.edx.org/{key}/'
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         cls.edx_admin = UserFactory(username='edx-admin')
         assign_perm(perms.ORGANIZATION_READ_METADATA, cls.edx_admin)
+
+        # Some testing-specific terminology for the oranization groups here:
+        #  - "admins" have enrollment read/write access & metadata read access
+        #  - "ops" have enrollment read access & metadata read access
+        #  - "users" have metadata read access
 
         cls.stem_org = OrganizationFactory(name='STEM Institute')
         cls.cs_program = ProgramFactory(
@@ -67,14 +73,22 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         cls.stem_admin = UserFactory(username='stem-institute-admin')
         cls.stem_user = UserFactory(username='stem-institute-user')
         cls.stem_admin_group = OrganizationGroupFactory(
+            name='stem-admins',
             organization=cls.stem_org,
             role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
+        cls.stem_op_group = OrganizationGroupFactory(
+            name='stem-ops',
+            organization=cls.stem_org,
+            role=perms.OrganizationReadEnrollmentsRole.name
+        )
         cls.stem_user_group = OrganizationGroupFactory(
+            name='stem-users',
             organization=cls.stem_org,
             role=perms.OrganizationReadMetadataRole.name
         )
         cls.stem_admin.groups.add(cls.stem_admin_group)  # pylint: disable=no-member
+        cls.stem_user.groups.add(cls.stem_user_group)  # pylint: disable=no-member
 
         cls.hum_org = OrganizationFactory(name='Humanities College')
         cls.phil_program = ProgramFactory(
@@ -88,8 +102,19 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
 
         cls.hum_admin = UserFactory(username='humanities-college-admin')
         cls.hum_admin_group = OrganizationGroupFactory(
+            name='hum-admins',
             organization=cls.hum_org,
             role=perms.OrganizationReadWriteEnrollmentsRole.name
+        )
+        cls.hum_op_group = OrganizationGroupFactory(
+            name='hum-ops',
+            organization=cls.hum_org,
+            role=perms.OrganizationReadEnrollmentsRole.name
+        )
+        cls.hum_user_group = OrganizationGroupFactory(
+            name='hum-users',
+            organization=cls.hum_org,
+            role=perms.OrganizationReadMetadataRole.name
         )
         cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
 
@@ -162,26 +187,11 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         super().setUp()
         self._add_programs_to_cache()
 
-    def test_all_programs(self):
+    def test_all_programs_200(self):
         with self.assert_tracking(user=self.edx_admin):
             response = self.get('programs', self.edx_admin)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 4)
-
-    def test_all_programs_unauthorized(self):
-        with self.assert_tracking(
-                user=self.stem_admin,
-                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
-        ):
-            response = self.get('programs', self.stem_admin)
-        self.assertEqual(response.status_code, 403)
-
-    @ddt.data(True, False)
-    def test_list_programs(self, is_staff):
-        user = self.edx_admin if is_staff else self.stem_admin
-        with self.assert_tracking(user=user, organization_filter='stem-institute'):
-            response = self.get('programs?org=stem-institute', user)
-        self.assertEqual(response.status_code, 200)
         response_programs = sorted(response.data, key=lambda p: p['program_key'])
         self.assertListEqual(
             response_programs,
@@ -192,30 +202,224 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-cs/',
                 },
                 {
+                    'program_key': 'masters-in-english',
+                    'program_title': 'masters in english',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
+                },
+                {
                     'program_key': 'masters-in-me',
                     'program_title': 'masters in me',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-me/',
                 },
+                {
+                    'program_key': 'masters-in-philosophy',
+                    'program_title': 'masters in philosophy',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-philosophy/',
+                },
             ]
         )
 
-    def test_list_programs_unauthorized(self):
-        with self.assert_tracking(
-                user=self.hum_admin,
-                missing_permissions=[perms.ORGANIZATION_READ_METADATA],
-                organization_filter='stem-institute',
-        ):
-            response = self.get('programs?org=stem-institute', self.hum_admin)
-        self.assertEqual(response.status_code, 403)
+    @ddt.data(
 
-    def test_org_not_found(self):
+        # If you aren't staff and you don't supply a filter, you get a 403.
+        {
+            'groups': set(),
+            'expected_status': 403,
+        },
+        {
+            'groups': {'stem-admins'},
+            'expected_status': 403,
+        },
+        {
+            'groups': {'stem-ops', 'hum-admins'},
+            'expected_status': 403,
+        },
+
+        # If you use only an org filter, and you don't have access to that org,
+        # you get a 403
+        {
+            'groups': set(),
+            'org_filter': 'stem-institute',
+            'expected_status': 403,
+        },
+        {
+            'groups': {'hum-admins'},
+            'org_filter': 'stem-institute',
+            'expected_status': 403,
+        },
+
+        # If you use only an org filter, and you DO have access to that org,
+        # you get only that org's programs.
+        {
+            'groups': {'stem-users'},
+            'org_filter': 'stem-institute',
+            'expect_stem_programs': True,
+        },
+        {
+            'groups': {'stem-admins', 'stem-users'},
+            'org_filter': 'stem-institute',
+            'expect_stem_programs': True,
+        },
+        {
+            'groups': {'stem-ops', 'hum-admins'},
+            'org_filter': 'stem-institute',
+            'expect_stem_programs': True,
+        },
+
+        # If you use a permissions filter, you always get a 200, with all
+        # the programs you have access to (which may be an empty list).
+        {
+            'groups': set(),
+            'perm_filter': 'metadata',
+        },
+        {
+            'groups': set(),
+            'perm_filter': 'read',
+        },
+        {
+            'groups': set(),
+            'perm_filter': 'write',
+        },
+        {
+            'groups': {'stem-users', 'hum-ops'},
+            'perm_filter': 'write',
+        },
+        {
+            'groups': {'stem-admins', 'hum-ops'},
+            'perm_filter': 'write',
+            'expect_stem_programs': True,
+        },
+        {
+            'groups': {'stem-admins', 'hum-ops'},
+            'perm_filter': 'read',
+            'expect_stem_programs': True,
+            'expect_hum_programs': True,
+        },
+        {
+            'groups': {'hum-admins', 'hum-users'},
+            'perm_filter': 'write',
+            'expect_hum_programs': True,
+        },
+        {
+            'groups': {'hum-admins', 'hum-users'},
+            'perm_filter': 'metadata',
+            'expect_hum_programs': True,
+        },
+
+        # Finally, the filters may be combined
+        {
+            'groups': {'stem-admins', 'hum-ops'},
+            'perm_filter': 'read',
+            'org_filter': 'humanities-college',
+            'expect_hum_programs': True,
+        },
+        {
+            'groups': {'stem-admins', 'hum-ops'},
+            'perm_filter': 'write',
+            'org_filter': 'stem-institute',
+            'expect_stem_programs': True,
+        },
+        {
+            'groups': {'stem-admins', 'hum-ops'},
+            'perm_filter': 'write',
+            'org_filter': 'humanities-college',
+        },
+    )
+    @ddt.unpack
+    def test_program_filters(
+            self,
+            groups=frozenset(),
+            perm_filter=None,
+            org_filter=None,
+            expected_status=200,
+            expect_stem_programs=False,
+            expect_hum_programs=False,
+    ):
+        org_groups = [OrganizationGroup.objects.get(name=name) for name in groups]
+        user = UserFactory(groups=org_groups)
+
+        query = []
+        tracking_kwargs = {}
+        if org_filter:
+            query.append('org=' + org_filter)
+            tracking_kwargs['organization_filter'] = org_filter
+        if perm_filter:
+            query.append('user_has_perm=' + perm_filter)
+            tracking_kwargs['permission_filter'] = perm_filter
+        if expected_status == 403:
+            tracking_kwargs['missing_permissions'] = [
+                perms.ORGANIZATION_READ_METADATA
+            ]
+        querystring = '&'.join(query)
+
+        expected_programs_keys = set()
+        if expect_stem_programs:
+            expected_programs_keys.update({
+                'masters-in-cs', 'masters-in-me'
+            })
+        if expect_hum_programs:
+            expected_programs_keys.update({
+                'masters-in-english', 'masters-in-philosophy'
+            })
+
+        with self.assert_tracking(
+                user=user,
+                status_code=expected_status,
+                **tracking_kwargs
+        ):
+            response = self.get('programs?' + querystring, user)
+        self.assertEqual(response.status_code, expected_status)
+
+        if expected_status == 200:
+            actual_program_keys = {
+                program['program_key'] for program in response.data
+            }
+            self.assertEqual(expected_programs_keys, actual_program_keys)
+
+    @ddt.data(
+        # Bad org filter, no perm filter
+        ('intergalactic-univ', None, 'org_not_found'),
+        # Bad org filter, good perm filter
+        ('intergalactic-univ', 'write', 'org_not_found'),
+        # No org filter, bad perm filter
+        (None, 'right', 'no_such_perm'),
+        # Good org filter, bad perm filter
+        ('stem-institute', 'right', 'no_such_perm'),
+        # Bad org filter, bad perm filter
+        # Note: whether this raises `no_such_perm` or `org_not_found`
+        #       is essentially an implementation detail; either would
+        #       be acceptable. Either way, the user sees a 404.
+        ('intergalactic-univ', 'right', 'no_such_perm'),
+    )
+    @ddt.unpack
+    def test_404(self, org_filter, perm_filter, expected_failure):
+        query = []
+        tracking_kwargs = {}
+        if org_filter:
+            query.append('org=' + org_filter)
+            tracking_kwargs['organization_filter'] = org_filter
+        if perm_filter:
+            query.append('user_has_perm=' + perm_filter)
+            tracking_kwargs['permission_filter'] = perm_filter
+        querystring = '&'.join(query)
+
         with self.assert_tracking(
                 user=self.stem_admin,
-                failure='org_not_found',
-                organization_filter='business-univ',
+                failure=expected_failure,
+                status_code=404,
+                **tracking_kwargs
         ):
-            response = self.get('programs?org=business-univ', self.stem_admin)
+            response = self.get('programs?' + querystring, self.stem_admin)
         self.assertEqual(response.status_code, 404)
+
+    @mock.patch.object(Organization.objects, 'get', wraps=Organization.objects.get)
+    def test_org_property_caching(self, get_org_wrapper):
+        # If the 'managing_organization' property is not cached, a single
+        # call to this endpoint would cause multiple Organization queries
+        response = self.get("programs?org=stem-institute", self.stem_admin)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        get_org_wrapper.assert_called_once()
 
 
 @ddt.ddt
@@ -461,8 +665,8 @@ class ProgramEnrollmentWriteMixin(object):
     path = 'programs/masters-in-english/enrollments'
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):  # pylint: disable=missing-docstring
+        super().setUpTestData()
         program_uuid = cls.cs_program.discovery_uuid
         cls.disco_program = DiscoveryProgram.from_json(program_uuid, {
             'curricula': [
@@ -757,7 +961,14 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         self.assertEqual(response.status_code, 404)
 
     def test_invalid_format_404(self):
-        response = self.get(self.path + '?fmt=invalidformat', self.hum_admin)
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                failure='result_format_not_supported',
+                result_format='invalidformat',
+                status_code=404,
+        ):
+            response = self.get(self.path + '?fmt=invalidformat', self.hum_admin)
         self.assertEqual(response.status_code, 404)
 
 
@@ -974,8 +1185,8 @@ class ProgramCourseEnrollmentWriteMixin(object):
     path = 'programs/masters-in-english/courses/course-v1:edX+DemoX+Demo_Course/enrollments'
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
         cls.program_uuid = cls.cs_program.discovery_uuid
         cls.course_id = 'course-v1:edX+DemoX+Demo_Course'
         cls.lms_request_url = urljoin(

@@ -26,6 +26,8 @@ from registrar.apps.api import urls as api_urls
 from registrar.apps.core import views as core_views
 
 
+admin.site.site_header = 'Registrar Service Administration'
+admin.site.site_title = admin.site.site_header
 admin.autodiscover()
 
 app_name = 'registrar'
