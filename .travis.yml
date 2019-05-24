@@ -9,11 +9,12 @@ before_install:
     - "sh -e /etc/init.d/xvfb start"
     - "sudo rm -f /etc/boto.cfg"  # See https://github.com/travis-ci/travis-ci/issues/7940
 install:
-    - pip install -U pip wheel codecov
+    - pip install -U pip wheel
     - make requirements
 script:
     - make validate_translations
     - make validate
     - make static
 after_success:
+    - pip install -U codecov
     - codecov
