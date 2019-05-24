@@ -1,0 +1,9 @@
+comment: off
+coverage:
+  status:
+    patch:
+      default:
+        target: 99
+    project:
+      default:
+        target: 99
