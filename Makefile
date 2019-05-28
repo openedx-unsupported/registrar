@@ -73,16 +73,28 @@ coverage: clean
 test: clean ## run tests and generate coverage report
 	pytest
 
-quality: ## run Pycodestyle and Pylint
+quality: pycodestyle pylint yamllint isort_check ## run all code quality checks
+
+pycodestyle:  # run pycodestyle
 	pycodestyle registrar scripts
+
+pylint:  # run pylint
 	pylint --rcfile=pylintrc registrar scripts
+
+yamllint:  # run yamlint
 	yamllint *.yaml
+
+isort_check: ## check that isort has been run
+	isort --check-only -rc registrar/ scripts/
+
+isort: ## run isort to sort imports in all Python files
+	isort --recursive --atomic registrar scripts
 
 pii_check: ## check for PII annotations on all Django models
 	DJANGO_SETTINGS_MODULE=registrar.settings.test \
 	code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
 
-validate: validate_isort coverage quality pii_check validate_api_committed  ## run all tests and quality checks
+validate: coverage quality pii_check validate_api_committed  ## run all tests and quality checks
 
 migrate: ## apply database migrations
 	python manage.py migrate
@@ -121,9 +133,3 @@ api_generated: ## generates an expanded verison of api.yaml for consuming tools 
 
 validate_api_committed: ## check to make sure any api.yaml changes have been committed to the expanded document
 	bash -c "diff .api-generated.yaml <(python scripts/yaml_merge.py api.yaml -)"
-
-isort: ## run isort to sort imports in all Python files
-	isort --recursive --atomic registrar scripts
-
-validate_isort: ## return 1 iff isort needs to be run
-	isort --check-only -rc registrar/ scripts/
