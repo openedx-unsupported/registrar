@@ -110,6 +110,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 # explicitly define this to avoid name collisions with other services
 # using the same broker and the standard default queue name of "celery"
 CELERY_DEFAULT_QUEUE = 'registrar'
+CELERY_DEFAULT_ROUTING_KEY = 'registrar'
 
 ############################# END CELERY #################################3
 
