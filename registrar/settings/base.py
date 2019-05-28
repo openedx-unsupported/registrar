@@ -130,14 +130,10 @@ LOCALE_PATHS = (
     root('conf', 'locale'),
 )
 
-
 # MEDIA CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
 MEDIA_ROOT = root('media')
-
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = '/api/media/'
-# END MEDIA CONFIGURATION
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root

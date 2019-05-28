@@ -63,9 +63,6 @@ LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 # CELERY
 CELERY_ALWAYS_EAGER = True
 
-# Media
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-
 # Publicly-exposed base URLs for service and API
 API_ROOT = 'http://localhost:18734/api'
 
