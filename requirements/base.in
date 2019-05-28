@@ -1,6 +1,6 @@
 analytics-python<2.0
 celery<4.0
-django==1.11.20
+django<2.0
 djangorestframework
 django-extensions
 django-guardian
