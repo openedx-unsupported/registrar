@@ -4,7 +4,6 @@
 #
 #    pip-compile --output-file=requirements/monitoring/requirements.txt requirements/monitoring/requirements.in
 #
--e git+https://github.com/edx/django-user-tasks.git@62c2ee06f22319edbba0fcbfe21feaa8ced72751#egg=django-user-tasks==0.1.17
 alabaster==0.7.12         # via sphinx
 amqp==1.4.9               # via kombu
 analytics-python==1.2.9
@@ -17,9 +16,9 @@ aws-sam-translator==1.11.0  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 babel==2.7.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.9.157
+boto3==1.9.158
 boto==2.49.0              # via moto
-botocore==1.12.157        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.158        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
 certifi==2019.3.9         # via requests
 cffi==1.12.3              # via cryptography
@@ -41,6 +40,7 @@ django-model-utils==3.1.2
 django-mysql==3.1.0
 django-simple-history==2.7.2
 django-storages==1.7.1
+django-user-tasks==0.1.7
 django-waffle==0.16.0
 django==1.11.20
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
