@@ -126,6 +126,8 @@ def post_job_success(job_id, results, file_extension):
     result_url = _RESULT_STORAGE.store(job_id, results, file_extension)
     task_status = UserTaskStatus.objects.get(task_id=job_id)
     _affirm_job_in_progress(job_id, task_status)
+    log_message = "Job {} succeeded with result URL {}".format(job_id, result_url)
+    logger.info(log_message)
     UserTaskArtifact.objects.create(
         status=task_status, name=_RESULT_ARTIFACT_NAME, url=result_url
     )
