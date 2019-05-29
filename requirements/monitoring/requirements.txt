@@ -16,9 +16,9 @@ aws-sam-translator==1.11.0  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 babel==2.7.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.9.156
+boto3==1.9.157
 boto==2.49.0              # via moto
-botocore==1.12.156        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.157        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
 certifi==2019.3.9         # via requests
 cffi==1.12.3              # via cryptography
@@ -40,7 +40,7 @@ django-model-utils==3.1.2
 django-mysql==3.1.0
 django-simple-history==2.7.2
 django-storages==1.7.1
-django-user-tasks==0.1.5
+django-user-tasks==0.1.6
 django-waffle==0.16.0
 django==1.11.20
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
@@ -55,7 +55,7 @@ edx-django-utils==1.0.3   # via edx-drf-extensions
 edx-drf-extensions==2.3.0
 edx-i18n-tools==0.4.8
 edx-lint==1.2.1
-edx-opaque-keys==0.4.4    # via edx-drf-extensions
+edx-opaque-keys==1.0.0    # via edx-drf-extensions
 edx-rest-api-client==1.9.2
 edx-sphinx-theme==1.4.0
 factory-boy==2.12.0
