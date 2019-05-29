@@ -4,6 +4,7 @@
 #
 #    pip-compile --output-file=requirements/devstack.txt requirements/devstack.in
 #
+-e git+https://github.com/edx/django-user-tasks.git@62c2ee06f22319edbba0fcbfe21feaa8ced72751#egg=django-user-tasks==0.1.17
 alabaster==0.7.12         # via sphinx
 amqp==1.4.9               # via kombu
 analytics-python==1.2.9
@@ -40,7 +41,6 @@ django-model-utils==3.1.2
 django-mysql==3.1.0
 django-simple-history==2.7.2
 django-storages==1.7.1
-django-user-tasks==0.1.6
 django-waffle==0.16.0
 django==1.11.20
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
