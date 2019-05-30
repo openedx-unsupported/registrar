@@ -20,7 +20,7 @@ from collections import namedtuple
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
-from registrar.apps.core.job_storage import get_job_result_store
+from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 
 
@@ -29,7 +29,7 @@ JobStatus = namedtuple('JobStatus', ['created', 'state', 'result'])
 logger = logging.getLogger(__name__)
 
 _RESULT_ARTIFACT_NAME = 'Job Result'
-_RESULT_STORAGE = get_job_result_store()
+_RESULT_STORAGE = get_filestore()
 
 
 def start_job(user, task_fn, *args, **kwargs):
@@ -123,7 +123,8 @@ def post_job_success(job_id, results, file_extension):
         results (str): String containing results of job; to be saved to file.
         file_extension (stR): Desired file extension for result file(e.g. 'json').
     """
-    result_url = _RESULT_STORAGE.store(job_id, results, file_extension)
+    result_path = "job-results/{}.{}".format(job_id, file_extension)
+    result_url = _RESULT_STORAGE.store(result_path, results)
     task_status = UserTaskStatus.objects.get(task_id=job_id)
     _affirm_job_in_progress(job_id, task_status)
     log_message = "Job {} succeeded with result URL {}".format(job_id, result_url)
