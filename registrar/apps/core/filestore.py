@@ -80,7 +80,7 @@ def get_filestore():
     configured default storage backend.
     """
     class_name = get_storage_class().__name__
-    if class_name == 'FileSystemStorage':
+    if class_name == 'FileSystemStorage':  # pragma: no cover
         return FileSystemFilestore(default_storage)
     elif class_name == 'S3Boto3Storage':
         return S3Filestore(default_storage)
