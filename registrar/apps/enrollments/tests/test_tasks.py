@@ -244,8 +244,8 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             (
                 self.job_id,
                 self.user.id,
-                program_key or self.program.key,
                 self.json_filepath,
+                program_key or self.program.key,
             ),
             task_id=self.job_id
         )

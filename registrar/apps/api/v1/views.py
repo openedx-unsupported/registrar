@@ -1,6 +1,9 @@
 """
 The public-facing REST API.
 """
+import csv
+import io
+import json
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -10,11 +13,19 @@ from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
-from registrar.apps.api.constants import PERMISSION_QUERY_PARAM_MAP
+from registrar.apps.api.constants import (
+    PERMISSION_QUERY_PARAM_MAP,
+    UPLOAD_FILE_MAX_SIZE,
+)
+from registrar.apps.api.exceptions import FileTooLarge
 from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
@@ -39,7 +50,10 @@ from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tasks import (
     list_course_run_enrollments,
     list_program_enrollments,
+    write_course_run_enrollments,
+    write_program_enrollments,
 )
+from registrar.apps.enrollments.utils import is_enrollment_job_processing
 
 
 logger = logging.getLogger(__name__)
@@ -250,7 +264,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         """
         Submit a user task that retrieves program enrollment data.
         """
-        return self.invoke_job(list_program_enrollments, self.program.key)
+        return self.invoke_download_job(list_program_enrollments, self.program.key)
 
     def post(self, request, program_key):
         """ POST handler """
@@ -319,7 +333,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         """
         Submit a user task that retrieves course run enrollment data.
         """
-        return self.invoke_job(
+        return self.invoke_download_job(
             list_course_run_enrollments,
             self.program.key,
             self.internal_course_key,
@@ -391,3 +405,79 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
 
     def get_queryset(self):
         return get_processing_jobs_for_user(self.request.user)
+
+
+class EnrollmentUploadView(JobInvokerMixin, APIView):
+    """
+    Base view for uploading enrollments via csv file
+
+    Returns:
+     * 202: Upload created
+     * 403: User lack write access at specified program
+     * 400: Validation error, missing or invalid file
+     * 404: Program does not exist
+     * 409: Job already processing for this program
+     * 413: File too large
+    """
+    parser_classes = (MultiPartParser,)
+    field_names = []  # Override in subclass
+    task_fn = None  # Override in subclass
+
+    def post(self, request, *args, **kwargs):
+        """ POST handler """
+        if 'file' not in request.data:
+            raise ParseError('No file content uploaded')
+
+        csv_file = request.data['file']
+        if csv_file.size > UPLOAD_FILE_MAX_SIZE:
+            raise FileTooLarge()
+
+        if is_enrollment_job_processing(self.program):
+            return Response('Job already in progress for program', HTTP_409_CONFLICT)
+
+        file_itr = io.StringIO(csv_file.read().decode('utf-8'))
+
+        enrollments = []
+        reader = csv.DictReader(file_itr)
+        if not reader.fieldnames == self.field_names:
+            raise ValidationError('Invalid csv headers')
+
+        for n, row in enumerate(reader, 1):
+            if not self._is_valid_row(row):
+                raise ValidationError('Unable to begin upload. Encountered Missing/extraneous data at row {}'.format(n))
+            enrollments.append(row)
+
+        return self.invoke_upload_job(self.task_fn, json.dumps(enrollments), *args, **kwargs)
+
+    def _is_valid_row(self, row):
+        """ validate row data matches headers """
+        if None in row:
+            return False
+        for field in self.field_names:
+            if not row[field]:
+                return False
+        return True
+
+
+class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView):
+    """
+    A view for uploading program enrollments via csv file
+
+    Path: /api/v1/programs/{program_key}/enrollments
+    """
+    field_names = ['student_key', 'status']
+    task_fn = write_program_enrollments
+    event_method_map = {'POST': 'registrar.v1.upload_program_enrollments'}
+    event_parameter_map = {'program_key': 'program_key'}
+
+
+class CourseRunEnrollmentUploadView(CourseSpecificViewMixin, EnrollmentUploadView):
+    """
+    A view for uploading course enrollments via csv file
+
+    Path: /api/v1/programs/{program_key}/course_enrollments
+    """
+    field_names = ['student_key', 'course_key', 'status']
+    task_fn = write_course_run_enrollments
+    event_method_map = {'POST': 'registrar.v1.upload_course_enrollments'}
+    event_parameter_map = {'program_key': 'program_key'}
