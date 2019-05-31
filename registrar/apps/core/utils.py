@@ -51,7 +51,9 @@ def serialize_to_csv(items, field_names, include_headers=False):
     Returns: str
     """
     outfile = StringIO()
-    writer = csv.DictWriter(outfile, fieldnames=field_names)
+    writer = csv.DictWriter(
+        outfile, fieldnames=field_names, extrasaction="ignore"
+    )
     if include_headers:
         writer.writeheader()
     for item in items:

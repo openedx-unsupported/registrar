@@ -176,12 +176,9 @@ def get_program_enrollments(program_uuid, client=None):
     """
     url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
     enrollments = _get_all_paginated_results(url, client)
-    ProgramEnrollmentSerializer(
-        data=enrollments, many=True
-    ).is_valid(
-        raise_exception=True
-    )
-    return enrollments
+    serializer = ProgramEnrollmentSerializer(data=enrollments, many=True)
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 def get_course_run_enrollments(program_uuid, course_id, client=None):
@@ -202,12 +199,9 @@ def get_course_run_enrollments(program_uuid, course_id, client=None):
     """
     url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_id))
     enrollments = _get_all_paginated_results(url, client)
-    CourseEnrollmentSerializer(
-        data=enrollments, many=True
-    ).is_valid(
-        raise_exception=True
-    )
-    return enrollments
+    serializer = CourseEnrollmentSerializer(data=enrollments, many=True)
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 def write_program_course_enrollments(program_uuid, course_key, enrollments, update=False, client=None):

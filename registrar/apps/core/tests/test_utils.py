@@ -51,11 +51,12 @@ class GetUserOrganizationsTests(TestCase):
         self.assertEqual(org_keys, expected_org_keys)
 
 
-def _create_enrollment(student_key, status, account_created):
+def _create_food(name, is_fruit, rating, color):
     return {
-        'student_key': student_key,
-        'status': status,
-        'account_created': account_created,
+        'name': name,
+        'is_fruit': is_fruit,
+        'rating': rating,
+        'color': color,
     }
 
 
@@ -63,23 +64,30 @@ def _create_enrollment(student_key, status, account_created):
 class SerializeToCSVTests(TestCase):
     """ Tests for serialize_to_csv """
 
-    field_names = ('student_key', 'status', 'account_created')
+    field_names = ('name', 'is_fruit', 'rating')
     test_data = [
-        _create_enrollment('student_1111', 'active', True),
-        _create_enrollment('student_2222', 'inactive', True),
-        _create_enrollment('student_3333', 'active', False),
-        _create_enrollment('student_4444', 'inactive', False),
+        _create_food('asparagus', False, 3, 'green'),
+        _create_food('avocado', True, 9, 'green'),
+        _create_food('purplejollyrancher', True, 6, 'purple'),
     ]
-    expected_headers = 'student_key,status,account_created\r\n'
+    expected_headers = 'name,is_fruit,rating\r\n'
     expected_csv = (
-        'student_1111,active,True\r\n'
-        'student_2222,inactive,True\r\n'
-        'student_3333,active,False\r\n'
-        'student_4444,inactive,False\r\n'
+        'asparagus,False,3\r\n'
+        'avocado,True,9\r\n'
+        'purplejollyrancher,True,6\r\n'
     )
 
     @ddt.data(True, False)
     def test_serialize_data(self, include_headers):
+
+        # Assert that our test data includes at least one field that will NOT
+        # be serialized, ensuring that `serialize_to_csv` can handle extra
+        # fields gracefully.
+        data_fields = set(self.test_data[0].keys())
+        serialize_fields = set(self.field_names)
+        self.assertTrue(serialize_fields.issubset(data_fields))
+        self.assertFalse(data_fields.issubset(serialize_fields))
+
         result = serialize_to_csv(self.test_data, self.field_names, include_headers)
         if include_headers:
             self.assertEqual(self.expected_headers + self.expected_csv, result)
