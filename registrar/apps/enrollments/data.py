@@ -1,17 +1,27 @@
 """
 Module for syncing data with external services.
 """
+import json
 import logging
 from collections import namedtuple
 from datetime import datetime
+from itertools import groupby
 from posixpath import join as urljoin
 
 from django.conf import settings
 from django.core.cache import cache
 from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_207_MULTI_STATUS,
+    HTTP_422_UNPROCESSABLE_ENTITY,
+)
 
 from registrar.apps.enrollments.constants import (
+    ENROLLMENT_ERROR_DUPLICATED,
+    ENROLLMENT_ERROR_INTERNAL,
+    LMS_ENROLLMENT_WRITE_MAX_SIZE,
     PROGRAM_CACHE_KEY_TPL,
     PROGRAM_CACHE_TIMEOUT,
 )
@@ -96,7 +106,7 @@ class DiscoveryProgram(object):
     def from_json(cls, program_uuid, program_data):
         """
         Builds a DiscoveryProgram instance from JSON data that has been
-        returned by the Course Discovery service.
+        returned by the Course Discovery service.json
         """
         program_title = program_data.get('title')
         program_url = program_data.get('marketing_url')
@@ -169,26 +179,6 @@ class DiscoveryProgram(object):
             return course_run.key
 
 
-def write_program_enrollments(program_uuid, enrollments, update=False, client=None):
-    """
-    Create or update program enrollments in the LMS.
-
-    Returns:
-        A HTTP response object that includes both response data and status_code
-    """
-    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
-
-    method = 'PATCH' if update else 'POST'
-
-    try:
-        return _make_request(method, url, client, json=enrollments)
-    except HTTPError as e:
-        response = e.response
-        if response.status_code in [404, 422]:
-            return response
-        raise
-
-
 def get_program_enrollments(program_uuid, client=None):
     """
     Fetches program enrollments from the LMS.
@@ -204,7 +194,7 @@ def get_program_enrollments(program_uuid, client=None):
         - HTTPError if there is an issue communicating with LMS
         - ValidationError if enrollment data from LMS is invalid
     """
-    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
+    url = _lms_program_enrollment_url(program_uuid)
     enrollments = _get_all_paginated_results(url, client)
     serializer = ProgramEnrollmentSerializer(data=enrollments, many=True)
     serializer.is_valid(raise_exception=True)
@@ -217,7 +207,7 @@ def get_course_run_enrollments(program_uuid, course_key, client=None):
 
     Arguments:
         program_uuid (str): UUID-4 string
-        course_id (str): edX course key identifying course run
+        course_key (str): edX course key identifying course run
 
     Returns: list[dict]
         A list of enrollment dictionaries, validated by
@@ -227,31 +217,134 @@ def get_course_run_enrollments(program_uuid, course_key, client=None):
         - HTTPError if there is an issue communicating with LMS
         - ValidationError if enrollment data from LMS is invalid
     """
-    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_key))
+    url = _lms_course_run_enrollment_url(program_uuid, course_key)
     enrollments = _get_all_paginated_results(url, client)
     serializer = CourseEnrollmentSerializer(data=enrollments, many=True)
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
 
 
-def write_program_course_enrollments(program_uuid, course_key, enrollments, update=False, client=None):
+def write_program_enrollments(method, program_uuid, enrollments, client=None):
+    """
+    Create or update program enrollments in the LMS.
+
+    Returns: See _write_enrollments.
+    """
+    url = _lms_program_enrollment_url(program_uuid)
+    curriculum_uuid = DiscoveryProgram.get(program_uuid).active_curriculum_uuid
+    enrollments = enrollments.copy()
+    for enrollment in enrollments:
+        enrollment['curriculum_uuid'] = curriculum_uuid
+    return _write_enrollments(method, url, enrollments, client)
+
+
+def write_course_run_enrollments(method, program_uuid, course_id, enrollments, client=None):
     """
     Create or update program course enrollments in the LMS.
 
-    Returns:
-        A HTTP response object that includes both response data and status_code
+    Returns: See _write_enrollments.
     """
-    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL).format(program_uuid, course_key)
+    url = _lms_course_run_enrollment_url(program_uuid, course_id)
+    return _write_enrollments(method, url, enrollments, client)
 
-    method = 'PATCH' if update else 'POST'
 
-    try:
-        return _make_request(method, url, client, json=enrollments)
-    except HTTPError as e:
-        response = e.response
-        if response.status_code in [404, 422]:
-            return response
-        raise
+def _write_enrollments(method, url, enrollments, client=None):
+    """
+    Arguments:
+        method: "POST", "PATCH", or "PUT"
+        url: str
+        enrollments: list[dict], with at least "student_key" in each dict.
+        client (optional)
+
+    Returns:
+        tuple(
+            good: bool,
+            bad: bool,
+            results: dict[str: str]
+        )
+        where:
+          * `good` indicates whether at least one enrollment was successful
+          * `bad` indicates whether at least one enrollment failed
+          * `results` is a dict that maps each student key to a status
+            indicating the result of the enrollment operation.
+    """
+    def key_fn(e):
+        return e['student_key']
+    # groupby requires sorted input.
+    sorted_enrollments = sorted(enrollments, key=key_fn)
+    enrollments_by_student = {
+        student_key: list(student_enrollments)
+        for student_key, student_enrollments
+        in groupby(sorted_enrollments, key=key_fn)
+    }
+    duplicated_student_keys = {
+        student_key
+        for student_key, student_enrollments in enrollments_by_student.items()
+        if len(student_enrollments) > 1
+    }
+    unique_enrollments = [
+        enrollment
+        for enrollment in enrollments
+        if enrollment['student_key'] not in duplicated_student_keys
+    ]
+    responses = _do_batched_lms_write(
+        method, url, unique_enrollments, LMS_ENROLLMENT_WRITE_MAX_SIZE, client
+    )
+
+    good = False
+    bad = bool(duplicated_student_keys)
+    # By default, mark all enrollments as "internal-error".
+    # Under normal circumstances, every processed enrollment will be marked
+    # with a status, so if there are any left over, there was indeed an
+    # internal error.
+    results = {
+        student_key: ENROLLMENT_ERROR_INTERNAL
+        for student_key in enrollments_by_student
+    }
+    results.update({
+        student_key: ENROLLMENT_ERROR_DUPLICATED
+        for student_key in duplicated_student_keys
+    })
+    for response in responses:
+        status = response.status_code
+        if status == HTTP_200_OK:
+            good = True
+        elif status == HTTP_207_MULTI_STATUS:
+            good = True
+            bad = True
+        elif status == HTTP_422_UNPROCESSABLE_ENTITY:
+            bad = True
+        else:
+            bad = True
+            logger.exception(
+                "Unexpected status {} from LMS request {} {}. Response body: {}".format(
+                    response.status_code, method, url, response.text
+                )
+            )
+        try:
+            results.update(response.json())
+        except (json.JSONDecodeError, TypeError, ValueError):
+            pass
+    return good, bad, results
+
+
+def _lms_program_enrollment_url(program_uuid):
+    """
+    Given a program UUID, get the LMS URL for program enrollments.
+    """
+    endpoint_path = LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid)
+    return urljoin(settings.LMS_BASE_URL, endpoint_path)
+
+
+def _lms_course_run_enrollment_url(program_uuid, course_id):
+    """
+    Given a program UUID and an edX course ID,
+    get the LMS URL for course run enrollments.
+    """
+    endpoint_path = LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(
+        program_uuid, course_id
+    )
+    return urljoin(settings.LMS_BASE_URL, endpoint_path)
 
 
 def _get_all_paginated_results(url, client=None):
@@ -269,6 +362,26 @@ def _get_all_paginated_results(url, client=None):
         results += response_data['results']
         next_url = response_data.get('next')
     return results
+
+
+def _do_batched_lms_write(method, url, items, items_per_batch, client=None):
+    """
+    Make a series of requests to the LMS, each using a
+    `items_per_batch`-sized chunk of the list `items` as input data.
+
+    Returns: list[HTTPResonse]
+        A list of responses, returned in order of the requests made.
+    """
+    client = client or _get_client(settings.LMS_BASE_URL)
+    responses = []
+    for i in range(0, len(items), items_per_batch):
+        sub_items = items[i:(i + items_per_batch)]
+        try:
+            response = _make_request(method, url, client, json=sub_items)
+        except HTTPError as e:
+            response = e.response
+        responses.append(response)
+    return responses
 
 
 def _make_request(method, url, client, **kwargs):

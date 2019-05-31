@@ -25,12 +25,21 @@ from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 
 
-JobStatus = namedtuple('JobStatus', ['created', 'state', 'result'])
+JobStatus = namedtuple(
+    'JobStatus',
+    ['job_id', 'created', 'state', 'result', 'text'],
+)
 
 logger = logging.getLogger(__name__)
 result_filestore = get_filestore(JOB_RESULT_PATH_PREFIX)
 
 _RESULT_ARTIFACT_NAME = 'Job Result'
+
+USER_TASK_STATUS_PROCESSING_STATES = [
+    UserTaskStatus.PENDING,
+    UserTaskStatus.IN_PROGRESS,
+    UserTaskStatus.RETRYING,
+]
 
 
 def start_job(user, task_fn, *args, **kwargs):
@@ -74,29 +83,65 @@ def get_job_status(user, job_id):
     except UserTaskStatus.DoesNotExist:
         raise ObjectDoesNotExist("No such job: {}".format(job_id))
     if user.has_perm(JOB_GLOBAL_READ) or user == task_status.user:
-        return JobStatus(
-            task_status.created,
-            task_status.state,
-            _get_result(job_id, task_status),
-        )
+        return _make_job_status(task_status)
     else:
         raise PermissionDenied()
 
 
-def _get_result(job_id, task_status):
+def get_processing_jobs_for_user(user):
     """
-    Get the result URL of a job.
+    Get the statuses of any processing jobs for the given user.
+
+    Arguments:
+        user (User)
+
+    Returns: seq[JobStatus]
+    """
+    task_statuses = UserTaskStatus.objects.filter(
+        user=user,
+        state__in=USER_TASK_STATUS_PROCESSING_STATES
+    )
+    return (_make_job_status(task_status) for task_status in task_statuses)
+
+
+def processing_job_with_prefix_exists(prefix):
+    """
+    Returns whether there exists a job whose name begins with `prefix`
+    that is currently processing (in progress, pending, or retrying).
+    """
+    return UserTaskStatus.objects.filter(
+        name__startswith=prefix,
+        state__in=USER_TASK_STATUS_PROCESSING_STATES,
+    ).exists()
+
+
+def _make_job_status(task_status):
+    """
+    Creates a JobStatus instance from a UserTaskStatus instance.
+    """
+    return JobStatus(
+        task_status.task_id,
+        task_status.created,
+        task_status.state,
+        *_get_result(task_status),
+    )
+
+
+def _get_result(task_status):
+    """
+    Get the result URL and text of a job from its UserTaskStatus.
 
     Will be stored in the `result` field of the first
     UserTaskArtifact with the name `_RESULT_ARTIFACT_NAME`
     of `task_status`.
 
     Arguments:
-        job_id (str): UUID-4 job ID string.
         task_status (UserTaskStatus)
 
-    Returns: str|NoneType
-        Returns URL, or None if no result.
+    Returns: (str|NoneType, str|NoneType)
+        Returns URL and text as a tuple.
+        For successful job, either URL or text may be None.
+        If no results posted, both will be None.
     """
     artifacts = UserTaskArtifact.objects.filter(
         status=task_status, name=_RESULT_ARTIFACT_NAME
@@ -106,23 +151,25 @@ def _get_result(job_id, task_status):
             logger.error(
                 'Multiple UserTaskArtifacts for job ' +
                 '(job_id = {}, UserTaskStatus.uuid = {}). '.format(
-                    job_id, task_status.uuid
+                    task_status.task_id, task_status.uuid
                 ) +
                 'First artifact will be returned'
             )
-        return artifacts.first().url
+        artifact = artifacts.first()
+        return artifact.url or None, artifact.text or None
     else:
-        return None
+        return None, None
 
 
-def post_job_success(job_id, results, file_extension):
+def post_job_success(job_id, results, file_extension, text=None):
     """
     Mark a job as Succeeded, providing a result.
 
     Arguments:
         job_id (str): UUID-4 string identifying Job
         results (str): String containing results of job; to be saved to file.
-        file_extension (stR): Desired file extension for result file(e.g. 'json').
+        file_extension (str): Desired file extension for result file(e.g. 'json').
+        text (str): [optional] string to write to `text` field of result.
     """
     result_path = "{}.{}".format(job_id, file_extension)
     result_url = result_filestore.store(result_path, results)
@@ -131,7 +178,10 @@ def post_job_success(job_id, results, file_extension):
     log_message = "Job {} succeeded with result URL {}".format(job_id, result_url)
     logger.info(log_message)
     UserTaskArtifact.objects.create(
-        status=task_status, name=_RESULT_ARTIFACT_NAME, url=result_url
+        status=task_status,
+        name=_RESULT_ARTIFACT_NAME,
+        url=result_url,
+        text=(text or ""),
     )
     task_status.succeed()
 

@@ -677,6 +677,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(response.status_code, 404)
 
 
+@ddt.ddt
 class ProgramEnrollmentWriteMixin(object):
     """ Test write requests to the /api/v1/programs/{program_key}/enrollments endpoint """
     path = 'programs/masters-in-english/enrollments'
@@ -785,7 +786,7 @@ class ProgramEnrollmentWriteMixin(object):
                 )
 
         lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
-        self.assertListEqual(lms_request_body, [
+        self.assertCountEqual(lms_request_body, [
             {
                 'status': 'enrolled',
                 'student_key': '001',
@@ -808,7 +809,12 @@ class ProgramEnrollmentWriteMixin(object):
     @mock_oauth_login
     @responses.activate
     def test_backend_unprocessable_response(self):
-        self.mock_enrollments_response(self.method, "invalid enrollment record", response_code=422)
+        expected_lms_response = {
+            '001': 'conflict',
+            '002': 'conflict',
+            '003': 'conflict'
+        }
+        self.mock_enrollments_response(self.method, expected_lms_response, response_code=422)
 
         req_data = [
             self.student_enrollment('enrolled', '001'),
@@ -829,7 +835,7 @@ class ProgramEnrollmentWriteMixin(object):
                     req_data,
                 )
         self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.data, 'invalid enrollment record')
+        self.assertEqual(response.data, expected_lms_response)
 
     @mock_oauth_login
     @responses.activate
@@ -863,32 +869,40 @@ class ProgramEnrollmentWriteMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    def test_backend_server_error(self):
-        self.mock_enrollments_response(self.method, 'Internal Server Error', response_code=500)
-
+    @ddt.data(
+        (500, 'Internal Server Error'),
+        (404, 'Not Found'),
+        (413, 'Payload Too Large'),
+    )
+    @ddt.unpack
+    def test_backend_request_failed(self, status_code, content):
+        self.mock_enrollments_response(
+            self.method, content, response_code=status_code
+        )
         req_data = [
-            self.student_enrollment('active', '001'),
-            self.student_enrollment('active', '002'),
-            self.student_enrollment('inactive', '003'),
+            self.student_enrollment('enrolled', '001'),
+            self.student_enrollment('enrolled', '002'),
+            self.student_enrollment('pending', '003'),
         ]
-        with self.assertRaisesRegex(requests.exceptions.HTTPError, 'Internal Server Error'):
+        expected_response_data = {
+            '001': 'internal-error',
+            '002': 'internal-error',
+            '003': 'internal-error',
+        }
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-cs',
+                failure='unprocessable_entity',
+        ):
             with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
-                self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
-
-    @mock_oauth_login
-    @responses.activate
-    def test_backend_404(self):
-        self.mock_enrollments_response(self.method, 'Not Found', response_code=404)
-
-        req_data = [
-            self.student_enrollment('active', '001'),
-            self.student_enrollment('active', '002'),
-            self.student_enrollment('inactive', '003'),
-        ]
-        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
-            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
-
-        self.assertEqual(404, response.status_code)
+                response = self.request(
+                    self.method,
+                    'programs/masters-in-cs/enrollments/',
+                    self.stem_admin,
+                    req_data,
+                )
+        self.assertEqual(response.status_code, 422)
+        self.assertDictEqual(response.data, expected_response_data)
 
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_enrollment('enrolled')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
@@ -938,7 +952,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
     )
 
     @mock.patch(
-        'registrar.apps.enrollments.tasks.get_program_enrollments',
+        'registrar.apps.enrollments.tasks.data.get_program_enrollments',
         return_value=enrollments,
     )
     @ddt.data(
@@ -1045,7 +1059,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
     @mock.patch(
-        'registrar.apps.enrollments.tasks.get_course_run_enrollments',
+        'registrar.apps.enrollments.tasks.data.get_course_run_enrollments',
         return_value=enrollments,
     )
     @ddt.data(
@@ -1136,6 +1150,7 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
         job_status = job_respose.data
         self.assertIn('created', job_status)
         self.assertEqual(job_status['state'], 'Succeeded')
+        self.assertIsNone(job_status['text'])
         result_url = job_status['result']
         self.assertIn("/job-results/{}.json?".format(job_id), result_url)
 
@@ -1158,6 +1173,7 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
         job_status = job_respose.data
         self.assertIn('created', job_status)
         self.assertEqual(job_status['state'], 'Failed')
+        self.assertIsNone(job_status['text'])
         self.assertIsNone(job_status['result'])
         self.assertEqual(mock_jobs_logger.error.call_count, 1)
 
@@ -1219,7 +1235,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         super().setUpTestData()
         cls.course_run_keys = [
             ('course-v1:STEMx+CS111+F19', 'CompSci1_Fall'),
-            ('course-v1:STEMx+CS222+F19', 'CompSci2_Fall'),
+            ('course-v1:STEMx+CS222+JF19', 'CompSci2_Fall'),
             ('course-v1:STEMx+CS333+F19', 'CompSci3_Fall'),
             ('course-v1:STEMx+CS444+F19', 'CompSci4_Fall'),
         ]
@@ -1360,7 +1376,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
             )
 
         lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
-        self.assertListEqual(lms_request_body, [
+        self.assertCountEqual(lms_request_body, [
             {
                 'status': 'active',
                 'student_key': '001',
@@ -1382,14 +1398,17 @@ class ProgramCourseEnrollmentWriteMixin(object):
     @ddt.data(False, True)
     def test_backend_unprocessable_response(self, use_external_course_key):
         course_id = self.external_course_key if use_external_course_key else self.course_key
-        self.mock_course_enrollments_response(self.method, "invalid enrollment record", response_code=422)
-
+        expected_lms_response = {
+            '001': 'conflict',
+            '002': 'conflict',
+            '003': 'conflict'
+        }
+        self.mock_course_enrollments_response(self.method, expected_lms_response, response_code=422)
         req_data = [
             self.student_course_enrollment('active', '001'),
             self.student_course_enrollment('active', '002'),
             self.student_course_enrollment('inactive', '003'),
         ]
-
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
@@ -1401,7 +1420,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
             )
 
         self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.data, 'invalid enrollment record')
+        self.assertEqual(response.data, expected_lms_response)
 
     @mock_oauth_login
     @responses.activate
@@ -1436,18 +1455,44 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    @ddt.data(False, True)
-    def test_backend_server_error(self, use_external_course_key):
-        course_id = self.external_course_key if use_external_course_key else self.course_key
-        self.mock_course_enrollments_response(self.method, 'Internal Server Error', response_code=500)
-
+    @ddt.data(
+        (500, 'Internal Server Error', True),
+        (404, 'Not Found', False),
+        (413, 'Payload Too Large', True),
+    )
+    @ddt.unpack
+    def test_backend_request_failed(self, status_code, content, use_external_course_key):
+        course_id = (
+            self.external_course_key if use_external_course_key
+            else self.course_key
+        )
+        self.mock_course_enrollments_response(
+            self.method, content, response_code=status_code
+        )
         req_data = [
             self.student_course_enrollment('active', '001'),
             self.student_course_enrollment('active', '002'),
             self.student_course_enrollment('inactive', '003'),
         ]
-        with self.assertRaisesRegex(requests.exceptions.HTTPError, 'Internal Server Error'):
-            self.request(self.method, self.get_url(course_id=course_id), self.stem_admin, req_data)
+        expected_response_data = {
+            '001': 'internal-error',
+            '002': 'internal-error',
+            '003': 'internal-error',
+        }
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_key=course_id,
+                failure='unprocessable_entity',
+        ):
+            response = self.request(
+                self.method,
+                self.get_url(course_id=course_id),
+                self.stem_admin,
+                req_data,
+            )
+        self.assertEqual(response.status_code, 422)
+        self.assertDictEqual(response.data, expected_response_data)
 
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_course_enrollment('active')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
@@ -1464,11 +1509,53 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
         self.assertEqual(response.status_code, 413)
 
-    @ddt.data("this is a string", {'this is a': 'dict'})
-    def test_request_not_a_list(self, payload):
-        response = self.request(self.method, self.get_url(), self.stem_admin, payload)
+    @ddt.data(
+        (
+            "this is a string",
+            "expected request body type: List",
+        ),
+        (
+            {"this is a": "dict"},
+            "expected request body type: List",
+        ),
+        (
+            ["this enrollment is a string"],
+            "expected items in request to be of type Dict",
+        ),
+        (
+            [None],
+            "expected items in request to be of type Dict",
+        ),
+        (
+            [{"this enrollment": "has no student key"}],
+            'expected request dicts to have string value for "student_key"',
+        ),
+        (
+            [{"student_key": None}],
+            'expected request dicts to have string value for "student_key"',
+        ),
+        (
+            [{"student_key": "bob-has-no-status"}],
+            'expected request dicts to have string value for "status"',
+        ),
+        (
+            [{"student_key": "bobs-status-is-not-a-string", "status": 1}],
+            'expected request dicts to have string value for "status"',
+        ),
+    )
+    @ddt.unpack
+    def test_bad_request(self, payload, message):
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_key=self.course_key,
+                failure='bad_request',
+        ):
+            response = self.request(
+                self.method, self.get_url(), self.stem_admin, payload
+            )
         self.assertEqual(response.status_code, 400)
-        self.assertIn('expected request body type: List', response.data)
+        self.assertIn(message, response.data)
 
 
 class ProgramCourseEnrollmentPostTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
@@ -1487,75 +1574,85 @@ class JobStatusListView(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     path = 'jobs/'
     event = 'registrar.v1.list_job_statuses'
 
+    job_ids = [
+        '8dd98f5e-f7af-4b7d-a2b6-a44a596e8267',
+        '98ac44f8-1e1e-4715-8e7d-e1aa0b8ebe9f',
+        '38040bf8-7384-4ffc-8e5e-a0ec862ba280',
+        '59b883ac-cabb-4c13-864d-8e822f607690',
+        '8295253b-7483-46ec-8d5a-f53ba21d28c2',
+        '04d749a8-52ca-4008-8e06-95396db43810',
+        'c95c7bda-b40e-4503-95b8-4b3082f10762',
+        'ab3ef797-3413-41d2-971d-c5859d0b6904',
+        'ba7eee39-3693-4875-966e-829210cac60f',
+        '1b8b376c-fcf9-4532-a1c6-90a04c1b4663',
+        'abcac34d-ad16-47e8-968d-ef84613577fb',
+        '4a4405f7-7e1c-4087-b36f-f8ab9a8ff920',
+        'f91bd181-6a1f-4055-9793-5db2aed07ba9',
+    ]
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         # cls.edx_admin has some processing tasks and some not processing
-        cls.edx_admin_tasks = [
-            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.PENDING, 'edx-admin-pending'),
-            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.CANCELED, 'edx-admin-canceled'),
-            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.IN_PROGRESS, 'edx-admin-inprogress'),
-            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.FAILED, 'edx-admin-failed'),
-            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.SUCCEEDED, 'edx-admin-succeeded'),
+        cls.edx_admin_jobs = [
+            cls.create_dummy_job_status(0, cls.edx_admin, UserTaskStatus.PENDING),
+            cls.create_dummy_job_status(1, cls.edx_admin, UserTaskStatus.CANCELED),
+            cls.create_dummy_job_status(2, cls.edx_admin, UserTaskStatus.IN_PROGRESS),
+            cls.create_dummy_job_status(3, cls.edx_admin, UserTaskStatus.FAILED),
+            cls.create_dummy_job_status(4, cls.edx_admin, UserTaskStatus.SUCCEEDED),
         ]
         # cls.stem_admin has tasks, all processing
-        cls.stem_admin_tasks = [
-            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.IN_PROGRESS, 'stem_admin-inprogress-1'),
-            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.PENDING, 'stem_admin-pending'),
-            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.IN_PROGRESS, 'stem_admin-inprogress-2'),
-            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.RETRYING, 'stem_admin-retrying'),
+        cls.stem_admin_jobs = [
+            cls.create_dummy_job_status(5, cls.stem_admin, UserTaskStatus.IN_PROGRESS),
+            cls.create_dummy_job_status(6, cls.stem_admin, UserTaskStatus.PENDING),
+            cls.create_dummy_job_status(7, cls.stem_admin, UserTaskStatus.IN_PROGRESS),
+            cls.create_dummy_job_status(8, cls.stem_admin, UserTaskStatus.RETRYING),
         ]
         # cls.stem_user has tasks, none processing
-        cls.stem_user_tasks = [
-            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.SUCCEEDED, 'stem_user-succeeded-1'),
-            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.SUCCEEDED, 'stem_user-succeeded-2'),
-            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.FAILED, 'stem_user-failed'),
-            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.CANCELED, 'stem_user-canceled'),
+        cls.stem_user_jobs = [
+            cls.create_dummy_job_status(9, cls.stem_user, UserTaskStatus.SUCCEEDED),
+            cls.create_dummy_job_status(10, cls.stem_user, UserTaskStatus.SUCCEEDED),
+            cls.create_dummy_job_status(11, cls.stem_user, UserTaskStatus.FAILED),
+            cls.create_dummy_job_status(12, cls.stem_user, UserTaskStatus.CANCELED),
         ]
         # cls.hum_admin has no tasks
 
     @classmethod
-    def create_dummy_job_status(cls, user, state, name):
-        return UserTaskStatus.objects.create(
+    def create_dummy_job_status(cls, n, user, state):
+        """
+        Create dummy job status in the database, and return
+        serialized version of it.
+        """
+        task_status = UserTaskStatus.objects.create(
             state=state,
-            name=name,
             user=user,
-            task_id=uuid.uuid4(),
+            task_id=cls.job_ids[n],
             total_steps=1,
         )
+        return {
+            'state': state,
+            'job_id': cls.job_ids[n],
+            'created': task_status.created.isoformat().replace('+00:00', 'Z'),
+            'result': None,
+            'text': None,
+        }
 
-    def test_edx_admin(self):
+    def test_some_jobs_processing(self):
         self._test_list_job_statuses(
             self.edx_admin,
-            [
-                self.edx_admin_tasks[0],
-                self.edx_admin_tasks[2],
-            ]
+            [self.edx_admin_jobs[0], self.edx_admin_jobs[2]],
         )
 
-    def test_stem_admin(self):
-        self._test_list_job_statuses(self.stem_admin, self.stem_admin_tasks)
+    def test_all_jobs_processing(self):
+        self._test_list_job_statuses(self.stem_admin, self.stem_admin_jobs)
 
-    def test_stem_user(self):
+    def test_no_jobs_processing(self):
         self._test_list_job_statuses(self.stem_user, [])
 
-    def test_hum_admin(self):
+    def test_no_jobs(self):
         self._test_list_job_statuses(self.hum_admin, [])
 
-    def _test_list_job_statuses(self, user, expected):
+    def _test_list_job_statuses(self, user, expected_response):
         response = self.get(self.path, user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), len(expected))
-        for expected_job in expected:
-            self.assert_status_in_response(expected_job, response.data)
-
-    def assert_status_in_response(self, expected, response_data):
-        """
-        Assert the expected data is included in the response
-        """
-        for status in response_data:  # pragma: no branch
-            if expected.name == status['name']:
-                self.assertEqual(str(expected.uuid), status['uuid'])
-                self.assertEqual(expected.state, status['state'])
-                return
-        self.fail('expected status not found')  # pragma: no cover
+        self.assertCountEqual(response.data, expected_response)

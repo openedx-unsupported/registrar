@@ -12,7 +12,12 @@ from edx_rest_framework_extensions.auth.jwt.authentication import (
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.response import Response
-from rest_framework.status import HTTP_202_ACCEPTED
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_202_ACCEPTED,
+    HTTP_207_MULTI_STATUS,
+    HTTP_422_UNPROCESSABLE_ENTITY,
+)
 
 from registrar.apps.api import exceptions
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
@@ -21,6 +26,10 @@ from registrar.apps.api.serializers import JobAcceptanceSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import start_job
+from registrar.apps.enrollments.data import (
+    write_course_run_enrollments,
+    write_program_enrollments,
+)
 from registrar.apps.enrollments.models import Program
 
 
@@ -139,20 +148,26 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
     A mixin for views that operate on or within a specific program course run.
 
     In addition to the functionality provided in `ProgramSpecificViewMixin`,
-    this mixin provides a `validate_course_id` function, which confirms
-    that the course ID (provided in the `course_id` path parameter)
-    exists within a program. If it does not, a 404 is raised.
+    this mixin provides a `internal_course_key` property, which returns the
+    edX course key of the course referred to in the URL (either by the
+    edX course key itself or by an external course key). It also validates
+    that they course key exists within the program, raising 404 if not.
     """
 
-    def validate_course_id(self):
+    @cached_property
+    def internal_course_key(self):
         """
         Raises a 404 if the course run identified by the `course_id` path
         parameter is not part of self.program.
         """
-        course_id = self.kwargs['course_id']
-        if not self.program.discovery_program.find_course_run(course_id):
+        provided_course_id = self.kwargs['course_id']
+        real_course_run = self.program.discovery_program.find_course_run(
+            provided_course_id
+        )
+        if not real_course_run:
             self.add_tracking_data(failure='course_not_found')
             raise Http404()
+        return real_course_run.key
 
 
 class JobInvokerMixin(object):
@@ -189,23 +204,63 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             return [perms.ORGANIZATION_WRITE_ENROLLMENTS]
         return []  # pragma: no cover
 
+    def handle_enrollments(self, course_id=None):
+        """
+        Handle Create/Update requests for program/course-run enrollments.
+
+        Expects `course_id` to be internal course key.
+
+        Does program enrollments if `course_id` is None.
+        Does course run enrollments otherwise.
+        """
+        self.validate_enrollment_data(self.request.data)
+        if course_id:
+            good, bad, results = write_course_run_enrollments(
+                self.request.method,
+                self.program.discovery_uuid,
+                course_id,
+                self.request.data,
+            )
+        else:
+            good, bad, results = write_program_enrollments(
+                self.request.method,
+                self.program.discovery_uuid,
+                self.request.data,
+            )
+        if good and bad:
+            status = HTTP_207_MULTI_STATUS
+        elif good:
+            status = HTTP_200_OK
+        else:
+            status = HTTP_422_UNPROCESSABLE_ENTITY
+            self.add_tracking_data(failure='unprocessable_entity')
+        return Response(results, status=status)
+
     def validate_enrollment_data(self, enrollments):
         """
         Validate enrollments request body
         """
         if not isinstance(enrollments, list):
-            self.add_tracking_data(failure='unprocessable_entity')
+            self.add_tracking_data(failure='bad_request')
             raise ValidationError('expected request body type: List')
 
         if len(enrollments) > ENROLLMENT_WRITE_MAX_SIZE:
             self.add_tracking_data(failure='request_entity_too_large')
             raise exceptions.EnrollmentPayloadTooLarge()
 
-    def add_tracking_data_from_lms_response(self, response):
-        """
-        Given an API response from the LMS, add necessary tracking data.
-        """
-        if response.status_code == 413:  # pragma: no cover
-            self.add_tracking_data(failure='request_entity_too_large')
-        elif response.status_code == 422:
-            self.add_tracking_data(failure='unprocessable_entity')
+        for enrollment in enrollments:
+            if not isinstance(enrollment, dict):
+                self.add_tracking_data(failure='bad_request')
+                raise ValidationError(
+                    'expected items in request to be of type Dict'
+                )
+            if not isinstance(enrollment.get('student_key'), str):
+                self.add_tracking_data(failure='bad_request')
+                raise ValidationError(
+                    'expected request dicts to have string value for "student_key"'
+                )
+            if not isinstance(enrollment.get('status'), str):
+                self.add_tracking_data(failure='bad_request')
+                raise ValidationError(
+                    'expected request dicts to have string value for "status"'
+                )
