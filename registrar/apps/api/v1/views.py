@@ -12,7 +12,6 @@ from edx_rest_framework_extensions.auth.jwt.authentication import (
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from registrar.apps.api.constants import PERMISSION_QUERY_PARAM_MAP
@@ -21,7 +20,6 @@ from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobStatusSerializer,
     ProgramSerializer,
-    UserTaskStatusSerializer,
 )
 from registrar.apps.api.v1.mixins import (
     AuthMixin,
@@ -31,19 +29,17 @@ from registrar.apps.api.v1.mixins import (
     ProgramSpecificViewMixin,
 )
 from registrar.apps.core import permissions as perms
-from registrar.apps.core.jobs import get_job_status
-from registrar.apps.core.models import Organization
-from registrar.apps.enrollments.data import (
-    DiscoveryProgram,
-    write_program_course_enrollments,
-    write_program_enrollments,
+from registrar.apps.core.jobs import (
+    get_job_status,
+    get_processing_jobs_for_user,
 )
+from registrar.apps.core.models import Organization
+from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tasks import (
     list_course_run_enrollments,
     list_program_enrollments,
 )
-from registrar.apps.enrollments.utils import get_processing_jobs_for_user
 
 
 logger = logging.getLogger(__name__)
@@ -256,40 +252,13 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         """
         return self.invoke_job(list_program_enrollments, self.program.key)
 
-    def handle_program_enrollments(self, request):
-        """
-        Handle Create/Update requests for enrollments
-        """
-        self.validate_enrollment_data(request.data)
-        program_uuid = self.program.discovery_uuid
-        discovery_program = DiscoveryProgram.get(program_uuid)
-
-        enrollments = [
-            {
-                'student_key': enrollment.get('student_key'),
-                'status': enrollment.get('status'),
-                'curriculum_uuid': discovery_program.active_curriculum_uuid
-            }
-            for enrollment in request.data
-        ]
-
-        if request.method == 'POST':
-            response = write_program_enrollments(program_uuid, enrollments)
-        elif request.method == 'PATCH':
-            response = write_program_enrollments(program_uuid, enrollments, update=True)
-        else:
-            raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
-
-        self.add_tracking_data_from_lms_response(response)
-        return Response(response.json(), status=response.status_code)
-
     def post(self, request, program_key):
         """ POST handler """
-        return self.handle_program_enrollments(request)
+        return self.handle_enrollments()
 
     def patch(self, request, program_key):  # pylint: disable=unused-argument
         """ PATCH handler """
-        return self.handle_program_enrollments(request)
+        return self.handle_enrollments()
 
 
 class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentMixin, APIView):
@@ -350,42 +319,19 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         """
         Submit a user task that retrieves course run enrollment data.
         """
-        self.validate_course_id()
         return self.invoke_job(
             list_course_run_enrollments,
             self.program.key,
-            self.program.discovery_program.get_course_key(self.kwargs['course_id']),
+            self.internal_course_key,
         )
 
-    def handle_program_course_enrollments(self, request, course_id):
-        """
-        Handle create/update requests for program/course enrollments
-        """
-        self.validate_enrollment_data(request.data)
-        program_uuid = self.program.discovery_uuid
-        self.validate_course_id()
-        course_key = self.program.discovery_program.get_course_key(course_id)
-
-        enrollments = request.data
-
-        if request.method == 'POST':
-            response = write_program_course_enrollments(program_uuid, course_key, enrollments)
-        elif request.method == 'PATCH':
-            response = write_program_course_enrollments(program_uuid, course_key, enrollments, update=True)
-        else:
-            raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
-
-        self.add_tracking_data_from_lms_response(response)
-        return Response(response.json(), status=response.status_code)
-
-    # pylint: disable=unused-argument
     def post(self, request, program_key, course_id):
         """ POST handler """
-        return self.handle_program_course_enrollments(request, course_id)
+        return self.handle_enrollments(self.internal_course_key)
 
-    def patch(self, request, program_key, course_id):
+    def patch(self, request, program_key, course_id):  # pylint: disable=unused-argument
         """ PATCH handler """
-        return self.handle_program_course_enrollments(request, course_id)
+        return self.handle_enrollments(self.internal_course_key)
 
 
 class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
@@ -440,7 +386,7 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
 
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    serializer_class = UserTaskStatusSerializer
+    serializer_class = JobStatusSerializer
     event_method_map = {'GET': 'registrar.v1.list_job_statuses'}
 
     def get_queryset(self):

@@ -56,3 +56,25 @@ def serialize_course_run_enrollments_to_csv(enrollments):
     return serialize_to_csv(
         enrollments, ('student_key', 'status', 'account_exists')
     )
+
+
+def serialize_enrollment_results_to_csv(enrollment_results):
+    """
+    Serialize course run enrollments into a CSV-formatted string.
+
+    Arguments:
+        enrollment_results (dict[str: str]):
+            Mapping from student keys to enrollment statuses.
+
+    Returns: str
+    """
+    enrollment_results_list = [
+        {
+            "student_key": student_key,
+            "status": status,
+        }
+        for student_key, status in enrollment_results.items()
+    ]
+    return serialize_to_csv(
+        enrollment_results_list, ('student_key', 'status'), include_headers=True
+    )

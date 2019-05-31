@@ -1,12 +1,6 @@
 """ Utilities for the enrollments app """
-from user_tasks.models import UserTaskStatus
 
-
-USER_TASK_STATUS_PROCESSING_STATES = [
-    UserTaskStatus.PENDING,
-    UserTaskStatus.IN_PROGRESS,
-    UserTaskStatus.RETRYING,
-]
+from registrar.apps.core.jobs import processing_job_with_prefix_exists
 
 
 def build_enrollment_job_status_name(program_key, task_name):
@@ -31,22 +25,4 @@ def is_enrollment_job_processing(program_key):
         program_key (str): program key for the program we're checking
     """
     program_prefix = build_enrollment_job_status_name(program_key, '')
-    return UserTaskStatus.objects.filter(
-        name__startswith=program_prefix,
-        state__in=USER_TASK_STATUS_PROCESSING_STATES,
-    ).exists()
-
-
-def get_processing_jobs_for_user(user):
-    """
-    Get the statuses of any processing jobs for the given user
-
-    Arguments:
-        user (User): User attempting to read job statuses.
-
-    Returns: queryset of processing UserTaskStatuses for the given user
-    """
-    return UserTaskStatus.objects.filter(
-        user=user,
-        state__in=USER_TASK_STATUS_PROCESSING_STATES
-    )
+    return processing_job_with_prefix_exists(program_prefix)

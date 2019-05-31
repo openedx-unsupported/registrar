@@ -28,7 +28,10 @@ from registrar.apps.enrollments.data import (
     DiscoveryProgram,
     get_course_run_enrollments,
     get_program_enrollments,
-    write_program_course_enrollments,
+)
+from registrar.apps.enrollments.data import logger as data_logger
+from registrar.apps.enrollments.data import (
+    write_course_run_enrollments,
     write_program_enrollments,
 )
 
@@ -161,84 +164,146 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
         return get_course_run_enrollments(self.program_uuid, self.course_id)
 
 
+@ddt.ddt
 class WriteEnrollmentsTestMixin(object):
     """
     Common tests for program and course enrollment writing functionality
     """
-    program_key = '99999999-aaaa-bbbb-cccc-123412341234'
-    course_key = 'course-v1:edX+DemoX+Demo_Course'
-    ok_response = {
-        'tom': 'active',
-        'lucy': 'active',
-        'craig': 'inactive',
-        'sheryl': 'inactive',
+
+    # Override in subclass
+    url = None
+
+    # Optionally override in subclass
+    program_uuid = '99999999-aaaa-bbbb-cccc-123412341234'
+    curriculum_uuid = None
+    course_key = None
+
+    max_write_const = 'registrar.apps.enrollments.data.LMS_ENROLLMENT_WRITE_MAX_SIZE'
+
+    # The stautses here are purposely nonsensical
+    # because the write_enrollment functions don't do any
+    # status validation.
+    enrollments = [
+        {'student_key': 'erin', 'status': 'x'},
+        {'student_key': 'peter', 'status': 'y'},
+        {'student_key': 'tom', 'status': 'z'},
+        {'student_key': 'lucy', 'status': 'x'},
+        {'student_key': 'craig', 'status': 'y'},
+        {'student_key': 'sheryl', 'status': 'z'},
+        {'student_key': 'erin', 'status': 'y'},
+        {'student_key': 'peter', 'status': 'y'},
+        {'student_key': 'mark', 'status': 'x'},
+        {'student_key': 'mark', 'status': 'x'},
+        {'student_key': 'peter', 'status': 'z'},
+        {'student_key': 'steven', 'status': 'z'},
+        {'student_key': 'kathy', 'status': 'x'},
+        {'student_key': 'gloria', 'status': 'y'},
+        {'student_key': 'robert', 'status': 'z'},
+    ]
+    expected_output = {
+        'erin': 'duplicated',
+        'peter': 'duplicated',
+        'tom': 'z',
+        'lucy': 'x',
+        'craig': 'y',
+        'sheryl': 'z',
+        'mark': 'duplicated',
+        'steven': 'z',
+        'kathy': 'x',
+        'gloria': 'y',
+        'robert': 'z',
     }
-    unprocessable_response = {
-        'ted': 'duplicate',
-        'bill': 'conflict',
+
+    def _add_echo_callback(self, status_code):
+        """
+        Returns mock handler for LMS enrollment write request
+        that echos back statuses and returns the given status code.
+        """
+        def callback(request):
+            """ Echo student statuses back and return with `status_code` """
+            req_body = json.loads(request.body.decode('utf-8'))
+            resp_body = {
+                enrollment['student_key']: enrollment['status']
+                for enrollment in req_body
+            }
+            return status_code, request.headers, json.dumps(resp_body)
+        responses.add_callback(responses.POST, self.url, callback=callback)
+
+    @ddt.data(
+        (25, [200], True),
+        (25, [422], False),
+        (4, [200, 200], True),
+        (4, [207, 207], True),
+        (3, [200, 207, 422], True),
+        (3, [422, 200, 422], True),
+        (3, [422, 422, 422], False),
+    )
+    @ddt.unpack
+    @mock_oauth_login
+    @responses.activate
+    def test_write_enrollments(
+            self, lms_write_size, lms_statuses, expected_good,
+    ):
+        for status_code in lms_statuses:
+            self._add_echo_callback(status_code)
+        with mock.patch(self.max_write_const, new=lms_write_size):
+            good, bad, output = self.write_enrollments(self.enrollments)
+
+        self.assertDictEqual(output, self.expected_output)
+        self.assertEqual(good, expected_good)
+        self.assertTrue(bad)  # Will always be 'bad' because of duplicates
+
+        expected_num_calls = len(lms_statuses)
+        # There is an initial request for the OAuth token
+        self.assertEqual(len(responses.calls) - 1, expected_num_calls)
+        for call in responses.calls[1:]:
+            body = json.loads(call.request.body.decode('utf-8'))
+            self.assertLessEqual(len(body), lms_write_size)
+            if self.curriculum_uuid:
+                for enrollment in body:
+                    self.assertEqual(
+                        enrollment.get('curriculum_uuid'),
+                        self.curriculum_uuid
+                    )
+
+    expected_err_output = {
+        'erin': 'duplicated',
+        'peter': 'duplicated',
+        'tom': 'z',
+        'lucy': 'x',
+        'craig': 'y',
+        'sheryl': 'z',
+        'mark': 'duplicated',
+        'steven': 'internal-error',
+        'kathy': 'internal-error',
+        'gloria': 'internal-error',
+        'robert': 'internal-error',
     }
+
+    @mock_oauth_login
+    @responses.activate
+    @mock.patch.object(data_logger, 'exception', autospec=True)
+    def test_backend_errors(self, mock_data_logger):
+        self._add_echo_callback(200)
+        self._add_echo_callback(422)
+        responses.add(responses.POST, self.url, status=404)
+        responses.add(responses.POST, self.url, status=500)
+        with mock.patch(self.max_write_const, new=2):
+            good, bad, output = self.write_enrollments(self.enrollments)
+
+        self.assertDictEqual(output, self.expected_err_output)
+        self.assertEqual(good, True)
+        self.assertEqual(bad, True)
+
+        fmt = "Unexpected status {} from LMS request POST " + self.url + "."
+        log_prefixes = [fmt.format(404), fmt.format(500)]
+        for i, log_prefix in enumerate(log_prefixes):
+            log_str = mock_data_logger.call_args_list[i].args[0]
+            self.assertTrue(log_str.startswith(log_prefix))
 
     def write_enrollments(self, enrollments):
         """ Overridden in child classes """
-        pass  # pragma: no cover
-
-    @mock_oauth_login
-    @responses.activate
-    def test_create_enrollments_happy_path(self):
-        responses.add(
-            responses.POST,
-            self.url,
-            status=200,
-            json=self.ok_response,
-        )
-        enrollments = [
-            {'student_key': 'tom', 'status': 'active'},
-            {'student_key': 'lucy', 'status': 'active'},
-            {'student_key': 'craig', 'status': 'inactive'},
-            {'student_key': 'sheryl', 'status': 'inactive'},
-        ]
-
-        create_response = self.write_enrollments(enrollments)
-
-        # there are two requests - 1 for the oauth token and then 1 to create enrollments
-        mock_request = responses.calls[1].request
-        assert 2 == len(responses.calls)
-        assert 200 == create_response.status_code
-        assert self.ok_response == create_response.json()
-        assert self.url == mock_request.url
-        assert enrollments == json.loads(mock_request.body.decode())
-
-    @mock_oauth_login
-    @responses.activate
-    def test_create_enrollments_unprocessable(self):
-        responses.add(
-            responses.POST,
-            self.url,
-            status=422,
-            json=self.unprocessable_response,
-        )
-        enrollments = [
-            {'student_key': 'ted', 'status': 'duplicate'},
-            {'student_key': 'bill', 'status': 'conflict'},
-        ]
-
-        create_response = self.write_enrollments(enrollments)
-
-        # there are two requests - 1 for the oauth token and then 1 to create enrollments
-        mock_request = responses.calls[1].request
-        assert 2 == len(responses.calls)
-        assert 422 == create_response.status_code
-        assert self.unprocessable_response == create_response.json()
-        assert self.url == mock_request.url
-        assert enrollments == json.loads(mock_request.body.decode())
-
-    @mock_oauth_login
-    @responses.activate
-    def test_create_enrollments_404(self):
-        responses.add(responses.POST, self.url, status=404)
-        enrollments = [{'student_key': 'ted', 'status': 'active'}]
-        result = self.write_enrollments(enrollments)
-        self.assertEqual(404, result.status_code)
+        raise NotImplementedError  # pragma: no cover
 
 
 class WriteProgramEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
@@ -246,31 +311,48 @@ class WriteProgramEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
     Tests for the method to write program enrollment data
     to the LMS API.
     """
+    curriculum_uuid = 'c94adf9a-29e8-471c-b8ce-d53320507490'
+
     @property
     def url(self):
-        return urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(self.program_key))
+        return urljoin(
+            settings.LMS_BASE_URL,
+            LMS_PROGRAM_ENROLLMENTS_API_TPL.format(
+                self.program_uuid
+            ),
+        )
 
     def write_enrollments(self, enrollments):
-        return write_program_enrollments(self.program_key, enrollments)
+        mock_disco_program = DiscoveryProgram(
+            active_curriculum_uuid=self.curriculum_uuid
+        )
+        with mock.patch.object(
+                DiscoveryProgram, 'get', return_value=mock_disco_program
+        ):
+            return write_program_enrollments('POST', self.program_uuid, enrollments)
 
 
-class WriteProgramCourseEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
+class WriteCourseRunEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
     """
     Tests for the method to write program/course enrollment data
     to the LMS API.
     """
+    course_key = 'course-v1:edX+DemoX+Demo_Course'
+
     @property
     def url(self):
         return urljoin(
             settings.LMS_BASE_URL,
             LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(
-                self.program_key,
+                self.program_uuid,
                 self.course_key
             )
         )
 
     def write_enrollments(self, enrollments):
-        return write_program_course_enrollments(self.program_key, self.course_key, enrollments)
+        return write_course_run_enrollments(
+            'POST', self.program_uuid, self.course_key, enrollments
+        )
 
 
 class GetDiscoveryProgramTestCase(TestCase):

@@ -59,6 +59,8 @@ class TrackTestMixin(object):
         if not status_code:
             if kwargs.get('missing_permissions'):
                 status_code = 403
+            elif kwargs.get('failure') == 'bad_request':
+                status_code = 400
             elif kwargs.get('failure', '').endswith('_not_found'):
                 status_code = 404
             elif kwargs.get('failure') == 'request_entity_too_large':
