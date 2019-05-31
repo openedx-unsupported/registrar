@@ -36,11 +36,12 @@ class GetEnrollmentsTestMixin(object):
 
     lms_url = None  # Override in subclass
     status_choices = None  # Override in subclass
+    curriculum_uuid_in_input = False  # Override in subclass
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.good_data_1 = [
+        cls.good_input_1 = [
             {
                 'student_key': 'abcd',
                 'account_exists': True,
@@ -52,7 +53,7 @@ class GetEnrollmentsTestMixin(object):
                 'status': cls.status(4),
             },
         ]
-        cls.good_data_2 = [
+        cls.good_input_2 = [
             {
                 'student_key': 'ijkl',
                 'account_exists': False,
@@ -64,13 +65,21 @@ class GetEnrollmentsTestMixin(object):
                 'status': cls.status(3),
             },
         ]
-        cls.bad_data = [
+        cls.bad_input = [
             {
                 'student_key': 'qrst',
                 'account_exists': True,
                 'status': 'this-is-not-a-status',
             },
         ]
+        cls.good_output = [
+            enrollment.copy()
+            for enrollment in cls.good_input_1 + cls.good_input_2
+        ]
+        all_input = cls.good_input_1 + cls.good_input_2 + cls.bad_input
+        if cls.curriculum_uuid_in_input:
+            for enrollment in all_input:
+                enrollment['curriculum_uuid'] = str(uuid.uuid4())
 
     @classmethod
     def status(cls, i):
@@ -87,25 +96,25 @@ class GetEnrollmentsTestMixin(object):
             responses.GET,
             self.lms_url,
             status=200,
-            json={'next': self.lms_url + "?cursor=xxx", 'results': self.good_data_1},
+            json={'next': self.lms_url + "?cursor=xxx", 'results': self.good_input_1},
         )
         responses.add(
             responses.GET,
             self.lms_url,
             status=200,
-            json={'next': None, 'results': self.good_data_2},
+            json={'next': None, 'results': self.good_input_2},
         )
         enrolls = self.get_enrollments()
-        self.assertCountEqual(enrolls, self.good_data_1 + self.good_data_2)
+        self.assertCountEqual(enrolls, self.good_output)
 
     @mock_oauth_login
     @responses.activate
-    def test_get_enrollments_bad_data(self):
+    def test_get_enrollments_bad_input(self):
         responses.add(
             responses.GET,
             self.lms_url,
             status=200,
-            json={'next': None, 'results': self.good_data_1 + self.bad_data},
+            json={'next': None, 'results': self.bad_input},
         )
         with self.assertRaises(ValidationError):
             self.get_enrollments()
@@ -124,6 +133,7 @@ class GetProgramEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     program_uuid = '7fbefaa4-c0e8-431b-af69-8d3ddde543a2'
     lms_url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(program_uuid))
     status_choices = ['enrolled', 'pending', 'suspended', 'canceled']
+    curriculum_uuid_in_input = True
 
     def get_enrollments(self):
         return get_program_enrollments(self.program_uuid)
@@ -136,6 +146,7 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     course_id = 'course-v1:ABCx+Subject-101+Term'
     lms_url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_id))
     status_choices = ['active', 'inactive']
+    curriculum_uuid_in_input = False
 
     def get_enrollments(self):
         return get_course_run_enrollments(self.program_uuid, self.course_id)
