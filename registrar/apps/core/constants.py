@@ -18,3 +18,5 @@ PROGRAM_KEY_PATTERN = r'(?P<program_key>[A-Za-z0-9-_]+)'
 # We could match UUIDs more strictly, but we validate the UUIDs in
 # jobs.get_job_status anyway, so it's not necessary.
 JOB_ID_PATTERN = r'(?P<job_id>[0-9a-f-]+)'
+
+JOB_RESULT_PATH_PREFIX = 'job-results'
