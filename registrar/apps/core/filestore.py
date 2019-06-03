@@ -29,7 +29,7 @@ class FilestoreBase(object):
 
         Arguments:
             path: Path to file within filestore.
-                Will be prefixed by `path_prefix`.
+                Will be prefixed by `self.path_prefix`.
             contents: Contents of file.
 
         Returns: str
@@ -41,11 +41,11 @@ class FilestoreBase(object):
 
     def retrieve(self, path):
         """
-        Store a file.
+        Retrieve the contents of a file.
 
         Arguments:
             path: Path to file within filestore.
-                Will be prefixed by `path_prefix`.
+                Will be prefixed by `self.path_prefix`.
 
         Returns: str
             UTF-8 decoded file contents.
@@ -68,7 +68,7 @@ class FilestoreBase(object):
 
         Arguments:
             path: Path to file within filestore.
-                Will be prefixed by `path_prefix`.
+                Will be prefixed by `self.path_prefix`.
         """
         full_path = self.get_full_path(path)
         self.backend.delete(full_path)
@@ -79,7 +79,7 @@ class FilestoreBase(object):
 
         Arguments:
             path: Path to file within filestore.
-                Will be prefixed by `path_prefix`.
+                Will be prefixed by `self.path_prefix`.
 
         Returns: bool
         """
@@ -88,14 +88,14 @@ class FilestoreBase(object):
 
     def get_full_path(self, path):
         """
-        Apply `path_prefix` to `path`. Use POSIX path joining.
+        Apply `self.path_prefix` to `path`. Use POSIX path joining.
         """
         return posixpath.join(self.path_prefix, path)
 
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.
-        Path will be prefixed by `path_prefix`.
+        Path should be prefixed by `self.path_prefix`.
 
         Must be overriden in subclass.
         """
@@ -110,7 +110,7 @@ class FileSystemFilestore(FilestoreBase):
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.
-        Path will be prefixed by `path_prefix`.
+        Path will be prefixed by `self.path_prefix`.
         """
         return to_absolute_api_url(settings.MEDIA_URL, self.get_full_path(path))  # pragma: no cover
 
@@ -128,7 +128,7 @@ class S3Filestore(FilestoreBase):
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.
-        Path will be prefixed by `path_prefix`.
+        Path will be prefixed by `self.path_prefix`.
 
         Generates a signed GET URL to the resource that expires in the
         configured amount of time.

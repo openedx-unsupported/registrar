@@ -38,11 +38,11 @@ class S3FilestoreTests(TestCase):
         cls._s3_mock.stop()
         super().tearDownClass()
 
-    prefixes = ("", "prefix", "prefix/withslashes/")
-    paths = ("file.txt", "folder/file.txt")
-    contents = ("filecontents!", "")
+    prefix_variants = ("", "prefix", "prefix/withslashes/")
+    path_variants = ("file.txt", "folder/file.txt")
+    contents_variants = ("filecontents!", "")
 
-    @ddt.data(*(product(prefixes, paths, contents)))
+    @ddt.data(*(product(prefix_variants, path_variants, contents_variants)))
     @ddt.unpack
     def test_s3_filestore(self, prefix, path, contents):
         filestore = get_filestore(prefix)

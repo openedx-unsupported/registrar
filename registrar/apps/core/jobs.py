@@ -28,7 +28,7 @@ from registrar.apps.core.permissions import JOB_GLOBAL_READ
 JobStatus = namedtuple('JobStatus', ['created', 'state', 'result'])
 
 logger = logging.getLogger(__name__)
-filestore = get_filestore(JOB_RESULT_PATH_PREFIX)
+result_filestore = get_filestore(JOB_RESULT_PATH_PREFIX)
 
 _RESULT_ARTIFACT_NAME = 'Job Result'
 
@@ -125,7 +125,7 @@ def post_job_success(job_id, results, file_extension):
         file_extension (stR): Desired file extension for result file(e.g. 'json').
     """
     result_path = "{}.{}".format(job_id, file_extension)
-    result_url = filestore.store(result_path, results)
+    result_url = result_filestore.store(result_path, results)
     task_status = UserTaskStatus.objects.get(task_id=job_id)
     _affirm_job_in_progress(job_id, task_status)
     log_message = "Job {} succeeded with result URL {}".format(job_id, result_url)
