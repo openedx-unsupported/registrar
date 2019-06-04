@@ -154,7 +154,7 @@ def write_program_enrollments(program_uuid, enrollments, update=False, client=No
         return _make_request(method, url, client, json=enrollments)
     except HTTPError as e:
         response = e.response
-        if response.status_code == 422:
+        if response.status_code in [404, 422]:
             return response
         raise
 
@@ -219,7 +219,7 @@ def write_program_course_enrollments(program_uuid, course_key, enrollments, upda
         return _make_request(method, url, client, json=enrollments)
     except HTTPError as e:
         response = e.response
-        if response.status_code == 422:
+        if response.status_code in [404, 422]:
             return response
         raise
 

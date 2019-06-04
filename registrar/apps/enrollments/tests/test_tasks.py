@@ -4,6 +4,7 @@ Unit tests for the enrollment.tasks module.
 import uuid
 from collections import namedtuple
 
+import ddt
 import mock
 from django.test import TestCase
 from requests.exceptions import HTTPError
@@ -25,6 +26,7 @@ FakeRequest = namedtuple('FakeRequest', ['url'])
 FakeResponse = namedtuple('FakeResponse', ['status_code'])
 
 
+@ddt.ddt
 class EnrollmentTestsMixin(object):
     """ Tests for task error behavior. """
     enrollment_statuses = (None, None)
@@ -62,16 +64,18 @@ class EnrollmentTestsMixin(object):
         self.assertEqual(status.state, UserTaskStatus.FAILED)
         self.assertIn("Bad program key", status.artifacts.first().text)
 
-    def test_http_error(self):
+    @ddt.data(500, 404)
+    def test_http_error(self, status_code):
         with mock.patch(self.mock_base + self.mocked_get_enrollments_method) as mock_get_enrollments:
-            error = HTTPError(request=FakeRequest('registrar.edx.org'), response=FakeResponse(500))
+            error = HTTPError(request=FakeRequest('registrar.edx.org'), response=FakeResponse(status_code))
             mock_get_enrollments.side_effect = error
             task = self.spawn_task(self.program.key)
             task.wait()
 
         status = UserTaskStatus.objects.get(task_id=task.id)
         self.assertEqual(status.state, UserTaskStatus.FAILED)
-        self.assertIn("HTTP error 500 when getting enrollments at registrar.edx.org", status.artifacts.first().text)
+        expected_msg = "HTTP error {} when getting enrollments at registrar.edx.org".format(status_code)
+        self.assertIn(expected_msg, status.artifacts.first().text)
 
     def test_invalid_data(self):
         with mock.patch(self.mock_base + self.mocked_get_enrollments_method) as mock_get_enrollments:

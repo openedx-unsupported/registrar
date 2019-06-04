@@ -858,6 +858,21 @@ class ProgramEnrollmentWriteMixin(object):
             with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
                 self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
 
+    @mock_oauth_login
+    @responses.activate
+    def test_backend_404(self):
+        self.mock_enrollments_response(self.method, 'Not Found', response_code=404)
+
+        req_data = [
+            self.student_enrollment('active', '001'),
+            self.student_enrollment('active', '002'),
+            self.student_enrollment('inactive', '003'),
+        ]
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+            response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
+
+        self.assertEqual(404, response.status_code)
+
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_enrollment('enrolled')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
 
