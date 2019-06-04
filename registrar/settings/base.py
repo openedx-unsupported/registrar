@@ -109,8 +109,9 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 # only registrar workers should receive registrar tasks.
 # explicitly define this to avoid name collisions with other services
 # using the same broker and the standard default queue name of "celery"
-CELERY_DEFAULT_QUEUE = 'registrar'
+CELERY_DEFAULT_EXCHANGE = 'registrar'
 CELERY_DEFAULT_ROUTING_KEY = 'registrar'
+CELERY_DEFAULT_QUEUE = 'registrar.default'
 
 ############################# END CELERY #################################3
 
