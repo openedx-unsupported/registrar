@@ -28,6 +28,7 @@ from registrar.apps.enrollments.data import (
     get_course_run_enrollments,
     get_program_enrollments,
     write_program_course_enrollments,
+    write_program_enrollments,
 )
 
 
@@ -126,6 +127,13 @@ class GetEnrollmentsTestMixin(object):
         with self.assertRaises(HTTPError):
             self.get_enrollments()
 
+    @mock_oauth_login
+    @responses.activate
+    def test_get_enrollments_404(self):
+        responses.add(responses.GET, self.lms_url, status=404)
+        with self.assertRaisesRegex(HTTPError, '404 Client Error: Not Found'):
+            self.get_enrollments()
+
 
 class GetProgramEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     """ Tests for data.get_program_enrollments """
@@ -152,14 +160,12 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
         return get_course_run_enrollments(self.program_uuid, self.course_id)
 
 
-class WriteProgramCourseEnrollmentsTests(TestCase):
+class WriteEnrollmentsTestMixin(object):
     """
-    Test cases for the method to write program/course enrollment data
-    to the LMS API.
+    Common tests for program and course enrollment writing functionality
     """
     program_key = '99999999-aaaa-bbbb-cccc-123412341234'
     course_key = 'course-v1:edX+DemoX+Demo_Course'
-    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_key, course_key))
     ok_response = {
         'tom': 'active',
         'lucy': 'active',
@@ -171,9 +177,13 @@ class WriteProgramCourseEnrollmentsTests(TestCase):
         'bill': 'conflict',
     }
 
+    def write_enrollments(self, enrollments):
+        """ Overridden in child classes """
+        pass  # pragma: no cover
+
     @mock_oauth_login
     @responses.activate
-    def test_create_program_course_enrollments_happy_path(self):
+    def test_create_enrollments_happy_path(self):
         responses.add(
             responses.POST,
             self.url,
@@ -187,7 +197,7 @@ class WriteProgramCourseEnrollmentsTests(TestCase):
             {'student_key': 'sheryl', 'status': 'inactive'},
         ]
 
-        create_response = write_program_course_enrollments(self.program_key, self.course_key, enrollments)
+        create_response = self.write_enrollments(enrollments)
 
         # there are two requests - 1 for the oauth token and then 1 to create enrollments
         mock_request = responses.calls[1].request
@@ -199,7 +209,7 @@ class WriteProgramCourseEnrollmentsTests(TestCase):
 
     @mock_oauth_login
     @responses.activate
-    def test_create_program_course_enrollments_unprocessable(self):
+    def test_create_enrollments_unprocessable(self):
         responses.add(
             responses.POST,
             self.url,
@@ -211,7 +221,7 @@ class WriteProgramCourseEnrollmentsTests(TestCase):
             {'student_key': 'bill', 'status': 'conflict'},
         ]
 
-        create_response = write_program_course_enrollments(self.program_key, self.course_key, enrollments)
+        create_response = self.write_enrollments(enrollments)
 
         # there are two requests - 1 for the oauth token and then 1 to create enrollments
         mock_request = responses.calls[1].request
@@ -220,6 +230,46 @@ class WriteProgramCourseEnrollmentsTests(TestCase):
         assert self.unprocessable_response == create_response.json()
         assert self.url == mock_request.url
         assert enrollments == json.loads(mock_request.body.decode())
+
+    @mock_oauth_login
+    @responses.activate
+    def test_create_enrollments_404(self):
+        responses.add(responses.POST, self.url, status=404)
+        enrollments = [{'student_key': 'ted', 'status': 'active'}]
+        result = self.write_enrollments(enrollments)
+        self.assertEqual(404, result.status_code)
+
+
+class WriteProgramEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
+    """
+    Tests for the method to write program enrollment data
+    to the LMS API.
+    """
+    @property
+    def url(self):
+        return urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_ENROLLMENTS_API_TPL.format(self.program_key))
+
+    def write_enrollments(self, enrollments):
+        return write_program_enrollments(self.program_key, enrollments)
+
+
+class WriteProgramCourseEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
+    """
+    Tests for the method to write program/course enrollment data
+    to the LMS API.
+    """
+    @property
+    def url(self):
+        return urljoin(
+            settings.LMS_BASE_URL,
+            LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(
+                self.program_key,
+                self.course_key
+            )
+        )
+
+    def write_enrollments(self, enrollments):
+        return write_program_course_enrollments(self.program_key, self.course_key, enrollments)
 
 
 class GetDiscoveryProgramTestCase(TestCase):
