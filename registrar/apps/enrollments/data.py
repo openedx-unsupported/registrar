@@ -11,7 +11,10 @@ from django.core.cache import cache
 from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
 
-from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.enrollments.constants import (
+    PROGRAM_CACHE_KEY_TPL,
+    PROGRAM_CACHE_TIMEOUT,
+)
 from registrar.apps.enrollments.serializers import (
     CourseEnrollmentSerializer,
     ProgramEnrollmentSerializer,
@@ -71,7 +74,7 @@ class DiscoveryProgram(object):
         program = cache.get(key)
         if not (program and program.version == cls.class_version):
             program = cls.load_from_discovery(program_uuid, client)
-            cache.set(key, program, None)
+            cache.set(key, program, PROGRAM_CACHE_TIMEOUT)
         return program
 
     @classmethod
