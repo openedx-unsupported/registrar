@@ -660,6 +660,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(response.status_code, 404)
 
 
+@ddt.ddt
 class ProgramEnrollmentWriteMixin(object):
     """ Test write requests to the /api/v1/programs/{program_key}/enrollments endpoint """
     path = 'programs/masters-in-english/enrollments'
@@ -883,6 +884,47 @@ class ProgramEnrollmentWriteMixin(object):
         ):
             response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 413)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(
+        {
+            'student_key': 'learner1',
+            'status': 'enrolled',
+        },
+        {
+            'status': 'pending',
+        },
+        {
+            'student_kee': 'learner-3',
+            'status': 'pending',
+        },
+        {
+            'student_key': 'learner-4',
+        },
+        {},
+    )
+    def test_bad_input_missing_fields(self, enrollment_record):
+        self.mock_enrollments_response(self.method, {}, response_code=202)
+
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+            url = 'programs/masters-in-cs/enrollments/'
+            self.request(self.method, url, self.stem_admin, [enrollment_record])
+
+        self.assertEqual(2, len(responses.calls))
+        lms_request = responses.calls[1].request
+        self.assertIn('enrollments', lms_request.url)
+        lms_request_body = json.loads(lms_request.body.decode())
+        self.assertEqual(1, len(lms_request_body))
+        lms_request_enrollment = lms_request_body[0]
+
+        expected_request_enrollment = {
+            'student_key': enrollment_record.get('student_key', None),
+            'status': enrollment_record.get('status', None),
+            'curriculum_uuid': 'active-curriculum-0000',
+        }
+
+        self.assertDictEqual(expected_request_enrollment, lms_request_enrollment)
 
 
 class ProgramEnrollmentPostTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
