@@ -66,6 +66,7 @@ class CourseRunSerializer(serializers.Serializer):
     Course Discovery Service
     """
     course_id = serializers.CharField(source='key')
+    external_course_key = serializers.CharField(source='external_key')
     course_title = serializers.CharField(source='title')
     course_url = serializers.URLField(source='marketing_url')
 

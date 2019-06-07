@@ -352,7 +352,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         return self.invoke_job(
             list_course_run_enrollments,
             self.program.key,
-            self.kwargs['course_id'],
+            self.program.discovery_program.get_course_key(self.kwargs['course_id']),
         )
 
     def handle_program_course_enrollments(self, request, course_id):
@@ -361,13 +361,15 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         """
         self.validate_enrollment_data(request.data)
         program_uuid = self.program.discovery_uuid
+        self.validate_course_id()
+        course_key = self.program.discovery_program.get_course_key(course_id)
 
         enrollments = request.data
 
         if request.method == 'POST':
-            response = write_program_course_enrollments(program_uuid, course_id, enrollments)
+            response = write_program_course_enrollments(program_uuid, course_key, enrollments)
         elif request.method == 'PATCH':
-            response = write_program_course_enrollments(program_uuid, course_id, enrollments, update=True)
+            response = write_program_course_enrollments(program_uuid, course_key, enrollments, update=True)
         else:
             raise Exception('unexpected request method.  Expected [POST, PATCH]')  # pragma: no cover
 

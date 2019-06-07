@@ -138,18 +138,26 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         )
 
     def _add_programs_to_cache(self):
+        """
+        Adds the cs_, mech_, english_, and phil_ programs to the cache
+        """
         programs = [self.cs_program, self.mech_program, self.english_program, self.phil_program]
         for program in programs:
-            self._add_program_to_cache(
-                program,
-                str(program.key).replace('-', ' '),
-                self.TEST_PROGRAM_URL_TPL.format(key=program.key),
-            )
+            self._add_program_to_cache(program)
 
-    def _add_program_to_cache(self, program, title, url):
+    def _add_program_to_cache(self, program, title=None, url=None, curricula=None):
+        """
+        Adds the given program to the program cache
+        """
+        if title is None:
+            title = str(program.key).replace('-', ' ')
+        if url is None:
+            url = self.TEST_PROGRAM_URL_TPL.format(key=program.key)
+        if curricula is None:
+            curricula = []
         cache.set(
             PROGRAM_CACHE_KEY_TPL.format(uuid=program.discovery_uuid),
-            self._discovery_program(program.discovery_uuid, title, url, [])
+            self._discovery_program(program.discovery_uuid, title, url, curricula)
         )
 
 
@@ -520,6 +528,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             response.data,
             [{
                 'course_id': '0001',
+                'external_course_key': None,
                 'course_title': 'Test Course 1',
                 'course_url': 'https://humanities-college.edx.org/masters-in-english/test-course-1',
             }],
@@ -634,16 +643,19 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             [
                 {
                     'course_id': '0001',
+                    'external_course_key': None,
                     'course_title': 'Test Course 1',
                     'course_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-1',
                 },
                 {
                     'course_id': '0002a',
+                    'external_course_key': None,
                     'course_title': 'Test Course 2',
                     'course_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-2a',
                 },
                 {
                     'course_id': '0002b',
+                    'external_course_key': None,
                     'course_title': 'Test Course 2',
                     'course_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-2b',
                 }
@@ -1196,23 +1208,40 @@ def _failing_job(self, job_id, user_id, fail_message):  # pylint: disable=unused
 @ddt.ddt
 class ProgramCourseEnrollmentWriteMixin(object):
     """ Test write requests to the /api/v1/programs/{program_key}/courses/{course_id}/enrollments/ endpoint """
-    # we need to define this for testing unauthenticated requests
-    path = 'programs/masters-in-english/courses/course-v1:edX+DemoX+Demo_Course/enrollments'
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls):  # pylint: disable=missing-docstring
         super().setUpTestData()
-        cls.program_uuid = cls.cs_program.discovery_uuid
-        cls.course_id = 'course-v1:edX+DemoX+Demo_Course'
+        cls.course_run_keys = [
+            ('course-v1:STEMx+CS111+F19', 'CompSci1_Fall'),
+            ('course-v1:STEMx+CS222+F19', 'CompSci2_Fall'),
+            ('course-v1:STEMx+CS333+F19', 'CompSci3_Fall'),
+            ('course-v1:STEMx+CS444+F19', 'CompSci4_Fall'),
+        ]
+        cls.curriculum = {'courses': [], 'is_active': True}
+        for key, external_key in cls.course_run_keys:
+            course = {'course_runs': [{'key': key, 'external_key': external_key}]}
+            cls.curriculum['courses'].append(course)
+        cls.curricula = [cls.curriculum]
+
+        cls.program = cls.cs_program
+        cls.program_uuid = cls.program.discovery_uuid
+        cls.course_key = cls.course_run_keys[2][0]
+        cls.external_course_key = cls.course_run_keys[2][1]
+        cls.path = 'programs/masters-in-english/courses/{}/enrollments'.format(cls.course_key)
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
-        ).format(cls.program_uuid, cls.course_id)
+        ).format(cls.program_uuid, cls.course_key)
+
+    def setUp(self):
+        super().setUp()
+        self._add_program_to_cache(self.cs_program, curricula=self.curricula)
 
     def get_url(self, program_key=None, course_id=None):
         """ Helper to determine the request URL for this test class. """
         kwargs = {
             'program_key': program_key or self.cs_program.key,
-            'course_id': course_id or self.course_id,
+            'course_id': course_id or self.course_key,
         }
         return reverse('api:v1:program-course-enrollment', kwargs=kwargs)
 
@@ -1234,7 +1263,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_id,
+                course_key=self.course_key,
                 missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
         ):
             response = self.request(
@@ -1250,7 +1279,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_user,
                 program_key=self.cs_program.key,
-                course_key=self.course_id,
+                course_key=self.course_key,
                 missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
         ):
             response = self.request(
@@ -1266,7 +1295,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='uan-salsa-dancing-with-sharks',
-                course_key=self.course_id,
+                course_key=self.course_key,
                 failure='program_not_found',
         ):
             response = self.request(
@@ -1279,7 +1308,30 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    def test_successful_program_course_enrollment_write(self):
+    def test_course_not_found(self):
+        req_data = [
+            self.student_course_enrollment('active'),
+        ]
+        not_in_program_course_key = 'course-v1:edX+DemoX+Demo_Course'
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.program.key,
+                course_key=not_in_program_course_key,
+                failure='course_not_found',
+        ):
+            response = self.request(
+                self.method,
+                self.get_url(course_id=not_in_program_course_key),
+                self.stem_admin,
+                req_data,
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(False, True)
+    def test_successful_program_course_enrollment_write(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_key
         expected_lms_response = {
             '001': 'active',
             '002': 'active',
@@ -1296,10 +1348,10 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_id,
+                course_key=course_id,
         ):
             response = self.request(
-                self.method, self.get_url(), self.stem_admin, req_data
+                self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
             )
 
         lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
@@ -1322,7 +1374,9 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    def test_backend_unprocessable_response(self):
+    @ddt.data(False, True)
+    def test_backend_unprocessable_response(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_key
         self.mock_course_enrollments_response(self.method, "invalid enrollment record", response_code=422)
 
         req_data = [
@@ -1334,11 +1388,11 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_id,
+                course_key=course_id,
                 failure='unprocessable_entity',
         ):
             response = self.request(
-                self.method, self.get_url(), self.stem_admin, req_data
+                self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
             )
 
         self.assertEqual(response.status_code, 422)
@@ -1346,7 +1400,9 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    def test_backend_multi_status_response(self):
+    @ddt.data(False, True)
+    def test_backend_multi_status_response(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_key
         expected_lms_response = {
             '001': 'active',
             '002': 'active',
@@ -1363,11 +1419,11 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_id,
+                course_key=course_id,
                 status_code=207,
         ):
             response = self.request(
-                self.method, self.get_url(), self.stem_admin, req_data
+                self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
             )
 
         self.assertEqual(response.status_code, 207)
@@ -1375,7 +1431,9 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    def test_backend_server_error(self):
+    @ddt.data(False, True)
+    def test_backend_server_error(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_key
         self.mock_course_enrollments_response(self.method, 'Internal Server Error', response_code=500)
 
         req_data = [
@@ -1384,7 +1442,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
             self.student_course_enrollment('inactive', '003'),
         ]
         with self.assertRaisesRegex(requests.exceptions.HTTPError, 'Internal Server Error'):
-            self.request(self.method, self.get_url(), self.stem_admin, req_data)
+            self.request(self.method, self.get_url(course_id=course_id), self.stem_admin, req_data)
 
     def test_write_enrollment_payload_limit(self):
         req_data = [self.student_course_enrollment('active')] * (ENROLLMENT_WRITE_MAX_SIZE + 1)
@@ -1392,7 +1450,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_id,
+                course_key=self.course_key,
                 failure='request_entity_too_large',
         ):
             response = self.request(
