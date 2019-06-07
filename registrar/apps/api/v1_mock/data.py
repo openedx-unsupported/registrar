@@ -30,6 +30,7 @@ FakeProgram = namedtuple('FakeProgram', [
 
 FakeCourseRun = namedtuple('FakeCourseRun', [
     'key',
+    'external_key',
     'title',
     'marketing_url',
 ])
@@ -72,6 +73,7 @@ def _course_run(title, org, course, run="Spring2050"):
     """
     return FakeCourseRun(
         'course-v1:{}+{}+{}'.format(org, course, run),
+        None,
         title,
         'https://www.edx.org/fake-course/{}'.format(name_to_key(title)),
     )

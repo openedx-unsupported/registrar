@@ -21,7 +21,6 @@ from registrar.apps.api.serializers import JobAcceptanceSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.jobs import start_job
-from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 
 
@@ -151,12 +150,7 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         parameter is not part of self.program.
         """
         course_id = self.kwargs['course_id']
-        program_uuid = self.program.discovery_uuid
-        discovery_program = DiscoveryProgram.get(program_uuid)
-        program_course_run_ids = {
-            run.key for run in discovery_program.course_runs
-        }
-        if course_id not in program_course_run_ids:
+        if not self.program.discovery_program.find_course_run(course_id):
             self.add_tracking_data(failure='course_not_found')
             raise Http404()
 

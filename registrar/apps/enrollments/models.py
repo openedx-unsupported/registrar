@@ -22,6 +22,10 @@ class Program(TimeStampedModel):
     managing_organization = models.ForeignKey(Organization, related_name='programs')
 
     @property
+    def discovery_program(self):
+        return DiscoveryProgram.get(self.discovery_uuid)
+
+    @property
     def title(self):
         return self._get_cached_field('title')
 

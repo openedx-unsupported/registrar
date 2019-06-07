@@ -30,7 +30,7 @@ LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}
 
 DiscoveryCourseRun = namedtuple(
     'DiscoveryCourseRun',
-    ['key', 'title', 'marketing_url'],
+    ['key', 'external_key', 'title', 'marketing_url'],
 )
 
 
@@ -126,6 +126,7 @@ class DiscoveryProgram(object):
         course_runs = [
             DiscoveryCourseRun(
                 key=course_run.get('key'),
+                external_key=course_run.get('external_key'),
                 title=course_run.get('title'),
                 marketing_url=course_run.get('marketing_url'),
             )
@@ -140,6 +141,32 @@ class DiscoveryProgram(object):
             active_curriculum_uuid=active_curriculum_uuid,
             course_runs=course_runs,
         )
+
+    def find_course_run(self, course_key):
+        """
+        Given a course key, return the course_run with that `key` or `external_key`
+        """
+        for course_run in self.course_runs:
+            if course_key == course_run.key or course_key == course_run.external_key:
+                return course_run
+
+    def get_external_course_key(self, course_key):
+        """
+        Given a course key, return the external course key for that course_run.
+        The course key passed in may be an external or internal course key.
+        """
+        course_run = self.find_course_run(course_key)
+        if course_run:
+            return course_run.external_key
+
+    def get_course_key(self, course_key):
+        """
+        Given a course key, return the internal course key for that course run.
+        The course key passed in may be an external or internal course key.
+        """
+        course_run = self.find_course_run(course_key)
+        if course_run:
+            return course_run.key
 
 
 def write_program_enrollments(program_uuid, enrollments, update=False, client=None):
@@ -184,7 +211,7 @@ def get_program_enrollments(program_uuid, client=None):
     return serializer.validated_data
 
 
-def get_course_run_enrollments(program_uuid, course_id, client=None):
+def get_course_run_enrollments(program_uuid, course_key, client=None):
     """
     Fetches program course run enrollments from the LMS.
 
@@ -200,7 +227,7 @@ def get_course_run_enrollments(program_uuid, course_id, client=None):
         - HTTPError if there is an issue communicating with LMS
         - ValidationError if enrollment data from LMS is invalid
     """
-    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_id))
+    url = urljoin(settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL.format(program_uuid, course_key))
     enrollments = _get_all_paginated_results(url, client)
     serializer = CourseEnrollmentSerializer(data=enrollments, many=True)
     serializer.is_valid(raise_exception=True)

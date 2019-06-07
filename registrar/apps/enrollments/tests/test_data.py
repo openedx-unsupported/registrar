@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime
 from posixpath import join as urljoin
 
+import ddt
 import mock
 import responses
 from django.conf import settings
@@ -281,6 +282,7 @@ class GetDiscoveryProgramTestCase(TestCase):
         'key': '0001',
         'uuid': '0000-0001',
         'title': 'Test Course 1',
+        'external_key': 'testorg-course-101',
         'marketing_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-1',
     }
     program_title = "Master's in CS"
@@ -304,6 +306,7 @@ class GetDiscoveryProgramTestCase(TestCase):
         course_runs=[
             DiscoveryCourseRun(
                 course_run_1['key'],
+                course_run_1['external_key'],
                 course_run_1['title'],
                 course_run_1['marketing_url'],
             ),
@@ -393,3 +396,65 @@ class GetDiscoveryProgramTestCase(TestCase):
         with mock.patch.object(DiscoveryProgram, 'class_version', bumped_version):
             DiscoveryProgram.get(self.program_uuid)
         self.assertEqual(len(responses.calls), 4)
+
+
+@ddt.ddt
+class DiscoveryProgramTests(TestCase):
+    """ Tests for DiscoveryProgram methods """
+
+    def setUp(self):
+        super().setUp()
+        program_uuid = str(uuid.uuid4())
+        curriculum_uuid = str(uuid.uuid4())
+        program_title = "Master's in CS"
+        program_url = 'https://stem-institute.edx.org/masters-in-cs'
+        self.program = DiscoveryProgram(
+            version=0,
+            loaded=datetime.now(),
+            uuid=program_uuid,
+            title=program_title,
+            url=program_url,
+            active_curriculum_uuid=curriculum_uuid,
+            course_runs=[
+                self.make_course_run(i) for i in range(4)
+            ],
+        )
+
+    def make_course_run(self, counter):
+        """
+        Helper for making DiscoveryCourseRuns
+        """
+        key = 'course-{}'.format(counter)
+        external_key = 'external-key-course-{}'.format(counter)
+        title = 'Course {} Title'.format(counter)
+        url = 'www.courserun.url/{}/'.format(counter)
+        return DiscoveryCourseRun(key, external_key, title, url)
+
+    @ddt.data('key', 'external_key')
+    def test_get_key(self, attr):
+        for course_run in self.program.course_runs:
+            test_key = getattr(course_run, attr)
+            self.assertEqual(
+                self.program.get_course_key(test_key),
+                course_run.key
+            )
+
+    def test_get_key_not_found(self):
+        for i in [10, 101, 111, 123]:
+            not_in_program_run = self.make_course_run(i)
+            self.assertIsNone(self.program.get_course_key(not_in_program_run.key))
+            self.assertIsNone(self.program.get_course_key(not_in_program_run.external_key))
+
+    @ddt.data('key', 'external_key')
+    def test_get_external_key(self, attr):
+        for course_run in self.program.course_runs:
+            test_key = getattr(course_run, attr)
+            self.assertEqual(
+                self.program.get_external_course_key(test_key),
+                course_run.external_key
+            )
+
+    def test_get_external_key_not_found(self):
+        for i in [10, 101, 111, 123]:
+            not_in_program_run = self.make_course_run(i)
+            self.assertIsNone(self.program.get_external_course_key(not_in_program_run.key))
