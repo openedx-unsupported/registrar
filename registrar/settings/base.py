@@ -269,11 +269,6 @@ CERTIFICATE_LANGUAGES = {
 
 CSRF_COOKIE_SECURE = False
 EXTRA_APPS = []
-MEDIA_STORAGE_BACKEND = {
-    DEFAULT_FILE_STORAGE : 'django.core.files.storage.FileSystemStorage',
-    MEDIA_ROOT: '/edx/var/registrar/media',
-    MEDIA_URL: '/api/media/',
-}
 REGISTRAR_SERVICE_USER = 'registrar_service_user'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
