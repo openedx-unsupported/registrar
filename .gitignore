@@ -94,3 +94,6 @@ registrar-app.env
 
 # Local database
 *.sqlite3
+
+# VS Code
+.vscode/

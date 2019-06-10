@@ -8,12 +8,13 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.9.159
-botocore==1.12.159        # via boto3, s3transfer
+boto3==1.9.165
+botocore==1.12.165        # via boto3, s3transfer
 celery==3.1.26.post2
 certifi==2019.3.9         # via requests
 chardet==3.0.4            # via requests
 defusedxml==0.6.0         # via python3-openid, social-auth-core
+django-cors-headers==3.0.2
 django-extensions==2.1.7
 django-guardian==1.5.1
 django-model-utils==3.1.2
@@ -29,7 +30,7 @@ docutils==0.14            # via botocore
 edx-auth-backends==2.0.1
 edx-django-release-util==0.3.1
 edx-django-utils==1.0.3   # via edx-drf-extensions
-edx-drf-extensions==2.3.0
+edx-drf-extensions==2.3.1
 edx-opaque-keys==1.0.0    # via edx-drf-extensions
 edx-rest-api-client==1.9.2
 future==0.17.1            # via pyjwkest
@@ -57,7 +58,7 @@ redis==2.8
 requests-oauthlib==1.2.0  # via social-auth-core
 requests==2.22.0          # via analytics-python, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, slumber, social-auth-core
 rest-condition==1.0.3     # via edx-drf-extensions
-s3transfer==0.2.0         # via boto3
+s3transfer==0.2.1         # via boto3
 semantic-version==2.6.0   # via edx-drf-extensions
 six==1.12.0               # via analytics-python, django-extensions, django-simple-history, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, pyjwkest, python-dateutil, python-memcached, social-auth-app-django, social-auth-core, stevedore
 slumber==0.7.1            # via edx-rest-api-client

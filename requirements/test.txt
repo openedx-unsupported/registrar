@@ -14,9 +14,9 @@ attrs==19.1.0             # via pytest
 aws-sam-translator==1.11.0  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 billiard==3.3.0.23        # via celery
-boto3==1.9.159            # via aws-sam-translator, moto
+boto3==1.9.165            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.12.159        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.165        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
 certifi==2019.3.9         # via requests
 cffi==1.12.3              # via cryptography
@@ -29,6 +29,7 @@ coverage==4.5.3
 cryptography==2.7         # via moto
 ddt==1.2.1
 defusedxml==0.6.0         # via python3-openid, social-auth-core
+django-cors-headers==3.0.2
 django-dynamic-fixture==2.0.0
 django-extensions==2.1.7
 django-guardian==1.5.1
@@ -48,8 +49,8 @@ ecdsa==0.13.2             # via python-jose
 edx-auth-backends==2.0.1
 edx-django-release-util==0.3.1
 edx-django-utils==1.0.3   # via edx-drf-extensions
-edx-drf-extensions==2.3.0
-edx-lint==1.2.1
+edx-drf-extensions==2.3.1
+edx-lint==1.3.0
 edx-opaque-keys==1.0.0    # via edx-drf-extensions
 edx-rest-api-client==1.9.2
 factory-boy==2.12.0
@@ -74,11 +75,11 @@ more-itertools==7.0.0     # via pytest
 moto==1.3.8
 newrelic==4.20.0.120      # via edx-django-utils
 oauthlib==3.0.1           # via requests-oauthlib, social-auth-core
-packaging==19.0           # via pip-api, pytest
+packaging==19.0           # via pytest
 pathlib2==2.3.3           # via pytest
 pathspec==0.5.9           # via yamllint
 pbr==5.2.1                # via stevedore
-pip-api==0.0.8            # via isort
+pip-api==0.0.10           # via isort
 pipreqs==0.4.9            # via isort
 pluggy==0.12.0            # via pytest
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
@@ -97,20 +98,20 @@ pymongo==3.8.0            # via edx-opaque-keys
 pyparsing==2.4.0          # via packaging
 pytest-cov==2.7.1
 pytest-django==3.5.0
-pytest==4.6.1             # via pytest-cov, pytest-django
+pytest==4.6.2             # via pytest-cov, pytest-django
 python-dateutil==2.8.0    # via analytics-python, botocore, edx-drf-extensions, faker, moto
 python-jose==3.0.1        # via moto
 python-slugify==3.0.2     # via code-annotations
 python3-openid==3.1.0     # via social-auth-core
 pytz==2019.1
-pyyaml==5.1               # via cfn-lint, code-annotations, edx-django-release-util, moto, yamllint
+pyyaml==5.1.1             # via cfn-lint, code-annotations, edx-django-release-util, moto, yamllint
 redis==2.8
 requests-oauthlib==1.2.0  # via social-auth-core
 requests==2.22.0          # via analytics-python, cfn-lint, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, yarg
 responses==0.10.6
 rest-condition==1.0.3     # via edx-drf-extensions
 rsa==4.0                  # via python-jose
-s3transfer==0.2.0         # via boto3
+s3transfer==0.2.1         # via boto3
 semantic-version==2.6.0   # via edx-drf-extensions
 six==1.12.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, faker, mock, moto, packaging, pathlib2, pyjwkest, pylint, pytest, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, stevedore, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
@@ -124,6 +125,6 @@ websocket-client==0.56.0  # via docker
 werkzeug==0.15.4          # via moto
 wrapt==1.11.1             # via astroid, aws-xray-sdk
 xmltodict==0.12.0         # via moto
-yamllint==1.15.0
+yamllint==1.16.0
 yarg==0.1.9               # via pipreqs
 zipp==0.5.1               # via importlib-metadata
