@@ -1,3 +1,5 @@
+from corsheaders.defaults import default_headers as corsheaders_default_headers
+
 from registrar.settings.base import *
 from registrar.settings.utils import get_logger_config
 
@@ -65,6 +67,15 @@ CELERY_ALWAYS_EAGER = True
 
 # Publicly-exposed base URLs for service and API
 API_ROOT = 'http://localhost:18734/api'
+
+# CORS
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:1976',
+)
+CORS_ALLOW_HEADERS = corsheaders_default_headers + (
+    'use-jwt-cookie',
+)
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

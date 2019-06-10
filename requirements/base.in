@@ -2,6 +2,7 @@ analytics-python<2.0
 celery<4.0
 django<2.0
 djangorestframework
+django-cors-headers
 django-extensions
 django-guardian
 django-model-utils

@@ -29,6 +29,7 @@ INSTALLED_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    'corsheaders',
     'guardian',
     'release_util',
     'rest_framework',
@@ -49,6 +50,7 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 INSTALLED_APPS += PROJECT_APPS
 
 MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -235,7 +237,7 @@ LMS_BASE_URL = 'replace-me'
 DISCOVERY_BASE_URL = 'replace-me'
 
 
-# OPENEDX-SPECIFIC CONFIGURATION 
+# OPENEDX-SPECIFIC CONFIGURATION
 PLATFORM_NAME = 'Your Platform Name Here'
 # END OPENEDX-SPECIFIC CONFIGURATION
 
