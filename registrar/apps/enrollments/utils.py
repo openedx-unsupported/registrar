@@ -35,3 +35,18 @@ def is_enrollment_job_processing(program_key):
         name__startswith=program_prefix,
         state__in=USER_TASK_STATUS_PROCESSING_STATES,
     ).exists()
+
+
+def get_processing_jobs_for_user(user):
+    """
+    Get the statuses of any processing jobs for the given user
+
+    Arguments:
+        user (User): User attempting to read job statuses.
+
+    Returns: queryset of processing UserTaskStatuses for the given user
+    """
+    return UserTaskStatus.objects.filter(
+        user=user,
+        state__in=USER_TASK_STATUS_PROCESSING_STATES
+    )

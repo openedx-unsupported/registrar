@@ -16,6 +16,7 @@ from django.urls import reverse
 from faker import Faker
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
+from user_tasks.models import UserTaskStatus
 from user_tasks.tasks import UserTask
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
@@ -149,9 +150,9 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         """
         Adds the given program to the program cache
         """
-        if title is None:
+        if title is None:  # pragma: no branch
             title = str(program.key).replace('-', ' ')
-        if url is None:
+        if url is None:  # pragma: no branch
             url = self.TEST_PROGRAM_URL_TPL.format(key=program.key)
         if curricula is None:
             curricula = []
@@ -1474,3 +1475,83 @@ class ProgramCourseEnrollmentPostTests(ProgramCourseEnrollmentWriteMixin, Regist
 class ProgramCourseEnrollmentPatchTests(ProgramCourseEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
     method = 'PATCH'
     event = 'registrar.v1.patch_course_enrollment'
+
+
+class JobStatusListView(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for GET /api/v1/jobs/ endpoint """
+    method = 'GET'
+    path = 'jobs/'
+    event = 'registrar.v1.list_job_statuses'
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        # cls.edx_admin has some processing tasks and some not processing
+        cls.edx_admin_tasks = [
+            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.PENDING, 'edx-admin-pending'),
+            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.CANCELED, 'edx-admin-canceled'),
+            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.IN_PROGRESS, 'edx-admin-inprogress'),
+            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.FAILED, 'edx-admin-failed'),
+            cls.create_dummy_job_status(cls.edx_admin, UserTaskStatus.SUCCEEDED, 'edx-admin-succeeded'),
+        ]
+        # cls.stem_admin has tasks, all processing
+        cls.stem_admin_tasks = [
+            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.IN_PROGRESS, 'stem_admin-inprogress-1'),
+            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.PENDING, 'stem_admin-pending'),
+            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.IN_PROGRESS, 'stem_admin-inprogress-2'),
+            cls.create_dummy_job_status(cls.stem_admin, UserTaskStatus.RETRYING, 'stem_admin-retrying'),
+        ]
+        # cls.stem_user has tasks, none processing
+        cls.stem_user_tasks = [
+            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.SUCCEEDED, 'stem_user-succeeded-1'),
+            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.SUCCEEDED, 'stem_user-succeeded-2'),
+            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.FAILED, 'stem_user-failed'),
+            cls.create_dummy_job_status(cls.stem_user, UserTaskStatus.CANCELED, 'stem_user-canceled'),
+        ]
+        # cls.hum_admin has no tasks
+
+    @classmethod
+    def create_dummy_job_status(cls, user, state, name):
+        return UserTaskStatus.objects.create(
+            state=state,
+            name=name,
+            user=user,
+            task_id=uuid.uuid4(),
+            total_steps=1,
+        )
+
+    def test_edx_admin(self):
+        self._test_list_job_statuses(
+            self.edx_admin,
+            [
+                self.edx_admin_tasks[0],
+                self.edx_admin_tasks[2],
+            ]
+        )
+
+    def test_stem_admin(self):
+        self._test_list_job_statuses(self.stem_admin, self.stem_admin_tasks)
+
+    def test_stem_user(self):
+        self._test_list_job_statuses(self.stem_user, [])
+
+    def test_hum_admin(self):
+        self._test_list_job_statuses(self.hum_admin, [])
+
+    def _test_list_job_statuses(self, user, expected):
+        response = self.get(self.path, user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(expected))
+        for expected_job in expected:
+            self.assert_status_in_response(expected_job, response.data)
+
+    def assert_status_in_response(self, expected, response_data):
+        """
+        Assert the expected data is included in the response
+        """
+        for status in response_data:  # pragma: no branch
+            if expected.name == status['name']:
+                self.assertEqual(str(expected.uuid), status['uuid'])
+                self.assertEqual(expected.state, status['state'])
+                return
+        self.fail('expected status not found')  # pragma: no cover

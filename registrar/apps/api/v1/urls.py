@@ -44,6 +44,11 @@ urlpatterns = [
         name="program-course-enrollment",
     ),
     url(
+        r'^jobs/$',
+        views.JobStatusListView.as_view(),
+        name="job-status-list",
+    ),
+    url(
         r'^jobs/{}/$'.format(JOB_ID_PATTERN),
         views.JobStatusRetrieveView.as_view(),
         name="job-status",
