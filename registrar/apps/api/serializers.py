@@ -94,3 +94,21 @@ class JobStatusSerializer(serializers.Serializer):
     created = serializers.DateTimeField()
     state = serializers.ChoiceField(choices=STATUS_CHOICES)
     result = serializers.URLField(allow_null=True)
+
+
+class UserTaskStatusSerializer(serializers.Serializer):
+    """
+    Serializer used for listing UserTaskStatuses
+    """
+    STATUS_CHOICES = {
+        UserTaskStatus.PENDING,
+        UserTaskStatus.IN_PROGRESS,
+        UserTaskStatus.SUCCEEDED,
+        UserTaskStatus.FAILED,
+        UserTaskStatus.RETRYING,
+    }
+
+    uuid = serializers.UUIDField()
+    name = serializers.CharField()
+    created = serializers.DateTimeField()
+    state = serializers.ChoiceField(choices=STATUS_CHOICES)

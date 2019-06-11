@@ -21,6 +21,7 @@ from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobStatusSerializer,
     ProgramSerializer,
+    UserTaskStatusSerializer,
 )
 from registrar.apps.api.v1.mixins import (
     AuthMixin,
@@ -42,6 +43,7 @@ from registrar.apps.enrollments.tasks import (
     list_course_run_enrollments,
     list_program_enrollments,
 )
+from registrar.apps.enrollments.utils import get_processing_jobs_for_user
 
 
 logger = logging.getLogger(__name__)
@@ -423,3 +425,23 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
             raise Http404()
         self.add_tracking_data(job_state=status.state)
         return status
+
+
+class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
+    """
+    A view for listing currently processing jobs.
+
+    Path: /api/v1/jobs/
+
+    Returns:
+     * 200: OK
+     * 401: User is not logged in.
+    """
+
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserTaskStatusSerializer
+    event_method_map = {'GET': 'registrar.v1.list_job_statuses'}
+
+    def get_queryset(self):
+        return get_processing_jobs_for_user(self.request.user)
