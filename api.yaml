@@ -43,7 +43,7 @@ course_path_param: &course_path_param
   name: course_id
   required: true
   type: string
-  description: edX course run identifier
+  description: edX course run identifier, or an external course run key
   example: 'course-v1:ExU+Science-101+Fall2050'
 format_param: &format_param
   in: query
@@ -195,6 +195,7 @@ endpoints:
         examples:
           application/json:
             - course_id: course-v1:ExU+Science-101+Fall2050,
+              external_course_key: ExU-IntroToScience50,
               course_title: Introduction to Science,
               course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
       403:
@@ -653,6 +654,8 @@ models:
     type: object
     properties:
       course_id:
+        type: string
+      external_course_key:
         type: string
       course_title:
         type: string

@@ -27,7 +27,7 @@ course_output_status:
   - internal-error
   type: string
 course_path_param:
-  description: edX course run identifier
+  description: edX course run identifier, or an external course run key
   example: course-v1:ExU+Science-101+Fall2050
   in: path
   name: course_id
@@ -43,7 +43,7 @@ endpoints:
       name: program_key
       required: true
       type: string
-    - description: edX course run identifier
+    - description: edX course run identifier, or an external course run key
       example: course-v1:ExU+Science-101+Fall2050
       in: path
       name: course_id
@@ -150,6 +150,7 @@ endpoints:
           - course_id: course-v1:ExU+Science-101+Fall2050,
             course_title: Introduction to Science,
             course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
+            external_course_key: ExU-IntroToScience50,
         schema:
           items:
             $ref: '#/models/Course'
@@ -210,7 +211,7 @@ endpoints:
       name: program_key
       required: true
       type: string
-    - description: edX course run identifier
+    - description: edX course run identifier, or an external course run key
       example: course-v1:ExU+Science-101+Fall2050
       in: path
       name: course_id
@@ -312,7 +313,7 @@ endpoints:
       name: program_key
       required: true
       type: string
-    - description: edX course run identifier
+    - description: edX course run identifier, or an external course run key
       example: course-v1:ExU+Science-101+Fall2050
       in: path
       name: course_id
@@ -450,6 +451,8 @@ models:
         type: string
       course_url:
         format: uri
+        type: string
+      external_course_key:
         type: string
     type: object
   CourseEnrollmentRequest:
@@ -664,6 +667,7 @@ paths:
             - course_id: course-v1:ExU+Science-101+Fall2050,
               course_title: Introduction to Science,
               course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
+              external_course_key: ExU-IntroToScience50,
           schema:
             items:
               $ref: '#/models/Course'
@@ -692,7 +696,7 @@ paths:
         name: program_key
         required: true
         type: string
-      - description: edX course run identifier
+      - description: edX course run identifier, or an external course run key
         example: course-v1:ExU+Science-101+Fall2050
         in: path
         name: course_id
@@ -736,7 +740,7 @@ paths:
         name: program_key
         required: true
         type: string
-      - description: edX course run identifier
+      - description: edX course run identifier, or an external course run key
         example: course-v1:ExU+Science-101+Fall2050
         in: path
         name: course_id
@@ -801,7 +805,7 @@ paths:
         name: program_key
         required: true
         type: string
-      - description: edX course run identifier
+      - description: edX course run identifier, or an external course run key
         example: course-v1:ExU+Science-101+Fall2050
         in: path
         name: course_id
@@ -1118,6 +1122,7 @@ paths:
             - course_id: course-v1:ExU+Science-101+Fall2050,
               course_title: Introduction to Science,
               course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
+              external_course_key: ExU-IntroToScience50,
           schema:
             items:
               $ref: '#/models/Course'
@@ -1146,7 +1151,7 @@ paths:
         name: program_key
         required: true
         type: string
-      - description: edX course run identifier
+      - description: edX course run identifier, or an external course run key
         example: course-v1:ExU+Science-101+Fall2050
         in: path
         name: course_id
@@ -1190,7 +1195,7 @@ paths:
         name: program_key
         required: true
         type: string
-      - description: edX course run identifier
+      - description: edX course run identifier, or an external course run key
         example: course-v1:ExU+Science-101+Fall2050
         in: path
         name: course_id
@@ -1255,7 +1260,7 @@ paths:
         name: program_key
         required: true
         type: string
-      - description: edX course run identifier
+      - description: edX course run identifier, or an external course run key
         example: course-v1:ExU+Science-101+Fall2050
         in: path
         name: course_id

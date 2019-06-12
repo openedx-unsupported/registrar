@@ -510,6 +510,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                         'course_runs': [
                             {
                                 'key': '0001',
+                                'external_key': 'extkey1',
                                 'uuid': '123456',
                                 'title': 'Test Course 1',
                                 'marketing_url': 'https://humanities-college.edx.org/masters-in-english/test-course-1',
@@ -529,7 +530,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             response.data,
             [{
                 'course_id': '0001',
-                'external_course_key': None,
+                'external_course_key': 'extkey1',
                 'course_title': 'Test Course 1',
                 'course_url': 'https://humanities-college.edx.org/masters-in-english/test-course-1',
             }],
@@ -610,6 +611,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                                 'key': '0001',
                                 'uuid': '0000-0001',
                                 'title': 'Test Course 1',
+                                'external_key': 'extkey1',
                                 'marketing_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-1',
                             },
                         ],
@@ -620,12 +622,14 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                                 'key': '0002a',
                                 'uuid': '0000-0002a',
                                 'title': 'Test Course 2',
+                                'external_key': 'extkey2a',
                                 'marketing_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-2a',
                             },
                             {
                                 'key': '0002b',
                                 'uuid': '0000-0002b',
                                 'title': 'Test Course 2',
+                                'external_key': 'extkey2b',
                                 'marketing_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-2b',
                             },
                         ],
@@ -644,19 +648,19 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             [
                 {
                     'course_id': '0001',
-                    'external_course_key': None,
+                    'external_course_key': 'extkey1',
                     'course_title': 'Test Course 1',
                     'course_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-1',
                 },
                 {
                     'course_id': '0002a',
-                    'external_course_key': None,
+                    'external_course_key': 'extkey2a',
                     'course_title': 'Test Course 2',
                     'course_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-2a',
                 },
                 {
                     'course_id': '0002b',
-                    'external_course_key': None,
+                    'external_course_key': 'extkey2b',
                     'course_title': 'Test Course 2',
                     'course_url': 'https://stem-institute.edx.org/masters-in-cs/test-course-2b',
                 }
