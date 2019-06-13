@@ -20,11 +20,6 @@ from registrar.apps.enrollments.serializers import (
     serialize_enrollment_results_to_csv,
     serialize_program_enrollments_to_csv,
 )
-from registrar.apps.enrollments.task_names import (
-    LIST_COURSE_RUN_ENROLLMENTS,
-    LIST_PROGRAM_ENROLLMENTS,
-    WRITE_PROGRAM_ENROLLMENTS,
-)
 from registrar.apps.enrollments.utils import build_enrollment_job_status_name
 
 
@@ -35,7 +30,7 @@ uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 # pylint: disable=unused-argument
 
 
-@shared_task(base=UserTask, bind=True, name=LIST_PROGRAM_ENROLLMENTS)
+@shared_task(base=UserTask, bind=True)
 def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
     A user task for retrieving program enrollments from LMS.
@@ -70,7 +65,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     post_job_success(job_id, serialized, file_format)
 
 
-@shared_task(base=UserTask, bind=True, name=LIST_COURSE_RUN_ENROLLMENTS)
+@shared_task(base=UserTask, bind=True)
 def list_course_run_enrollments(
         self, job_id, user_id, file_format, program_key, course_key   # pylint: disable=unused-argument
 ):
@@ -132,7 +127,7 @@ class EnrollmentWriteTask(UserTask):
         )
 
 
-@shared_task(base=EnrollmentWriteTask, bind=True, name=WRITE_PROGRAM_ENROLLMENTS)
+@shared_task(base=EnrollmentWriteTask, bind=True)
 def write_program_enrollments(
         self, job_id, user_id, program_key, json_filepath
 ):
