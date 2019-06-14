@@ -246,7 +246,7 @@ LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 SEGMENT_KEY = None
 
 # Publicly-exposed base URLs for service and API
-API_ROOT = 'http://localhost:18734/api'
+API_ROOT = 'http://replace-me/api'
 
 # Celery Broker
 CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "")

@@ -78,3 +78,5 @@ SEGMENT_KEY = os.environ.get('SEGMENT_KEY', None)
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
+
+API_ROOT = 'http://localhost:18734/api'
