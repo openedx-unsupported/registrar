@@ -81,8 +81,9 @@ class TrackTestMixin(object):
             properties
         )
         self.mock_logging.info.assert_called_once_with(
-            '%s invoked on Registrar with properties %s',
+            '%s invoked on Registrar by user with ID=%s with properties %s',
             event,
+            user.id,
             json.dumps(properties, skipkeys=True, sort_keys=True),
         )
 

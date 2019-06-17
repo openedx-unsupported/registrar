@@ -102,7 +102,8 @@ class TrackViewMixin(object):
 
         segment.track(self.request.user.username, event_name, properties)
         logger.info(
-            '%s invoked on Registrar with properties %s',
+            '%s invoked on Registrar by user with ID=%s with properties %s',
             event_name,
+            self.request.user.id,
             json.dumps(properties, skipkeys=True, sort_keys=True),
         )
