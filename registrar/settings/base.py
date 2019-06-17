@@ -184,7 +184,7 @@ TEMPLATES = [
 # Detailed information at: https://docs.djangoproject.com/en/dev/ref/settings/
 SESSION_COOKIE_NAME = 'registrar_sessionid'
 CSRF_COOKIE_NAME = 'registrar_csrftoken'
-LANGUAGE_COOKIE_NAME = 'registrar_language'
+LANGUAGE_COOKIE_NAME = 'openedx-language-preference'
 # END COOKIE CONFIGURATION
 
 # AUTHENTICATION CONFIGURATION
@@ -205,15 +205,15 @@ AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
 
 # Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
-SOCIAL_AUTH_EDX_OAUTH2_KEY = 'replace-me'
-SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'replace-me'
+SOCIAL_AUTH_EDX_OAUTH2_KEY = 'registrar-sso-key'
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'registrar-sso-secret'
 SOCIAL_AUTH_EDX_OAUTH2_ENDPOINT = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = 'replace-me'
 SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = 'replace-me'
 
 # These values are used to make server to server rest api call. Should be fed into edx_rest_api_client
-BACKEND_SERVICE_EDX_OAUTH2_KEY = 'replace-me'
-BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'replace-me'
+BACKEND_SERVICE_EDX_OAUTH2_KEY = 'registrar-backend-service-key'
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'registrar-sso-secret'
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = 'replace-me'
 
 JWT_AUTH = {
@@ -224,6 +224,7 @@ JWT_AUTH = {
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
 }
 
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
@@ -263,3 +264,14 @@ BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
     CELERY_BROKER_HOSTNAME,
     CELERY_BROKER_VHOST
 )
+
+CERTIFICATE_LANGUAGES = {
+    'en': 'English',
+    'es_419': 'Spanish',
+}
+
+CSRF_COOKIE_SECURE = False
+EXTRA_APPS = []
+REGISTRAR_SERVICE_USER = 'registrar_service_user'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
