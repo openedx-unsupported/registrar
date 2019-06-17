@@ -15,7 +15,7 @@ from registrar.apps.core.models import (
 
 class CustomUserAdmin(UserAdmin):
     """ Admin configuration for the custom User model. """
-    list_display = ('username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff')
+    list_display = ('id', 'username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('full_name', 'first_name', 'last_name', 'email')}),
