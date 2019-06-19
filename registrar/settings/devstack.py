@@ -30,9 +30,6 @@ DATABASES = {
     }
 }
 
-# Set to true in local.py; need to override.
-CELERY_ALWAYS_EAGER = False
-
 STATICFILES_STORAGE = os.environ.get('STATICFILES_STORAGE', 'django.contrib.staticfiles.storage.StaticFilesStorage')
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 

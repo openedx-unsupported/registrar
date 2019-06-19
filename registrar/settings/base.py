@@ -86,34 +86,55 @@ DATABASES = {
 ############################# BEGIN CELERY #################################3
 
 # Message configuration
-
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
-
 CELERY_MESSAGE_COMPRESSION = 'gzip'
 
 # Results configuration
-
 CELERY_IGNORE_RESULT = False
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 
 # Events configuration
-
 CELERY_TRACK_STARTED = True
-
 CELERY_SEND_EVENTS = True
 CELERY_SEND_TASK_SENT_EVENT = True
 
 # let logging work as configured:
 CELERYD_HIJACK_ROOT_LOGGER = False
 
-# only registrar workers should receive registrar tasks.
-# explicitly define this to avoid name collisions with other services
-# using the same broker and the standard default queue name of "celery"
+# Celery task routing configuration.
+# Only registrar workers should receive registrar tasks.
+# Explicitly define these to avoid name collisions with other services
+# using the same broker and the standard default queue name of "celery".
 CELERY_DEFAULT_EXCHANGE = os.environ.get('CELERY_DEFAULT_EXCHANGE', 'registrar')
 CELERY_DEFAULT_ROUTING_KEY = os.environ.get('CELERY_DEFAULT_ROUTING_KEY', 'registrar')
 CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE', 'registrar.default')
+
+# Eager vs. Asynchronous
+# In Standalone we default to True.
+# Devstack overrides this in its docker-compose.yml to be False.
+# Production environments can override this to be whatever they want.
+CELERY_ALWAYS_EAGER = (
+    os.environ.get("CELERY_ALWAYS_EAGER", "True").lower() == "true"
+)
+
+# Celery Broker
+# These settings need not be set if CELERY_ALWAYS_EAGER == True, like in Standalone.
+# Devstack overrides these in its docker-compose.yml.
+# Production environments can override these to be whatever they want.
+CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "")
+CELERY_BROKER_HOSTNAME = os.environ.get("CELERY_BROKER_HOSTNAME", "")
+CELERY_BROKER_VHOST = os.environ.get("CELERY_BROKER_VHOST", "")
+CELERY_BROKER_USER = os.environ.get("CELERY_BROKER_USER", "")
+CELERY_BROKER_PASSWORD = os.environ.get("CELERY_BROKER_PASSWORD", "")
+BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
+    CELERY_BROKER_TRANSPORT,
+    CELERY_BROKER_USER,
+    CELERY_BROKER_PASSWORD,
+    CELERY_BROKER_HOSTNAME,
+    CELERY_BROKER_VHOST
+)
 
 ############################# END CELERY #################################3
 
@@ -250,20 +271,6 @@ SEGMENT_KEY = None
 
 # Publicly-exposed base URLs for service and API
 API_ROOT = 'http://replace-me/api'
-
-# Celery Broker
-CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "")
-CELERY_BROKER_HOSTNAME = os.environ.get("CELERY_BROKER_HOSTNAME", "")
-CELERY_BROKER_VHOST = os.environ.get("CELERY_BROKER_VHOST", "")
-CELERY_BROKER_USER = os.environ.get("CELERY_BROKER_USER", "")
-CELERY_BROKER_PASSWORD = os.environ.get("CELERY_BROKER_PASSWORD", "")
-BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
-    CELERY_BROKER_TRANSPORT,
-    CELERY_BROKER_USER,
-    CELERY_BROKER_PASSWORD,
-    CELERY_BROKER_HOSTNAME,
-    CELERY_BROKER_VHOST
-)
 
 CERTIFICATE_LANGUAGES = {
     'en': 'English',

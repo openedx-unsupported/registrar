@@ -62,9 +62,6 @@ ENABLE_AUTO_AUTH = True
 # LOGGING
 LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 
-# CELERY
-CELERY_ALWAYS_EAGER = True
-
 # Publicly-exposed base URLs for service and API
 API_ROOT = 'http://localhost:8000/api'
 
