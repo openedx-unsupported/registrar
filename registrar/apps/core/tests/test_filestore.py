@@ -47,7 +47,7 @@ class S3FilestoreTests(TestCase):
     @ddt.unpack
     def test_s3_filestore(self, location, prefix, path, contents):
         with mock.patch.object(settings, 'AWS_LOCATION', new=location):
-            filestore = get_filestore("prefix")
+            filestore = get_filestore(prefix)
             url = filestore.store(path, contents)
             self.assertTrue(filestore.exists(path))
             response = requests.get(url)
