@@ -45,3 +45,7 @@ DB_OVERRIDES = dict(
 
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
+
+CELERY_ALWAYS_EAGER = (
+    os.environ.get("CELERY_ALWAYS_EAGER", "false").lower() == "true"
+)

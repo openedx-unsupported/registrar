@@ -111,14 +111,6 @@ CELERY_DEFAULT_EXCHANGE = os.environ.get('CELERY_DEFAULT_EXCHANGE', 'registrar')
 CELERY_DEFAULT_ROUTING_KEY = os.environ.get('CELERY_DEFAULT_ROUTING_KEY', 'registrar')
 CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE', 'registrar.default')
 
-# Eager vs. Asynchronous
-# In Standalone we default to True.
-# Devstack overrides this in its docker-compose.yml to be False.
-# Production environments can override this to be whatever they want.
-CELERY_ALWAYS_EAGER = (
-    os.environ.get("CELERY_ALWAYS_EAGER", "True").lower() == "true"
-)
-
 # Celery Broker
 # These settings need not be set if CELERY_ALWAYS_EAGER == True, like in Standalone.
 # Devstack overrides these in its docker-compose.yml.
