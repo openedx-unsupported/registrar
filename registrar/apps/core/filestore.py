@@ -125,6 +125,15 @@ class S3Filestore(FilestoreBase):
         import boto3
         self.s3_client = boto3.client('s3')
 
+    def get_full_path(self, path):
+        """
+        Apply `self.path_prefix` to `path`. Use POSIX path joining.
+
+        S3 allows additional prefixing of uploads with settings.AWS_LOCATION.
+        """
+        prefixed_path = super().get_full_path(path)
+        return settings.AWS_LOCATION + prefixed_path
+
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.

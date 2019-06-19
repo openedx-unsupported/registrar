@@ -38,32 +38,33 @@ class S3FilestoreTests(TestCase):
         cls._s3_mock.stop()
         super().tearDownClass()
 
+    location_variants = ('', 'bucketprefix/')
     prefix_variants = ("", "prefix", "prefix/withslashes/")
     path_variants = ("file.txt", "folder/file.txt")
     contents_variants = ("filecontents!", "")
 
-    @ddt.data(*(product(prefix_variants, path_variants, contents_variants)))
+    @ddt.data(*(product(location_variants, prefix_variants, path_variants, contents_variants)))
     @ddt.unpack
-    def test_s3_filestore(self, prefix, path, contents):
-        filestore = get_filestore(prefix)
-
-        url = filestore.store(path, contents)
-        self.assertTrue(filestore.exists(path))
-        response = requests.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.text, contents)
-        retrieved = filestore.retrieve(path)
-        self.assertEqual(retrieved, contents)
-
-        filestore.delete(path)
-        self.assertFalse(filestore.exists(path))
+    def test_s3_filestore(self, location, prefix, path, contents):
+        with mock.patch.object(settings, 'AWS_LOCATION', new=location):
+            filestore = get_filestore("prefix")
+            url = filestore.store(path, contents)
+            self.assertTrue(filestore.exists(path))
+            response = requests.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.text, contents)
+            retrieved = filestore.retrieve(path)
+            self.assertEqual(retrieved, contents)
+            filestore.delete(path)
+            self.assertFalse(filestore.exists(path))
 
     @mock.patch.object(filestore_logger, 'exception', autospec=True)
     def test_s3_filestore_not_found(self, mock_log_exception):
-        filestore = get_filestore("prefix")
-        retrieved = filestore.retrieve("file.txt")
-        self.assertIsNone(retrieved)
-        mock_log_exception.assert_called_once()
+        with mock.patch.object(settings, 'AWS_LOCATION', new="bucketprefix/"):
+            filestore = get_filestore("prefix")
+            retrieved = filestore.retrieve("file.txt")
+            self.assertIsNone(retrieved)
+            mock_log_exception.assert_called_once()
 
     def test_s3_noop_delete(self):
         filestore = get_filestore("")
