@@ -28,3 +28,5 @@ JOB_ID_PATTERN = r'(?P<job_id>[0-9a-f-]+)'
 
 JOB_RESULT_PATH_PREFIX = "job-results"
 UPLOADS_PATH_PREFIX = "uploads"
+
+ORGANIZATION_KEY_PATTERN = r'[A-Za-z0-9-_]+'
