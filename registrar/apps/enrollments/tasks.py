@@ -140,7 +140,7 @@ def write_program_enrollments(
     if requests is None:
         return
     good, bad, results = data.write_program_enrollments(
-        'PUT', program_key, requests
+        'PUT', program.discovery_uuid, requests
     )
     results_str = serialize_enrollment_results_to_csv(results)
     if good and bad:

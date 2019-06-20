@@ -3,6 +3,7 @@ Unit tests for the enrollment.tasks module.
 """
 import json
 from collections import OrderedDict, namedtuple
+from uuid import UUID
 
 import boto3
 import ddt
@@ -250,16 +251,16 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             task_id=self.job_id
         )
 
-    @staticmethod
-    def _mock_write_enrollments(good, bad):
+    def _mock_write_enrollments(self, good, bad):
         """
         Create mock for data.write_program_enrollments.
 
         Mock will return `good`, `bad`, and `enrollments`
         echoed back as a dictionary.
         """
-        def inner(_method, _program_key, enrollments):
+        def inner(_method, program_uuid, enrollments):
             """ Mock for data.write_program_enrollments. """
+            self.assertIsInstance(program_uuid, UUID)
             results = OrderedDict([
                 (enrollment['student_key'], enrollment['status'])
                 for enrollment in enrollments

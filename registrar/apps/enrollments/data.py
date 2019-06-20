@@ -1,7 +1,6 @@
 """
 Module for syncing data with external services.
 """
-import json
 import logging
 from collections import namedtuple
 from datetime import datetime
@@ -309,11 +308,14 @@ def _write_enrollments(method, url, enrollments, client=None):
         status = response.status_code
         if status == HTTP_200_OK:
             good = True
+            results.update(response.json())
         elif status == HTTP_207_MULTI_STATUS:
             good = True
             bad = True
+            results.update(response.json())
         elif status == HTTP_422_UNPROCESSABLE_ENTITY:
             bad = True
+            results.update(response.json())
         else:
             bad = True
             logger.exception(
@@ -321,10 +323,6 @@ def _write_enrollments(method, url, enrollments, client=None):
                     response.status_code, method, url, response.text
                 )
             )
-        try:
-            results.update(response.json())
-        except (json.JSONDecodeError, TypeError, ValueError):
-            pass
     return good, bad, results
 
 
