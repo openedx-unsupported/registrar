@@ -54,11 +54,8 @@ def start_job(user, task_fn, *args, **kwargs):
             They will be passed in automatically. The function may take
             additional parameters.
         *args/**kwargs: Additional arguments to pass to task_fn.
-
-    Returns: str
-        UUID-4 job ID string.
     """
-    job_id = str(uuid.uuid4())
+    job_id = kwargs.pop('job_id') if 'job_id' in kwargs else str(uuid.uuid4())
     task_fn.apply_async([job_id, user.id] + list(args), kwargs, task_id=job_id)
     return job_id
 

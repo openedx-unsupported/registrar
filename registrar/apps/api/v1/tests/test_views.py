@@ -1,6 +1,8 @@
 """ Tests for API views. """
+import csv
 import json
 import uuid
+from io import StringIO
 from posixpath import join as urljoin
 
 import boto3
@@ -21,7 +23,13 @@ from user_tasks.tasks import UserTask
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
+from registrar.apps.api.v1.views import (
+    CourseRunEnrollmentUploadView,
+    ProgramEnrollmentUploadView,
+)
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
+from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import (
     post_job_failure,
     post_job_success,
@@ -35,6 +43,7 @@ from registrar.apps.core.tests.factories import (
     UserFactory,
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
+from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
@@ -175,7 +184,7 @@ class S3MockMixin(object):
         super().setUpClass()
         cls._s3_mock = moto.mock_s3()
         cls._s3_mock.start()
-        conn = boto3.resource('s3')
+        conn = boto3.resource('s3', region_name='us-west-1')
         conn.create_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
 
     @classmethod
@@ -1214,14 +1223,14 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
 
 
 @shared_task(base=UserTask, bind=True)
-def _succeeding_job(self, job_id, user_id):  # pylint: disable=unused-argument
+def _succeeding_job(self, job_id, user_id, *args, **kwargs):  # pylint: disable=unused-argument
     """ A job that just succeeds, posting an empty JSON list as its result. """
     fake_data = Faker().pystruct(20, str, int, bool)  # pylint: disable=no-member
     post_job_success(job_id, json.dumps(fake_data), 'json')
 
 
 @shared_task(base=UserTask, bind=True)
-def _failing_job(self, job_id, user_id, fail_message):  # pylint: disable=unused-argument
+def _failing_job(self, job_id, user_id, fail_message, *args, **kwargs):  # pylint: disable=unused-argument
     """ A job that just fails, providing `fail_message` as its reason """
     post_job_failure(job_id, fail_message)
 
@@ -1593,6 +1602,7 @@ class JobStatusListView(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+
         # cls.edx_admin has some processing tasks and some not processing
         cls.edx_admin_jobs = [
             cls.create_dummy_job_status(0, cls.edx_admin, UserTaskStatus.PENDING),
@@ -1656,3 +1666,153 @@ class JobStatusListView(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         response = self.get(self.path, user)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.data, expected_response)
+
+
+class EnrollmentUploadMixin(object):
+    """ Test CSV upload endpoints """
+    method = 'POST'
+
+    @classmethod
+    def setUpTestData(cls):   # pylint: disable=missing-docstring
+        super().setUpTestData()
+
+        program_uuid = cls.cs_program.discovery_uuid
+        cls.disco_program = DiscoveryProgram.from_json(program_uuid, {
+            'curricula': [
+                {'uuid': 'inactive-curriculum-0000', 'is_active': False},
+                {'uuid': 'active-curriculum-0000', 'is_active': True}
+            ]
+        })
+        cls.lms_request_url = urljoin(
+            settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
+        ).format(program_uuid)
+
+    def _upload_enrollments(self, enrollments):
+        upload_file = StringIO(
+            serialize_to_csv(enrollments, self.csv_headers, include_headers=True)
+        )
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+            return self.request(
+                self.method,
+                self.path,
+                self.stem_admin,
+                file=upload_file
+            )
+
+    @mock.patch.object(ProgramEnrollmentUploadView, 'task_fn', _succeeding_job)
+    @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
+    def test_enrollment_upload_success(self):
+        enrollments = [
+            self.build_enrollment('enrolled', '001'),
+            self.build_enrollment('pending', '002'),
+            self.build_enrollment('enrolled', '003'),
+        ]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                status_code=202
+        ):
+            upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 202)
+
+        job_response = self.get(upload_response.data['job_url'], self.stem_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        filestore = get_filestore(UPLOADS_PATH_PREFIX)
+        retrieved = filestore.retrieve('/{}/{}.json'.format(
+            UPLOADS_PATH_PREFIX,
+            upload_response.data['job_id'],
+        ))
+        self.assertEqual(json.loads(retrieved), enrollments)
+
+    def test_enrollment_upload_conflict(self):
+        enrollments = [self.build_enrollment('enrolled', '001')]
+
+        with mock.patch('registrar.apps.api.v1.views.is_enrollment_job_processing', return_value=True):
+            upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 409)
+
+    def test_enrollment_upload_invalid_header(self):
+        enrollments = [
+            {'student_key': '123', 'status': 'enrolled', 'something': 'foo'}
+        ]
+        self.csv_headers = ('student_key', 'status', 'something')
+        upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 400)
+
+    def test_enrollment_upload_missing_data(self):
+        enrollments = [
+            self.build_enrollment('enrolled', '001'),
+            {'student_key': '002'}
+        ]
+        upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 400)
+
+    def test_unmatched_row_data(self):
+        upload_file = StringIO()
+        writer = csv.writer(upload_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(list(self.csv_headers))
+        writer.writerow(['001', 'enrolled', 'foo', 'bar'])
+        upload_file.seek(0)
+
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+            upload_response = self.request(
+                self.method,
+                self.path,
+                self.stem_admin,
+                file=upload_file
+            )
+        self.assertEqual(upload_response.status_code, 400)
+
+    def test_enrollment_upload_too_large(self):
+        enrollments = [
+            self.build_enrollment('pending', str(n)) for n in range(1000)
+        ]
+
+        with mock.patch('registrar.apps.api.v1.views.UPLOAD_FILE_MAX_SIZE', 1024):
+            upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 413)
+
+    def test_no_file(self):
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+            upload_response = self.request(
+                self.method,
+                self.path,
+                self.stem_admin,
+                file=None
+            )
+        self.assertEqual(upload_response.status_code, 400)
+
+
+class ProgramEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Test program enrollment csv upload """
+    path = 'programs/masters-in-cs/enrollments/upload/'
+    event = 'registrar.v1.upload_program_enrollments'
+    csv_headers = ('student_key', 'status')
+
+    def build_enrollment(self, status, student_key=None):
+        return {
+            'status': status,
+            'student_key': student_key or uuid.uuid4().hex[0:10]
+        }
+
+
+class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Test course enrollment csv upload """
+    path = 'programs/masters-in-cs/course_enrollments/upload/'
+    event = 'registrar.v1.upload_course_enrollments'
+    csv_headers = ('student_key', 'course_key', 'status')
+
+    def build_enrollment(self, status, student_key=None, course_key=None):
+        return {
+            'status': status,
+            'student_key': student_key or uuid.uuid4().hex[0:10],
+            'course_key': course_key or uuid.uuid4().hex[0:10],
+        }

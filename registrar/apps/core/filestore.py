@@ -53,7 +53,8 @@ class FilestoreBase(object):
         full_path = self.get_full_path(path)
         try:
             with self.backend.open(full_path, 'r') as f:
-                return f.read().decode('utf-8')
+                content = f.read()
+                return content if isinstance(content, str) else content.decode('utf-8')
         except IOError as e:
             logger.exception(
                 "Could not read file stored at path {}: {}".format(

@@ -107,7 +107,6 @@ def list_course_run_enrollments(
 class EnrollmentWriteTask(UserTask):
     """
     Base class for enrollment-writing tasks.
-
     Expects instances to have `program_key` field.
     """
 
@@ -118,7 +117,6 @@ class EnrollmentWriteTask(UserTask):
         """
         Predictably sets name in such a way that other parts of the codebase
         can query for the state of enrollment writing tasks.
-
         The format is "$program_key:$task_function_name".
         """
         return build_enrollment_job_status_name(
@@ -129,7 +127,7 @@ class EnrollmentWriteTask(UserTask):
 
 @shared_task(base=EnrollmentWriteTask, bind=True)
 def write_program_enrollments(
-        self, job_id, user_id, program_key, json_filepath
+        self, job_id, user_id, json_filepath, program_key
 ):
     """
     A user task that reads program enrollment requests from json_filepath,
@@ -142,7 +140,7 @@ def write_program_enrollments(
     if requests is None:
         return
     good, bad, results = data.write_program_enrollments(
-        'PUT', program_key, requests
+        'PUT', program.discovery_uuid, requests
     )
     results_str = serialize_enrollment_results_to_csv(results)
     if good and bad:
@@ -155,6 +153,21 @@ def write_program_enrollments(
         # This only happens if no enrollments are given.
         code_str = "204 No Content"
     post_job_success(job_id, results_str, "csv", text=code_str)
+
+
+@shared_task(base=EnrollmentWriteTask, bind=True)
+def write_course_run_enrollments(
+        self, job_id, user_id, json_filepath, program_key
+):
+    """
+    A user task that reads course enrollment requests from json_filepath,
+    and writes them to the LMS.
+    """
+    post_job_failure(  # pragma: no cover
+        job_id,
+        "not implemented",
+    )
+    return  # pragma: no cover
 
 
 def _load_enrollment_requests(job_id, program_key, json_filepath):

@@ -185,7 +185,7 @@ class AuthRequestMixin(JwtMixin):
         """
         return self.request('delete', path, user)
 
-    def request(self, method, path, user, data=None):
+    def request(self, method, path, user, data=None, file=None):
         """
         Perform an HTTP request of the given method.
 
@@ -199,6 +199,11 @@ class AuthRequestMixin(JwtMixin):
         if data:
             kwargs['data'] = json.dumps(data)
             kwargs['content_type'] = 'application/json'
+        if file:
+            kwargs['data'] = {
+                'file': file
+            }
+            kwargs['format'] = 'multipart'
         path_is_absolute = (
             path.startswith('http://') or
             path.startswith('https://') or

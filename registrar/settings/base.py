@@ -65,6 +65,7 @@ MIDDLEWARE = (
 )
 
 ROOT_URLCONF = 'registrar.urls'
+APPEND_SLASH = False
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'registrar.wsgi.application'

@@ -286,7 +286,10 @@ class WriteEnrollmentsTestMixin(object):
     def test_backend_errors(self, mock_data_logger):
         self._add_echo_callback(200)
         self._add_echo_callback(422)
-        responses.add(responses.POST, self.url, status=404)
+        error_body = {
+            "developer_message": "this shouldn't show up in the response"
+        }
+        responses.add(responses.POST, self.url, status=400, json=error_body)
         responses.add(responses.POST, self.url, status=500)
         with mock.patch(self.max_write_const, new=2):
             good, bad, output = self.write_enrollments(self.enrollments)
@@ -296,7 +299,7 @@ class WriteEnrollmentsTestMixin(object):
         self.assertEqual(bad, True)
 
         fmt = "Unexpected status {} from LMS request POST " + self.url + "."
-        log_prefixes = [fmt.format(404), fmt.format(500)]
+        log_prefixes = [fmt.format(400), fmt.format(500)]
         for i, log_prefix in enumerate(log_prefixes):
             log_str = mock_data_logger.call_args_list[i].args[0]
             self.assertTrue(log_str.startswith(log_prefix))

@@ -1,6 +1,7 @@
 """
 Mixins for the public V1 REST API.
 """
+import uuid
 from collections.abc import Iterable
 
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -25,12 +26,17 @@ from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import JobAcceptanceSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
+from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import start_job
 from registrar.apps.enrollments.data import (
     write_course_run_enrollments,
     write_program_enrollments,
 )
 from registrar.apps.enrollments.models import Program
+
+
+upload_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 
 
 class AuthMixin(TrackViewMixin):
@@ -174,10 +180,23 @@ class JobInvokerMixin(object):
     """
     A mixin for views that invoke jobs and return ID and status URL.
     """
-
-    def invoke_job(self, task_fn, *args, **kwargs):
+    def invoke_upload_job(self, task_fn, upload_content, *args, **kwargs):
         """
-        Invoke a job with task_fn, and a return a 202 with job_id and job_url.
+        Invoke a data upload job with task_fn and the path to an input file.
+        Returns a 202 with job_id and job_url.
+
+        *args and **kwargs are passed to task_fn *in addition* to
+        job_id, user_id, and file_format.
+        """
+        job_id = str(uuid.uuid4())
+        file_path = '{}.{}'.format(job_id, 'json')
+        upload_filestore.store(file_path, upload_content)
+        return self._invoke_job(task_fn, file_path, job_id=job_id, *args, **kwargs)
+
+    def invoke_download_job(self, task_fn, *args, **kwargs):
+        """
+        Invoke a data download job with task_fn,
+        and a return a 202 with job_id and job_url.
 
         *args and **kwargs are passed to task_fn *in addition* to
         job_id, user_id, and file_format.
@@ -186,7 +205,14 @@ class JobInvokerMixin(object):
         if file_format not in {'json', 'csv'}:
             self.add_tracking_data(failure='result_format_not_supported')
             raise Http404()
-        job_id = start_job(self.request.user, task_fn, file_format, *args, **kwargs)
+
+        return self._invoke_job(task_fn, file_format, *args, **kwargs)
+
+    def _invoke_job(self, task_fn, *args, **kwargs):
+        """
+        Invoke a job with task_fn
+        """
+        job_id = start_job(self.request.user, task_fn, *args, **kwargs)
         job_url = build_absolute_api_url('api:v1:job-status', job_id=job_id)
         data = {'job_id': job_id, 'job_url': job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
