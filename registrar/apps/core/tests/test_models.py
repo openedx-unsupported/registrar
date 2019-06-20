@@ -52,10 +52,10 @@ class UserTests(TestCase):
         self.assertEqual(user.get_full_name(), full_name)
 
     def test_string(self):
-        """Verify that the model's string method returns the user's full name."""
-        full_name = 'Bob'
-        user = G(User, full_name=full_name)
-        self.assertEqual(str(user), full_name)
+        """Verify that the model's string method returns the user's username """
+        username = 'bob'
+        user = G(User, username=username)
+        self.assertEqual(str(user), username)
 
 
 @ddt.ddt
