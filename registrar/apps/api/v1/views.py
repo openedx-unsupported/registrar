@@ -439,7 +439,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
 
         enrollments = []
         reader = csv.DictReader(file_itr)
-        if not reader.fieldnames == self.field_names:
+        if reader.fieldnames != self.field_names:
             raise ValidationError('Invalid csv headers')
 
         for n, row in enumerate(reader, 1):
