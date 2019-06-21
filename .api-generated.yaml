@@ -465,7 +465,7 @@ models:
       student_key:
         description: "Key that uniquely identifies student within organization. For\
           \ data privacy reasons, this cannot be, or include, sensitive personal information\
-          \ like a student’s official university ID number, social security number,\
+          \ like a student's official university ID number, social security number,\
           \ or some other government-issued ID number.\n"
         type: string
     type: object
@@ -537,7 +537,7 @@ models:
       student_key:
         description: "Key that uniquely identifies student within organization. For\
           \ data privacy reasons, this cannot be, or include, sensitive personal information\
-          \ like a student’s official university ID number, social security number,\
+          \ like a student's official university ID number, social security number,\
           \ or some other government-issued ID number.\n"
         type: string
     type: object
@@ -1508,7 +1508,7 @@ program_path_param:
 student_key:
   description: "Key that uniquely identifies student within organization. For data\
     \ privacy reasons, this cannot be, or include, sensitive personal information\
-    \ like a student’s official university ID number, social security number, or some\
+    \ like a student's official university ID number, social security number, or some\
     \ other government-issued ID number.\n"
   type: string
 swagger: '2.0'
