@@ -49,3 +49,15 @@ for override, value in DB_OVERRIDES.items():
 CELERY_ALWAYS_EAGER = (
     os.environ.get("CELERY_ALWAYS_EAGER", "false").lower() == "true"
 )
+
+# Configuration has an issue where it, by default, renders
+# `JWT_PUBLIC_SIGNING_JWK_SET` as the string "None" instead of the value
+# `None`. Production environments do not see this issue because the setting
+# is always overridden; however, it is an issue on Sandboxes, which use
+# the default value.
+# As a workaround, manually change the setting to `None` if it is equals
+# the string "None".
+jwk_setting = 'JWT_PUBLIC_SIGNING_JWK_SET'
+if vars().get(jwk_setting) == 'None':
+    vars()[jwk_setting] = None
+del jwk_setting
