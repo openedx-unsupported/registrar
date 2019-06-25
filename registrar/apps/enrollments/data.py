@@ -327,7 +327,7 @@ def _write_enrollments(method, url, enrollments, client=None):
                 results.update(response_data)
         logger.info(
             "LMS responded to {} {} with status {} and body {}".format(
-                method, url, response.status_code, response.body
+                method, url, response.status_code, response.text
             )
         )
     return good, bad, results

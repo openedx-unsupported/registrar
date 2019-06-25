@@ -274,7 +274,7 @@ class WriteEnrollmentsTestMixin(object):
         'craig': 'y',
         'sheryl': 'z',
         'mark': 'duplicated',
-        'steven': 'conflict',
+        'steven': 'internal-error',
         'kathy': 'internal-error',
         'gloria': 'internal-error',
         'robert': 'internal-error',
@@ -282,17 +282,16 @@ class WriteEnrollmentsTestMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    @mock.patch.object(data_logger, 'error', autospec=True)
+    @mock.patch.object(data_logger, 'info', autospec=True)
     def test_backend_errors(self, mock_data_logger):
         self._add_echo_callback(200)
         self._add_echo_callback(422)
-        mixed_data = {
-            "steven": "conflict",
-            "developer_message": "this shouldn't show up in the response"
+        string_422 = "this a string error from lms"
+        dict_400 = {
+            "developer_message": "this is a dict error from lms"
         }
-        string_data = "this an internal error that is not a JSON dictionary"
-        responses.add(responses.POST, self.url, status=422, json=mixed_data)
-        responses.add(responses.POST, self.url, status=500, body=string_data)
+        responses.add(responses.POST, self.url, status=422, body=string_422)
+        responses.add(responses.POST, self.url, status=400, json=dict_400)
         with mock.patch(self.max_write_const, new=2):
             good, bad, output = self.write_enrollments(self.enrollments)
 
@@ -300,18 +299,11 @@ class WriteEnrollmentsTestMixin(object):
         self.assertEqual(good, True)
         self.assertEqual(bad, True)
 
-        fmt = (
-            "While writing enrollments to LMS, " +
-            "received unexpected response to request POST " + self.url + ". " +
-            "Status: {}, Body: {}"
-        )
-        expected_log_strs = [
-            fmt.format(422, json.dumps(mixed_data)),
-            fmt.format(500, string_data),
-        ]
-        for i, expected_log_str in enumerate(expected_log_strs):
+        for i, status in enumerate([200, 422, 422, 400]):
             log_str = mock_data_logger.call_args_list[i].args[0]
-            self.assertEqual(log_str, expected_log_str)
+            self.assertIn('POST', log_str)
+            self.assertIn(self.url, log_str)
+            self.assertIn(str(status), log_str)
 
     def write_enrollments(self, enrollments):
         """ Overridden in child classes """
