@@ -1,6 +1,7 @@
 """
 Module for syncing data with external services.
 """
+import json
 import logging
 from collections import namedtuple
 from datetime import datetime
@@ -305,22 +306,40 @@ def _write_enrollments(method, url, enrollments, client=None):
         for student_key in duplicated_student_keys
     })
     for response in responses:
-        status = response.status_code
-        if status == HTTP_200_OK:
+        unexpected_status = False
+        unexpected_data = True
+        if response.status_code == HTTP_200_OK:
             good = True
-            results.update(response.json())
-        elif status == HTTP_207_MULTI_STATUS:
+        elif response.status_code == HTTP_207_MULTI_STATUS:
             good = True
             bad = True
-            results.update(response.json())
-        elif status == HTTP_422_UNPROCESSABLE_ENTITY:
+        elif response.status_code == HTTP_422_UNPROCESSABLE_ENTITY:
             bad = True
-            results.update(response.json())
         else:
+            unexpected_status = True
             bad = True
-            logger.exception(
-                "Unexpected status {} from LMS request {} {}. Response body: {}".format(
-                    response.status_code, method, url, response.text
+        try:
+            response_data = response.json()
+        except json.JSONDecodeError:
+            response_data = None
+        if isinstance(response_data, dict):
+            # Only update with student keys that were passed in
+            # so we don't get things like "developer_message" in results.
+            student_data = {
+                student_key: status
+                for student_key, status in response_data.items()
+                if student_key in results and isinstance(status, str)
+            }
+            results.update(student_data)
+            unexpected_data = not set(response_data).issubset(student_data)
+        if unexpected_status or unexpected_data:
+            logger.error(
+                (
+                    "While writing enrollments to LMS, " +
+                    "received unexpected response to request {} {}. " +
+                    "Status: {}, Body: {}"
+                ).format(
+                    method, url, response.status_code, response.text
                 )
             )
     return good, bad, results
