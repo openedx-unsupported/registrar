@@ -305,43 +305,31 @@ def _write_enrollments(method, url, enrollments, client=None):
         student_key: ENROLLMENT_ERROR_DUPLICATED
         for student_key in duplicated_student_keys
     })
+    expected_codes = {
+        HTTP_200_OK,
+        HTTP_207_MULTI_STATUS,
+        HTTP_422_UNPROCESSABLE_ENTITY,
+    }
     for response in responses:
-        unexpected_status = False
-        unexpected_data = True
         if response.status_code == HTTP_200_OK:
             good = True
         elif response.status_code == HTTP_207_MULTI_STATUS:
             good = True
             bad = True
-        elif response.status_code == HTTP_422_UNPROCESSABLE_ENTITY:
-            bad = True
         else:
-            unexpected_status = True
             bad = True
-        try:
-            response_data = response.json()
-        except json.JSONDecodeError:
-            response_data = None
-        if isinstance(response_data, dict):
-            # Only update with student keys that were passed in
-            # so we don't get things like "developer_message" in results.
-            student_data = {
-                student_key: status
-                for student_key, status in response_data.items()
-                if student_key in results and isinstance(status, str)
-            }
-            results.update(student_data)
-            unexpected_data = not set(response_data).issubset(student_data)
-        if unexpected_status or unexpected_data:
-            logger.error(
-                (
-                    "While writing enrollments to LMS, " +
-                    "received unexpected response to request {} {}. " +
-                    "Status: {}, Body: {}"
-                ).format(
-                    method, url, response.status_code, response.text
-                )
+        if response.status_code in expected_codes:
+            try:
+                response_data = response.json()
+            except json.JSONDecodeError:
+                response_data = None
+            if isinstance(response_data, dict):
+                results.update(response_data)
+        logger.info(
+            "LMS responded to {} {} with status {} and body {}".format(
+                method, url, response.status_code, response.body
             )
+        )
     return good, bad, results
 
 
