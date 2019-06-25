@@ -79,7 +79,7 @@ pycodestyle:  # run pycodestyle
 	pycodestyle registrar scripts
 
 pylint:  # run pylint
-	pylint --rcfile=pylintrc registrar scripts
+	pylint --rcfile=pylintrc registrar
 
 yamllint:  # run yamlint
 	yamllint *.yaml

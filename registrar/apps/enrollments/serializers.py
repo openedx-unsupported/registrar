@@ -60,7 +60,7 @@ def serialize_course_run_enrollments_to_csv(enrollments):
 
 def serialize_enrollment_results_to_csv(enrollment_results):
     """
-    Serialize course run enrollments into a CSV-formatted string.
+    Serialize enrollment results into a CSV-formatted string.
 
     Arguments:
         enrollment_results (dict[str: str]):

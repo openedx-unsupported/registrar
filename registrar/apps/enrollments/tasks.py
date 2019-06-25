@@ -2,6 +2,7 @@
 This module contains the celery task definitions for the enrollment project.
 """
 import json
+from collections import OrderedDict, namedtuple
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -13,7 +14,9 @@ from user_tasks.tasks import UserTask
 from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
 from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import post_job_failure, post_job_success
+from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments import data
+from registrar.apps.enrollments.constants import EnrollmentWriteStatus
 from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.serializers import (
     serialize_course_run_enrollments_to_csv,
@@ -131,28 +134,35 @@ def write_program_enrollments(
 ):
     """
     A user task that reads program enrollment requests from json_filepath,
-    and writes them to the LMS.
+    writes them to the LMS, and stores a CSV-formatted results file.
     """
     program = _get_program(job_id, program_key)
     if not program:
-        return None
+        return
+
     requests = _load_enrollment_requests(job_id, program_key, json_filepath)
     if requests is None:
         return
-    good, bad, results = data.write_program_enrollments(
+
+    any_successes, any_failures, response_json = data.write_program_enrollments(
         'PUT', program.discovery_uuid, requests
     )
-    results_str = serialize_enrollment_results_to_csv(results)
-    if good and bad:
-        code_str = "207 Multi-Status"
-    elif good:
-        code_str = "200 OK"
-    elif bad:
-        code_str = "422 Unprocessable Entity"
+
+    if any_successes and any_failures:
+        code_str = str(EnrollmentWriteStatus.MULTI_STATUS.value)
+    elif any_successes:
+        code_str = str(EnrollmentWriteStatus.OK.value)
+    elif any_failures:
+        code_str = str(EnrollmentWriteStatus.UNPROCESSABLE_ENTITY.value)
     else:
         # This only happens if no enrollments are given.
-        code_str = "204 No Content"
+        code_str = str(EnrollmentWriteStatus.NO_CONTENT.value)
+
+    results_str = serialize_enrollment_results_to_csv(response_json)
     post_job_success(job_id, results_str, "csv", text=code_str)
+
+
+CourseEnrollmentResponseItem = namedtuple('CourseEnrollmentResponseItem', ['course_key', 'student_key', 'status'])
 
 
 @shared_task(base=EnrollmentWriteTask, bind=True)
@@ -160,14 +170,56 @@ def write_course_run_enrollments(
         self, job_id, user_id, json_filepath, program_key
 ):
     """
-    A user task that reads course enrollment requests from json_filepath,
-    and writes them to the LMS.
+    A user task that reads course run enrollment requests from json_filepath,
+    writes them to the LMS, and stores a CSV-formatted results file.
     """
-    post_job_failure(  # pragma: no cover
-        job_id,
-        "not implemented",
-    )
-    return  # pragma: no cover
+    program = _get_program(job_id, program_key)
+    if not program:
+        return
+
+    requests = _load_enrollment_requests(job_id, program_key, json_filepath)
+    if requests is None:
+        return
+
+    requests_by_course_key = OrderedDict()
+    for request in requests:
+        requested_course_key = request.pop('course_key')
+        if requested_course_key not in requests_by_course_key:
+            requests_by_course_key[requested_course_key] = []
+        requests_by_course_key[requested_course_key].append(request)
+
+    successes = []
+    failures = []
+    course_responses = []
+
+    for requested_course_key, course_requests in requests_by_course_key.items():
+        # we don't know if the requested key was an external key or internal key,
+        # so convert it before making requests to the LMS.
+        internal_course_key = program.discovery_program.get_course_key(requested_course_key)
+
+        successes_in_course, failures_in_course, status_by_student_key = data.write_course_run_enrollments(
+            'PUT', program.discovery_uuid, internal_course_key, course_requests
+        )
+
+        course_responses.extend([
+            CourseEnrollmentResponseItem(requested_course_key, student_key, status)._asdict()
+            for student_key, status in status_by_student_key.items()
+        ])
+        successes.append(successes_in_course)
+        failures.append(failures_in_course)
+
+    if any(successes) and any(failures):
+        code_str = str(EnrollmentWriteStatus.MULTI_STATUS.value)
+    elif any(successes):
+        code_str = str(EnrollmentWriteStatus.OK.value)
+    elif any(failures):
+        code_str = str(EnrollmentWriteStatus.UNPROCESSABLE_ENTITY.value)
+    else:
+        # This only happens if no enrollments are given.
+        code_str = str(EnrollmentWriteStatus.NO_CONTENT.value)
+
+    results_str = serialize_to_csv(course_responses, CourseEnrollmentResponseItem._fields, include_headers=True)
+    post_job_success(job_id, results_str, "csv", text=code_str)
 
 
 def _load_enrollment_requests(job_id, program_key, json_filepath):
