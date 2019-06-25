@@ -438,6 +438,8 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         file_itr = io.StringIO(csv_file.read().decode('utf-8'))
 
         enrollments = []
+        # If the `fieldnames` kwargs is omitted, the values in the
+        # first row of file_itr will be used as the fieldnames.
         reader = csv.DictReader(file_itr)
         if reader.fieldnames != self.field_names:
             raise ValidationError('Invalid csv headers')
@@ -471,7 +473,7 @@ class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView
     event_parameter_map = {'program_key': 'program_key'}
 
 
-class CourseRunEnrollmentUploadView(CourseSpecificViewMixin, EnrollmentUploadView):
+class CourseRunEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView):
     """
     A view for uploading course enrollments via csv file
 

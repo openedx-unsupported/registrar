@@ -27,6 +27,7 @@ from registrar.apps.enrollments.constants import (
     PROGRAM_ENROLLMENT_ENROLLED,
     PROGRAM_ENROLLMENT_PENDING,
 )
+from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
@@ -52,8 +53,6 @@ class EnrollmentTaskTestMixin(object):
     def spawn_task(self, program_key=None, **kwargs):
         """
         Overridden in children.
-
-        `program_key` should default to `self.program.key`.
         """
         pass  # pragma: no cover
 
@@ -83,7 +82,7 @@ class EnrollmentTaskTestMixin(object):
         self.assertIn(sub_message, error_artifact.text)
 
     def test_program_not_found(self):
-        task = self.spawn_task("program-nonexistant")
+        task = self.spawn_task(program_key="program-nonexistant")
         task.wait()
         self.assert_failed("Bad program key")
 
@@ -192,6 +191,7 @@ class WriteEnrollmentTaskTestMixin(EnrollmentTaskTestMixin):
     """
     json_filepath = "testfile.csv"
     mock_function = None  # Override in subclass
+    expected_fieldnames = None  # Override in subclass
 
     @classmethod
     def setUpClass(cls):
@@ -214,6 +214,22 @@ class WriteEnrollmentTaskTestMixin(EnrollmentTaskTestMixin):
     def tearDown(self):
         super().tearDown()
         uploads_filestore.delete(self.json_filepath)
+
+    def mock_write_enrollments(self, any_successes, any_failures):
+        """
+        Creates a mock function that returns results normally returned
+        by an enrollment-writing function.
+        """
+        raise NotImplementedError()  # pragma: no cover
+
+    def test_empty_list_file(self):
+        uploads_filestore.store(self.json_filepath, "[]")
+        with mock.patch(
+                self.mock_base + self.mock_function,
+                new=self.mock_write_enrollments(False, False),
+        ):
+            self.spawn_task().wait()
+        self.assert_succeeded(','.join(self.expected_fieldnames) + "\r\n", "204")
 
     def test_no_such_file(self):
         self.spawn_task().wait()
@@ -239,6 +255,7 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     Tests for write_program_enrollments task.
     """
     mock_function = 'write_program_enrollments'
+    expected_fieldnames = ('student_key', 'status')
 
     def spawn_task(self, program_key=None, **kwargs):
         return tasks.write_program_enrollments.apply_async(
@@ -251,11 +268,11 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             task_id=self.job_id
         )
 
-    def _mock_write_enrollments(self, good, bad):
+    def mock_write_enrollments(self, any_successes, any_failures):
         """
-        Create mock for data.write_program_enrollments.
+        Create mock for data.write_program_enrollments
 
-        Mock will return `good`, `bad`, and `enrollments`
+        Mock will return `any_successes`, `any_failures`, and `enrollments`
         echoed back as a dictionary.
         """
         def inner(_method, program_uuid, enrollments):
@@ -265,16 +282,16 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
                 (enrollment['student_key'], enrollment['status'])
                 for enrollment in enrollments
             ])
-            return good, bad, results
+            return any_successes, any_failures, results
         return inner
 
     @ddt.data(
-        (True, False, "200 OK"),
-        (True, True, "207 Multi-Status"),
-        (False, True, "422 Unprocessable Entity"),
+        (True, False, "200"),
+        (True, True, "207"),
+        (False, True, "422"),
     )
     @ddt.unpack
-    def test_success(self, good, bad, expected_code_str):
+    def test_success(self, any_successes, any_failures, expected_code_str):
         enrolls = [
             {'student_key': 'john', 'status': 'x'},
             {'student_key': 'bob', 'status': 'y'},
@@ -283,7 +300,7 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with mock.patch(
                 self.mock_base + self.mock_function,
-                new=self._mock_write_enrollments(good, bad),
+                new=self.mock_write_enrollments(any_successes, any_failures),
         ):
             self.spawn_task().wait()
         self.assert_succeeded(
@@ -294,14 +311,76 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             expected_code_str,
         )
 
-    def test_empty_list_file(self):
-        uploads_filestore.store(self.json_filepath, "[]")
+
+@ddt.ddt
+class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
+    """
+    Tests for write_course_run_enrollments task.
+    """
+    mock_function = 'write_course_run_enrollments'
+    expected_fieldnames = ('course_key', 'student_key', 'status')
+
+    def setUp(self):
+        super().setUp()
+        self.patcher = mock.patch.object(Program, 'discovery_program')
+        self.patcher.start()
+        self.program.discovery_program.get_course_key.side_effect = lambda x: x + '-internal'
+        self.addCleanup(self.patcher.stop)
+
+    def spawn_task(self, program_key=None, **kwargs):
+        return tasks.write_course_run_enrollments.apply_async(
+            (
+                self.job_id,
+                self.user.id,
+                self.json_filepath,
+                program_key or self.program.key,
+            ),
+            task_id=self.job_id
+        )
+
+    def mock_write_enrollments(self, any_successes, any_failures):
+        """
+        Create mock for data.write_course_run_enrollments.
+
+        Mock will return `any_successes`, `any_failures`, and `enrollments`
+        echoed back as a dictionary.
+        """
+        # pylint: disable=unused-argument
+        def inner(_method, program_uuid, course_key, enrollments):
+            """ Mock for data.write_course_run_enrollments. """
+            self.assertIsInstance(program_uuid, UUID)
+            results = OrderedDict([
+                (enrollment['student_key'], enrollment['status'])
+                for enrollment in enrollments
+            ])
+            return any_successes, any_failures, results
+        return inner
+
+    @ddt.data(
+        (True, False, "200"),
+        (True, True, "207"),
+        (False, True, "422"),
+    )
+    @ddt.unpack
+    def test_success(self, any_successes, any_failures, expected_code_str):
+        enrolls = [
+            {'student_key': 'john', 'status': 'x', 'course_key': 'course-1'},
+            {'student_key': 'bob', 'status': 'y', 'course_key': 'course-1'},
+            {'student_key': 'serena', 'status': 'z', 'course_key': 'course-2'},
+        ]
+        uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with mock.patch(
                 self.mock_base + self.mock_function,
-                new=self._mock_write_enrollments(False, False),
+                new=self.mock_write_enrollments(any_successes, any_failures),
         ):
             self.spawn_task().wait()
-        self.assert_succeeded("student_key,status\r\n", "204 No Content")
+        self.assert_succeeded(
+            "course_key,student_key,status\r\n"
+            "course-1,john,x\r\n"
+            "course-1,bob,y\r\n"
+            "course-2,serena,z\r\n",
+            expected_code_str,
+        )
 
 
 class DebugTaskTests(TestCase):

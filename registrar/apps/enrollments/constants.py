@@ -1,4 +1,6 @@
 """ Constants for enrollments app """
+from enum import Enum
+
 
 PROGRAM_CACHE_KEY_TPL = 'program:{uuid}'
 PROGRAM_CACHE_TIMEOUT = 120
@@ -27,3 +29,10 @@ ENROLLMENT_ERROR_DUPLICATED = 'duplicated'
 ENROLLMENT_ERROR_INTERNAL = 'internal-error'
 
 LMS_ENROLLMENT_WRITE_MAX_SIZE = 25
+
+
+class EnrollmentWriteStatus(Enum):
+    OK = 200
+    NO_CONTENT = 204
+    MULTI_STATUS = 207
+    UNPROCESSABLE_ENTITY = 422
