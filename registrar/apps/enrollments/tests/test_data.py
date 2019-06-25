@@ -282,15 +282,16 @@ class WriteEnrollmentsTestMixin(object):
 
     @mock_oauth_login
     @responses.activate
-    @mock.patch.object(data_logger, 'exception', autospec=True)
+    @mock.patch.object(data_logger, 'info', autospec=True)
     def test_backend_errors(self, mock_data_logger):
         self._add_echo_callback(200)
         self._add_echo_callback(422)
-        error_body = {
-            "developer_message": "this shouldn't show up in the response"
+        string_422 = "this a string error from lms"
+        dict_400 = {
+            "developer_message": "this is a dict error from lms"
         }
-        responses.add(responses.POST, self.url, status=400, json=error_body)
-        responses.add(responses.POST, self.url, status=500)
+        responses.add(responses.POST, self.url, status=422, body=string_422)
+        responses.add(responses.POST, self.url, status=400, json=dict_400)
         with mock.patch(self.max_write_const, new=2):
             good, bad, output = self.write_enrollments(self.enrollments)
 
@@ -298,11 +299,11 @@ class WriteEnrollmentsTestMixin(object):
         self.assertEqual(good, True)
         self.assertEqual(bad, True)
 
-        fmt = "Unexpected status {} from LMS request POST " + self.url + "."
-        log_prefixes = [fmt.format(400), fmt.format(500)]
-        for i, log_prefix in enumerate(log_prefixes):
+        for i, status in enumerate([200, 422, 422, 400]):
             log_str = mock_data_logger.call_args_list[i].args[0]
-            self.assertTrue(log_str.startswith(log_prefix))
+            self.assertIn('POST', log_str)
+            self.assertIn(self.url, log_str)
+            self.assertIn(str(status), log_str)
 
     def write_enrollments(self, enrollments):
         """ Overridden in child classes """

@@ -1,6 +1,7 @@
 """
 Module for syncing data with external services.
 """
+import json
 import logging
 from collections import namedtuple
 from datetime import datetime
@@ -304,25 +305,31 @@ def _write_enrollments(method, url, enrollments, client=None):
         student_key: ENROLLMENT_ERROR_DUPLICATED
         for student_key in duplicated_student_keys
     })
+    expected_codes = {
+        HTTP_200_OK,
+        HTTP_207_MULTI_STATUS,
+        HTTP_422_UNPROCESSABLE_ENTITY,
+    }
     for response in responses:
-        status = response.status_code
-        if status == HTTP_200_OK:
+        if response.status_code == HTTP_200_OK:
             good = True
-            results.update(response.json())
-        elif status == HTTP_207_MULTI_STATUS:
+        elif response.status_code == HTTP_207_MULTI_STATUS:
             good = True
             bad = True
-            results.update(response.json())
-        elif status == HTTP_422_UNPROCESSABLE_ENTITY:
-            bad = True
-            results.update(response.json())
         else:
             bad = True
-            logger.exception(
-                "Unexpected status {} from LMS request {} {}. Response body: {}".format(
-                    response.status_code, method, url, response.text
-                )
+        if response.status_code in expected_codes:
+            try:
+                response_data = response.json()
+            except json.JSONDecodeError:
+                response_data = None
+            if isinstance(response_data, dict):
+                results.update(response_data)
+        logger.info(
+            "LMS responded to {} {} with status {} and body {}".format(
+                method, url, response.status_code, response.text
             )
+        )
     return good, bad, results
 
 
