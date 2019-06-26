@@ -1041,6 +1041,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
             'courses': [{
                 'course_runs': [{
                     'key': 'HUMx+English-550+Spring',
+                    'external_key': 'ENG55-S19',
                     'title': "English 550",
                     'marketing_url': 'https://example.com/english-550',
                 }]
@@ -1050,11 +1051,13 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
 
     enrollments = [
         {
+            'course_key': 'ENG55-S19',
             'student_key': 'abcd',
             'status': 'enrolled',
             'account_exists': True,
         },
         {
+            'course_key': 'ENG55-S19',
             'student_key': 'efgh',
             'status': 'pending',
             'account_exists': False,
@@ -1062,8 +1065,8 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
     ]
     enrollments_json = json.dumps(enrollments, indent=4)
     enrollments_csv = (
-        "abcd,enrolled,True\r\n"
-        "efgh,pending,False\r\n"
+        "ENG55-S19,abcd,enrolled,True\r\n"
+        "ENG55-S19,efgh,pending,False\r\n"
     )
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)

@@ -151,6 +151,7 @@ class GetProgramEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
         return get_program_enrollments(self.program_uuid)
 
 
+@ddt.ddt
 class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     """ Tests for data.get_course_run_enrollments """
 
@@ -160,8 +161,32 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     status_choices = ['active', 'inactive']
     curriculum_uuid_in_input = False
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        for enrollment in cls.good_output:
+            enrollment['course_key'] = cls.course_id
+
     def get_enrollments(self):
         return get_course_run_enrollments(self.program_uuid, self.course_id)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(None, 'myFavoriteCourse', 'someOtherName')
+    def test_external_course_key(self, external_course_key):
+        responses.add(
+            responses.GET,
+            self.lms_url,
+            status=200,
+            json={'next': None, 'results': self.good_input_2},
+        )
+        enrollments = get_course_run_enrollments(
+            self.program_uuid,
+            self.course_id,
+            external_course_key
+        )
+        for enrollment in enrollments:
+            self.assertEqual(enrollment.get('course_key'), external_course_key or self.course_id)
 
 
 @ddt.ddt

@@ -39,9 +39,14 @@ class CourseEnrollmentSerializer(serializers.Serializer):
     """
     Serializer for program enrollment API response.
     """
+    course_key = serializers.SerializerMethodField()
     student_key = serializers.CharField()
     status = serializers.ChoiceField(choices=COURSE_ENROLLMENT_STATUSES)
     account_exists = serializers.BooleanField()
+
+    # pylint: disable=unused-argument
+    def get_course_key(self, obj):
+        return self.context.get('course_key')
 
 
 def serialize_course_run_enrollments_to_csv(enrollments):
@@ -54,7 +59,7 @@ def serialize_course_run_enrollments_to_csv(enrollments):
     Returns: str
     """
     return serialize_to_csv(
-        enrollments, ('student_key', 'status', 'account_exists')
+        enrollments, ('course_key', 'student_key', 'status', 'account_exists')
     )
 
 

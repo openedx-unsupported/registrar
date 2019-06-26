@@ -28,8 +28,6 @@ uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 
 
 # pylint: disable=unused-argument
-
-
 @shared_task(base=UserTask, bind=True)
 def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
@@ -67,7 +65,13 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
 
 @shared_task(base=UserTask, bind=True)
 def list_course_run_enrollments(
-        self, job_id, user_id, file_format, program_key, course_key   # pylint: disable=unused-argument
+        self,
+        job_id,
+        user_id,
+        file_format,
+        program_key,
+        internal_course_key,
+        external_course_key,
 ):
     """
     A user task for retrieving program course run enrollments from LMS.
@@ -78,7 +82,9 @@ def list_course_run_enrollments(
 
     try:
         enrollments = data.get_course_run_enrollments(
-            program.discovery_uuid, course_key
+            program.discovery_uuid,
+            internal_course_key,
+            external_course_key,
         )
     except HTTPError as err:
         post_job_failure(
