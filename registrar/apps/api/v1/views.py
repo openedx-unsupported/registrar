@@ -337,6 +337,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             list_course_run_enrollments,
             self.program.key,
             self.internal_course_key,
+            self.external_course_key,
         )
 
     def post(self, request, program_key, course_id):

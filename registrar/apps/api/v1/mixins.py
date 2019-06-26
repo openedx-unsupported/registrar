@@ -154,14 +154,14 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
     A mixin for views that operate on or within a specific program course run.
 
     In addition to the functionality provided in `ProgramSpecificViewMixin`,
-    this mixin provides a `internal_course_key` property, which returns the
-    edX course key of the course referred to in the URL (either by the
+    this mixin provides the `internal_course_key` and `external_course_key` properties,
+    which return the edX course key of the course referred to in the URL (either by the
     edX course key itself or by an external course key). It also validates
-    that they course key exists within the program, raising 404 if not.
+    that the course key exists within the program, raising 404 if not.
     """
 
     @cached_property
-    def internal_course_key(self):
+    def course_run(self):
         """
         Raises a 404 if the course run identified by the `course_id` path
         parameter is not part of self.program.
@@ -173,7 +173,15 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         if not real_course_run:
             self.add_tracking_data(failure='course_not_found')
             raise Http404()
-        return real_course_run.key
+        return real_course_run
+
+    @property
+    def internal_course_key(self):
+        return self.course_run.key
+
+    @property
+    def external_course_key(self):
+        return self.course_run.external_key
 
 
 class JobInvokerMixin(object):

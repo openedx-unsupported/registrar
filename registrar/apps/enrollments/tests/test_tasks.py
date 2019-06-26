@@ -171,6 +171,14 @@ class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
         COURSE_ENROLLMENT_INACTIVE,
     )
     mocked_get_enrollments_method = 'get_course_run_enrollments'
+    internal_course_key = 'course-1'
+    external_course_key = 'external_course_key'
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        for enrollment in cls.enrollment_data:
+            enrollment['course_key'] = cls.external_course_key
 
     def spawn_task(self, program_key=None, **kwargs):
         return tasks.list_course_run_enrollments.apply_async(
@@ -179,7 +187,8 @@ class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
                 self.user.id,
                 kwargs.get('file_format', 'json'),
                 program_key or self.program.key,
-                'course-1'
+                self.internal_course_key,
+                self.external_course_key,
             ),
             task_id=self.job_id
         )

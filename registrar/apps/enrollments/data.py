@@ -202,13 +202,14 @@ def get_program_enrollments(program_uuid, client=None):
     return serializer.validated_data
 
 
-def get_course_run_enrollments(program_uuid, course_key, client=None):
+def get_course_run_enrollments(program_uuid, internal_course_key, external_course_key=None, client=None):
     """
     Fetches program course run enrollments from the LMS.
 
     Arguments:
         program_uuid (str): UUID-4 string
-        course_key (str): edX course key identifying course run
+        internal_course_key (str): edX course key identifying course run
+        external_course_key (str): optional external course key
 
     Returns: list[dict]
         A list of enrollment dictionaries, validated by
@@ -218,11 +219,12 @@ def get_course_run_enrollments(program_uuid, course_key, client=None):
         - HTTPError if there is an issue communicating with LMS
         - ValidationError if enrollment data from LMS is invalid
     """
-    url = _lms_course_run_enrollment_url(program_uuid, course_key)
+    url = _lms_course_run_enrollment_url(program_uuid, internal_course_key)
     enrollments = _get_all_paginated_results(url, client)
-    serializer = CourseEnrollmentSerializer(data=enrollments, many=True)
+    context = {'course_key': external_course_key or internal_course_key}
+    serializer = CourseEnrollmentSerializer(data=enrollments, many=True, context=context)
     serializer.is_valid(raise_exception=True)
-    return serializer.validated_data
+    return serializer.data
 
 
 def write_program_enrollments(method, program_uuid, enrollments, client=None):
