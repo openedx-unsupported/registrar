@@ -14,6 +14,7 @@ from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
 from rest_framework.status import (
     HTTP_200_OK,
+    HTTP_201_CREATED,
     HTTP_207_MULTI_STATUS,
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
@@ -307,11 +308,12 @@ def _write_enrollments(method, url, enrollments, client=None):
     })
     expected_codes = {
         HTTP_200_OK,
+        HTTP_201_CREATED,
         HTTP_207_MULTI_STATUS,
         HTTP_422_UNPROCESSABLE_ENTITY,
     }
     for response in responses:
-        if response.status_code == HTTP_200_OK:
+        if response.status_code in (HTTP_200_OK, HTTP_201_CREATED):
             good = True
         elif response.status_code == HTTP_207_MULTI_STATUS:
             good = True

@@ -233,6 +233,7 @@ class WriteEnrollmentsTestMixin(object):
         (25, [200], True),
         (25, [422], False),
         (4, [200, 200], True),
+        (4, [201, 201], True),
         (4, [207, 207], True),
         (3, [200, 207, 422], True),
         (3, [422, 200, 422], True),
