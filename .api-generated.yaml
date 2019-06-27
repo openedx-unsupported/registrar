@@ -190,19 +190,11 @@ endpoints:
       responses:
         302:
           description: Found
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/login/edx-oauth2/
   logout:
     get:
       responses:
         302:
           description: Found
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/logout/
   patch_course_enrollments:
     parameters:
     - description: edX program key
@@ -406,29 +398,16 @@ endpoints:
           $ref: '#/models/ProgramEnrollmentResult'
     summary: Enroll students in a program
   static:
-    x-amazon-apigateway-any-method:
-      parameters:
-      - in: path
-        name: proxy
+    get:
       responses:
         200:
           description: OK
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.proxy: method.request.path.proxy
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/static/{proxy}
   swagger:
     get:
       operationId: registrar_get_api_docs
       responses:
         200:
           description: OK
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api-docs/
 format_param:
   description: format of file to generate
   enum:
@@ -577,12 +556,6 @@ paths:
       summary: Get the status of a job
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.job_id: method.request.path.job_id
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/jobs/{job_id}/
   /v1-mock/programs/:
     get:
       description: List all programs, requires an organization key for non-admins
@@ -612,10 +585,6 @@ paths:
       summary: List programs
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/
   /v1-mock/programs/{program_key}/:
     get:
       operationId: registrar_v1_mock_get_program
@@ -643,12 +612,6 @@ paths:
       summary: Get Program
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/
   /v1-mock/programs/{program_key}/courses/:
     get:
       operationId: registrar_v1_mock_list_courses
@@ -679,12 +642,6 @@ paths:
       summary: List program courses
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/
   /v1-mock/programs/{program_key}/courses/{course_id}/enrollments/:
     get:
       description: Submit a job to retrieve course enrollment data
@@ -724,13 +681,6 @@ paths:
       summary: Request course enrollment data
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.course_id: method.request.path.course_id
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
     patch:
       operationId: registrar_v1_mock_patch_course_enrollments
       parameters:
@@ -789,13 +739,6 @@ paths:
       summary: Modify course enrollments
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: PATCH
-        requestParameters:
-          integration.request.path.course_id: method.request.path.course_id
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
     post:
       operationId: registrar_v1_mock_post_course_enrollments
       parameters:
@@ -853,13 +796,6 @@ paths:
       summary: Enroll students in a course
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        requestParameters:
-          integration.request.path.course_id: method.request.path.course_id
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/
   /v1-mock/programs/{program_key}/enrollments/:
     get:
       description: Submit a job to retrieve program enrollment data
@@ -892,12 +828,6 @@ paths:
       summary: Request program enrollment data
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
     patch:
       operationId: registrar_v1_mock_patch_program_enrollments
       parameters:
@@ -950,12 +880,6 @@ paths:
       summary: Modify program enrollments
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: PATCH
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
     post:
       operationId: registrar_v1_mock_post_program_enrollments
       parameters:
@@ -1007,12 +931,6 @@ paths:
       summary: Enroll students in a program
       tags:
       - v1 - Mock API
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1-mock/programs/{program_key}/enrollments/
   /v1/jobs/{job_id}/:
     get:
       operationId: registrar_v1_get_job_status
@@ -1032,12 +950,6 @@ paths:
       summary: Get the status of a job
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.job_id: method.request.path.job_id
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/jobs/{job_id}/
   /v1/programs/:
     get:
       description: List all programs, requires an organization key for non-admins
@@ -1067,10 +979,6 @@ paths:
       summary: List programs
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/
   /v1/programs/{program_key}/:
     get:
       operationId: registrar_v1_get_program
@@ -1098,12 +1006,6 @@ paths:
       summary: Get Program
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/
   /v1/programs/{program_key}/courses/:
     get:
       operationId: registrar_v1_list_courses
@@ -1134,12 +1036,6 @@ paths:
       summary: List program courses
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/
   /v1/programs/{program_key}/courses/{course_id}/enrollments/:
     get:
       description: Submit a job to retrieve course enrollment data
@@ -1179,13 +1075,6 @@ paths:
       summary: Request course enrollment data
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.course_id: method.request.path.course_id
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/
     patch:
       operationId: registrar_v1_patch_course_enrollments
       parameters:
@@ -1244,13 +1133,6 @@ paths:
       summary: Modify course enrollments
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: PATCH
-        requestParameters:
-          integration.request.path.course_id: method.request.path.course_id
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/
     post:
       operationId: registrar_v1_post_course_enrollments
       parameters:
@@ -1308,13 +1190,6 @@ paths:
       summary: Enroll students in a course
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        requestParameters:
-          integration.request.path.course_id: method.request.path.course_id
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/courses/{course_id}/enrollments/
   /v1/programs/{program_key}/enrollments/:
     get:
       description: Submit a job to retrieve program enrollment data
@@ -1347,12 +1222,6 @@ paths:
       summary: Request program enrollment data
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/
     patch:
       operationId: registrar_v1_patch_program_enrollments
       parameters:
@@ -1405,12 +1274,6 @@ paths:
       summary: Modify program enrollments
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: PATCH
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/
     post:
       operationId: registrar_v1_post_program_enrollments
       parameters:
@@ -1462,12 +1325,6 @@ paths:
       summary: Enroll students in a program
       tags:
       - v1
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        requestParameters:
-          integration.request.path.program_key: method.request.path.program_key
-        type: http_proxy
-        uri: https://${stageVariables.registrar_host}/api/v1/programs/{program_key}/enrollments/
 produces:
 - application/json
 program_enrollment_body:
@@ -1512,22 +1369,3 @@ student_key:
     \ other government-issued ID number.\n"
   type: string
 swagger: '2.0'
-x-amazon-apigateway-integration:
-  httpMethod: GET
-  type: http_proxy
-x-amazon-apigateway-integration-course:
-  httpMethod: GET
-  requestParameters:
-    integration.request.path.course_id: method.request.path.course_id
-    integration.request.path.program_key: method.request.path.program_key
-  type: http_proxy
-x-amazon-apigateway-integration-job:
-  httpMethod: GET
-  requestParameters:
-    integration.request.path.job_id: method.request.path.job_id
-  type: http_proxy
-x-amazon-apigateway-integration-program:
-  httpMethod: GET
-  requestParameters:
-    integration.request.path.program_key: method.request.path.program_key
-  type: http_proxy
