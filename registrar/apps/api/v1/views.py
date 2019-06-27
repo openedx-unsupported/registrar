@@ -48,6 +48,7 @@ from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tasks import (
+    list_all_course_run_enrollments,
     list_course_run_enrollments,
     list_program_enrollments,
     write_course_run_enrollments,
@@ -484,3 +485,40 @@ class CourseRunEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadVi
     task_fn = write_course_run_enrollments
     event_method_map = {'POST': 'registrar.v1.upload_course_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}
+
+
+class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView):
+    """
+    Invokes a Django User Task that retrieves student enrollment
+    data for all course runs within this program.
+
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks enrollment read access to organization of specified program
+     * 404: Program was not found.
+
+    Example Response:
+    {
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/[version]/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+    }
+
+    Path: /api/[version]/programs/{program_key}/course_enrollments
+    """
+    event_method_map = {
+        'GET': 'registrar.v1.download_course_enrollments',
+    }
+    event_parameter_map = {
+        'program_key': 'program_key',
+        'fmt': 'result_format',
+    }
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves course run enrollment data for the given program.
+        """
+        return self.invoke_download_job(
+            list_all_course_run_enrollments,
+            self.program.key,
+        )

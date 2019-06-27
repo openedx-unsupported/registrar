@@ -113,6 +113,49 @@ def list_course_run_enrollments(
     post_job_success(job_id, serialized, file_format)
 
 
+@shared_task(base=UserTask, bind=True)
+def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_key):
+    """
+    A user task for retrieving all course enrollments within a given program from LMS.
+    """
+    program = _get_program(job_id, program_key)
+    if not program:
+        return None
+
+    results = []
+    for course_run in program.discovery_program.course_runs:
+        try:
+            enrollments = data.get_course_run_enrollments(
+                program.discovery_uuid,
+                course_run.key,
+                course_run.external_key,
+            )
+        except HTTPError as err:
+            post_job_failure(
+                job_id,
+                "HTTP error {} when getting enrollments at {}".format(
+                    err.response.status_code, err.request.url
+                ),
+            )
+            return
+        except ValidationError as err:
+            post_job_failure(
+                job_id,
+                "Invalid enrollment data from LMS: {}".format(err),
+            )
+            return
+
+        results.extend(enrollments)
+
+    if file_format == 'json':
+        serialized = json.dumps(results, indent=4)
+    elif file_format == 'csv':
+        serialized = serialize_course_run_enrollments_to_csv(results)
+    else:
+        raise ValueError('Invalid file_format: {}'.format(file_format))
+    post_job_success(job_id, serialized, file_format)
+
+
 class EnrollmentWriteTask(UserTask):
     """
     Base class for enrollment-writing tasks.
