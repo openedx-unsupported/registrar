@@ -27,6 +27,7 @@ from registrar.apps.enrollments.constants import (
     PROGRAM_ENROLLMENT_ENROLLED,
     PROGRAM_ENROLLMENT_PENDING,
 )
+from registrar.apps.enrollments.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
@@ -189,6 +190,51 @@ class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
                 program_key or self.program.key,
                 self.internal_course_key,
                 self.external_course_key,
+            ),
+            task_id=self.job_id
+        )
+
+
+class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
+    """ Tests for task error behavior. """
+    enrollment_statuses = (
+        COURSE_ENROLLMENT_ACTIVE,
+        COURSE_ENROLLMENT_INACTIVE,
+    )
+    mocked_get_enrollments_method = 'get_course_run_enrollments'
+    course_key = 'course-1'
+    external_course_key = 'external_course_key'
+    default_course_run = {'key': 'course-key', 'external_key': 'external-key'}
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        for enrollment in cls.enrollment_data:
+            enrollment['course_key'] = cls.external_course_key
+
+    def setUp(self):
+        super().setUp()
+        program_patcher = mock.patch.object(DiscoveryProgram, 'get')
+        self.mocked_discovery_program = program_patcher.start()
+        self.mocked_discovery_program.return_value = DiscoveryProgram(
+            course_runs=[
+                DiscoveryCourseRun(
+                    key='course-key',
+                    external_key='external-key',
+                    title='title',
+                    marketing_url='www',
+                )
+            ]
+        )
+        self.addCleanup(program_patcher.stop)
+
+    def spawn_task(self, program_key=None, **kwargs):
+        return tasks.list_all_course_run_enrollments.apply_async(
+            (
+                self.job_id,
+                self.user.id,
+                kwargs.get('file_format', 'json'),
+                program_key or self.program.key,
             ),
             task_id=self.job_id
         )

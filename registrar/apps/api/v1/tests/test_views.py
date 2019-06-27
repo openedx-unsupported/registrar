@@ -47,6 +47,7 @@ from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
+    DiscoveryCourseRun,
     DiscoveryProgram,
 )
 from registrar.apps.enrollments.tests.factories import ProgramFactory
@@ -1819,3 +1820,181 @@ class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAP
             'student_key': student_key or uuid.uuid4().hex[0:10],
             'course_key': course_key or uuid.uuid4().hex[0:10],
         }
+
+
+@ddt.ddt
+class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for GET /api/v1/programs/{program_key}/course_enrollments endpoint """
+    method = 'GET'
+    path = 'programs/masters-in-english/course_enrollments'
+    event = 'registrar.v1.download_course_enrollments'
+
+    program_uuid = str(uuid.uuid4())
+    english_key = 'HUMx+English-550+Spring'
+    spanish_key = 'HUMx+Spanish-1000+Spring'
+    russian_key = 'HUMx+Russian-440+Spring'
+    french_key = 'HUMx+French-9910+Spring'
+    disco_program = DiscoveryProgram(
+        course_runs=[
+            DiscoveryCourseRun(
+                key=english_key,
+                external_key='ENG55-S19',
+                title="English 550",
+                marketing_url='https://example.com/english-550',
+            ),
+            DiscoveryCourseRun(
+                key=spanish_key,
+                external_key='SPAN101-S19',
+                title="Spanish 101",
+                marketing_url='https://example.com/spanish-101',
+            ),
+            DiscoveryCourseRun(
+                key=russian_key,
+                external_key='RUS44-S19',
+                title="Russian 440",
+                marketing_url='https://example.com/russian-440',
+            ),
+            DiscoveryCourseRun(
+                key=french_key,
+                external_key=None,
+                title="French 9910",
+                marketing_url='https://example.com/french-9910',
+            ),
+        ]
+    )
+
+    english_enrollments = [
+        {
+            'course_key': 'ENG55-S19',
+            'student_key': 'learner-01',
+            'status': 'enrolled',
+            'account_exists': True,
+        },
+        {
+            'course_key': 'ENG55-S19',
+            'student_key': 'learner-02',
+            'status': 'pending',
+            'account_exists': False,
+        },
+    ]
+    spanish_enrollments = [
+        {
+            'course_key': 'SPAN101-S19',
+            'student_key': 'learner-01',
+            'status': 'enrolled',
+            'account_exists': True,
+        },
+        {
+            'course_key': 'SPAN101-S19',
+            'student_key': 'learner-03',
+            'status': 'pending',
+            'account_exists': False,
+        },
+    ]
+    russian_enrollments = []
+    french_enrollments = [
+        {
+            'course_key': 'HUMx+French-9910+Spring',
+            'student_key': 'learner-01',
+            'status': 'enrolled',
+            'account_exists': True,
+        },
+        {
+            'course_key': 'HUMx+French-9910+Spring',
+            'student_key': 'learner-04',
+            'status': 'pending',
+            'account_exists': False,
+        },
+    ]
+
+    enrollments_by_key = {
+        english_key: english_enrollments,
+        spanish_key: spanish_enrollments,
+        russian_key: russian_enrollments,
+        french_key: french_enrollments,
+    }
+
+    all_enrollments = english_enrollments + spanish_enrollments + russian_enrollments + french_enrollments
+    enrollments_json = json.dumps(all_enrollments, indent=4)
+    enrollments_csv = (
+        "ENG55-S19,learner-01,enrolled,True\r\n"
+        "ENG55-S19,learner-02,pending,False\r\n"
+        "SPAN101-S19,learner-01,enrolled,True\r\n"
+        "SPAN101-S19,learner-03,pending,False\r\n"
+        "HUMx+French-9910+Spring,learner-01,enrolled,True\r\n"
+        "HUMx+French-9910+Spring,learner-04,pending,False\r\n"
+    )
+
+    # pylint: disable=unused-argument
+    def spoof_get_course_run_enrollments(
+        self, program_uuid, internal_course_key, external_course_key=None, client=None
+    ):
+        return self.enrollments_by_key.get(internal_course_key)
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    @mock.patch(
+        'registrar.apps.enrollments.tasks.data.get_course_run_enrollments',
+    )
+    @ddt.data(
+        (None, 'json', enrollments_json),
+        ('json', 'json', enrollments_json),
+        ('csv', 'csv', enrollments_csv),
+    )
+    @ddt.unpack
+    def test_ok(self, format_param, expected_format, expected_contents, mock_get_enrollments, _mock2):
+        mock_get_enrollments.side_effect = self.spoof_get_course_run_enrollments
+        format_suffix = "?fmt=" + format_param if format_param else ""
+        kwargs = {'result_format': format_param} if format_param else {}
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                status_code=202,
+                **kwargs
+        ):
+            response = self.get(self.path + format_suffix, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        with self.assert_tracking(
+                event='registrar.v1.get_job_status',
+                user=self.hum_admin,
+                job_id=response.data['job_id'],
+                job_state='Succeeded',
+        ):
+            job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        result_url = job_response.data['result']
+        self.assertIn(".{}?".format(expected_format), result_url)
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response.text, expected_contents)
+
+    def test_permission_denied(self):
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-english',
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
+        ):
+            response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_program_not_found(self):
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-polysci',
+                failure='program_not_found',
+        ):
+            response = self.get('programs/masters-in-polysci/course_enrollments', self.hum_admin)
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    def test_invalid_format_404(self, _mock):
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                failure='result_format_not_supported',
+                result_format='invalidformat',
+                status_code=404,
+        ):
+            response = self.get(self.path + '?fmt=invalidformat', self.hum_admin)
+        self.assertEqual(response.status_code, 404)

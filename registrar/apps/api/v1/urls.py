@@ -54,6 +54,11 @@ urlpatterns = [
         name="program-course-enrollment-upload"
     ),
     url(
+        r'^programs/{}/course_enrollments/?$'.format(PROGRAM_KEY_PATTERN),
+        views.CourseRunEnrollmentDownloadView.as_view(),
+        name="program-course-enrollment-download"
+    ),
+    url(
         r'^jobs/?$',
         views.JobStatusListView.as_view(),
         name="job-status-list",
