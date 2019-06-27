@@ -42,6 +42,11 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^health/?$', core_views.health, name='health'),
 ]
 
+# edx-drf-extensions csrf app
+urlpatterns += [
+    url(r'', include('csrf.urls')),
+]
+
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
     import debug_toolbar
     urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
