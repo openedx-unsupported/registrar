@@ -29,7 +29,9 @@ INSTALLED_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    'analytics',
     'corsheaders',
+    'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens
     'guardian',
     'release_util',
     'rest_framework',
@@ -37,7 +39,6 @@ THIRD_PARTY_APPS = (
     'social_django',
     'user_tasks',
     'waffle',
-    'analytics',
 )
 
 PROJECT_APPS = (
