@@ -237,6 +237,9 @@ JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_VERIFY_AUDIENCE': False,
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
+    'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
+    'JWT_AUTH_COOKIE_HEADER_PAYLOAD': 'edx-jwt-cookie-header-payload',
+    'JWT_AUTH_COOKIE_SIGNATURE': 'edx-jwt-cookie-signature',
 }
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
