@@ -87,20 +87,19 @@ class FilestoreBase(object):
         full_path = self.get_full_path(path)
         return self.backend.exists(full_path)
 
+    def get_url(self, path):
+        """
+        Given the path of a file in the store, return a URL to the file.
+        Path will be prefixed by `self.path_prefix`.
+        """
+        full_path = self.get_full_path(path)
+        return self.backend.url(full_path)
+
     def get_full_path(self, path):
         """
         Apply `self.path_prefix` to `path`. Use POSIX path joining.
         """
         return posixpath.join(self.path_prefix, path)
-
-    def get_url(self, path):
-        """
-        Given the path of a file in the store, return a URL to the file.
-        Path should be prefixed by `self.path_prefix`.
-
-        Must be overriden in subclass.
-        """
-        raise NotImplementedError  # pragma: no cover
 
 
 class FileSystemFilestore(FilestoreBase):
@@ -118,36 +117,9 @@ class FileSystemFilestore(FilestoreBase):
 
 class S3Filestore(FilestoreBase):
     """
-    File storege using S3Boto3Storage.
+    File storage using S3Boto3Storage.
     """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        import boto3
-        self.s3_client = boto3.client('s3')
-
-    def get_full_path(self, path):
-        """
-        Apply `self.path_prefix` to `path`. Use POSIX path joining.
-
-        S3 allows additional prefixing of uploads with settings.AWS_LOCATION.
-        """
-        prefixed_path = super().get_full_path(path)
-        return settings.AWS_LOCATION + prefixed_path
-
-    def get_url(self, path):
-        """
-        Given the path of a file in the store, return a URL to the file.
-        Path will be prefixed by `self.path_prefix`.
-
-        Generates a signed GET URL to the resource that expires in the
-        configured amount of time.
-        """
-        params = {
-            'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
-            'Key': self.get_full_path(path),
-        }
-        return self.s3_client.generate_presigned_url('get_object', Params=params)
+    pass
 
 
 def get_filestore(path_prefix=""):
