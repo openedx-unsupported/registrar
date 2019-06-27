@@ -20,23 +20,21 @@ class S3FilestoreTests(TestCase):
     Tests for S3Filestore, which is the default Filestore under test settings.
     """
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         # This is unfortunately duplicated from:
         #   registrar.apps.api.v1.tests.test_views:S3MockMixin.
         # It would be ideal to move that mixin to a utilities file and re-use
         # it here, but moto seems to have a bug/"feature" where it only works
         # in modules that explicitly import it.
-        super().setUpClass()
-        cls._s3_mock = moto.mock_s3()
-        cls._s3_mock.start()
+        super().setUp()
+        self._s3_mock = moto.mock_s3()
+        self._s3_mock.start()
         conn = boto3.resource('s3')
         conn.create_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls._s3_mock.stop()
-        super().tearDownClass()
+    def tearDown(self):
+        self._s3_mock.stop()
+        super().tearDown()
 
     location_variants = ('', 'bucketprefix/')
     prefix_variants = ("", "prefix", "prefix/withslashes/")
@@ -46,10 +44,11 @@ class S3FilestoreTests(TestCase):
     @ddt.data(*(product(location_variants, prefix_variants, path_variants, contents_variants)))
     @ddt.unpack
     def test_s3_filestore(self, location, prefix, path, contents):
-        with mock.patch.object(settings, 'AWS_LOCATION', new=location):
-            filestore = get_filestore(prefix)
+        filestore = get_filestore(prefix)
+        with mock.patch.object(filestore.backend, 'location', new=location):
             url = filestore.store(path, contents)
             self.assertTrue(filestore.exists(path))
+            self.assertIn(location, url)
             response = requests.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.text, contents)
@@ -60,8 +59,8 @@ class S3FilestoreTests(TestCase):
 
     @mock.patch.object(filestore_logger, 'exception', autospec=True)
     def test_s3_filestore_not_found(self, mock_log_exception):
-        with mock.patch.object(settings, 'AWS_LOCATION', new="bucketprefix/"):
-            filestore = get_filestore("prefix")
+        filestore = get_filestore("prefix")
+        with mock.patch.object(filestore.backend, 'location', new="bucketprefix/"):
             retrieved = filestore.retrieve("file.txt")
             self.assertIsNone(retrieved)
             mock_log_exception.assert_called_once()
