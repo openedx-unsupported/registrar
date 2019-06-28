@@ -63,7 +63,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
-    Path: /api/v1/programs?org={org_key}
+    Path: /api/[version]/programs?org={org_key}
 
     All programs within organization specified by `org_key` are returned.
     For users will global organization access, `org_key` can be omitted in order
@@ -76,7 +76,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
 
     serializer_class = ProgramSerializer
-    event_method_map = {'GET': 'registrar.v1.list_programs'}
+    event_method_map = {'GET': 'registrar.{api_version}.list_programs'}
     event_parameter_map = {
         'org': 'organization_filter',
         'user_has_perm': 'permission_filter',
@@ -169,7 +169,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     """
     A view for retrieving a single program object.
 
-    Path: /api/v1/programs/{program_key}
+    Path: /api/[version]/programs/{program_key}
 
     Returns:
      * 200: OK
@@ -178,7 +178,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     """
     serializer_class = ProgramSerializer
     permission_required = [perms.ORGANIZATION_READ_METADATA]
-    event_method_map = {'GET': 'registrar.v1.get_program_detail'}
+    event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
 
     def get_object(self):
@@ -189,7 +189,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     """
     A view for listing courses in a program.
 
-    Path: /api/v1/programs/{program_key}/courses
+    Path: /api/[version]/programs/{program_key}/courses
 
     Returns:
      * 200: OK
@@ -198,7 +198,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     """
     serializer_class = CourseRunSerializer
     permission_required = perms.ORGANIZATION_READ_METADATA
-    event_method_map = {'GET': 'registrar.v1.get_program_courses'}
+    event_method_map = {'GET': 'registrar.{api_version}.get_program_courses'}
     event_parameter_map = {'program_key': 'program_key'}
 
     def get_queryset(self):
@@ -211,7 +211,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
-    Path: /api/v1/programs/{program_key}/enrollments
+    Path: /api/[version]/programs/{program_key}/enrollments
 
     Accepts: [GET, POST, PATCH]
 
@@ -231,7 +231,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     Example Response:
     {
         "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
-        "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+        "job_url": "http://localhost/api/[version]/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
     }
 
     ------------------------------------------------------------------------------------
@@ -251,9 +251,9 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
      * 422: Invalid request, unable to enroll students.
     """
     event_method_map = {
-        'GET': 'registrar.v1.get_program_enrollment',
-        'POST': 'registrar.v1.post_program_enrollment',
-        'PATCH': 'registrar.v1.patch_program_enrollment',
+        'GET': 'registrar.{api_version}.get_program_enrollment',
+        'POST': 'registrar.{api_version}.post_program_enrollment',
+        'PATCH': 'registrar.{api_version}.patch_program_enrollment',
     }
     event_parameter_map = {
         'program_key': 'program_key',
@@ -279,7 +279,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
     """
     A view for enrolling students in a program course run.
 
-    Path: /api/v1/programs/{program_key}/courses/{course_id}/enrollments
+    Path: /api/[version]/programs/{program_key}/courses/{course_id}/enrollments
 
     Accepts: [GET, PATCH, POST]
 
@@ -299,7 +299,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
     Example Response:
     {
         "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
-        "job_url": "http://localhost/api/v1/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+        "job_url": "http://localhost/api/[version]/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
     }
 
     ------------------------------------------------------------------------------------
@@ -319,9 +319,9 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
      * 422: Invalid request, unable to enroll students.
     """
     event_method_map = {
-        'GET': 'registrar.v1.get_course_enrollment',
-        'POST': 'registrar.v1.post_course_enrollment',
-        'PATCH': 'registrar.v1.patch_course_enrollment',
+        'GET': 'registrar.{api_version}.get_course_enrollment',
+        'POST': 'registrar.{api_version}.post_course_enrollment',
+        'PATCH': 'registrar.{api_version}.patch_course_enrollment',
     }
     event_parameter_map = {
         'program_key': 'program_key',
@@ -353,7 +353,7 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
     """
     A view for getting the status of a job.
 
-    Path: /api/v1/jobs/{job_id}
+    Path: /api/[version]/jobs/{job_id}
 
     Accepts: [GET]
 
@@ -372,7 +372,7 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = JobStatusSerializer
-    event_method_map = {'GET': 'registrar.v1.get_job_status'}
+    event_method_map = {'GET': 'registrar.{api_version}.get_job_status'}
     event_parameter_map = {'job_id': 'job_id'}
 
     def get_object(self):
@@ -392,7 +392,7 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
     A view for listing currently processing jobs.
 
-    Path: /api/v1/jobs/
+    Path: /api/[version]/jobs/
 
     Returns:
      * 200: OK
@@ -402,7 +402,7 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = JobStatusSerializer
-    event_method_map = {'GET': 'registrar.v1.list_job_statuses'}
+    event_method_map = {'GET': 'registrar.{api_version}.list_job_statuses'}
 
     def get_queryset(self):
         return get_processing_jobs_for_user(self.request.user)
@@ -466,11 +466,11 @@ class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView
     """
     A view for uploading program enrollments via csv file
 
-    Path: /api/v1/programs/{program_key}/enrollments
+    Path: /api/[version]/programs/{program_key}/enrollments
     """
     field_names = ['student_key', 'status']
     task_fn = write_program_enrollments
-    event_method_map = {'POST': 'registrar.v1.upload_program_enrollments'}
+    event_method_map = {'POST': 'registrar.{api_version}.upload_program_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}
 
 
@@ -478,9 +478,9 @@ class CourseRunEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadVi
     """
     A view for uploading course enrollments via csv file
 
-    Path: /api/v1/programs/{program_key}/course_enrollments
+    Path: /api/[version]/programs/{program_key}/course_enrollments
     """
     field_names = ['student_key', 'course_key', 'status']
     task_fn = write_course_run_enrollments
-    event_method_map = {'POST': 'registrar.v1.upload_course_enrollments'}
+    event_method_map = {'POST': 'registrar.{api_version}.upload_course_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}

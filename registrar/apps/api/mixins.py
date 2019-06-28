@@ -79,6 +79,8 @@ class TrackViewMixin(object):
         * HTTP response status code
         """
         event_name = self.event_method_map.get(self.request.method)
+        api_version = self.request.get_full_path().split('/')[2]
+        event_name = event_name.format(api_version=api_version)
         if not event_name:  # pragma: no cover
             logger.error(
                 'Segment tracking event name not found for request method ' +
