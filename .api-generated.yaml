@@ -1325,6 +1325,400 @@ paths:
       summary: Enroll students in a program
       tags:
       - v1
+  /v2/jobs/{job_id}/:
+    get:
+      operationId: registrar_v2_get_job_status
+      parameters:
+      - description: UUID-4 job identifier
+        example: 3869c0d5-e88f-4088-bf1d-409222492869
+        format: uuid
+        in: path
+        name: job_id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/models/JobStatus'
+      summary: Get the status of a job
+      tags:
+      - v2
+  /v2/programs/:
+    get:
+      description: List all programs, requires an organization key for non-admins
+      operationId: registrar_v2_list_programs
+      parameters:
+      - description: Organization key
+        in: query
+        name: org
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          examples:
+            application/json:
+            - program_key: uexample-master-of-science
+              program_title: Master of Science
+              program_url: https://uexample.edx.org/uexample-master-of-science
+          schema:
+            items:
+              $ref: '#/models/Program'
+            type: array
+        403:
+          description: User is not authorized to list specified programs.
+        404:
+          description: Organization was not found.
+      summary: List programs
+      tags:
+      - v2
+  /v2/programs/{program_key}/:
+    get:
+      operationId: registrar_v2_get_program
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          examples:
+            application/json:
+              program_key: uexample-master-of-science
+              program_title: Master of Science
+              program_url: https://uexample.edx.org/uexample-master-of-science
+          schema:
+            $ref: '#/models/Program'
+        403:
+          description: User is not authorized to view program.
+        404:
+          description: Program was not found.
+      summary: Get Program
+      tags:
+      - v2
+  /v2/programs/{program_key}/courses/:
+    get:
+      operationId: registrar_v2_list_courses
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          examples:
+            application/json:
+            - course_id: course-v1:ExU+Science-101+Fall2050,
+              course_title: Introduction to Science,
+              course_url: https://courses.edx.org/course-v1:ExU+Science-101+Fall2050
+              external_course_key: ExU-IntroToScience50,
+          schema:
+            items:
+              $ref: '#/models/Course'
+            type: array
+        403:
+          description: User is not authorized to list courses of program.
+        404:
+          description: Program was not found.
+      summary: List program courses
+      tags:
+      - v2
+  /v2/programs/{program_key}/courses/{course_id}/enrollments/:
+    get:
+      description: Submit a job to retrieve course enrollment data
+      operationId: registrar_v2_get_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier, or an external course run key
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
+      responses:
+        202:
+          description: Job submitted.
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: "User is not authorized to retrieve enrollments for program\
+            \ course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+      summary: Request course enrollment data
+      tags:
+      - v2
+    patch:
+      operationId: registrar_v2_patch_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier, or an external course run key
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/CourseEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students' enrollments were successfully modified.
+          examples:
+            application/json:
+              student_0128fe4a: active
+              student_aae45c81: inactive
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        207:
+          description: "Some, but not all, students' enrollments were successfully\
+            \ modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: active
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students' enrollments may be\
+            \ modified per request.\n"
+        422:
+          description: "None of the students' enrollments were successfully modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+      summary: Modify course enrollments
+      tags:
+      - v2
+    post:
+      operationId: registrar_v2_post_course_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier, or an external course run key
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/CourseEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: inactive
+              student_aae45c81: active
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        207:
+          description: Some, but not all, students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: inactive
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students may be supplied per\
+            \ request.\n"
+        422:
+          description: None of the students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/CourseEnrollmentResult'
+      summary: Enroll students in a course
+      tags:
+      - v2
+  /v2/programs/{program_key}/enrollments/:
+    get:
+      description: Submit a job to retrieve program enrollment data
+      operationId: registrar_v2_get_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
+      responses:
+        202:
+          description: Job submitted.
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: User is not authorized to retrieve enrollment of program.
+        404:
+          description: Program was not found.
+      summary: Request program enrollment data
+      tags:
+      - v2
+    patch:
+      operationId: registrar_v2_patch_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/ProgramEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students' enrollments were successfully modified.
+          examples:
+            application/json:
+              student_0128fe4a: enrolled
+              student_aae45c81: canceled
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        207:
+          description: "Some, but not all, students' enrollments were successfully\
+            \ modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: enrolled
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students' enrollments may be\
+            \ modified per request.\n"
+        422:
+          description: "None of the students' enrollments were successfully modified.\n"
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: not-found
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+      summary: Modify program enrollments
+      tags:
+      - v2
+    post:
+      operationId: registrar_v2_post_program_enrollments
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/models/ProgramEnrollmentRequest'
+          type: array
+      responses:
+        200:
+          description: All students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: pending
+              student_aae45c81: enrolled
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        207:
+          description: Some, but not all, students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: pending
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+        403:
+          description: "User is not authorized to modify enrollments for program course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+        413:
+          description: "Payload too large; at most 25 students may be supplied per\
+            \ request.\n"
+        422:
+          description: None of the students were successfully listed.
+          examples:
+            application/json:
+              student_0128fe4a: invalid-status
+              student_aae45c81: conflict
+          schema:
+            $ref: '#/models/ProgramEnrollmentResult'
+      summary: Enroll students in a program
+      tags:
+      - v2
 produces:
 - application/json
 program_enrollment_body:

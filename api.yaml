@@ -530,6 +530,53 @@ paths:
       operationId: registrar_v1_patch_program_enrollments
       tags: ['v1']
 
+  ### V2 API ###
+  '/v2/jobs/{job_id}/':
+    get:
+      <<: *get_job_status
+      operationId: registrar_v2_get_job_status
+      tags: ['v2']
+  '/v2/programs/':
+    get:
+      <<: *list_programs
+      operationId: registrar_v2_list_programs
+      tags: ['v2']
+  '/v2/programs/{program_key}/':
+    get:
+      <<: *get_program
+      operationId: registrar_v2_get_program
+      tags: ['v2']
+  '/v2/programs/{program_key}/courses/':
+    get:
+      <<: *list_courses
+      operationId: registrar_v2_list_courses
+      tags: ['v2']
+  '/v2/programs/{program_key}/courses/{course_id}/enrollments/':
+    get:
+      <<: *get_course_enrollments
+      operationId: registrar_v2_get_course_enrollments
+      tags: ['v2']
+    post:
+      <<: *post_course_enrollments
+      operationId: registrar_v2_post_course_enrollments
+      tags: ['v2']
+    patch:
+      <<: *patch_course_enrollments
+      operationId: registrar_v2_patch_course_enrollments
+      tags: ['v2']
+  '/v2/programs/{program_key}/enrollments/':
+    get:
+      <<: *get_program_enrollments
+      operationId: registrar_v2_get_program_enrollments
+      tags: ['v2']
+    post:
+      <<: *post_program_enrollments
+      operationId: registrar_v2_post_program_enrollments
+      tags: ['v2']
+    patch:
+      <<: *patch_program_enrollments
+      operationId: registrar_v2_patch_program_enrollments
+      tags: ['v2']
 
 ################################################################################
 #     Data Models                                                              #
