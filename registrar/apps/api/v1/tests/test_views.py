@@ -957,6 +957,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
     ]
     enrollments_json = json.dumps(enrollments, indent=4)
     enrollments_csv = (
+        "student_key,status,account_exists\r\n"
         "abcd,enrolled,True\r\n"
         "efgh,pending,False\r\n"
     )
@@ -1066,6 +1067,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
     ]
     enrollments_json = json.dumps(enrollments, indent=4)
     enrollments_csv = (
+        "course_key,student_key,status,account_exists\r\n"
         "ENG55-S19,abcd,enrolled,True\r\n"
         "ENG55-S19,efgh,pending,False\r\n"
     )
@@ -1917,6 +1919,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
     all_enrollments = english_enrollments + spanish_enrollments + russian_enrollments + french_enrollments
     enrollments_json = json.dumps(all_enrollments, indent=4)
     enrollments_csv = (
+        "course_key,student_key,status,account_exists\r\n"
         "ENG55-S19,learner-01,enrolled,True\r\n"
         "ENG55-S19,learner-02,pending,False\r\n"
         "SPAN101-S19,learner-01,enrolled,True\r\n"
