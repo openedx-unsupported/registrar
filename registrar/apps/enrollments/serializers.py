@@ -31,7 +31,7 @@ def serialize_program_enrollments_to_csv(enrollments):
     Returns: str
     """
     return serialize_to_csv(
-        enrollments, ('student_key', 'status', 'account_exists')
+        enrollments, ('student_key', 'status', 'account_exists'), include_headers=True
     )
 
 
@@ -59,7 +59,7 @@ def serialize_course_run_enrollments_to_csv(enrollments):
     Returns: str
     """
     return serialize_to_csv(
-        enrollments, ('course_key', 'student_key', 'status', 'account_exists')
+        enrollments, ('course_key', 'student_key', 'status', 'account_exists'), include_headers=True,
     )
 
 
