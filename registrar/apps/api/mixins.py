@@ -80,7 +80,6 @@ class TrackViewMixin(object):
         """
         event_name = self.event_method_map.get(self.request.method)
         api_version = self.request.get_full_path().split('/')[2]
-        event_name = event_name.format(api_version=api_version)
         if not event_name:  # pragma: no cover
             logger.error(
                 'Segment tracking event name not found for request method ' +
@@ -90,6 +89,7 @@ class TrackViewMixin(object):
             )
             return
 
+        event_name = event_name.format(api_version=api_version)
         params = list(self.kwargs.items()) + list(self.request.GET.items())
         param_properties = {
             self.event_parameter_map[key]: value
