@@ -195,6 +195,37 @@ class S3MockMixin(object):
 
 
 @ddt.ddt
+class ViewMethodNotSupportedTests(RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for the case if user requested a not supported HTTP method """
+
+    method = 'DELETE'
+    path = 'programs'
+
+    @ddt.data(
+        ('programs', 'ProgramListView'),
+        ('programs/masters-in-english', 'ProgramRetrieveView'),
+        ('programs/masters-in-english/enrollments', 'ProgramEnrollmentView'),
+        ('programs/masters-in-english/courses', 'ProgramCourseListView'),
+        (
+            'programs/masters-in-english/courses/HUMx+English-550+Spring/enrollments',
+            'CourseEnrollmentView'
+        ),
+        ('jobs/', 'JobStatusListView'),
+    )
+    @ddt.unpack
+    def test_not_supported_http_method(self, path, view_name):
+        self.mock_logging.reset_mock()
+        self.path = path
+        response = self.request(self.method, path, self.edx_admin)
+        self.mock_logging.error.assert_called_once_with(
+            'Segment tracking event name not found for request method %s on view %s',
+            self.method,
+            view_name,
+        )
+        self.assertEqual(response.status_code, 405)
+
+
+@ddt.ddt
 class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     """ Tests for the /api/v1/programs?org={org_key} endpoint """
 
