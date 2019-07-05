@@ -1678,6 +1678,7 @@ class JobStatusListView(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         )
         return {
             'state': state,
+            'name': task_status.name,
             'job_id': cls.job_ids[n],
             'created': task_status.created.isoformat().replace('+00:00', 'Z'),
             'result': None,

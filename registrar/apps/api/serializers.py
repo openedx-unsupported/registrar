@@ -92,6 +92,7 @@ class JobStatusSerializer(serializers.Serializer):
     }
 
     job_id = serializers.UUIDField()
+    name = serializers.CharField(allow_null=False)
     created = serializers.DateTimeField()
     state = serializers.ChoiceField(choices=STATUS_CHOICES)
     result = serializers.URLField(allow_null=True)
