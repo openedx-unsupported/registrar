@@ -49,6 +49,7 @@ _FakeJobInfo = namedtuple('_FakeJobInfo', [
 
 FakeJobStatus = namedtuple('FakeJobStatus', [
     'job_id',
+    'name',
     'created',
     'state',
     'result',
@@ -323,5 +324,5 @@ def get_fake_job_status(job_id, to_absolute_uri):
         result = to_absolute_uri(path)
 
     return FakeJobStatus(
-        job_id, job_info.created, state, result,
+        job_id, 'fake-job-name', job_info.created, state, result,
     )

@@ -27,7 +27,7 @@ from registrar.apps.core.permissions import JOB_GLOBAL_READ
 
 JobStatus = namedtuple(
     'JobStatus',
-    ['job_id', 'created', 'state', 'result', 'text'],
+    ['job_id', 'name', 'created', 'state', 'result', 'text'],
 )
 
 logger = logging.getLogger(__name__)
@@ -118,6 +118,7 @@ def _make_job_status(task_status):
     """
     return JobStatus(
         task_status.task_id,
+        task_status.name,
         task_status.created,
         task_status.state,
         *_get_result(task_status),
