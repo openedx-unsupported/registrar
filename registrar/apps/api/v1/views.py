@@ -434,7 +434,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         if csv_file.size > UPLOAD_FILE_MAX_SIZE:
             raise FileTooLarge()
 
-        if is_enrollment_job_processing(self.program):
+        if is_enrollment_job_processing(self.program.key):
             return Response('Job already in progress for program', HTTP_409_CONFLICT)
 
         file_itr = io.StringIO(csv_file.read().decode('utf-8'))

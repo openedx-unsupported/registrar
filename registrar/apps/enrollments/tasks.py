@@ -30,8 +30,29 @@ log = get_task_logger(__name__)
 uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 
 
+class EnrollmentReadTask(UserTask):
+    """
+    Base class for enrollment-reading tasks.
+    Expects instances to have `program_key` field.
+    """
+
+    # pylint: disable=abstract-method
+
+    @classmethod
+    def generate_name(cls, arguments_dict):
+        """
+        Predictably sets name in such a way that other parts of the codebase
+        can query for the state of enrollment writing tasks.
+        """
+        return build_enrollment_job_status_name(
+            arguments_dict['program_key'],
+            'read',
+            cls.__name__,  # Name of specific task.
+        )
+
+
 # pylint: disable=unused-argument
-@shared_task(base=UserTask, bind=True)
+@shared_task(base=EnrollmentReadTask, bind=True)
 def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
     A user task for retrieving program enrollments from LMS.
@@ -66,7 +87,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     post_job_success(job_id, serialized, file_format)
 
 
-@shared_task(base=UserTask, bind=True)
+@shared_task(base=EnrollmentReadTask, bind=True)
 def list_course_run_enrollments(
         self,
         job_id,
@@ -113,7 +134,7 @@ def list_course_run_enrollments(
     post_job_success(job_id, serialized, file_format)
 
 
-@shared_task(base=UserTask, bind=True)
+@shared_task(base=EnrollmentReadTask, bind=True)
 def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_key):
     """
     A user task for retrieving all course enrollments within a given program from LMS.
@@ -169,10 +190,10 @@ class EnrollmentWriteTask(UserTask):
         """
         Predictably sets name in such a way that other parts of the codebase
         can query for the state of enrollment writing tasks.
-        The format is "$program_key:$task_function_name".
         """
         return build_enrollment_job_status_name(
             arguments_dict['program_key'],
+            'write',
             cls.__name__,  # Name of specific task.
         )
 

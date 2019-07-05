@@ -57,17 +57,17 @@ class IsEnrollmentJobProcessingTests(EnrollmentJobTests):
         (UserTaskStatus.RETRYING, True),
     )
     def test_job_processing(self, state, expected):
-        task_name = build_enrollment_job_status_name(self.program.key, self.TASK_NAME)
+        task_name = build_enrollment_job_status_name(self.program.key, 'write', self.TASK_NAME)
         self.create_dummy_job_status(state, self.user, task_name)
         job_in_progress = is_enrollment_job_processing(self.program.key)
         self.assertEqual(expected, job_in_progress)
 
     def test_different_program(self):
-        task_name = build_enrollment_job_status_name(self.program.key, self.TASK_NAME)
+        task_name = build_enrollment_job_status_name(self.program.key, 'write', self.TASK_NAME)
         self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
         self.assertFalse(is_enrollment_job_processing(self.program2.key))
 
     def test_wrong_name(self):
-        task_name = build_enrollment_job_status_name(self.TASK_NAME, self.program.key)
+        task_name = build_enrollment_job_status_name(self.TASK_NAME, 'write', self.program.key)
         self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
         self.assertFalse(is_enrollment_job_processing(self.program.key))
