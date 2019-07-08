@@ -1775,10 +1775,10 @@ class EnrollmentUploadMixin(object):
         self.assertEqual(upload_response.status_code, 409)
 
     def test_enrollment_upload_invalid_header(self):
-        enrollments = [
-            {'student_key': '123', 'status': 'enrolled', 'something': 'foo'}
-        ]
-        self.csv_headers = ('student_key', 'status', 'something')
+        enrollment = self.build_enrollment('enrolled', '001')
+        enrollment['something'] = enrollment.pop('student_key')
+        enrollments = [enrollment]
+        self.csv_headers = ('something' if field == 'student_key' else field for field in self.csv_headers)
         upload_response = self._upload_enrollments(enrollments)
 
         self.assertEqual(upload_response.status_code, 400)
@@ -1827,6 +1827,18 @@ class EnrollmentUploadMixin(object):
                 file=None
             )
         self.assertEqual(upload_response.status_code, 400)
+
+    def test_extra_columns(self):
+        enrollment = self.build_enrollment('enrolled', '001')
+        enrollment['blood_type'] = 'AB-'
+        enrollments = [enrollment]
+        self.csv_headers = self.csv_headers + ('blood_type',)
+        with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
+            upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(202, upload_response.status_code)
+        self.assertIn('job_id', upload_response.data)
+        self.assertIn('job_url', upload_response.data)
 
 
 class ProgramEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
