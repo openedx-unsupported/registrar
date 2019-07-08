@@ -443,18 +443,18 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         # If the `fieldnames` kwargs is omitted, the values in the
         # first row of file_itr will be used as the fieldnames.
         reader = csv.DictReader(file_itr)
-        if reader.fieldnames != self.field_names:
+        if not set(reader.fieldnames).issuperset(set(self.field_names)):
             raise ValidationError('Invalid csv headers')
 
         for n, row in enumerate(reader, 1):
             if not self._is_valid_row(row):
-                raise ValidationError('Unable to begin upload. Encountered Missing/extraneous data at row {}'.format(n))
+                raise ValidationError('Unable to begin upload. Encountered missing data at row {}'.format(n))
             enrollments.append(row)
 
         return self.invoke_upload_job(self.task_fn, json.dumps(enrollments), *args, **kwargs)
 
     def _is_valid_row(self, row):
-        """ validate row data matches headers """
+        """ validate row data has required headers """
         if None in row:
             return False
         for field in self.field_names:
