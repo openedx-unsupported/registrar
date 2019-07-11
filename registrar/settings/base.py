@@ -1,6 +1,8 @@
 import os
 from os.path import join, abspath, dirname
 
+from corsheaders.defaults import default_headers as corsheaders_default_headers
+
 from registrar.settings.utils import get_logger_config
 
 # PATH vars
@@ -68,6 +70,10 @@ MIDDLEWARE = (
 
 # Enable CORS
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = corsheaders_default_headers + (
+    'use-jwt-cookie',
+)
+
 
 
 ROOT_URLCONF = 'registrar.urls'
