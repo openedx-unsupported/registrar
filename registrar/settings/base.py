@@ -66,6 +66,10 @@ MIDDLEWARE = (
     'waffle.middleware.WaffleMiddleware',
 )
 
+# Enable CORS
+CORS_ALLOW_CREDENTIALS = True
+
+
 ROOT_URLCONF = 'registrar.urls'
 APPEND_SLASH = False
 
