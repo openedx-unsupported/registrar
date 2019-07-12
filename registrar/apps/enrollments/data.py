@@ -92,12 +92,12 @@ class DiscoveryProgram(object):
         return program
 
     @classmethod
-    def load_from_discovery(cls, program_uuid, client=None):
+    def read_from_discovery(cls, program_uuid, client=None):
         """
-        Load a DiscoveryProgram instance from the Course Discovery service.
+        Reads the json representation of a program from the Course Discovery service.
 
         Raises Http404 if program is not cached and Discovery returns 404
-        Raises HTTPError if program is not cached AND Discovery returns error
+        Raises HTTPError if Discovery returns error.
         """
         url = urljoin(
             settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/'
@@ -111,6 +111,17 @@ class DiscoveryProgram(object):
                 raise Http404(e)
             else:
                 raise e
+        return program_data
+
+    @classmethod
+    def load_from_discovery(cls, program_uuid, client=None):
+        """
+        Load a DiscoveryProgram instance from the Course Discovery service.
+
+        Raises Http404 if program is not cached and Discovery returns 404
+        Raises HTTPError if program is not cached AND Discovery returns error.
+        """
+        program_data = cls.read_from_discovery(program_uuid, client) 
         return cls.from_json(program_uuid, program_data)
 
     @classmethod

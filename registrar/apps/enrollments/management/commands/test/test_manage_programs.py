@@ -52,7 +52,6 @@ class TestManagePrograms(TestCase):
         cls.russian_discovery_program = DiscoveryProgram(uuid=cls.russian_uuid)
         cls.arabic_discovery_program = DiscoveryProgram(uuid=cls.arabic_uuid)
 
-
     def assert_program(self, expected_uuid, expected_key, expected_org):
         """ Assert that a progam with the given fields exists """
         program = Program.objects.get(discovery_uuid=expected_uuid)
@@ -68,7 +67,7 @@ class TestManagePrograms(TestCase):
         return "{}:{}".format(uuid, key)
 
     def test_create_program(self):
-        self.mock_get_discovery_program.return_value = self.arabic_discovery_program 
+        self.mock_get_discovery_program.return_value = self.arabic_discovery_program
         self.assert_program_nonexistant(self.arabic_uuid)
         call_command(
             self.command,
@@ -94,7 +93,7 @@ class TestManagePrograms(TestCase):
         self.assert_program(self.russian_uuid, 'masters-in-russian', self.org)
 
     def test_modify_program(self):
-        self.mock_get_discovery_program.return_value = self.english_discovery_program 
+        self.mock_get_discovery_program.return_value = self.english_discovery_program
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
         call_command(
             self.command,
@@ -104,7 +103,7 @@ class TestManagePrograms(TestCase):
         self.assert_program(self.english_uuid, 'english-program', self.org)
 
     def test_modify_program_do_nothing(self):
-        self.mock_get_discovery_program.return_value = self.english_discovery_program 
+        self.mock_get_discovery_program.return_value = self.english_discovery_program
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
         call_command(
             self.command,
@@ -137,9 +136,9 @@ class TestManagePrograms(TestCase):
                 self.org.key,
                 self._uuidkey(self.german_uuid, 'german_program'),
             )
-    
+
     def test_load_from_disco_error(self):
-        self.mock_get_discovery_program.side_effect = HTTPError() 
+        self.mock_get_discovery_program.side_effect = HTTPError()
         with self.assertRaisesRegex(CommandError, 'Unable to load program'):
             call_command(
                 self.command,
