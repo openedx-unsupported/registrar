@@ -956,6 +956,23 @@ class ProgramEnrollmentWriteMixin(object):
             response = self.request(self.method, 'programs/masters-in-cs/enrollments/', self.stem_admin, req_data)
         self.assertEqual(response.status_code, 413)
 
+    @mock_oauth_login
+    def test_discovery_404(self):
+        req_data = [
+            self.student_enrollment('enrolled', '001'),
+        ]
+        mock_response = mock.Mock()
+        mock_response.status_code = 404
+        error = requests.exceptions.HTTPError(response=mock_response)
+        with mock.patch('registrar.apps.enrollments.data._make_request', side_effect=error):
+            response = self.request(
+                self.method,
+                'programs/masters-in-cs/enrollments/',
+                self.stem_admin,
+                req_data,
+            )
+        self.assertEqual(404, response.status_code)
+
 
 class ProgramEnrollmentPostTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
     method = 'POST'

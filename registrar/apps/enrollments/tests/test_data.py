@@ -15,6 +15,7 @@ import mock
 import responses
 from django.conf import settings
 from django.core.cache import cache
+from django.http import Http404
 from django.test import TestCase
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
@@ -488,6 +489,20 @@ class GetDiscoveryProgramTestCase(TestCase):
         )
         loaded_program = DiscoveryProgram.get(self.program_uuid)
         self.assert_discovery_programs_equal(loaded_program, self.expected_program)
+
+        nonexistant_program_uuid = str(uuid.uuid4())
+        discovery_url = urljoin(
+            settings.DISCOVERY_BASE_URL,
+            DISCOVERY_PROGRAM_API_TPL.format(nonexistant_program_uuid)
+        )
+        responses.add(
+            responses.GET,
+            discovery_url,
+            json={'message': 'program not found!'},
+            status=404
+        )
+        with self.assertRaises(Http404):
+            DiscoveryProgram.get(nonexistant_program_uuid)
 
     @mock_oauth_login
     @responses.activate

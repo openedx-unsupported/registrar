@@ -10,12 +10,14 @@ from posixpath import join as urljoin
 
 from django.conf import settings
 from django.core.cache import cache
+from django.http import Http404
 from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_207_MULTI_STATUS,
+    HTTP_404_NOT_FOUND,
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
@@ -100,7 +102,13 @@ class DiscoveryProgram(object):
         ).format(
             program_uuid
         )
-        program_data = _make_request('GET', url, client).json()
+        try:
+            program_data = _make_request('GET', url, client).json()
+        except HTTPError as e:
+            if e.response.status_code == HTTP_404_NOT_FOUND:
+                raise Http404(e)
+            else:
+                raise e
         return cls.from_json(program_uuid, program_data)
 
     @classmethod
