@@ -1,6 +1,5 @@
 """ Tests for manage_programs management command """
 import ddt
-
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
