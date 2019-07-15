@@ -121,7 +121,7 @@ class DiscoveryProgram(object):
         Raises Http404 if program is not cached and Discovery returns 404
         Raises HTTPError if program is not cached AND Discovery returns error.
         """
-        program_data = cls.read_from_discovery(program_uuid, client) 
+        program_data = cls.read_from_discovery(program_uuid, client)
         return cls.from_json(program_uuid, program_data)
 
     @classmethod

@@ -1,15 +1,11 @@
 """ Management command to create or modify programs"""
 import logging
-import re
-import uuid
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from requests.exceptions import HTTPError
 
-from registrar.apps.core.constants import ORGANIZATION_KEY_PATTERN
-from registrar.apps.core.models import Organization, OrganizationGroup
-from registrar.apps.core.permissions import ORGANIZATION_ROLES
+from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 
@@ -23,7 +19,6 @@ class Command(BaseCommand):
     help = 'Creates or modifies Programs'
 
     def add_arguments(self, parser):
-        parser.add_argument('org_key')
         parser.add_argument(
             'uuidkeys',
             nargs='*',
@@ -32,11 +27,13 @@ class Command(BaseCommand):
 
     # pylint: disable=arguments-differ
     @transaction.atomic
-    def handle(self, org_key, uuidkeys, *args, **options):
+    def handle(self, uuidkeys, *args, **options):
         uuidkeys = self.parse_uuidkeys(uuidkeys)
         for uuidkey in uuidkeys:
-            program_dict
-            self.create_or_modify_program(org, *uuidkey)
+            discovery_dict = self.get_discovery_program_dict(uuidkey[0])
+            authoring_orgs = self.get_authoring_org_keys(discovery_dict)
+            org = self.get_org(authoring_orgs)
+            self.create_or_modify_program(org, discovery_dict, *uuidkey)
 
     def parse_uuidkeys(self, uuidkeys):
         result = []
@@ -49,47 +46,44 @@ class Command(BaseCommand):
             result.append((split_args[0], split_args[1]))
         return result
 
-    def lookup_org(self, org_key):
+    def get_discovery_program_dict(self, program_uuid):
         try:
-            return Organization.objects.get(key=org_key)
-        except Organization.DoesNotExist:
-            raise CommandError('No organization found for key {}'.format(org_key))
+            return DiscoveryProgram.read_from_discovery(program_uuid)
+        except HTTPError as e:
+            raise CommandError('Could not read program from course-discovery: {}'.format(e))
 
-    def create_or_modify_program(self, org, program_uuid, program_key):
-        import pdb;pdb.set_trace()
-        discovery_program = self.get_program_from_discovery(program_uuid)
+    def get_authoring_org_keys(self, program_dict):
+        org_keys = []
+        authoring_orgs = program_dict.get('authoring_organizations', [])
+        for authoring_org in authoring_orgs:
+            if 'key' in authoring_org:
+                org_keys.append(authoring_org['key'])
+        if not org_keys:
+            raise CommandError('No authoring org keys found for program {}'.format(program_dict.get('uuid')))
+        logger.info('Authoring Organizations are {}'.format(org_keys))
+        return org_keys
+
+    def get_org(self, org_keys):
+        for org_key in org_keys:
+            try:
+                org = Organization.objects.get(key=org_key)
+                logger.info('Using {} as program organization'.format(org))
+                return org
+            except Organization.DoesNotExist:
+                logger.info('Org {} not found in registrar'.format(org_key))
+        raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
+
+    def create_or_modify_program(self, org, program_dict, program_uuid, program_key):
+        discovery_program = DiscoveryProgram.from_json(program_uuid, program_dict)
         program, created = Program.objects.get_or_create(
-            discovery_uuid=discovery_program.uuid,
+            discovery_uuid=discovery_program.uuid,  # pylint: disable=no-member
             defaults={
                 'managing_organization': org,
                 'key': program_key,
             },
         )
-        if not created:
-            if program.managing_organization != org:
-                raise CommandError('Existing program uuid={} key={} is not managed by {}'.format(
-                    discovery_program.uuid, program.key, org
-                ))
-            if program.key != program_key:
-                program.key = program_key
-                program.save()
+        if not created and program.key != program_key:
+            program.key = program_key
+            program.save()
         verb = 'Created' if created else 'Modified existing'
         logger.info('{} program (key={} uuid={} managing_org={})'.format(verb, program_key, program_uuid, org.key))
-
-    def get_program_from_discovery(self, program_uuid):
-        try:
-            discovery_program = DiscoveryProgram.load_from_discovery(program_uuid)
-        except HTTPError as e:
-            raise CommandError('Unable to load program {} from course-discovery: {}'.format(program_uuid, e))
-        logger.info('Loaded program {} from discovery'.format(program_uuid))
-        return discovery_program
-    
-    def get_org_keys(self, program_dict):
-        result = []
-        authoring_orgs = program_dict.get('authoring_organizations', [])
-        for authoring_org in authoring_orgs:
-            if 'key' in authoring_org:
-                result.append(authoring_org['key'])
-        if not result:
-            raise CommandError('No authoring orgs keys found for program {}'.format(program_dict.get('uuid')))
-        return result

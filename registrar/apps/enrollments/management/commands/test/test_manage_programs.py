@@ -1,21 +1,19 @@
 """ Tests for manage_programs management command """
 import ddt
+
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 from mock import patch
 from requests.exceptions import HTTPError
 
-from registrar.apps.core.models import User
-from registrar.apps.core.tests.factories import (
-    OrganizationFactory,
-    UserFactory,
-)
+from registrar.apps.core.tests.factories import OrganizationFactory
 from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
+@ddt.ddt
 class TestManagePrograms(TestCase):
     """ Test manage_programs command """
 
@@ -23,9 +21,16 @@ class TestManagePrograms(TestCase):
 
     def setUp(self):
         super().setUp()
-        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'load_from_discovery')
+        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'read_from_discovery')
         self.mock_get_discovery_program = discoveryprogram_patcher.start()
         self.addCleanup(discoveryprogram_patcher.stop)
+
+    @classmethod
+    def discovery_dict(cls, org_key, uuid):
+        return {
+            'authoring_organizations': [{'key': org_key}] if org_key else [],
+            'uuid': uuid,
+        }
 
     @classmethod
     def setUpTestData(cls):
@@ -47,10 +52,10 @@ class TestManagePrograms(TestCase):
             discovery_uuid=cls.german_uuid,
             managing_organization=cls.other_org
         )
-        cls.english_discovery_program = DiscoveryProgram(uuid=cls.english_uuid)
-        cls.german_discovery_program = DiscoveryProgram(uuid=cls.german_uuid)
-        cls.russian_discovery_program = DiscoveryProgram(uuid=cls.russian_uuid)
-        cls.arabic_discovery_program = DiscoveryProgram(uuid=cls.arabic_uuid)
+        cls.english_discovery_program = cls.discovery_dict(cls.org.key, cls.english_uuid)
+        cls.german_discovery_program = cls.discovery_dict(cls.other_org.key, cls.german_uuid)
+        cls.russian_discovery_program = cls.discovery_dict(cls.other_org.key, cls.russian_uuid)
+        cls.arabic_discovery_program = cls.discovery_dict(cls.org.key, cls.arabic_uuid)
 
     def assert_program(self, expected_uuid, expected_key, expected_org):
         """ Assert that a progam with the given fields exists """
@@ -61,7 +66,7 @@ class TestManagePrograms(TestCase):
     def assert_program_nonexistant(self, expected_uuid):
         """ Assert that a progam with the given fields exists """
         with self.assertRaises(Program.DoesNotExist):
-            program = Program.objects.get(discovery_uuid=expected_uuid)
+            Program.objects.get(discovery_uuid=expected_uuid)
 
     def _uuidkey(self, uuid, key):
         return "{}:{}".format(uuid, key)
@@ -71,7 +76,6 @@ class TestManagePrograms(TestCase):
         self.assert_program_nonexistant(self.arabic_uuid)
         call_command(
             self.command,
-            self.org.key,
             self._uuidkey(self.arabic_uuid, 'masters-in-arabic')
         )
         self.assert_program(self.arabic_uuid, 'masters-in-arabic', self.org)
@@ -85,19 +89,17 @@ class TestManagePrograms(TestCase):
         self.assert_program_nonexistant(self.russian_uuid)
         call_command(
             self.command,
-            self.org.key,
             self._uuidkey(self.arabic_uuid, 'masters-in-arabic'),
             self._uuidkey(self.russian_uuid, 'masters-in-russian'),
         )
         self.assert_program(self.arabic_uuid, 'masters-in-arabic', self.org)
-        self.assert_program(self.russian_uuid, 'masters-in-russian', self.org)
+        self.assert_program(self.russian_uuid, 'masters-in-russian', self.other_org)
 
     def test_modify_program(self):
         self.mock_get_discovery_program.return_value = self.english_discovery_program
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
         call_command(
             self.command,
-            self.org.key,
             self._uuidkey(self.english_uuid, 'english-program'),
         )
         self.assert_program(self.english_uuid, 'english-program', self.org)
@@ -105,43 +107,32 @@ class TestManagePrograms(TestCase):
     def test_modify_program_do_nothing(self):
         self.mock_get_discovery_program.return_value = self.english_discovery_program
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
-        call_command(
-            self.command,
-            self.org.key,
-            self._uuidkey(self.english_uuid, 'masters-in-english'),
-        )
+        call_command(self.command, self._uuidkey(self.english_uuid, 'masters-in-english'))
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
 
     def test_incorrect_format(self):
+        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'incorrectly formatted argument'):
-            call_command(
-                self.command,
-                self.org.key,
-                'mastersporgoramme',
-            )
+            call_command(self.command, 'mastersporgoramme')
+
+    @ddt.data([], [{}])
+    def test_no_authoring_orgs(self, authoring_organizations):
+        self.mock_get_discovery_program.return_value = {
+            'authoring_organizations': authoring_organizations,
+            'uuid': self.english_uuid
+        }
+        # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(CommandError, 'No authoring org keys found for program'):
+            call_command(self.command, self._uuidkey(self.english_uuid, 'english-program'))
 
     def test_org_not_found(self):
-        with self.assertRaisesRegex(CommandError, 'No organization found for key'):
-            call_command(
-                self.command,
-                'nonexistant-org',
-                self._uuidkey(self.english_uuid, 'english_program'),
-            )
-
-    def test_org_mismatch(self):
-        message = r'Existing program (.*?) is not managed by {}'.format(self.org.name)
-        with self.assertRaisesRegex(CommandError, message):
-            call_command(
-                self.command,
-                self.org.key,
-                self._uuidkey(self.german_uuid, 'german_program'),
-            )
+        self.mock_get_discovery_program.return_value = self.discovery_dict('nonexistant-org', self.english_uuid)
+        # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(CommandError, 'None of the authoring organizations (.*?) were found'):
+            call_command(self.command, self._uuidkey(self.english_uuid, 'english_program'))
 
     def test_load_from_disco_error(self):
         self.mock_get_discovery_program.side_effect = HTTPError()
-        with self.assertRaisesRegex(CommandError, 'Unable to load program'):
-            call_command(
-                self.command,
-                self.org.key,
-                self._uuidkey(self.english_uuid, 'english-program'),
-            )
+        # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(CommandError, 'Could not read program'):
+            call_command(self.command, self._uuidkey(self.english_uuid, 'english-program'))
