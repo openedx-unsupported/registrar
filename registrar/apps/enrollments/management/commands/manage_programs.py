@@ -67,7 +67,7 @@ class Command(BaseCommand):
         return org_keys
 
     def get_org(self, org_keys):
-        """ 
+        """
         From the list of authoring_organization keys from discovery,
         return the first matching Registrar Organization
         """
