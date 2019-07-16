@@ -53,6 +53,9 @@ class Command(BaseCommand):
             raise CommandError('Could not read program from course-discovery: {}'.format(e))
 
     def get_authoring_org_keys(self, program_dict):
+        """
+        Return a list of authoring_organization keys
+        """
         org_keys = []
         authoring_orgs = program_dict.get('authoring_organizations', [])
         for authoring_org in authoring_orgs:
@@ -64,6 +67,10 @@ class Command(BaseCommand):
         return org_keys
 
     def get_org(self, org_keys):
+        """ 
+        From the list of authoring_organization keys from discovery,
+        return the first matching Registrar Organization
+        """
         for org_key in org_keys:
             try:
                 org = Organization.objects.get(key=org_key)
