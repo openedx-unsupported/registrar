@@ -79,6 +79,7 @@ class DiscoveryProgram(object):
         Get a DiscoveryProgram instance, either by loading it from the cache,
         or query the Course Discovery service if it is not in the cache.
 
+        Raises Http404 if program is not cached and Discovery returns 404
         Raises HTTPError if program is not cached and Discover returns error.
         Raises ValidationError if program is not cached and Discovery returns
             data in a format we don't like.
@@ -95,7 +96,8 @@ class DiscoveryProgram(object):
         """
         Load a DiscoveryProgram instance from the Course Discovery service.
 
-        Raises HTTPError if program is not cached AND Discovery returns error.
+        Raises Http404 if program is not cached and Discovery returns 404
+        Raises HTTPError if program is not cached AND Discovery returns error
         """
         url = urljoin(
             settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/'
