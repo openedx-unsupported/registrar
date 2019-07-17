@@ -241,7 +241,7 @@ _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE = {
 
 def invoke_fake_course_enrollment_listing_job(
         program_key,
-        course_key,
+        course_id,
         min_duration=5,
         max_duration=5
 ):
@@ -249,7 +249,7 @@ def invoke_fake_course_enrollment_listing_job(
     Create fake enrollment listing job for course with the given key within
     the program with the given key.
     """
-    result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE[program_key][course_key]
+    result_filename = _FAKE_JOB_RESULT_FILENAMES_BY_PROGRAM_COURSE[program_key][course_id]
     if result_filename:
         result_filepath = '/static/api/v1_mock/course-enrollments/{}'.format(result_filename)
     else:

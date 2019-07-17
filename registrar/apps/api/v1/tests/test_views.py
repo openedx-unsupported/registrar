@@ -1101,13 +1101,13 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
 
     enrollments = [
         {
-            'course_key': 'ENG55-S19',
+            'course_id': 'ENG55-S19',
             'student_key': 'abcd',
             'status': 'enrolled',
             'account_exists': True,
         },
         {
-            'course_key': 'ENG55-S19',
+            'course_id': 'ENG55-S19',
             'student_key': 'efgh',
             'status': 'pending',
             'account_exists': False,
@@ -1115,7 +1115,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
     ]
     enrollments_json = json.dumps(enrollments, indent=4)
     enrollments_csv = (
-        "course_key,student_key,status,account_exists\r\n"
+        "course_id,student_key,status,account_exists\r\n"
         "ENG55-S19,abcd,enrolled,True\r\n"
         "ENG55-S19,efgh,pending,False\r\n"
     )
@@ -1137,7 +1137,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-english',
-                course_key='HUMx+English-550+Spring',
+                course_id='HUMx+English-550+Spring',
                 status_code=202,
                 **kwargs
         ):
@@ -1164,7 +1164,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                course_key='HUMx+English-550+Spring',
+                course_id='HUMx+English-550+Spring',
                 missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
         ):
             response = self.get(self.path, self.stem_admin)
@@ -1180,16 +1180,16 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         ('masters-in-english', 'not-a-course-key:a+b+c', 'course_not_found'),
     )
     @ddt.unpack
-    def test_not_found(self, program_key, course_key, expected_failure, _mock):
+    def test_not_found(self, program_key, course_id, expected_failure, _mock):
         path_fmt = 'programs/{}/courses/{}/enrollments'
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key=program_key,
-                course_key=course_key,
+                course_id=course_id,
                 failure=expected_failure,
         ):
             response = self.get(
-                path_fmt.format(program_key, course_key), self.hum_admin
+                path_fmt.format(program_key, course_id), self.hum_admin
             )
         self.assertEqual(response.status_code, 404)
 
@@ -1310,12 +1310,12 @@ class ProgramCourseEnrollmentWriteMixin(object):
 
         cls.program = cls.cs_program
         cls.program_uuid = cls.program.discovery_uuid
-        cls.course_key = cls.course_run_keys[2][0]
+        cls.course_id = cls.course_run_keys[2][0]
         cls.external_course_key = cls.course_run_keys[2][1]
-        cls.path = 'programs/masters-in-english/courses/{}/enrollments'.format(cls.course_key)
+        cls.path = 'programs/masters-in-english/courses/{}/enrollments'.format(cls.course_id)
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
-        ).format(cls.program_uuid, cls.course_key)
+        ).format(cls.program_uuid, cls.course_id)
 
     def setUp(self):
         super().setUp()
@@ -1325,7 +1325,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         """ Helper to determine the request URL for this test class. """
         kwargs = {
             'program_key': program_key or self.cs_program.key,
-            'course_id': course_id or self.course_key,
+            'course_id': course_id or self.course_id,
         }
         return reverse('api:v1:program-course-enrollment', kwargs=kwargs)
 
@@ -1347,7 +1347,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_key,
+                course_id=self.course_id,
                 missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
         ):
             response = self.request(
@@ -1363,7 +1363,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_user,
                 program_key=self.cs_program.key,
-                course_key=self.course_key,
+                course_id=self.course_id,
                 missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
         ):
             response = self.request(
@@ -1379,7 +1379,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='uan-salsa-dancing-with-sharks',
-                course_key=self.course_key,
+                course_id=self.course_id,
                 failure='program_not_found',
         ):
             response = self.request(
@@ -1400,7 +1400,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.program.key,
-                course_key=not_in_program_course_key,
+                course_id=not_in_program_course_key,
                 failure='course_not_found',
         ):
             response = self.request(
@@ -1415,7 +1415,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
     @responses.activate
     @ddt.data(False, True)
     def test_successful_program_course_enrollment_write(self, use_external_course_key):
-        course_id = self.external_course_key if use_external_course_key else self.course_key
+        course_id = self.external_course_key if use_external_course_key else self.course_id
         expected_lms_response = {
             '001': 'active',
             '002': 'active',
@@ -1432,7 +1432,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=course_id,
+                course_id=course_id,
         ):
             response = self.request(
                 self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
@@ -1460,7 +1460,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
     @responses.activate
     @ddt.data(False, True)
     def test_backend_unprocessable_response(self, use_external_course_key):
-        course_id = self.external_course_key if use_external_course_key else self.course_key
+        course_id = self.external_course_key if use_external_course_key else self.course_id
         expected_lms_response = {
             '001': 'conflict',
             '002': 'conflict',
@@ -1475,7 +1475,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=course_id,
+                course_id=course_id,
                 failure='unprocessable_entity',
         ):
             response = self.request(
@@ -1489,7 +1489,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
     @responses.activate
     @ddt.data(False, True)
     def test_backend_multi_status_response(self, use_external_course_key):
-        course_id = self.external_course_key if use_external_course_key else self.course_key
+        course_id = self.external_course_key if use_external_course_key else self.course_id
         expected_lms_response = {
             '001': 'active',
             '002': 'active',
@@ -1506,7 +1506,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=course_id,
+                course_id=course_id,
                 status_code=207,
         ):
             response = self.request(
@@ -1527,7 +1527,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
     def test_backend_request_failed(self, status_code, content, use_external_course_key):
         course_id = (
             self.external_course_key if use_external_course_key
-            else self.course_key
+            else self.course_id
         )
         self.mock_course_enrollments_response(
             self.method, content, response_code=status_code
@@ -1545,7 +1545,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=course_id,
+                course_id=course_id,
                 failure='unprocessable_entity',
         ):
             response = self.request(
@@ -1563,7 +1563,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_key,
+                course_id=self.course_id,
                 failure='request_entity_too_large',
         ):
             response = self.request(
@@ -1611,7 +1611,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key=self.cs_program.key,
-                course_key=self.course_key,
+                course_id=self.course_id,
                 failure='bad_request',
         ):
             response = self.request(
@@ -1875,13 +1875,13 @@ class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAP
     """ Test course enrollment csv upload """
     path = 'programs/masters-in-cs/course_enrollments/upload/'
     event = 'registrar.v1.upload_course_enrollments'
-    csv_headers = ('student_key', 'course_key', 'status')
+    csv_headers = ('student_key', 'course_id', 'status')
 
-    def build_enrollment(self, status, student_key=None, course_key=None):
+    def build_enrollment(self, status, student_key=None, course_id=None):
         return {
             'status': status,
             'student_key': student_key or uuid.uuid4().hex[0:10],
-            'course_key': course_key or uuid.uuid4().hex[0:10],
+            'course_id': course_id or uuid.uuid4().hex[0:10],
         }
 
 
@@ -1928,13 +1928,13 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
 
     english_enrollments = [
         {
-            'course_key': 'ENG55-S19',
+            'course_id': 'ENG55-S19',
             'student_key': 'learner-01',
             'status': 'enrolled',
             'account_exists': True,
         },
         {
-            'course_key': 'ENG55-S19',
+            'course_id': 'ENG55-S19',
             'student_key': 'learner-02',
             'status': 'pending',
             'account_exists': False,
@@ -1942,13 +1942,13 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
     ]
     spanish_enrollments = [
         {
-            'course_key': 'SPAN101-S19',
+            'course_id': 'SPAN101-S19',
             'student_key': 'learner-01',
             'status': 'enrolled',
             'account_exists': True,
         },
         {
-            'course_key': 'SPAN101-S19',
+            'course_id': 'SPAN101-S19',
             'student_key': 'learner-03',
             'status': 'pending',
             'account_exists': False,
@@ -1957,13 +1957,13 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
     russian_enrollments = []
     french_enrollments = [
         {
-            'course_key': 'HUMx+French-9910+Spring',
+            'course_id': 'HUMx+French-9910+Spring',
             'student_key': 'learner-01',
             'status': 'enrolled',
             'account_exists': True,
         },
         {
-            'course_key': 'HUMx+French-9910+Spring',
+            'course_id': 'HUMx+French-9910+Spring',
             'student_key': 'learner-04',
             'status': 'pending',
             'account_exists': False,
@@ -1980,7 +1980,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
     all_enrollments = english_enrollments + spanish_enrollments + russian_enrollments + french_enrollments
     enrollments_json = json.dumps(all_enrollments, indent=4)
     enrollments_csv = (
-        "course_key,student_key,status,account_exists\r\n"
+        "course_id,student_key,status,account_exists\r\n"
         "ENG55-S19,learner-01,enrolled,True\r\n"
         "ENG55-S19,learner-02,pending,False\r\n"
         "SPAN101-S19,learner-01,enrolled,True\r\n"

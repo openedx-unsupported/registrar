@@ -232,7 +232,10 @@ def write_program_enrollments(
     post_job_success(job_id, results_str, "csv", text=code_str)
 
 
-CourseEnrollmentResponseItem = namedtuple('CourseEnrollmentResponseItem', ['course_key', 'student_key', 'status'])
+CourseEnrollmentResponseItem = namedtuple(
+    'CourseEnrollmentResponseItem',
+    ['course_id', 'student_key', 'status'],
+)
 
 
 @shared_task(base=EnrollmentWriteTask, bind=True)
@@ -253,7 +256,7 @@ def write_course_run_enrollments(
 
     requests_by_course_key = OrderedDict()
     for request in requests:
-        requested_course_key = request.pop('course_key')
+        requested_course_key = request.pop('course_id')
         if requested_course_key not in requests_by_course_key:
             requests_by_course_key[requested_course_key] = []
         requests_by_course_key[requested_course_key].append(request)

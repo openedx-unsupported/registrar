@@ -179,7 +179,7 @@ class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         for enrollment in cls.enrollment_data:
-            enrollment['course_key'] = cls.external_course_key
+            enrollment['course_id'] = cls.external_course_key
 
     def spawn_task(self, program_key=None, **kwargs):
         return tasks.list_course_run_enrollments.apply_async(
@@ -210,7 +210,7 @@ class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase)
     def setUpTestData(cls):
         super().setUpTestData()
         for enrollment in cls.enrollment_data:
-            enrollment['course_key'] = cls.external_course_key
+            enrollment['course_id'] = cls.external_course_key
 
     def setUp(self):
         super().setUp()
@@ -373,7 +373,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     Tests for write_course_run_enrollments task.
     """
     mock_function = 'write_course_run_enrollments'
-    expected_fieldnames = ('course_key', 'student_key', 'status')
+    expected_fieldnames = ('course_id', 'student_key', 'status')
 
     def setUp(self):
         super().setUp()
@@ -419,9 +419,9 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     @ddt.unpack
     def test_success(self, any_successes, any_failures, expected_code_str):
         enrolls = [
-            {'student_key': 'john', 'status': 'x', 'course_key': 'course-1'},
-            {'student_key': 'bob', 'status': 'y', 'course_key': 'course-1'},
-            {'student_key': 'serena', 'status': 'z', 'course_key': 'course-2'},
+            {'student_key': 'john', 'status': 'x', 'course_id': 'course-1'},
+            {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
+            {'student_key': 'serena', 'status': 'z', 'course_id': 'course-2'},
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with mock.patch(

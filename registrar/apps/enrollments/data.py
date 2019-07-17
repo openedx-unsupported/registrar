@@ -174,29 +174,29 @@ class DiscoveryProgram(object):
             course_runs=course_runs,
         )
 
-    def find_course_run(self, course_key):
+    def find_course_run(self, course_id):
         """
-        Given a course key, return the course_run with that `key` or `external_key`
+        Given a course id, return the course_run with that `key` or `external_key`
         """
         for course_run in self.course_runs:
-            if course_key == course_run.key or course_key == course_run.external_key:
+            if course_id == course_run.key or course_id == course_run.external_key:
                 return course_run
 
-    def get_external_course_key(self, course_key):
+    def get_external_course_key(self, course_id):
         """
-        Given a course key, return the external course key for that course_run.
+        Given a course ID, return the external course key for that course_run.
         The course key passed in may be an external or internal course key.
         """
-        course_run = self.find_course_run(course_key)
+        course_run = self.find_course_run(course_id)
         if course_run:
             return course_run.external_key
 
-    def get_course_key(self, course_key):
+    def get_course_key(self, course_id):
         """
-        Given a course key, return the internal course key for that course run.
-        The course key passed in may be an external or internal course key.
+        Given a course ID, return the internal course ID for that course run.
+        The course ID passed in may be an external or internal course key.
         """
-        course_run = self.find_course_run(course_key)
+        course_run = self.find_course_run(course_id)
         if course_run:
             return course_run.key
 
@@ -242,7 +242,7 @@ def get_course_run_enrollments(program_uuid, internal_course_key, external_cours
     """
     url = _lms_course_run_enrollment_url(program_uuid, internal_course_key)
     enrollments = _get_all_paginated_results(url, client)
-    context = {'course_key': external_course_key or internal_course_key}
+    context = {'course_id': external_course_key or internal_course_key}
     serializer = CourseEnrollmentSerializer(data=enrollments, many=True, context=context)
     serializer.is_valid(raise_exception=True)
     return serializer.data
