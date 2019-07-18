@@ -21,8 +21,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             'uuidkeys',
-            nargs='*',
-            help='specify the programs to create or modify, in the format <discovery_uuid>:<program_key>',
+            help=('specify the programs to create or modify, in a single comma '
+                  'separated string, in the format <discovery_uuid>:<program_key>')
         )
 
     # pylint: disable=arguments-differ
@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def parse_uuidkeys(self, uuidkeys):
         result = []
-        for uuidkey in uuidkeys:
+        for uuidkey in uuidkeys.split(','):
             split_args = uuidkey.split(':')
             if len(split_args) != 2:
                 message = ('incorrectly formatted argument {}, '
