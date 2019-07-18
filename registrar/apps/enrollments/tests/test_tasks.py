@@ -430,7 +430,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         ):
             self.spawn_task().wait()
         self.assert_succeeded(
-            "course_key,student_key,status\r\n"
+            "course_id,student_key,status\r\n"
             "course-1,john,x\r\n"
             "course-1,bob,y\r\n"
             "course-2,serena,z\r\n",
