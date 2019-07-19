@@ -326,7 +326,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
     }
     event_parameter_map = {
         'program_key': 'program_key',
-        'course_id': 'course_key',
+        'course_id': 'course_id',
         'fmt': 'result_format',
     }
 
@@ -481,7 +481,7 @@ class CourseRunEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadVi
 
     Path: /api/[version]/programs/{program_key}/course_enrollments
     """
-    field_names = ['student_key', 'course_key', 'status']
+    field_names = ['student_key', 'course_id', 'status']
     task_fn = write_course_run_enrollments
     event_method_map = {'POST': 'registrar.{api_version}.upload_course_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}

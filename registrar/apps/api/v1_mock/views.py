@@ -400,7 +400,7 @@ class MockCourseEnrollmentView(MockProgramCourseSpecificViewMixin, EchoStatusesM
     }
     event_parameter_map = {
         'program_key': 'program_key',
-        'course_id': 'course_key',
+        'course_id': 'course_id',
     }
 
     def get_serializer_class(self):

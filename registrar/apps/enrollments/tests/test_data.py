@@ -166,7 +166,7 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
     def setUpClass(cls):
         super().setUpClass()
         for enrollment in cls.good_output:
-            enrollment['course_key'] = cls.course_id
+            enrollment['course_id'] = cls.course_id
 
     def get_enrollments(self):
         return get_course_run_enrollments(self.program_uuid, self.course_id)
@@ -187,7 +187,7 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
             external_course_key
         )
         for enrollment in enrollments:
-            self.assertEqual(enrollment.get('course_key'), external_course_key or self.course_id)
+            self.assertEqual(enrollment.get('course_id'), external_course_key or self.course_id)
 
 
 @ddt.ddt
