@@ -21,8 +21,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             'uuidkeys',
-            nargs='*',
-            help='specify the programs to create or modify, in the format <discovery_uuid>:<program_key>',
+            help=('specify the programs to create or modify, in a single comma '
+                  'separated string, in the format <discovery_uuid>[:<program_key>]')
         )
 
     # pylint: disable=arguments-differ
@@ -37,13 +37,16 @@ class Command(BaseCommand):
 
     def parse_uuidkeys(self, uuidkeys):
         result = []
-        for uuidkey in uuidkeys:
+        for uuidkey in uuidkeys.split(','):
             split_args = uuidkey.split(':')
-            if len(split_args) != 2:
+            if len(split_args) == 1:
+                result.append((uuidkey, None))
+            elif len(split_args) == 2:
+                result.append((split_args[0], split_args[1]))
+            else:
                 message = ('incorrectly formatted argument {}, '
-                           'must be in form <program uuid>:<program key>').format(uuidkey)
+                           'must be in form <program uuid>:<program key> or <program_uuid>').format(uuidkey)
                 raise CommandError(message)
-            result.append((split_args[0], split_args[1]))
         return result
 
     def get_discovery_program_dict(self, program_uuid):
@@ -86,7 +89,7 @@ class Command(BaseCommand):
             discovery_uuid=discovery_program.uuid,  # pylint: disable=no-member
             defaults={
                 'managing_organization': org,
-                'key': program_key,
+                'key': program_key or program_dict.get('marketing_slug'),
             },
         )
         if not created and program.key != program_key:
