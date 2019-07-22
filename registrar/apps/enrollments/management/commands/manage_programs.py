@@ -3,6 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.http import Http404
 from requests.exceptions import HTTPError
 
 from registrar.apps.core.models import Organization
@@ -52,7 +53,7 @@ class Command(BaseCommand):
     def get_discovery_program_dict(self, program_uuid):
         try:
             return DiscoveryProgram.read_from_discovery(program_uuid)
-        except HTTPError as e:
+        except (HTTPError, Http404) as e:
             raise CommandError('Could not read program from course-discovery: {}'.format(e))
 
     def get_authoring_org_keys(self, program_dict):
@@ -92,7 +93,7 @@ class Command(BaseCommand):
                 'key': program_key or program_dict.get('marketing_slug'),
             },
         )
-        if not created and program.key != program_key:
+        if (not created) and program_key and (program.key != program_key):
             program.key = program_key
             program.save()
         verb = 'Created' if created else 'Modified existing'
