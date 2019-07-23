@@ -184,4 +184,3 @@ class TestManagePrograms(TestCase):
         # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Could not read program'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
-
