@@ -73,7 +73,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = corsheaders_default_headers + (
     'use-jwt-cookie',
 )
-
+CORS_ORIGIN_WHITELIST = []
 
 
 ROOT_URLCONF = 'registrar.urls'
@@ -288,7 +288,7 @@ LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 SEGMENT_KEY = None
 
 # Publicly-exposed base URLs for service and API
-API_ROOT = 'http://localhost:18734/api'
+API_ROOT = 'http://127.0.0.1:8000/api'
 
 CERTIFICATE_LANGUAGES = {
     'en': 'English',
@@ -300,25 +300,12 @@ EXTRA_APPS = []
 REGISTRAR_SERVICE_USER = 'registrar_service_user'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-CORS_ORIGIN_WHITELIST = []
 CSRF_TRUSTED_ORIGINS = []
-MEDIA_STORAGE_BACKEND = {
-    'DEFAULT_FILE_STORAGE': 'django.core.files.storage.FileSystemStorage',
-    'MEDIA_ROOT': MEDIA_ROOT,
-    'MEDIA_URL': MEDIA_URL
-}
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-SOCIAL_AUTH_EDX_OIDC_KEY = 'registrar-key'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'registrar-secret'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'http://127.0.0.1:8000/oauth2'
-SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'http://127.0.0.1:8000/logout'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
-SOCIAL_AUTH_EDX_OIDC_PUBLIC_URL_ROOT = 'http://127.0.0.1:8000/oauth2'
-SOCIAL_AUTH_EDX_OIDC_ISSUER = 'http://127.0.0.1:8000/oauth2'
 EDX_DRF_EXTENSIONS = {
     "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
 }
