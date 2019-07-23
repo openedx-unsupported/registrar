@@ -2,6 +2,7 @@
 import ddt
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.http import Http404
 from django.test import TestCase
 from mock import patch
 from requests.exceptions import HTTPError
@@ -141,6 +142,12 @@ class TestManagePrograms(TestCase):
         call_command(self.command, self._uuidkeys((self.english_uuid, 'masters-in-english')))
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
 
+    def test_modify_program_no_key(self):
+        self.mock_get_discovery_program.return_value = self.english_discovery_program
+        self.assert_program(self.english_uuid, 'masters-in-english', self.org)
+        call_command(self.command, self.english_uuid)
+        self.assert_program(self.english_uuid, 'masters-in-english', self.org)
+
     def test_incorrect_format(self):
         # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'incorrectly formatted argument'):
@@ -168,6 +175,12 @@ class TestManagePrograms(TestCase):
 
     def test_load_from_disco_error(self):
         self.mock_get_discovery_program.side_effect = HTTPError()
+        # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(CommandError, 'Could not read program'):
+            call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
+
+    def test_load_from_disco_404(self):
+        self.mock_get_discovery_program.side_effect = Http404()
         # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Could not read program'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
