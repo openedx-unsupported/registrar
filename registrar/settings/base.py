@@ -73,7 +73,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = corsheaders_default_headers + (
     'use-jwt-cookie',
 )
-
+CORS_ORIGIN_WHITELIST = []
 
 
 ROOT_URLCONF = 'registrar.urls'
@@ -88,11 +88,12 @@ WSGI_APPLICATION = 'registrar.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'NAME': 'registrar',
+        'USER': 'registrar001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',  # Set to empty string for default.
+        'ATOMIC_REQUESTS': False,
     }
 }
 
@@ -146,7 +147,7 @@ BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 
@@ -234,23 +235,32 @@ SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
 SOCIAL_AUTH_EDX_OAUTH2_KEY = 'registrar-sso-key'
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'registrar-sso-secret'
 SOCIAL_AUTH_EDX_OAUTH2_ENDPOINT = 'replace-me'
-SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = 'replace-me'
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = 'http://127.0.0.1:8000'
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = 'http://127.0.0.1:8000'
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = 'http://127.0.0.1:8000/logout'
 
 # These values are used to make server to server rest api call. Should be fed into edx_rest_api_client
 BACKEND_SERVICE_EDX_OAUTH2_KEY = 'registrar-backend-service-key'
-BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'registrar-sso-secret'
-BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = 'replace-me'
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'registrar-backend-service-secret'
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = 'http://127.0.0.1:8000/oauth2'
 
 JWT_AUTH = {
-    'JWT_ISSUERS': [],
+        'JWT_ISSUERS': [
+        {
+            'AUDIENCE': 'SET-ME-PLEASE',
+            'ISSUER': 'http://127.0.0.1:8000/oauth2',
+            'SECRET_KEY': 'SET-ME-PLEASE'
+        }
+    ],
     'JWT_ALGORITHM': 'HS256',
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_VERIFY_AUDIENCE': False,
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
     'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
+    'JWT_PUBLIC_SIGNING_JWK_SET': None,
     'JWT_AUTH_COOKIE_HEADER_PAYLOAD': 'edx-jwt-cookie-header-payload',
     'JWT_AUTH_COOKIE_SIGNATURE': 'edx-jwt-cookie-signature',
+    'JWT_AUTH_REFRESH_COOKIE': 'edx-jwt-refresh-cookie'
 }
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
@@ -263,8 +273,8 @@ LOGIN_REDIRECT_URL = '/api-docs/'
 # END AUTHENTICATION CONFIGURATION
 
 # Other service locations
-LMS_BASE_URL = 'replace-me'
-DISCOVERY_BASE_URL = 'replace-me'
+LMS_BASE_URL = None
+DISCOVERY_BASE_URL = None
 
 
 # OPENEDX-SPECIFIC CONFIGURATION
@@ -278,7 +288,7 @@ LOGGING = get_logger_config(debug=DEBUG, dev_env=True, local_loglevel='DEBUG')
 SEGMENT_KEY = None
 
 # Publicly-exposed base URLs for service and API
-API_ROOT = 'http://replace-me/api'
+API_ROOT = 'http://127.0.0.1:8000/api'
 
 CERTIFICATE_LANGUAGES = {
     'en': 'English',
@@ -290,3 +300,12 @@ EXTRA_APPS = []
 REGISTRAR_SERVICE_USER = 'registrar_service_user'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+CSRF_TRUSTED_ORIGINS = []
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+EDX_DRF_EXTENSIONS = {
+    "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
+}
