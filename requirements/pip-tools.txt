@@ -1,0 +1,14 @@
+# Unlike the other .txt files in this directory,
+# this is a human-written file to constrain the version
+# of pip-tools (the package that installs `pip-compile` and
+# `pip-sync`, which are used in `make upgrade` and
+# `make requirements`, respectively).
+#
+# Because different versions of pip-tools may generate
+# and install requirements differently, we pin pip-tools
+# here in order to keep requirement generation/installation
+# deterministic.
+#
+# Feel free to manually bump this version as deemed appropriate.
+
+pip-tools==4.0.0

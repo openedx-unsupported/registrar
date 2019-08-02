@@ -42,7 +42,7 @@ upgrade: piptools  ## re-compile requirements .txt files from .in files
 	pip-compile --upgrade -o requirements/monitoring/requirements.txt requirements/monitoring/requirements.in
 
 piptools:
-	pip install -q pip-tools
+	pip install -r requirements/pip-tools.txt
 
 requirements: devstack-requirements ## alias to make devstack-requirements
 
