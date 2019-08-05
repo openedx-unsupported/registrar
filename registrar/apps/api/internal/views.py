@@ -10,7 +10,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from registrar.apps.api.v1.mixins import AuthMixin
-from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.models import Program
 
 

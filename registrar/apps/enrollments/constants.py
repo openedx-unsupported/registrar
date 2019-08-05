@@ -2,9 +2,6 @@
 from enum import Enum
 
 
-PROGRAM_CACHE_KEY_TPL = 'program:{uuid}'
-PROGRAM_CACHE_TIMEOUT = 120
-
 PROGRAM_ENROLLMENT_ENROLLED = 'enrolled'
 PROGRAM_ENROLLMENT_PENDING = 'pending'
 PROGRAM_ENROLLMENT_SUSPENDED = 'suspended'

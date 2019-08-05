@@ -39,6 +39,11 @@ urlpatterns = [
         name="program-enrollment",
     ),
     url(
+        r'^programs/{}/courses/{}/grades/?$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
+        views.CourseGradesView.as_view(),
+        name="program-course-grades",
+    ),
+    url(
         r'^programs/{}/courses/{}/enrollments/?$'.format(PROGRAM_KEY_PATTERN, COURSE_ID_PATTERN),
         views.CourseEnrollmentView.as_view(),
         name="program-course-enrollment",
