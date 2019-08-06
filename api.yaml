@@ -386,6 +386,26 @@ endpoints:
             student_0128fe4a: invalid-status
             student_aae45c81: not-found
 
+  get_course_grades: &get_course_grades
+    summary: Request course run grade data
+    description: Submit a job to retrieve course run grade data
+    parameters:
+      - *program_path_param
+      - *course_path_param
+      - *format_param
+    responses:
+      202:
+        description: Job submitted.
+        schema:
+          $ref: '#/models/NewJob'
+      403:
+        description: >
+          User is not authorized to retrieve enrollments for program course.
+      404:
+        description: >
+          Course does not exist within program, or program was not found.
+
+
   swagger:
     get:
       operationId: registrar_get_api_docs
@@ -516,6 +536,11 @@ paths:
       <<: *patch_course_enrollments
       operationId: registrar_v1_patch_course_enrollments
       tags: ['v1']
+  '/v1/programs/{program_key}/courses/{course_id}/grades/':
+    get:
+      <<: *get_course_grades
+      operationId: registrar_v1_get_course_grades
+      tags: ['v1']
   '/v1/programs/{program_key}/enrollments/':
     get:
       <<: *get_program_enrollments
@@ -563,6 +588,11 @@ paths:
     patch:
       <<: *patch_course_enrollments
       operationId: registrar_v2_patch_course_enrollments
+      tags: ['v2']
+  '/v2/programs/{program_key}/courses/{course_id}/grades/':
+    get:
+      <<: *get_course_grades
+      operationId: registrar_v2_get_course_grades
       tags: ['v2']
   '/v2/programs/{program_key}/enrollments/':
     get:

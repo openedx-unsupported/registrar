@@ -68,6 +68,40 @@ endpoints:
       404:
         description: "Course does not exist within program, or program was not found.\n"
     summary: Request course enrollment data
+  get_course_grades:
+    description: Submit a job to retrieve course run grade data
+    parameters:
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
+      name: program_key
+      required: true
+      type: string
+    - description: edX course run identifier, or an external course run key
+      example: course-v1:ExU+Science-101+Fall2050
+      in: path
+      name: course_id
+      required: true
+      type: string
+    - description: format of file to generate
+      enum:
+      - json
+      - csv
+      example: json
+      in: query
+      name: fmt
+      required: false
+      type: string
+    responses:
+      202:
+        description: Job submitted.
+        schema:
+          $ref: '#/models/NewJob'
+      403:
+        description: "User is not authorized to retrieve enrollments for program course.\n"
+      404:
+        description: "Course does not exist within program, or program was not found.\n"
+    summary: Request course run grade data
   get_job_status:
     parameters:
     - description: UUID-4 job identifier
@@ -1190,6 +1224,45 @@ paths:
       summary: Enroll students in a course
       tags:
       - v1
+  /v1/programs/{program_key}/courses/{course_id}/grades/:
+    get:
+      description: Submit a job to retrieve course run grade data
+      operationId: registrar_v1_get_course_grades
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier, or an external course run key
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
+      responses:
+        202:
+          description: Job submitted.
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: "User is not authorized to retrieve enrollments for program\
+            \ course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+      summary: Request course run grade data
+      tags:
+      - v1
   /v1/programs/{program_key}/enrollments/:
     get:
       description: Submit a job to retrieve program enrollment data
@@ -1582,6 +1655,45 @@ paths:
           schema:
             $ref: '#/models/CourseEnrollmentResult'
       summary: Enroll students in a course
+      tags:
+      - v2
+  /v2/programs/{program_key}/courses/{course_id}/grades/:
+    get:
+      description: Submit a job to retrieve course run grade data
+      operationId: registrar_v2_get_course_grades
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: edX course run identifier, or an external course run key
+        example: course-v1:ExU+Science-101+Fall2050
+        in: path
+        name: course_id
+        required: true
+        type: string
+      - description: format of file to generate
+        enum:
+        - json
+        - csv
+        example: json
+        in: query
+        name: fmt
+        required: false
+        type: string
+      responses:
+        202:
+          description: Job submitted.
+          schema:
+            $ref: '#/models/NewJob'
+        403:
+          description: "User is not authorized to retrieve enrollments for program\
+            \ course.\n"
+        404:
+          description: "Course does not exist within program, or program was not found.\n"
+      summary: Request course run grade data
       tags:
       - v2
   /v2/programs/{program_key}/enrollments/:

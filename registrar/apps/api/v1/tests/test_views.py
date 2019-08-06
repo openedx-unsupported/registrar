@@ -2099,12 +2099,17 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             'percent': 0.4,
             'passed': False,
         },
+        {
+            'student_key': 'learner-03',
+            'error': 'error loading grades',
+        }
     ]
     grades_json = json.dumps(grades, indent=4)
     grades_csv = (
-        "student_key,letter_grade,percent,passed\r\n"
-        "learner-01,A,0.95,True\r\n"
-        "learner-02,F,0.4,False\r\n"
+        "student_key,letter_grade,percent,passed,error\r\n"
+        "learner-01,A,0.95,True,\r\n"
+        "learner-02,F,0.4,False,\r\n"
+        "learner-03,,,,error loading grades\r\n"
     )
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
@@ -2147,9 +2152,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(file_response.text, expected_contents)
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
-    @mock.patch(
-        'registrar.apps.grades.data.get_course_run_grades',
-    )
+    @mock.patch('registrar.apps.grades.data.get_course_run_grades')
     @ddt.data(
         (True, True, GradeReadStatus.MULTI_STATUS.value),
         (True, False, GradeReadStatus.OK.value),
