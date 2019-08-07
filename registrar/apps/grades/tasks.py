@@ -17,14 +17,14 @@ from registrar.apps.grades.serializers import serialize_course_run_grades_to_csv
 # pylint: disable=unused-argument
 def get_course_run_grades(self, job_id, user_id, file_format, program_key, internal_course_key):
     """
-    A user task that reads course run enrollment requests from json_filepath,
-    writes them to the LMS, and stores a CSV-formatted results file.
+    A user task that reads course run grade data from the LMS, and writes it to
+    a JSON- or CSV-formatted result file.
     """
     program = _get_program(job_id, program_key)
     if not program:
         return
     try:
-        good, bad, grades = data.get_course_run_grades(
+        any_successes, any_failures, grades = data.get_course_run_grades(
             program.discovery_uuid,
             internal_course_key,
         )
@@ -43,11 +43,11 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
         )
         return
 
-    if good and bad:
+    if any_successes and any_failures:
         code_str = str(GradeReadStatus.MULTI_STATUS.value)
-    elif not good and not bad:
+    elif not any_successes and not any_failures:
         code_str = str(GradeReadStatus.NO_CONTENT.value)
-    elif good:
+    elif any_successes:
         code_str = str(GradeReadStatus.OK.value)
     else:
         code_str = str(GradeReadStatus.UNPROCESSABLE_ENTITY.value)

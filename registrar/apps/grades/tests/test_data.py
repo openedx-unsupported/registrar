@@ -67,7 +67,7 @@ class GetCourseGradesTest(TestCase):
     )
     @mock_oauth_login
     @responses.activate
-    def test_get_grades(self, status_1, status_2, expected_good, expected_bad):
+    def test_get_grades(self, status_1, status_2, expected_successes, expected_failures):
         responses.add(
             responses.GET,
             self.lms_url,
@@ -80,10 +80,10 @@ class GetCourseGradesTest(TestCase):
             status=status_2,
             json={'next': None, 'results': self.good_input_2},
         )
-        good, bad, grades = get_course_run_grades(self.program_uuid, self.course_id)
+        any_successes, any_failures, grades = get_course_run_grades(self.program_uuid, self.course_id)
         self.assertCountEqual(grades, self.good_output)
-        self.assertEqual(good, expected_good)
-        self.assertEqual(bad, expected_bad)
+        self.assertEqual(any_successes, expected_successes)
+        self.assertEqual(any_failures, expected_failures)
 
     @mock_oauth_login
     @responses.activate
@@ -106,9 +106,9 @@ class GetCourseGradesTest(TestCase):
             status=204,
             json={'next': None, 'results': []},
         )
-        good, bad, grades = get_course_run_grades(self.program_uuid, self.course_id)
-        self.assertFalse(good)
-        self.assertFalse(bad)
+        any_successes, any_failures, grades = get_course_run_grades(self.program_uuid, self.course_id)
+        self.assertFalse(any_successes)
+        self.assertFalse(any_failures)
         self.assertEqual(grades, {})
 
     @mock_oauth_login
