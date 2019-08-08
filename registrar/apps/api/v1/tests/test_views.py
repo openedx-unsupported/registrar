@@ -27,6 +27,8 @@ from registrar.apps.api.v1.views import (
     CourseRunEnrollmentUploadView,
     ProgramEnrollmentUploadView,
 )
+from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
 from registrar.apps.core.filestore import get_filestore
@@ -44,13 +46,11 @@ from registrar.apps.core.tests.factories import (
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.core.utils import serialize_to_csv
-from registrar.apps.enrollments.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.enrollments.data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
-    DiscoveryCourseRun,
-    DiscoveryProgram,
 )
 from registrar.apps.enrollments.tests.factories import ProgramFactory
+from registrar.apps.grades.constants import GradeReadStatus
 
 
 class RegistrarAPITestCase(TrackTestMixin, APITestCase):
@@ -964,7 +964,7 @@ class ProgramEnrollmentWriteMixin(object):
         mock_response = mock.Mock()
         mock_response.status_code = 404
         error = requests.exceptions.HTTPError(response=mock_response)
-        with mock.patch('registrar.apps.enrollments.data._make_request', side_effect=error):
+        with mock.patch('registrar.apps.common.data._make_request', side_effect=error):
             response = self.request(
                 self.method,
                 'programs/masters-in-cs/enrollments/',
@@ -2061,4 +2061,144 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
                 status_code=404,
         ):
             response = self.get(self.path + '?fmt=invalidformat', self.hum_admin)
+        self.assertEqual(response.status_code, 404)
+
+
+@ddt.ddt
+class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """ Tests for GET /api/v1/programs/{program_key}/courses/{course_id}/grades endpoint """
+    method = 'GET'
+    path = 'programs/masters-in-english/courses/HUMx+English-550+Spring/grades'
+    event = 'registrar.v1.get_course_grades'
+
+    program_uuid = str(uuid.uuid4())
+    disco_program = DiscoveryProgram.from_json(program_uuid, {
+        'curricula': [{
+            'is_active': True,
+            'courses': [{
+                'course_runs': [{
+                    'key': 'HUMx+English-550+Spring',
+                    'external_key': 'ENG55-S19',
+                    'title': "English 550",
+                    'marketing_url': 'https://example.com/english-550',
+                }]
+            }]
+        }],
+    })
+
+    grades = [
+        {
+            'student_key': 'learner-01',
+            'letter_grade': 'A',
+            'percent': 0.95,
+            'passed': True,
+        },
+        {
+            'student_key': 'learner-02',
+            'letter_grade': 'F',
+            'percent': 0.4,
+            'passed': False,
+        },
+        {
+            'student_key': 'learner-03',
+            'error': 'error loading grades',
+        }
+    ]
+    grades_json = json.dumps(grades, indent=4)
+    grades_csv = (
+        "student_key,letter_grade,percent,passed,error\r\n"
+        "learner-01,A,0.95,True,\r\n"
+        "learner-02,F,0.4,False,\r\n"
+        "learner-03,,,,error loading grades\r\n"
+    )
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    @mock.patch(
+        'registrar.apps.grades.data.get_course_run_grades',
+        return_value=(True, False, grades),
+    )
+    @ddt.data(
+        (None, 'json', grades_json),
+        ('json', 'json', grades_json),
+        ('csv', 'csv', grades_csv),
+    )
+    @ddt.unpack
+    def test_ok(self, format_param, expected_format, expected_contents, _mock1, _mock2):
+        format_suffix = "?fmt=" + format_param if format_param else ""
+        kwargs = {'result_format': format_param} if format_param else {}
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                course_id='HUMx+English-550+Spring',
+                status_code=202,
+                **kwargs
+        ):
+            response = self.get(self.path + format_suffix, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        with self.assert_tracking(
+                event='registrar.v1.get_job_status',
+                user=self.hum_admin,
+                job_id=response.data['job_id'],
+                job_state='Succeeded',
+        ):
+            job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        result_url = job_response.data['result']
+        self.assertIn(".{}?".format(expected_format), result_url)
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response.text, expected_contents)
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    @mock.patch('registrar.apps.grades.data.get_course_run_grades')
+    @ddt.data(
+        (True, True, GradeReadStatus.MULTI_STATUS.value),
+        (True, False, GradeReadStatus.OK.value),
+        (False, True, GradeReadStatus.UNPROCESSABLE_ENTITY.value),
+        (False, False, GradeReadStatus.NO_CONTENT.value),
+    )
+    @ddt.unpack
+    def test_text(self, good, bad, expected_text, _mock1, _mock2):
+        _mock1.return_value = (good, bad, self.grades)
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+        self.assertEqual(job_response.data['text'], str(expected_text))
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    def test_permission_denied(self, _mock):
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key='masters-in-english',
+                course_id='HUMx+English-550+Spring',
+                missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
+        ):
+            response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
+
+    @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
+    @ddt.data(
+        # Bad program
+        ('masters-in-polysci', 'course-v1:HUMx+English-550+Spring', 'program_not_found'),
+        # Good program, course key formatted correctly, but course does not exist
+        ('masters-in-english', 'course-v1:STEMx+Biology-440+Fall', 'course_not_found'),
+        # Good program, course key matches URL but is formatted incorrectly
+        ('masters-in-english', 'not-a-course-key:a+b+c', 'course_not_found'),
+    )
+    @ddt.unpack
+    def test_not_found(self, program_key, course_id, expected_failure, _mock):
+        path_fmt = 'programs/{}/courses/{}/grades'
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key=program_key,
+                course_id=course_id,
+                failure=expected_failure,
+        ):
+            response = self.get(
+                path_fmt.format(program_key, course_id), self.hum_admin
+            )
         self.assertEqual(response.status_code, 404)

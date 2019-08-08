@@ -55,6 +55,7 @@ from registrar.apps.enrollments.tasks import (
     write_program_enrollments,
 )
 from registrar.apps.enrollments.utils import is_enrollment_job_processing
+from registrar.apps.grades.tasks import get_course_run_grades
 
 
 logger = logging.getLogger(__name__)
@@ -521,4 +522,43 @@ class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView)
         return self.invoke_download_job(
             list_all_course_run_enrollments,
             self.program.key,
+        )
+
+
+class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
+    """
+    Invokes a Django User Task that retrieves student grade data for the given course run.
+
+    Returns:
+     * 202: Accepted, an asynchronous job was successfully started.
+     * 401: User is not authenticated
+     * 403: User lacks enrollment read access to organization of specified program
+     * 404: Program was not found, course was not found, or course was not found in program.
+
+    Example Response:
+    {
+        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
+        "job_url": "http://localhost/api/[version]/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
+    }
+
+    Path: /api/[version]/programs/{program_key}/courses/{course_id}/grades
+    """
+    permission_required = [perms.ORGANIZATION_READ_ENROLLMENTS]
+    event_method_map = {
+        'GET': 'registrar.v1.get_course_grades',
+    }
+    event_parameter_map = {
+        'program_key': 'program_key',
+        'course_id': 'course_id',
+        'fmt': 'result_format',
+    }
+
+    def get(self, request, *args, **kwargs):
+        """
+        Submit a user task that retrieves course grade data for the given course
+        """
+        return self.invoke_download_job(
+            get_course_run_grades,
+            self.program.key,
+            self.internal_course_key,
         )

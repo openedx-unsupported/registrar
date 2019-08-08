@@ -9,17 +9,15 @@ import boto3
 import ddt
 import mock
 import moto
-import requests
 from django.conf import settings
 from django.test import TestCase
-from requests.exceptions import HTTPError  # pylint: disable=ungrouped-imports
+from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
-from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
+from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
+from registrar.apps.common.tests.mixins import BaseTaskTestMixin
 from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
 from registrar.apps.core.filestore import get_filestore
-from registrar.apps.core.jobs import get_job_status
-from registrar.apps.core.tests.factories import OrganizationFactory, UserFactory
 from registrar.apps.enrollments import tasks
 from registrar.apps.enrollments.constants import (
     COURSE_ENROLLMENT_ACTIVE,
@@ -27,9 +25,7 @@ from registrar.apps.enrollments.constants import (
     PROGRAM_ENROLLMENT_ENROLLED,
     PROGRAM_ENROLLMENT_PENDING,
 )
-from registrar.apps.enrollments.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.enrollments.models import Program
-from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
 FakeRequest = namedtuple('FakeRequest', ['url'])
@@ -39,57 +35,12 @@ FakeResponse = namedtuple('FakeResponse', ['status_code'])
 uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 
 
-class EnrollmentTaskTestMixin(object):
-    """ Tests common to enrollment tasks, both listing and writing. """
-    mock_base = 'registrar.apps.enrollments.tasks.data.'
-    job_id = "6fee9384-f7f7-496f-a607-ee9f59201ee0"
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.user = UserFactory()
-        org = OrganizationFactory(name='STEM Institute')
-        cls.program = ProgramFactory(managing_organization=org)
-
-    def spawn_task(self, program_key=None, **kwargs):
-        """
-        Overridden in children.
-        """
-        pass  # pragma: no cover
-
-    def assert_succeeded(self, expected_contents, expected_text, job_id=None):
-        """
-        Assert that the task identified by `job_id` succeeded
-        and that its contents are equal to `expected_contents`.
-
-        If `job_id` is None, use `self.job_id`.
-        """
-        status = get_job_status(self.user, job_id or self.job_id)
-        self.assertEqual(status.state, UserTaskStatus.SUCCEEDED)
-        self.assertEqual(status.text, expected_text)
-        result_response = requests.get(status.result)
-        self.assertIn(result_response.text, expected_contents)
-
-    def assert_failed(self, sub_message, job_id=None):
-        """
-        Assert that the task identified by `job_id` failed
-        and that it contains `sub_message` in its failure reason.
-
-        If `job_id` is None, use `self.job_id`.
-        """
-        task_status = UserTaskStatus.objects.get(task_id=(job_id or self.job_id))
-        self.assertEqual(task_status.state, UserTaskStatus.FAILED)
-        error_artifact = task_status.artifacts.filter(name='Error').first()
-        self.assertIn(sub_message, error_artifact.text)
-
-    def test_program_not_found(self):
-        task = self.spawn_task(program_key="program-nonexistant")
-        task.wait()
-        self.assert_failed("Bad program key")
+class BaseEnrollmentTaskTestMixin(BaseTaskTestMixin):
+    mock_base = 'registrar.apps.enrollments.data.'
 
 
 @ddt.ddt
-class ListEnrollmentTaskTestMixin(EnrollmentTaskTestMixin):
+class ListEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
     """ Tests for enrollment listing task error behavior. """
 
     # Override in subclass
@@ -240,7 +191,7 @@ class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase)
         )
 
 
-class WriteEnrollmentTaskTestMixin(EnrollmentTaskTestMixin):
+class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
     """
     Tests common for both program and course-run enrollment writing tasks.
     """
@@ -436,30 +387,3 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             "course-2,serena,z\r\n",
             expected_code_str,
         )
-
-
-class DebugTaskTests(TestCase):
-    """ Tests for validating that tasks are working properly. """
-
-    @mock.patch('registrar.apps.enrollments.tasks.log', autospec=True)
-    def test_debug_task_happy_path(self, mock_logger):
-        task = tasks.debug_task.apply_async([1, 2], kwargs={'foo': 'bar'})
-        task.wait()
-
-        self.assertEqual(mock_logger.debug.call_count, 1)
-        debug_call_argument = mock_logger.debug.call_args_list[0][0][0]
-        self.assertIn("'args': [1, 2]", debug_call_argument)
-        self.assertIn("'kwargs': {'foo': 'bar'}", debug_call_argument)
-
-    def test_debug_user_task_happy_path(self):
-        TEST_TEXT = "lorem ipsum"
-
-        user = UserFactory()
-        task = tasks.debug_user_task.apply_async((user.id, TEST_TEXT))
-        task.wait()
-
-        status = UserTaskStatus.objects.get(task_id=task.id)
-        self.assertEqual(status.state, UserTaskStatus.SUCCEEDED)
-
-        artifact = UserTaskArtifact.objects.get(status__user=user)
-        self.assertEqual(artifact.text, TEST_TEXT)
