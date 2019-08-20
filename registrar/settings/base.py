@@ -144,6 +144,16 @@ BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
     CELERY_BROKER_VHOST
 )
 
+# Celery task time limits.
+# Tasks will be asked to quit after four minutes, and un-gracefully killed
+# after five.
+# This should prevent UserTasks from getting stuck indefinitely in an
+# In-Progress/Pending state, which in the case of enrollment-writing tasks,
+# would block any other enrollment-writing tasks for the associated program
+# from ever starting.
+CELERY_TASK_SOFT_TIME_LIMIT = 240
+CELERY_TASK_TIME_LIMIT = 300
+
 ############################# END CELERY #################################3
 
 # Internationalization
