@@ -16,3 +16,4 @@ pytest-django
 responses
 yamllint
 isort[requirements]
+freezegun
