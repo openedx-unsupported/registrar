@@ -1786,7 +1786,10 @@ class EnrollmentUploadMixin(object):
     def test_enrollment_upload_conflict(self):
         enrollments = [self.build_enrollment('enrolled', '001')]
 
-        with mock.patch('registrar.apps.api.v1.views.is_enrollment_job_processing', return_value=True):
+        with mock.patch(
+                'registrar.apps.api.v1.views.is_enrollment_write_blocked',
+                return_value=True
+        ):
             upload_response = self._upload_enrollments(enrollments)
 
         self.assertEqual(upload_response.status_code, 409)

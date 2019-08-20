@@ -12,12 +12,13 @@ in the future to include retrying tasks, the job_id could be decoupled
 from the UserTask ID. For this reason, we attempt not to expose the relationship
 between job_ids and UserTask IDs outside of this module.
 """
-
 import logging
 import uuid
 from collections import namedtuple
+from datetime import timedelta
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.utils import timezone
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
 from registrar.apps.core.constants import JOB_RESULT_PATH_PREFIX
@@ -101,14 +102,17 @@ def get_processing_jobs_for_user(user):
     return (_make_job_status(task_status) for task_status in task_statuses)
 
 
-def processing_job_with_prefix_exists(prefix):
+def recent_processing_job_with_prefix_exists(prefix, max_age_minutes):
     """
     Returns whether there exists a job whose name begins with `prefix`
-    that is currently processing (in progress, pending, or retrying).
+    that is currently processing (in progress, pending, or retrying),
+    ignoring jobs older than `max_age_minutes`.
     """
+    min_created = timezone.now() - timedelta(minutes=max_age_minutes)
     return UserTaskStatus.objects.filter(
         name__startswith=prefix,
         state__in=USER_TASK_STATUS_PROCESSING_STATES,
+        created__gte=min_created,
     ).exists()
 
 

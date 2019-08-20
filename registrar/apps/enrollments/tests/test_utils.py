@@ -4,13 +4,14 @@ from uuid import uuid4
 
 import ddt
 from django.test import TestCase
+from freezegun import freeze_time
 from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.tests.factories import OrganizationFactory, UserFactory
 from registrar.apps.enrollments.tests.factories import ProgramFactory
 from registrar.apps.enrollments.utils import (
     build_enrollment_job_status_name,
-    is_enrollment_job_processing,
+    is_enrollment_write_blocked,
 )
 
 
@@ -42,9 +43,9 @@ class EnrollmentJobTests(TestCase):
 
 
 @ddt.ddt
-class IsEnrollmentJobProcessingTests(EnrollmentJobTests):
+class IsEnrollmentWriteBlockedTests(EnrollmentJobTests):
     """
-    Tests for is_enrollment_job_processing
+    Tests for is_enrollment_write_blocked
     """
 
     @ddt.unpack
@@ -56,18 +57,29 @@ class IsEnrollmentJobProcessingTests(EnrollmentJobTests):
         (UserTaskStatus.CANCELED, False),
         (UserTaskStatus.RETRYING, True),
     )
-    def test_job_processing(self, state, expected):
+    def test_processing_job_blocks(self, state, expected):
         task_name = build_enrollment_job_status_name(self.program.key, 'write', self.TASK_NAME)
         self.create_dummy_job_status(state, self.user, task_name)
-        job_in_progress = is_enrollment_job_processing(self.program.key)
+        job_in_progress = is_enrollment_write_blocked(self.program.key)
         self.assertEqual(expected, job_in_progress)
 
-    def test_different_program(self):
+    def test_different_program_does_not_block(self):
         task_name = build_enrollment_job_status_name(self.program.key, 'write', self.TASK_NAME)
         self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
-        self.assertFalse(is_enrollment_job_processing(self.program2.key))
+        self.assertFalse(is_enrollment_write_blocked(self.program2.key))
 
-    def test_wrong_name(self):
+    def test_wrong_name_does_not_block(self):
         task_name = build_enrollment_job_status_name(self.TASK_NAME, 'write', self.program.key)
         self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
-        self.assertFalse(is_enrollment_job_processing(self.program.key))
+        self.assertFalse(is_enrollment_write_blocked(self.program.key))
+
+    def test_read_job_does_not_block(self):
+        task_name = build_enrollment_job_status_name(self.program.key, 'read', self.TASK_NAME)
+        self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
+        self.assertFalse(is_enrollment_write_blocked(self.program.key))
+
+    def test_old_job_does_not_block(self):
+        task_name = build_enrollment_job_status_name(self.program.key, 'write', self.TASK_NAME)
+        with freeze_time("2000-01-01"):
+            self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
+        self.assertFalse(is_enrollment_write_blocked(self.program.key))
