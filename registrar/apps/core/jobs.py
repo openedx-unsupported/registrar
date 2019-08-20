@@ -12,7 +12,6 @@ in the future to include retrying tasks, the job_id could be decoupled
 from the UserTask ID. For this reason, we attempt not to expose the relationship
 between job_ids and UserTask IDs outside of this module.
 """
-
 import logging
 import uuid
 from collections import namedtuple
