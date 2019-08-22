@@ -1,8 +1,6 @@
 """
 The public-facing REST API.
 """
-import csv
-import io
 import json
 import logging
 
@@ -13,7 +11,7 @@ from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import ParseError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -45,6 +43,7 @@ from registrar.apps.core.jobs import (
     get_processing_jobs_for_user,
 )
 from registrar.apps.core.models import Organization
+from registrar.apps.core.utils import load_records_from_uploaded_csv
 from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tasks import (
@@ -423,7 +422,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
      * 413: File too large
     """
     parser_classes = (MultiPartParser,)
-    field_names = []  # Override in subclass
+    field_names = set()  # Override in subclass
     task_fn = None  # Override in subclass
 
     def post(self, request, *args, **kwargs):
@@ -438,30 +437,8 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         if is_enrollment_write_blocked(self.program.key):
             return Response('Job already in progress for program', HTTP_409_CONFLICT)
 
-        file_itr = io.StringIO(csv_file.read().decode('utf-8'))
-
-        enrollments = []
-        # If the `fieldnames` kwargs is omitted, the values in the
-        # first row of file_itr will be used as the fieldnames.
-        reader = csv.DictReader(file_itr)
-        if not set(reader.fieldnames).issuperset(set(self.field_names)):
-            raise ValidationError('Invalid csv headers')
-
-        for n, row in enumerate(reader, 1):
-            if not self._is_valid_row(row):
-                raise ValidationError('Unable to begin upload. Encountered missing data at row {}'.format(n))
-            enrollments.append(row)
-
+        enrollments = load_records_from_uploaded_csv(csv_file, self.field_names)
         return self.invoke_upload_job(self.task_fn, json.dumps(enrollments), *args, **kwargs)
-
-    def _is_valid_row(self, row):
-        """ validate row data has required headers """
-        if None in row:
-            return False
-        for field in self.field_names:
-            if not row[field]:
-                return False
-        return True
 
 
 class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView):
@@ -470,7 +447,7 @@ class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView
 
     Path: /api/[version]/programs/{program_key}/enrollments
     """
-    field_names = ['student_key', 'status']
+    field_names = {'student_key', 'status'}
     task_fn = write_program_enrollments
     event_method_map = {'POST': 'registrar.{api_version}.upload_program_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}
@@ -482,7 +459,7 @@ class CourseRunEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadVi
 
     Path: /api/[version]/programs/{program_key}/course_enrollments
     """
-    field_names = ['student_key', 'course_id', 'status']
+    field_names = {'student_key', 'course_id', 'status'}
     task_fn = write_course_run_enrollments
     event_method_map = {'POST': 'registrar.{api_version}.upload_course_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}

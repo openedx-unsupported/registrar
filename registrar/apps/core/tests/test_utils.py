@@ -2,6 +2,7 @@
 import ddt
 from django.contrib.auth.models import Group
 from django.test import TestCase
+from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.tests.factories import (
     GroupFactory,
@@ -9,7 +10,11 @@ from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     UserFactory,
 )
-from registrar.apps.core.utils import get_user_organizations, serialize_to_csv
+from registrar.apps.core.utils import (
+    get_user_organizations,
+    load_records_from_csv,
+    serialize_to_csv,
+)
 
 
 @ddt.ddt
@@ -93,3 +98,56 @@ class SerializeToCSVTests(TestCase):
             self.assertEqual(self.expected_headers + self.expected_csv, result)
         else:
             self.assertEqual(self.expected_csv, result)
+
+
+class LoadRecordsFromCSVStringTests(TestCase):
+    """ Tests for load_records_from_csv """
+
+    # We want to make sure that we test a CSV with several oddities:
+    #  * Inconstent leading, trailing, and padding whitespace
+    #  * Both types of line endings
+    #  * Blank lines
+    #  * Uppercase in field names
+    csv_fmt = (
+        "toPPing,is_vegetarian, rating  \n"
+        "pepperoni,     false,   100\n"
+        "               peppers,{pepper_is_vegetarian},100\r\n"
+        "onions,true,100        \r\n"
+        "\n"
+        " pineapple ,true, 17\n"
+        "\r\n"
+    )
+    csv = csv_fmt.format(pepper_is_vegetarian='true')
+    bad_csv = csv_fmt.format(pepper_is_vegetarian='')  # Empty value
+
+    def test_with_all_field_names(self):
+        field_names = {'topping', 'is_vegetarian', 'rating'}
+        actual = load_records_from_csv(self.csv, field_names)
+        expected = [
+            {'topping': 'pepperoni', 'is_vegetarian': 'false', 'rating': '100'},
+            {'topping': 'peppers', 'is_vegetarian': 'true', 'rating': '100'},
+            {'topping': 'onions', 'is_vegetarian': 'true', 'rating': '100'},
+            {'topping': 'pineapple', 'is_vegetarian': 'true', 'rating': '17'},
+        ]
+        self.assertEqual(actual, expected)
+
+    def test_with_field_names_subset(self):
+        field_names = {'topping', 'is_vegetarian'}
+        actual = load_records_from_csv(self.csv, field_names)
+        expected = [
+            {'topping': 'pepperoni', 'is_vegetarian': 'false'},
+            {'topping': 'peppers', 'is_vegetarian': 'true'},
+            {'topping': 'onions', 'is_vegetarian': 'true'},
+            {'topping': 'pineapple', 'is_vegetarian': 'true'},
+        ]
+        self.assertEqual(actual, expected)
+
+    def test_missing_field_names_error(self):
+        field_names = {'topping', 'is_vegetarian', 'color'}
+        with self.assertRaises(ValidationError):
+            load_records_from_csv(self.csv, field_names)
+
+    def test_null_values_error(self):
+        field_names = {'topping', 'is_vegetarian', 'color'}
+        with self.assertRaises(ValidationError):
+            load_records_from_csv(self.bad_csv, field_names)
