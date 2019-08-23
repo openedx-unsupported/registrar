@@ -88,6 +88,7 @@ newrelic==5.0.2.126
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 packaging==19.1           # via pytest
 path.py==12.0.1           # via edx-i18n-tools
+pathlib2==2.3.4           # via pytest
 pathspec==0.5.9           # via yamllint
 pbr==5.4.2                # via stevedore
 pip-api==0.0.12           # via isort
@@ -112,7 +113,7 @@ pyparsing==2.4.2          # via packaging
 pyrsistent==0.15.4        # via jsonschema
 pytest-cov==2.7.1
 pytest-django==3.5.1
-pytest==5.1.1             # via pytest-cov, pytest-django
+pytest==5.1.1
 python-dateutil==2.8.0    # via analytics-python, botocore, edx-drf-extensions, faker, moto, ruamel.yaml.convert
 python-jose==3.0.1        # via moto
 python-memcached==1.59
@@ -133,7 +134,7 @@ ruamel.yaml.convert==0.3.2  # via ruamel.yaml.cmd
 ruamel.yaml==0.16.5       # via ruamel.yaml.cmd, ruamel.yaml.convert
 s3transfer==0.2.1         # via boto3
 semantic-version==2.6.0   # via edx-drf-extensions
-six==1.11.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, jsonschema, mock, moto, packaging, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, python-memcached, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
+six==1.11.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, jsonschema, mock, moto, packaging, pathlib2, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, python-memcached, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.9.0    # via sphinx
 social-auth-app-django==1.2.0  # via edx-auth-backends

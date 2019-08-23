@@ -76,6 +76,7 @@ moto==1.3.8
 newrelic==5.0.2.126       # via edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 packaging==19.1           # via pytest
+pathlib2==2.3.4           # via pytest
 pathspec==0.5.9           # via yamllint
 pbr==5.4.2                # via stevedore
 pip-api==0.0.12           # via isort
@@ -98,7 +99,7 @@ pyparsing==2.4.2          # via packaging
 pyrsistent==0.15.4        # via jsonschema
 pytest-cov==2.7.1
 pytest-django==3.5.1
-pytest==5.1.1             # via pytest-cov, pytest-django
+pytest==5.1.1
 python-dateutil==2.8.0    # via analytics-python, botocore, edx-drf-extensions, faker, moto
 python-jose==3.0.1        # via moto
 python-slugify==3.0.3     # via code-annotations
@@ -113,7 +114,7 @@ rest-condition==1.0.3     # via edx-drf-extensions
 rsa==4.0                  # via python-jose
 s3transfer==0.2.1         # via boto3
 semantic-version==2.6.0   # via edx-drf-extensions
-six==1.12.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, faker, jsonschema, mock, moto, packaging, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, stevedore, websocket-client
+six==1.12.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, faker, jsonschema, mock, moto, packaging, pathlib2, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, stevedore, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 social-auth-app-django==1.2.0  # via edx-auth-backends
 social-auth-core[openidconnect]==1.7.0  # via edx-auth-backends, social-auth-app-django
