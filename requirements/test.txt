@@ -14,9 +14,9 @@ attrs==19.1.0             # via jsonschema, packaging, pytest
 aws-sam-translator==1.13.2  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 billiard==3.3.0.23        # via celery
-boto3==1.9.212            # via aws-sam-translator, moto
+boto3==1.9.214            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.12.212        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.214        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
 certifi==2019.6.16        # via requests
 cffi==1.12.3              # via cryptography
@@ -67,7 +67,7 @@ jsonpickle==1.2           # via aws-xray-sdk
 jsonpointer==2.0          # via jsonpatch
 jsonschema==3.0.2         # via aws-sam-translator, cfn-lint
 kombu==3.0.37             # via celery
-lazy-object-proxy==1.4.1  # via astroid
+lazy-object-proxy==1.4.2  # via astroid
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via pylint
 mock==3.0.5
