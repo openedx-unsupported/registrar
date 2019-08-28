@@ -46,6 +46,10 @@ DB_OVERRIDES = dict(
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
 
-CELERY_ALWAYS_EAGER = (
-    os.environ.get("CELERY_ALWAYS_EAGER", "false").lower() == "true"
+BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
+    CELERY_BROKER_TRANSPORT,
+    CELERY_BROKER_USER,
+    CELERY_BROKER_PASSWORD,
+    CELERY_BROKER_HOSTNAME,
+    CELERY_BROKER_VHOST
 )
