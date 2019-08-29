@@ -257,14 +257,8 @@ BACKEND_SERVICE_EDX_OAUTH2_SECRET = 'registrar-backend-service-secret'
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = 'http://127.0.0.1:8000/oauth2'
 
 JWT_AUTH = {
-        'JWT_ISSUERS': [
-        {
-            'AUDIENCE': 'SET-ME-PLEASE',
-            'ISSUER': 'http://127.0.0.1:8000/oauth2',
-            'SECRET_KEY': 'SET-ME-PLEASE'
-        }
-    ],
-    'JWT_ALGORITHM': 'HS256',
+    'JWT_ISSUERS': [],
+    'JWT_ALGORITHM': 'RS512',
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_VERIFY_AUDIENCE': False,
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
