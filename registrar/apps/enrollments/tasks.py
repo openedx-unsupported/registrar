@@ -16,7 +16,10 @@ from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import post_job_failure, post_job_success
 from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments import data
-from registrar.apps.enrollments.constants import EnrollmentWriteStatus
+from registrar.apps.enrollments.constants import (
+    ENROLLMENT_ERROR_COURSE_NOT_FOUND,
+    EnrollmentWriteStatus,
+)
 from registrar.apps.enrollments.serializers import (
     serialize_course_run_enrollments_to_csv,
     serialize_enrollment_results_to_csv,
@@ -269,16 +272,26 @@ def write_course_run_enrollments(
         # so convert it before making requests to the LMS.
         internal_course_key = program.discovery_program.get_course_key(requested_course_key)
 
-        successes_in_course, failures_in_course, status_by_student_key = data.write_course_run_enrollments(
-            'PUT', program.discovery_uuid, internal_course_key, course_requests
-        )
-
-        course_responses.extend([
-            CourseEnrollmentResponseItem(requested_course_key, student_key, status)._asdict()
-            for student_key, status in status_by_student_key.items()
-        ])
-        successes.append(successes_in_course)
-        failures.append(failures_in_course)
+        if internal_course_key:
+            successes_in_course, failures_in_course, status_by_student_key = data.write_course_run_enrollments(
+                'PUT', program.discovery_uuid, internal_course_key, course_requests
+            )
+            course_responses.extend([
+                CourseEnrollmentResponseItem(requested_course_key, student_key, status)._asdict()
+                for student_key, status in status_by_student_key.items()
+            ])
+            successes.append(successes_in_course)
+            failures.append(failures_in_course)
+        else:
+            course_responses.extend([
+                CourseEnrollmentResponseItem(
+                    requested_course_key,
+                    request.get('student_key'),
+                    ENROLLMENT_ERROR_COURSE_NOT_FOUND,
+                )._asdict()
+                for request in course_requests
+            ])
+            failures.append(True)
 
     if any(successes) and any(failures):
         code_str = str(EnrollmentWriteStatus.MULTI_STATUS.value)
