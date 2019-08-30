@@ -41,7 +41,7 @@ django-model-utils==3.2.0
 django-mysql==3.2.0
 django-simple-history==2.7.3
 django-storages==1.7.1
-django-user-tasks==0.1.9
+django-user-tasks==0.2.0
 django-waffle==0.17.0
 django==1.11.23
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
@@ -88,6 +88,7 @@ newrelic==5.0.2.126
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 packaging==19.1           # via pytest
 path.py==12.0.1           # via edx-i18n-tools
+pathlib2==2.3.4           # via pytest
 pathspec==0.5.9           # via yamllint
 pbr==5.4.2                # via stevedore
 pip-api==0.0.12           # via isort
@@ -133,7 +134,7 @@ ruamel.yaml.convert==0.3.2  # via ruamel.yaml.cmd
 ruamel.yaml==0.16.5       # via ruamel.yaml.cmd, ruamel.yaml.convert
 s3transfer==0.2.1         # via boto3
 semantic-version==2.8.1   # via edx-drf-extensions
-six==1.11.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, jsonschema, mock, moto, packaging, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, python-memcached, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
+six==1.11.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, jsonschema, mock, moto, packaging, pathlib2, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, python-memcached, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.9.0    # via sphinx
 social-auth-app-django==1.2.0  # via edx-auth-backends
