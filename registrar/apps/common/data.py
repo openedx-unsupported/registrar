@@ -158,28 +158,38 @@ class DiscoveryProgram(object):
     def find_course_run(self, course_id):
         """
         Given a course id, return the course_run with that `key` or `external_key`
+
+        Returns None if course run is not found in the cached program.
         """
         for course_run in self.course_runs:
             if course_id == course_run.key or course_id == course_run.external_key:
                 return course_run
+        return None
 
     def get_external_course_key(self, course_id):
         """
         Given a course ID, return the external course key for that course_run.
         The course key passed in may be an external or internal course key.
+
+
+        Returns None if course run is not found in the cached program.
         """
         course_run = self.find_course_run(course_id)
         if course_run:
             return course_run.external_key
+        return None
 
     def get_course_key(self, course_id):
         """
         Given a course ID, return the internal course ID for that course run.
         The course ID passed in may be an external or internal course key.
+
+        Returns None if course run is not found in the cached program.
         """
         course_run = self.find_course_run(course_id)
         if course_run:
             return course_run.key
+        return None
 
 
 def _get_all_paginated_responses(url, client=None, expected_error_codes=None):
