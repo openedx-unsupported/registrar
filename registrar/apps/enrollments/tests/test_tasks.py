@@ -330,7 +330,6 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         super().setUp()
         self.patcher = mock.patch.object(Program, 'discovery_program')
         self.patcher.start()
-        self.program.discovery_program.get_course_key.side_effect = lambda x: x + '-internal'
         self.addCleanup(self.patcher.stop)
 
     def spawn_task(self, program_key=None, **kwargs):
@@ -368,7 +367,8 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         (False, True, "422"),
     )
     @ddt.unpack
-    def test_success(self, any_successes, any_failures, expected_code_str):
+    def test_success_status(self, any_successes, any_failures, expected_code_str):
+        self.program.discovery_program.get_course_key.side_effect = lambda x: x + '-internal'
         enrolls = [
             {'student_key': 'john', 'status': 'x', 'course_id': 'course-1'},
             {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
@@ -386,4 +386,25 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             "course-1,bob,y\r\n"
             "course-2,serena,z\r\n",
             expected_code_str,
+        )
+
+    def test_success_invalid_course_id(self):
+        self.program.discovery_program.get_course_key.side_effect = {'course-1': 'course-1-internal'}.get
+        enrolls = [
+            {'student_key': 'john', 'status': 'x', 'course_id': 'course-1'},
+            {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
+            {'student_key': 'serena', 'status': 'z', 'course_id': 'invalid-course'},
+        ]
+        uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
+        with mock.patch(
+                self.mock_base + self.mock_function,
+                new=self.mock_write_enrollments(True, False),
+        ):
+            self.spawn_task().wait()
+        self.assert_succeeded(
+            "course_id,student_key,status\r\n"
+            "course-1,john,x\r\n"
+            "course-1,bob,y\r\n"
+            "invalid-course,serena,course-not-found\r\n",
+            "207",
         )
