@@ -4,5 +4,6 @@
 
 django-debug-toolbar
 edx-i18n-tools
+pyinotify
 ruamel.yaml.cmd
 transifex-client

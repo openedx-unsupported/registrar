@@ -16,9 +16,9 @@ aws-sam-translator==1.14.0  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 babel==2.7.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.9.219            # via aws-sam-translator, moto
+boto3==1.9.221            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.12.219        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.221        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
 certifi==2019.6.16        # via requests
 cffi==1.12.3              # via cryptography
@@ -43,7 +43,7 @@ django-simple-history==2.7.3
 django-storages==1.7.1
 django-user-tasks==0.2.0
 django-waffle==0.17.0
-django==1.11.23
+django==1.11.24
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
 djangorestframework==3.10.2
 docker==4.0.2             # via moto
@@ -64,7 +64,7 @@ faker==2.0.1
 future==0.17.1            # via aws-xray-sdk, pyjwkest, python-jose
 idna==2.8                 # via moto, requests
 imagesize==1.1.0          # via sphinx
-importlib-metadata==0.19  # via path.py, pluggy, pytest
+importlib-metadata==0.20  # via path.py, pluggy, pytest
 isort[requirements]==4.3.21
 jinja2==2.10.1            # via code-annotations, moto, sphinx
 jmespath==0.9.4           # via boto3, botocore
@@ -94,11 +94,12 @@ pluggy==0.12.0            # via pytest
 polib==1.1.0              # via edx-i18n-tools
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
 py==1.8.0                 # via pytest
-pyasn1==0.4.6             # via rsa
+pyasn1==0.4.7             # via rsa
 pycodestyle==2.5.0
 pycparser==2.19           # via cffi
 pycryptodomex==3.9.0      # via pyjwkest
 pygments==2.4.2           # via sphinx
+pyinotify==0.9.6
 pyjwkest==1.3.2           # via edx-drf-extensions, social-auth-core
 pyjwt==1.7.1              # via djangorestframework-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
 pylint-celery==0.3        # via edx-lint
@@ -110,7 +111,7 @@ pyparsing==2.4.2          # via packaging
 pyrsistent==0.15.4        # via jsonschema
 pytest-cov==2.7.1
 pytest-django==3.5.1
-pytest==5.1.1
+pytest==5.1.2
 python-dateutil==2.8.0    # via analytics-python, botocore, edx-drf-extensions, faker, moto, ruamel.yaml.convert
 python-jose==3.0.1        # via moto
 python-memcached==1.59
