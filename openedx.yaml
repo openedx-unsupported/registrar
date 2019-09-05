@@ -12,4 +12,4 @@ oeps:
   oep-30: true    # PII annotation
 owner: schenedx
 supporting_teams:
-  - masters-neem
+  - masters-devs
