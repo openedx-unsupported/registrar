@@ -16,11 +16,11 @@ aws-sam-translator==1.14.0  # via cfn-lint
 aws-xray-sdk==2.4.2       # via moto
 babel==2.7.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.9.223            # via aws-sam-translator, moto
+boto3==1.9.228            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.12.223        # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.12.228        # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2
-certifi==2019.6.16        # via requests
+certifi==2019.9.11        # via requests
 cffi==1.12.3              # via cryptography
 cfn-lint==0.24.1          # via moto
 chardet==3.0.4            # via requests
@@ -36,11 +36,11 @@ django-cors-headers==3.1.0
 django-debug-toolbar==2.0
 django-dynamic-fixture==2.0.0
 django-extensions==2.2.1
-django-guardian==2.0.0
+django-guardian==2.1.0
 django-model-utils==3.2.0
 django-mysql==3.2.0
 django-simple-history==2.7.3
-django-storages==1.7.1
+django-storages==1.7.2
 django-user-tasks==0.2.0
 django-waffle==0.17.0
 django==1.11.24
@@ -64,7 +64,7 @@ faker==2.0.1
 future==0.17.1            # via aws-xray-sdk, pyjwkest, python-jose
 idna==2.8                 # via moto, requests
 imagesize==1.1.0          # via sphinx
-importlib-metadata==0.20  # via path.py, pluggy, pytest
+importlib-metadata==0.22  # via path.py, pluggy, pytest
 isort[requirements]==4.3.21
 jinja2==2.10.1            # via code-annotations, moto, sphinx
 jmespath==0.9.4           # via boto3, botocore
@@ -88,7 +88,7 @@ pathspec==0.5.9           # via yamllint
 pbr==5.4.3                # via stevedore
 pip-api==0.0.12           # via isort
 pipreqs==0.4.9            # via isort
-pluggy==0.12.0            # via pytest
+pluggy==0.13.0            # via pytest
 polib==1.1.0              # via edx-i18n-tools
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
 py==1.8.0                 # via pytest
@@ -128,7 +128,7 @@ ruamel.yaml.cmd==0.5.5
 ruamel.yaml.convert==0.3.2  # via ruamel.yaml.cmd
 ruamel.yaml==0.16.5       # via ruamel.yaml.cmd, ruamel.yaml.convert
 s3transfer==0.2.1         # via boto3
-semantic-version==2.8.1   # via edx-drf-extensions
+semantic-version==2.8.2   # via edx-drf-extensions
 six==1.11.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, docker, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, jsonschema, mock, moto, packaging, pyjwkest, pylint, pyrsistent, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.9.1    # via sphinx
