@@ -34,15 +34,31 @@ admin.autodiscover()
 app_name = 'registrar'
 
 urlpatterns = oauth2_urlpatterns + [
-    url(r'^admin/', admin.site.urls),
-    url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
-    url(r'^api/', include(api_urls)),
-    url(r'^api-docs/', api_renderer.render_yaml_spec, name='api-docs'),
-    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
-    # Use the same auth views for all logins, including those originating from the browseable API.
+    # '/' and '/login' redirect to '/login/',
+    # which attempts LMS OAuth and then redirects to api-docs.
+    url(r'^/?$', RedirectView.as_view(url=settings.LOGIN_URL)),
+    url(r'^login$', RedirectView.as_view(url=settings.LOGIN_URL)),
+
+    # Use the same auth views for all logins,
+    # including those originating from the browseable API.
     url(r'^api-auth/', include(oauth2_urlpatterns)),
-    url(r'^auto_auth/?$', core_views.AutoAuth.as_view(), name='auto_auth'),
+
+    # Swagger documentation UI.
+    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
+    url(r'^api-docs/$', api_renderer.render_yaml_spec, name='api-docs'),
+
+    # Django admin panel.
+    url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
+    url(r'^admin/', admin.site.urls),
+
+    # Health view.
     url(r'^health/?$', core_views.health, name='health'),
+
+    # Auto-auth for testing. View raises 404 if not `settings.ENABLE_AUTO_AUTH`
+    url(r'^auto_auth/?$', core_views.AutoAuth.as_view(), name='auto_auth'),
+
+    # The API itself!
+    url(r'^api/', include(api_urls)),
 ]
 
 # edx-drf-extensions csrf app
