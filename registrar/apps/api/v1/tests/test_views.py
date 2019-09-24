@@ -40,6 +40,7 @@ from registrar.apps.core.jobs import (
 from registrar.apps.core.models import Organization, OrganizationGroup
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 from registrar.apps.core.tests.factories import (
+    GroupFactory,
     OrganizationFactory,
     OrganizationGroupFactory,
     UserFactory,
@@ -83,6 +84,10 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
 
         cls.stem_admin = UserFactory(username='stem-institute-admin')
         cls.stem_user = UserFactory(username='stem-institute-user')
+        cls.global_read_and_write_group = GroupFactory(
+            name='GlobalReadAndWrite',
+            permissions=perms.OrganizationReadWriteEnrollmentsRole.permissions
+        )
         cls.stem_admin_group = OrganizationGroupFactory(
             name='stem-admins',
             organization=cls.stem_org,
@@ -331,6 +336,13 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             'perm_filter': 'write',
         },
         {
+            'groups': set(),
+            'perm_filter': 'write',
+            'global_perm': True,
+            'expect_stem_programs': True,
+            'expect_hum_programs': True,
+        },
+        {
             'groups': {'stem-users', 'hum-ops'},
             'perm_filter': 'write',
         },
@@ -381,12 +393,15 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             groups=frozenset(),
             perm_filter=None,
             org_filter=None,
+            global_perm=False,
             expected_status=200,
             expect_stem_programs=False,
             expect_hum_programs=False,
     ):
         org_groups = [OrganizationGroup.objects.get(name=name) for name in groups]
         user = UserFactory(groups=org_groups)
+        if global_perm:
+            user.groups.add(self.global_read_and_write_group)  # pylint: disable=no-member
 
         query = []
         tracking_kwargs = {}
