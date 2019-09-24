@@ -89,10 +89,21 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
             programs = programs.filter(
                 managing_organization=self.organization_filter
             )
-        if self.permission_filter:
+        if not self.permission_filter:
+            return programs
+
+        # if the user has permissions across organizations
+        # via membership in a "global-access" group, give them
+        # access to all programs
+        user = self.request.user
+        if user.has_perm(self.permission_filter):
+            return programs
+        else:
+            # otherwise, check if the user has the required permissions
+            # within the organization for each program
             programs = (
                 program for program in programs
-                if self.request.user.has_perm(
+                if user.has_perm(
                     self.permission_filter, program.managing_organization
                 )
             )
