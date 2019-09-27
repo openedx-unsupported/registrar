@@ -1,4 +1,5 @@
 # Packages required for devstack development environment
+-c constraints.txt
 
 -r local.in
 -r nonlocal.in

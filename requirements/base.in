@@ -1,3 +1,5 @@
+-c constraints.txt
+
 analytics-python<2.0
 celery<4.0
 django<2.0

@@ -16,7 +16,7 @@ chardet==3.0.4            # via requests
 defusedxml==0.6.0         # via python3-openid, social-auth-core
 django-cors-headers==3.1.0
 django-extensions==2.2.1
-django-guardian==2.1.0
+django-guardian==2.0.0
 django-model-utils==3.2.0
 django-mysql==3.2.0
 django-simple-history==2.7.3
