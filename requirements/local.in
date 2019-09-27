@@ -1,4 +1,6 @@
 # Packages required for standalone local development
+-c constraints.txt
+
 -r test.in
 -r docs.in
 
