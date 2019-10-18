@@ -1,2 +1,7 @@
-Sphinx==1.6.7 ## Pinned due to bug in 1.7.0 - 1.7.1 (https://github.com/sphinx-doc/sphinx/issues/4692)
+# Packages required generating documentation
+
+-c constraints.txt
+-r base.txt
+
+Sphinx
 edx-sphinx-theme

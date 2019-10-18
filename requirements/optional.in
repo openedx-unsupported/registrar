@@ -1,1 +1,6 @@
+# Optional packages
+
+-c constraints.txt
+-r base.txt
+
 newrelic

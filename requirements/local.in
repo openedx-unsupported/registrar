@@ -1,8 +1,8 @@
-# Packages required for standalone local development
--c constraints.txt
+# Packages required for local development
 
--r test.in
--r docs.in
+-c constraints.txt
+-r test.txt
+-r docs.txt
 
 django-debug-toolbar
 edx-i18n-tools
