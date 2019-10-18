@@ -1,0 +1,35 @@
+# Version constraints for pip-installation.
+#
+# This file doesn't install any packages. It specifies version constraints
+# that will be applied if a package is needed.
+#
+# When pinning something here, please provide an explanation of why.  Ideally,
+# link to other information that will help people in the future to remove the
+# pin when possible.  Writing an issue against the offending project and
+# linking to it here is good.
+
+# edX as an organization is not yet fully upgraded to Py3.
+django<2.0
+
+# Newer versions of these packages would require django 2.0.0.
+django-guardian==2.0.0
+mysqlclient==1.3.14
+
+# Pinned due to bug in 1.7.0 - 1.7.1 (https://github.com/sphinx-doc/sphinx/issues/4692)
+sphinx==1.6.7
+
+# PyYAML<=4 has a security flaw (https://nvd.nist.gov/vuln/detail/CVE-2017-18342)
+pyyaml>=5.1
+
+# Required for django-user-tasks compatibility.
+celery<4.0
+
+# edx-lint==1.3.0 doesn't declare requirements correctly.
+# edx-lint==1.4.0 requires astroid version incompatible with transifex-client.
+# edx-lint==1.3.1 works, but we also need to manually pin a compatible astroid.
+# Future versions of edx-lint will hopefully remove the need for these pins.
+edx-lint==1.3.1
+astroid==1.5.3
+
+# Pinned for compatibility with Devstack redis? Not sure.
+redis==2.8

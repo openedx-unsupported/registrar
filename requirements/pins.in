@@ -1,0 +1,16 @@
+# Generates version pins for *all* requirements
+# by including all .in files and applying constraints.in,
+# outputting pins to pins.txt.
+#
+# Then, *.in files can include pins.txt.
+
+-c constraints.in
+
+-r base.env.in
+-r devstack.env.in
+-r local.env.in
+-r optional.env.in
+-r test.env.in
+-r docs.env.in
+-r nonlocal.env.in
+-r production.env.in
