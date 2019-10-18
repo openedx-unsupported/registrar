@@ -453,55 +453,6 @@ consumes:
 
 paths:
 
-  ### V1 Mock API ###
-  '/v1-mock/jobs/{job_id}/':
-    get:
-      <<: *get_job_status
-      operationId: registrar_v1_mock_get_job_status
-      tags: ['v1 - Mock API']
-  '/v1-mock/programs/':
-    get:
-      <<: *list_programs
-      operationId: registrar_v1_mock_list_programs
-      tags: ['v1 - Mock API']
-  '/v1-mock/programs/{program_key}/':
-    get:
-      <<: *get_program
-      operationId: registrar_v1_mock_get_program
-      tags: ['v1 - Mock API']
-  '/v1-mock/programs/{program_key}/courses/':
-    get:
-      <<: *list_courses
-      operationId: registrar_v1_mock_list_courses
-      tags: ['v1 - Mock API']
-  '/v1-mock/programs/{program_key}/courses/{course_id}/enrollments/':
-    get:
-      <<: *get_course_enrollments
-      operationId: registrar_v1_mock_get_course_enrollments
-      tags: ['v1 - Mock API']
-    post:
-      <<: *post_course_enrollments
-      operationId: registrar_v1_mock_post_course_enrollments
-      tags: ['v1 - Mock API']
-    patch:
-      <<: *patch_course_enrollments
-      operationId: registrar_v1_mock_patch_course_enrollments
-      tags: ['v1 - Mock API']
-  '/v1-mock/programs/{program_key}/enrollments/':
-    get:
-      <<: *get_program_enrollments
-      operationId: registrar_v1_mock_get_program_enrollments
-      tags: ['v1 - Mock API']
-    post:
-      <<: *post_program_enrollments
-      operationId: registrar_v1_mock_post_program_enrollments
-      tags: ['v1 - Mock API']
-    patch:
-      <<: *patch_program_enrollments
-      operationId: registrar_v1_mock_patch_program_enrollments
-      tags: ['v1 - Mock API']
-
-
   ### V1 API ###
   '/v1/jobs/{job_id}/':
     get:
