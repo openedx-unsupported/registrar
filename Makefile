@@ -35,6 +35,7 @@ static: ## generate static files
 	python manage.py collectstatic --noinput
 
 upgrade: piptools  ## re-compile requirements .txt files from .in files
+	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
 	pip-compile --upgrade -o requirements/production.txt requirements/production.in
 	pip-compile --upgrade -o requirements/devstack.txt requirements/devstack.in
 	pip-compile --upgrade -o requirements/local.txt requirements/local.in
