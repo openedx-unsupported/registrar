@@ -165,7 +165,7 @@ class AuthRequestMixin(JwtMixin):
         """
         Perform a POST on the given path, optionally with a user.
         """
-        return self.request('post', path, user, data)
+        return self.request('post', path, user, data)  # pragma: no cover
 
     def put(self, path, data, user):
         """
@@ -177,7 +177,7 @@ class AuthRequestMixin(JwtMixin):
         """
         Perform a PATCH on the given path, optionally with a user.
         """
-        return self.request('patch', path, user, data)
+        return self.request('patch', path, user, data)  # pragma: no cover
 
     def delete(self, path, user):
         """
