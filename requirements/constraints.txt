@@ -8,5 +8,10 @@
 # pin when possible.  Writing an issue against the offending project and
 # linking to it here is good.
 
+# Pinned because upgrading to current version would introduce a bunch of
+# new Pylint warnings.
+# TODO EDUCATOR-4760
+edx-lint==1.3.0
+
 # These packages are pinned because their next version would require django 2.0.0
 django-guardian==2.0.0
