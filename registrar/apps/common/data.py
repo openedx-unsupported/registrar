@@ -43,6 +43,7 @@ class DiscoveryProgram(object):
         * active_curriculum_uuid (str): UUID-4 of active curriculum.
         * course_runs (list[DiscoveryCourseRun]):
             Flattened list of all course runs in program
+        * program_type (str): The type of the program (Masters, Micromasters, Professional Certificate...)
     """
 
     # If we change the schema of this class, bump the `class_version`
@@ -113,6 +114,7 @@ class DiscoveryProgram(object):
         """
         program_title = program_data.get('title')
         program_url = program_data.get('marketing_url')
+        program_type = program_data.get('type')
         # this make two temporary assumptions (zwh 03/19)
         #  1. one *active* curriculum per program
         #  2. no programs are nested within a curriculum
@@ -132,6 +134,7 @@ class DiscoveryProgram(object):
                 uuid=program_uuid,
                 title=program_title,
                 url=program_url,
+                program_type=program_type,
                 active_curriculum_uuid=None,
                 course_runs=[],
             )
@@ -151,6 +154,7 @@ class DiscoveryProgram(object):
             uuid=program_uuid,
             title=program_title,
             url=program_url,
+            program_type=program_type,
             active_curriculum_uuid=active_curriculum_uuid,
             course_runs=course_runs,
         )

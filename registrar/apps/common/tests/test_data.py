@@ -36,9 +36,11 @@ class GetDiscoveryProgramTestCase(TestCase):
     }
     program_title = "Master's in CS"
     program_url = 'https://stem-institute.edx.org/masters-in-cs'
+    program_type = "Masters"
     programs_response = {
         'title': program_title,
         'marketing_url': program_url,
+        'type': program_type
         'curricula': [{
             'uuid': curriculum_uuid,
             'is_active': True,
@@ -51,6 +53,7 @@ class GetDiscoveryProgramTestCase(TestCase):
         uuid=program_uuid,
         title=program_title,
         url=program_url,
+        program_type=program_type,
         active_curriculum_uuid=curriculum_uuid,
         course_runs=[
             DiscoveryCourseRun(
@@ -72,6 +75,7 @@ class GetDiscoveryProgramTestCase(TestCase):
         self.assertEqual(this_program.uuid, that_program.uuid)
         self.assertEqual(this_program.title, that_program.title)
         self.assertEqual(this_program.url, that_program.url)
+        self.assertEqual(this_program.program_type, that_program.program_type)
         self.assertEqual(this_program.active_curriculum_uuid, that_program.active_curriculum_uuid)
         self.assertEqual(this_program.course_runs, that_program.course_runs)
 
@@ -171,12 +175,14 @@ class DiscoveryProgramTests(TestCase):
         curriculum_uuid = str(uuid.uuid4())
         program_title = "Master's in CS"
         program_url = 'https://stem-institute.edx.org/masters-in-cs'
+        progrma_type = 'Micromasters'
         self.program = DiscoveryProgram(
             version=0,
             loaded=datetime.now(),
             uuid=program_uuid,
             title=program_title,
             url=program_url,
+            program_type=progrma_type,
             active_curriculum_uuid=curriculum_uuid,
             course_runs=[
                 self.make_course_run(i) for i in range(4)
