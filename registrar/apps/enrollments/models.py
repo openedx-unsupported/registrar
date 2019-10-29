@@ -33,6 +33,10 @@ class Program(TimeStampedModel):
     def url(self):
         return self._get_cached_field('url')
 
+    @property
+    def program_type(self):
+        return self._get_cached_field('program_type')
+
     def _get_cached_field(self, field):
         """
         Returns the specified field from a cached Discovery program.
