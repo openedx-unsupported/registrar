@@ -25,7 +25,7 @@ class ProgramSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Program
-        fields = ('program_key', 'program_title', 'program_url')
+        fields = ('program_key', 'program_title', 'program_url', 'program_type')
 
 
 class ProgramEnrollmentRequestSerializer(serializers.Serializer):

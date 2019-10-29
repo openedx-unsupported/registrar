@@ -143,12 +143,13 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             status=response_code
         )
 
-    def _discovery_program(self, program_uuid, title, url, curricula):
+    def _discovery_program(self, program_uuid, title, url, program_type, curricula):
         return DiscoveryProgram.from_json(
             program_uuid,
             {
                 'title': title,
                 'marketing_url': url,
+                'type': program_type,
                 'curricula': curricula
             }
         )
@@ -161,7 +162,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         for program in programs:
             self._add_program_to_cache(program)
 
-    def _add_program_to_cache(self, program, title=None, url=None, curricula=None):
+    def _add_program_to_cache(self, program, title=None, url=None, program_type=None, curricula=None):
         """
         Adds the given program to the program cache
         """
@@ -169,11 +170,13 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             title = str(program.key).replace('-', ' ')
         if url is None:  # pragma: no branch
             url = self.TEST_PROGRAM_URL_TPL.format(key=program.key)
+        if program_type is None:  # pragma: no branch
+            program_type = 'Masters'
         if curricula is None:
             curricula = []
         cache.set(
             PROGRAM_CACHE_KEY_TPL.format(uuid=program.discovery_uuid),
-            self._discovery_program(program.discovery_uuid, title, url, curricula)
+            self._discovery_program(program.discovery_uuid, title, url, program_type, curricula)
         )
 
 
@@ -255,21 +258,25 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                     'program_key': 'masters-in-cs',
                     'program_title': 'masters in cs',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-cs/',
+                    'program_type': 'Masters',
                 },
                 {
                     'program_key': 'masters-in-english',
                     'program_title': 'masters in english',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
+                    'program_type': 'Masters',
                 },
                 {
                     'program_key': 'masters-in-me',
                     'program_title': 'masters in me',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-me/',
+                    'program_type': 'Masters',
                 },
                 {
                     'program_key': 'masters-in-philosophy',
                     'program_title': 'masters in philosophy',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-philosophy/',
+                    'program_type': 'Masters',
                 },
             ]
         )
@@ -511,6 +518,7 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
                 'program_key': 'masters-in-english',
                 'program_title': 'masters in english',
                 'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
+                'program_type': 'Masters',
             },
         )
 
@@ -544,6 +552,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     program_uuid = str(uuid.uuid4())
     program_title = Faker().sentence(nb_words=6)  # pylint: disable=no-member
     program_url = Faker().uri()  # pylint: disable=no-member
+    program_type = 'Masters'
 
     @ddt.data(True, False)
     @mock_oauth_login
@@ -555,6 +564,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             self.program_uuid,
             self.program_title,
             self.program_url,
+            self.program_type,
             [
                 {
                     'is_active': False,
@@ -610,6 +620,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             self.program_uuid,
             self.program_title,
             self.program_url,
+            self.program_type,
             [{
                 'is_active': True,
                 'courses': [{
@@ -634,6 +645,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             self.program_uuid,
             self.program_title,
             self.program_url,
+            self.program_type,
             [{
                 'is_active': False,
                 'courses': [{
@@ -658,6 +670,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             self.program_uuid,
             self.program_title,
             self.program_url,
+            self.program_type,
             [{
                 'is_active': True,
                 'courses': [
