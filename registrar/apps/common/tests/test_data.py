@@ -40,7 +40,7 @@ class GetDiscoveryProgramTestCase(TestCase):
     programs_response = {
         'title': program_title,
         'marketing_url': program_url,
-        'type': program_type
+        'type': program_type,
         'curricula': [{
             'uuid': curriculum_uuid,
             'is_active': True,
@@ -175,14 +175,14 @@ class DiscoveryProgramTests(TestCase):
         curriculum_uuid = str(uuid.uuid4())
         program_title = "Master's in CS"
         program_url = 'https://stem-institute.edx.org/masters-in-cs'
-        progrma_type = 'Micromasters'
+        program_type = 'Micromasters'
         self.program = DiscoveryProgram(
             version=0,
             loaded=datetime.now(),
             uuid=program_uuid,
             title=program_title,
             url=program_url,
-            program_type=progrma_type,
+            program_type=program_type,
             active_curriculum_uuid=curriculum_uuid,
             course_runs=[
                 self.make_course_run(i) for i in range(4)
