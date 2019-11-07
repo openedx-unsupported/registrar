@@ -63,6 +63,7 @@ program_input_status: &program_input_status
     - pending
     - suspended
     - canceled
+    - ended
 program_output_status: &program_output_status
   type: string
   enum:
@@ -70,6 +71,7 @@ program_output_status: &program_output_status
     - pending
     - suspended
     - canceled
+    - ended
     - invalid-status
     - duplicated
     - conflict

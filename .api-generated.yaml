@@ -546,6 +546,7 @@ models:
         - pending
         - suspended
         - canceled
+        - ended
         type: string
       student_key:
         description: "Key that uniquely identifies student within organization. For\
@@ -561,6 +562,7 @@ models:
       - pending
       - suspended
       - canceled
+      - ended
       - invalid-status
       - duplicated
       - conflict
@@ -1453,6 +1455,7 @@ program_input_status:
   - pending
   - suspended
   - canceled
+  - ended
   type: string
 program_output_status:
   enum:
@@ -1460,6 +1463,7 @@ program_output_status:
   - pending
   - suspended
   - canceled
+  - ended
   - invalid-status
   - duplicated
   - conflict
