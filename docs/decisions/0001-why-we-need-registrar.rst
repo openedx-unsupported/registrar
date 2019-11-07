@@ -39,7 +39,7 @@ programs and courses therein.
 - This service will communicate and synchronize data with other edX services
   via REST APIs.
 
-  - Our initial synchronization strategy will likely by an ad-hoc strategy - we'll refresh
+  - Our initial synchronization strategy will likely be an ad-hoc strategy - we'll refresh
     data from other systems as needed, if it has not recently been refreshed (or if
     it is not currently persisted in registrar).
 
