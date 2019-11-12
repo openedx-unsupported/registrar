@@ -30,7 +30,7 @@ docutils==0.15.2          # via botocore
 edx-auth-backends==2.0.2
 edx-django-release-util==0.3.1
 edx-django-utils==2.0.1   # via edx-drf-extensions
-edx-drf-extensions==2.4.2
+edx-drf-extensions==2.4.5
 edx-opaque-keys==2.0.0    # via edx-drf-extensions
 edx-rest-api-client==1.9.2
 future==0.18.2            # via pyjwkest
