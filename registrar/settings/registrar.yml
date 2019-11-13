@@ -1,6 +1,4 @@
 ---
-# Ansible managed
-
 
 API_ROOT: http://localhost:18734/api
 BACKEND_SERVICE_EDX_OAUTH2_KEY: registrar-backend-service-key
