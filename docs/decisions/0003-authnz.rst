@@ -59,10 +59,12 @@ Consequences
    a. Create distinct ``Organizations`` for "A" and "B".  The downside here is that we lose the ability to
       do roll-up types of reports.
    b. Assign permissions at the program level in some cases, and modify our permission-checking scheme
-      to deal with that scenario.
+      to deal with that scenario. See 0004-program-authz_ for implementation of program level permissions.
 
 Resources
 ---------
 
 1. https://openedx.atlassian.net/wiki/spaces/MS/pages/952009187/Registrar+AuthN+Z+Discovery
 2. https://openedx.atlassian.net/browse/EDUCATOR-4154 (Internal staff permissions discovery)
+
+.. _0004-program-authz: https://github.com/edx/registrar/blob/zhancock/reporting-decision/docs/decisions/0004-program-authz.rst
