@@ -1,6 +1,7 @@
 """
 Mixins for the public V1 REST API.
 """
+import logging
 import uuid
 from collections.abc import Iterable
 
@@ -35,6 +36,7 @@ from registrar.apps.enrollments.data import (
 )
 from registrar.apps.enrollments.models import Program
 
+logger = logging.getLogger(__name__)
 
 upload_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 
@@ -94,7 +96,6 @@ class AuthMixin(TrackViewMixin):
         if self.staff_only and not request.user.is_staff:
             self.add_tracking_data(failure='user_is_not_staff')
             self._unauthorized_response()
-
         required = self.get_required_permissions(request)
         missing_global_permissions = {
             perm for perm in required
@@ -146,7 +147,10 @@ class ProgramSpecificViewMixin(AuthMixin):
         """
         Returns an organization object against which permissions should be checked.
         """
-        return self.program.managing_organization
+        if self.program.program_type == 'Masters':
+            return self.program.managing_organization
+        else:
+            return self.program
 
 
 class CourseSpecificViewMixin(ProgramSpecificViewMixin):
