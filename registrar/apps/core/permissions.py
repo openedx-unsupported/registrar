@@ -39,15 +39,6 @@ ORGANIZATION_PERMISSIONS = {
     ORGANIZATION_WRITE_ENROLLMENTS,
 }
 
-# Non-prefixed names of program data read permissions
-PROGRAM_READ_DATA_KEY = 'program_read_data'
-
-# A user with this permission can read program data report associated
-# with the program. This permission do not allow program enrollments
-# nor program course enrollment reads or writes
-PROGRAM_READ_DATA = APP_PREFIX + PROGRAM_READ_DATA_KEY
-
-
 # A user with this permission can view the status of all jobs.
 # A user without it can only view their own.
 # This permission should be reserved for edX staff.

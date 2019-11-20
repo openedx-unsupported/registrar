@@ -30,11 +30,13 @@ from registrar.apps.core import permissions as perms
 from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
 from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import start_job
+from registrar.apps.enrollments import permissions as enrollment_perms
 from registrar.apps.enrollments.data import (
     write_course_run_enrollments,
     write_program_enrollments,
 )
 from registrar.apps.enrollments.models import Program
+
 
 logger = logging.getLogger(__name__)
 
@@ -147,10 +149,7 @@ class ProgramSpecificViewMixin(AuthMixin):
         """
         Returns an organization object against which permissions should be checked.
         """
-        if self.program.program_type == 'Masters':
-            return self.program.managing_organization
-        else:
-            return self.program
+        return self.program.managing_organization
 
 
 class CourseSpecificViewMixin(ProgramSpecificViewMixin):
@@ -237,11 +236,26 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
     for any views that read or write program/course enrollment data.
     """
     def get_required_permissions(self, request):
-        if request.method == 'GET':
-            return [perms.ORGANIZATION_READ_ENROLLMENTS]
-        if request.method == 'POST' or self.request.method == 'PATCH':
-            return [perms.ORGANIZATION_WRITE_ENROLLMENTS]
+        if self.program.program_type == 'Masters':
+            if request.method == 'GET':
+                return [perms.ORGANIZATION_READ_ENROLLMENTS]
+            if request.method == 'POST' or self.request.method == 'PATCH':
+                return [perms.ORGANIZATION_WRITE_ENROLLMENTS]
+        else:
+            if request.method == 'GET':
+                return [enrollment_perms.PROGRAM_READ_ENROLLMENTS]
+            if request.method == 'POST' or self.request.method == 'PATCH':
+                return [enrollment_perms.PROGRAM_WRITE_ENROLLMENTS]
         return []  # pragma: no cover
+
+    def get_permission_object(self):
+        """
+        Returns the relavant object against which permissions should be checked.
+        """
+        if self.program.program_type == 'Masters':
+            return self.program.managing_organization
+        else:
+            return self.program
 
     def handle_enrollments(self, course_id=None):
         """
