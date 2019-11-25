@@ -224,6 +224,7 @@ class ViewMethodNotSupportedTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_not_supported_http_method(self, path, view_name):
         self.mock_logging.reset_mock()
         self.path = path
+        self._add_programs_to_cache()
         response = self.request(self.method, path, self.edx_admin)
         self.mock_logging.error.assert_called_once_with(
             'Segment tracking event name not found for request method %s on view %s',
@@ -767,6 +768,10 @@ class ProgramEnrollmentWriteMixin(object):
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
+    
+    def setUp(self):
+        super().setUp()
+        self._add_programs_to_cache()
 
     def mock_enrollments_response(self, method, expected_response, response_code=200):
         self.mock_api_response(self.lms_request_url, expected_response, method=method, response_code=response_code)
