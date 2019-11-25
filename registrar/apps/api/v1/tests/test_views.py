@@ -134,6 +134,10 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         )
         cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
 
+    def setUp(self):
+        super().setUp()
+        self._add_programs_to_cache()
+
     def mock_api_response(self, url, response_data, method='GET', response_code=200):
         responses.add(
             getattr(responses, method.upper()),
@@ -240,10 +244,6 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     method = 'GET'
     path = 'programs'
     event = 'registrar.v1.list_programs'
-
-    def setUp(self):
-        super().setUp()
-        self._add_programs_to_cache()
 
     def test_all_programs_200(self):
         with self.assert_tracking(user=self.edx_admin):
@@ -502,10 +502,6 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
     path = 'programs/masters-in-english'
     event = 'registrar.v1.get_program_detail'
 
-    def setUp(self):
-        super().setUp()
-        self._add_programs_to_cache()
-
     @ddt.data(True, False)
     def test_get_program(self, is_staff):
         user = self.edx_admin if is_staff else self.hum_admin
@@ -759,10 +755,12 @@ class ProgramEnrollmentWriteMixin(object):
             'curricula': [
                 {'uuid': 'inactive-curriculum-0000', 'is_active': False},
                 {'uuid': 'active-curriculum-0000', 'is_active': True}
-            ]
+            ],
+            'type': 'Masters',
         })
         cls.program_no_curricula = DiscoveryProgram.from_json(program_uuid, {
-            'curricula': []
+            'curricula': [],
+            'type': 'Masters',
         })
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
@@ -828,6 +826,19 @@ class ProgramEnrollmentWriteMixin(object):
                 req_data,
             )
         self.assertEqual(response.status_code, 404)
+
+    def test_mm_program_permission_denied(self):
+        self._add_program_to_cache(self.mech_program, program_type='MicroMasters')
+        req_data = [
+            self.student_enrollment('enrolled')
+        ]
+        response = self.request(
+            self.method,
+            'programs/masters-in-me/enrollments/',
+            self.stem_admin,
+            req_data,
+        )
+        self.assertEqual(response.status_code, 403)
 
     @mock_oauth_login
     @responses.activate
@@ -985,6 +996,7 @@ class ProgramEnrollmentWriteMixin(object):
         self.assertEqual(response.status_code, 413)
 
     @mock_oauth_login
+    @responses.activate
     def test_discovery_404(self):
         req_data = [
             self.student_enrollment('enrolled', '001'),
@@ -999,7 +1011,7 @@ class ProgramEnrollmentWriteMixin(object):
                 self.stem_admin,
                 req_data,
             )
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(422, response.status_code)
 
 
 class ProgramEnrollmentPostTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):
@@ -1084,6 +1096,11 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
+    def test_mm_program_permission_denied(self):
+        self._add_program_to_cache(self.english_program, program_type='MicroMasters')
+        response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
+
     def test_program_not_found(self):
         with self.assert_tracking(
                 user=self.hum_admin,
@@ -1125,6 +1142,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
                 }]
             }]
         }],
+        'type': "Masters",
     })
 
     enrollments = [
@@ -1196,6 +1214,11 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
                 missing_permissions=[perms.ORGANIZATION_READ_ENROLLMENTS],
         ):
             response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_mm_program_permission_denied(self):
+        self._add_program_to_cache(self.english_program, program_type='MicroMasters')
+        response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
     @mock.patch.object(DiscoveryProgram, 'get', return_value=disco_program)
@@ -1397,6 +1420,16 @@ class ProgramCourseEnrollmentWriteMixin(object):
             response = self.request(
                 self.method, self.get_url(), self.stem_user, req_data
             )
+        self.assertEqual(response.status_code, 403)
+
+    def test_mm_program_permission_denied(self):
+        self._add_program_to_cache(self.cs_program, program_type='MicroMasters')
+        req_data = [
+            self.student_course_enrollment('active')
+        ]
+        response = self.request(
+            self.method, self.get_url(), self.stem_user, req_data
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_program_not_found(self):
@@ -1954,7 +1987,8 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
                 title="French 9910",
                 marketing_url='https://example.com/french-9910',
             ),
-        ]
+        ],
+        program_type='Masters'
     )
 
     english_enrollments = [

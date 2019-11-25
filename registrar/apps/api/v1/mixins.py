@@ -231,6 +231,7 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
     """
     This mixin defines the required permissions
     for any views that read or write program/course enrollment data.
+    Overrides AuthMixin.check_permissions.
     """
     def get_required_permissions(self, request):
         if request.method == 'GET':
@@ -238,6 +239,17 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         if request.method == 'POST' or self.request.method == 'PATCH':
             return [perms.ORGANIZATION_WRITE_ENROLLMENTS]
         return []  # pragma: no cover
+
+    def check_permissions(self, request):
+        if not self.program.is_enrollment_enabled:
+            # Raise exception if the program (MM at the moment) is not
+            # available for enrollments related API endpoints
+            raise PermissionDenied(
+                'Cannot access enrollment endpoints with program [%s] whose enrollments are disabled',
+                self.program.key
+            )
+
+        super().check_permissions(request)
 
     def handle_enrollments(self, course_id=None):
         """
