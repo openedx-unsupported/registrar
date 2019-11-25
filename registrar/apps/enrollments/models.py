@@ -37,6 +37,10 @@ class Program(TimeStampedModel):
     def program_type(self):
         return self._get_cached_field('program_type')
 
+    @property
+    def is_enrollment_enabled(self):
+        return self.program_type == 'Masters'
+
     def _get_cached_field(self, field):
         """
         Returns the specified field from a cached Discovery program.
