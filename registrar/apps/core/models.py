@@ -77,7 +77,6 @@ class Program(TimeStampedModel):
     """
     class Meta(object):
         app_label = 'core'
-        db_table = 'enrollments_program'
 
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
