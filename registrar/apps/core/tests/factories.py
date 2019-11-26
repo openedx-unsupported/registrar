@@ -13,6 +13,7 @@ from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     PendingUserOrganizationGroup,
+    Program,
 )
 from registrar.apps.core.permissions import OrganizationReadMetadataRole
 
@@ -103,3 +104,11 @@ class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
 
     organization_group = factory.SubFactory(OrganizationGroupFactory)
     user_email = factory.Faker('email')
+
+
+class ProgramFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Program
+
+    key = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    discovery_uuid = factory.Faker('uuid4')

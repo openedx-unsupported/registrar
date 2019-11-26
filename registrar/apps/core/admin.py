@@ -9,6 +9,7 @@ from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     PendingUserOrganizationGroup,
+    Program,
     User,
 )
 
@@ -42,7 +43,15 @@ class PendingUserOrganizationGroupAdmin(admin.ModelAdmin):
     search_fields = ('user_email', )
 
 
+class ProgramAdmin(admin.ModelAdmin):
+    """
+    Admin tool for the ProgramEnrollment model
+    """
+    list_display = ("key", "discovery_uuid", "managing_organization")
+
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
 admin.site.register(PendingUserOrganizationGroup, PendingUserOrganizationGroupAdmin)
+admin.site.register(Program, ProgramAdmin)

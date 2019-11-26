@@ -43,6 +43,7 @@ from registrar.apps.core.tests.factories import (
     GroupFactory,
     OrganizationFactory,
     OrganizationGroupFactory,
+    ProgramFactory,
     UserFactory,
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
@@ -50,7 +51,6 @@ from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
 )
-from registrar.apps.enrollments.tests.factories import ProgramFactory
 from registrar.apps.grades.constants import GradeReadStatus
 
 

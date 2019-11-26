@@ -42,10 +42,9 @@ from registrar.apps.core.jobs import (
     get_job_status,
     get_processing_jobs_for_user,
 )
-from registrar.apps.core.models import Organization
+from registrar.apps.core.models import Organization, Program
 from registrar.apps.core.utils import load_records_from_uploaded_csv
 from registrar.apps.enrollments.data import DiscoveryProgram
-from registrar.apps.enrollments.models import Program
 from registrar.apps.enrollments.tasks import (
     list_all_course_run_enrollments,
     list_course_run_enrollments,

@@ -7,10 +7,12 @@ from django.test import TestCase
 from mock import patch
 from requests.exceptions import HTTPError
 
-from registrar.apps.core.tests.factories import OrganizationFactory
+from registrar.apps.core.models import Program
+from registrar.apps.core.tests.factories import (
+    OrganizationFactory,
+    ProgramFactory,
+)
 from registrar.apps.enrollments.data import DiscoveryProgram
-from registrar.apps.enrollments.models import Program
-from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
 @ddt.ddt

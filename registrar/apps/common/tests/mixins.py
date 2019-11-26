@@ -5,8 +5,11 @@ import requests
 from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.jobs import get_job_status
-from registrar.apps.core.tests.factories import OrganizationFactory, UserFactory
-from registrar.apps.enrollments.tests.factories import ProgramFactory
+from registrar.apps.core.tests.factories import (
+    OrganizationFactory,
+    ProgramFactory,
+    UserFactory,
+)
 
 
 class BaseTaskTestMixin(object):
