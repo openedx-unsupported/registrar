@@ -9,9 +9,9 @@ from registrar.apps.core.tests.factories import (
     USER_PASSWORD,
     OrganizationFactory,
     OrganizationGroupFactory,
+    ProgramFactory,
     UserFactory,
 )
-from registrar.apps.enrollments.tests.factories import ProgramFactory
 
 
 class APIDocViewTest(APITestCase):

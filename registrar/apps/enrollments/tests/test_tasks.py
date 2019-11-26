@@ -18,6 +18,7 @@ from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.common.tests.mixins import BaseTaskTestMixin
 from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
 from registrar.apps.core.filestore import get_filestore
+from registrar.apps.core.models import Program
 from registrar.apps.enrollments import tasks
 from registrar.apps.enrollments.constants import (
     COURSE_ENROLLMENT_ACTIVE,
@@ -25,7 +26,6 @@ from registrar.apps.enrollments.constants import (
     PROGRAM_ENROLLMENT_ENROLLED,
     PROGRAM_ENROLLMENT_PENDING,
 )
-from registrar.apps.enrollments.models import Program
 
 
 FakeRequest = namedtuple('FakeRequest', ['url'])
