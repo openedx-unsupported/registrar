@@ -452,7 +452,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         return self.invoke_upload_job(self.task_fn, json.dumps(enrollments), *args, **kwargs)
 
 
-class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView):
+class ProgramEnrollmentUploadView(EnrollmentMixin, EnrollmentUploadView):
     """
     A view for uploading program enrollments via csv file
 
@@ -464,7 +464,7 @@ class ProgramEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView
     event_parameter_map = {'program_key': 'program_key'}
 
 
-class CourseRunEnrollmentUploadView(ProgramSpecificViewMixin, EnrollmentUploadView):
+class CourseRunEnrollmentUploadView(EnrollmentMixin, CourseSpecificViewMixin, EnrollmentUploadView):
     """
     A view for uploading course enrollments via csv file
 
