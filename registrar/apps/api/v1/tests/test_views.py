@@ -1797,23 +1797,67 @@ class EnrollmentUploadMixin(object):
             'curricula': [
                 {'uuid': 'inactive-curriculum-0000', 'is_active': False},
                 {'uuid': 'active-curriculum-0000', 'is_active': True}
-            ]
+            ],
+            'type': 'Masters',
         })
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
-    def _upload_enrollments(self, enrollments):
+    def _upload_enrollments(self, enrollments, user=None):
         upload_file = StringIO(
             serialize_to_csv(enrollments, self.csv_headers, include_headers=True)
         )
+        if not user:
+            user = self.stem_admin
+
         with mock.patch.object(DiscoveryProgram, 'get', return_value=self.disco_program):
             return self.request(
                 self.method,
                 self.path,
-                self.stem_admin,
+                user,
                 file=upload_file
             )
+
+    def test_unauthorized_at_organization(self):
+        enrollments = [
+            self.build_enrollment('enrolled', '001'),
+        ]
+
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-cs',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self._upload_enrollments(enrollments, user=self.hum_admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_insufficient_permissions(self):
+        enrollments = [
+            self.build_enrollment('enrolled', '001'),
+        ]
+        with self.assert_tracking(
+                user=self.stem_user,
+                program_key='masters-in-cs',
+                missing_permissions=[perms.ORGANIZATION_WRITE_ENROLLMENTS],
+        ):
+            response = self._upload_enrollments(enrollments, user=self.stem_user)
+        self.assertEqual(response.status_code, 403)
+
+    def test_enrollment_upload_mm_program(self):
+        self.disco_program = DiscoveryProgram.from_json(
+            self.cs_program.discovery_uuid,
+            {
+                'curricula': [{'uuid': 'active-curriculum-0000', 'is_active': True}],
+                'type': 'MicroMasters',
+            }
+        )
+        enrollments = [
+            self.build_enrollment('enrolled', '001')
+        ]
+
+        upload_response = self._upload_enrollments(enrollments)
+        self.assertEqual(upload_response.status_code, 403)
 
     @mock.patch.object(ProgramEnrollmentUploadView, 'task_fn', _succeeding_job)
     @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
