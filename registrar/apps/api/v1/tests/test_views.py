@@ -1804,7 +1804,7 @@ class EnrollmentUploadMixin(object):
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
-    def _upload_enrollments(self, enrollments, user=None):
+    def _upload_enrollments(self, enrollments, user=None):   # pylint: disable=missing-docstring
         upload_file = StringIO(
             serialize_to_csv(enrollments, self.csv_headers, include_headers=True)
         )
