@@ -449,6 +449,79 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             self.assertEqual(expected_programs_keys, actual_program_keys)
 
     @ddt.data(
+        {
+            'groups': set(),
+            'perm_filter': 'write',
+            'expected_programs': {
+                'masters-in-cs',
+                'masters-in-me',
+                'masters-in-philosophy',
+            },
+            'global_perm': True,
+        },
+        {
+            'groups': set(),
+            'perm_filter': 'read',
+            'expected_programs': {
+                'masters-in-cs',
+                'masters-in-me',
+                'masters-in-philosophy',
+            },
+            'global_perm': True,
+        },
+        {
+            'groups': set(),
+            'perm_filter': 'metadata',
+            'expected_programs': {
+                'masters-in-cs',
+                'masters-in-me',
+                'masters-in-english',
+                'masters-in-philosophy',
+            },
+            'global_perm': True,
+        },
+        {
+            'groups': {'hum-admins'},
+            'perm_filter': 'write',
+            'expected_programs': {'masters-in-philosophy'},
+        },
+        {
+            'groups': {'hum-ops'},
+            'perm_filter': 'read',
+            'expected_programs': {'masters-in-philosophy'},
+        },
+        {
+            'groups': {'hum-users'},
+            'perm_filter': 'metadata',
+            'expected_programs': {'masters-in-english', 'masters-in-philosophy'},
+        },
+    )
+    @ddt.unpack
+    def test_program_filter_with_mm_programs(
+        self,
+        groups,
+        perm_filter,
+        expected_programs,
+        global_perm=False,
+    ):
+        self._add_program_to_cache(self.english_program, program_type='MicroMasters')
+        org_groups = [OrganizationGroup.objects.get(name=name) for name in groups]
+        user = UserFactory(groups=org_groups)
+        if global_perm:
+            user.groups.add(self.global_read_and_write_group)  # pylint: disable=no-member
+
+        with self.assert_tracking(
+                user=user,
+                status_code=200,
+                permission_filter=perm_filter,
+        ):
+            response = self.get('programs?user_has_perm=' + perm_filter, user)
+        self.assertEqual(response.status_code, 200)
+        returned_program_keys = [program['program_key'] for program in response.data]
+        for expected_key in expected_programs:
+            self.assertIn(expected_key, returned_program_keys)
+
+    @ddt.data(
         # Bad org filter, no perm filter
         ('intergalactic-univ', None, 'org_not_found'),
         # Bad org filter, good perm filter
