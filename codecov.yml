@@ -8,4 +8,4 @@ coverage:
       default:
         target: 100
 ignore:
-  - "apps/core/models.py"
+  - "registrar/apps/core/models.py"
