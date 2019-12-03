@@ -20,6 +20,7 @@ from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
 from registrar.apps.api.constants import (
+    ENROLLMENT_PERMISSIONS_LIST,
     PERMISSION_QUERY_PARAM_MAP,
     UPLOAD_FILE_MAX_SIZE,
 )
@@ -94,11 +95,9 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
 
         # if the user has permissions across organizations
         # via membership in a "global-access" group, give them
-        # access to all programs
+        # access to all programs that fits their permission criteria
         user = self.request.user
-        if user.has_perm(self.permission_filter):
-            return programs
-        else:
+        if not user.has_perm(self.permission_filter):
             # otherwise, check if the user has the required permissions
             # within the organization for each program
             programs = (
@@ -107,6 +106,10 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
                     self.permission_filter, program.managing_organization
                 )
             )
+        # Filter out programs with enrollments disabled if the user requested
+        # permission filter to operate on enrollments
+        if self.permission_filter in ENROLLMENT_PERMISSIONS_LIST:
+            programs = [program for program in programs if program.is_enrollment_enabled]
         return programs
 
     def get_required_permissions(self, _request):
