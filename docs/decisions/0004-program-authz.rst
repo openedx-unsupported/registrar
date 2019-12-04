@@ -16,11 +16,11 @@ Decision
 
 3. A ``ProgramOrgGroup`` will also be associated with an ``Organization``. This does not provide access but acts as a reference to the ``Organization`` granting the role. This ``Organization`` value must be one the program's managing organizations.
 
-4. A user's permissions at a requested object will be defined as the union of all permissions granted on that object and all parents of that object.  In the case of a ``Program`` request, we must look at both the ``Program`` and its ``managing_organization`` to determine permissions.
+4. A user's permissions at a requested object will be defined as the union of all permissions granted on that object and all parents of that object.  In the case of a ``Program`` request, we must look at both the ``Program`` and each of its managing organizations to determine permissions.
 
 
 Status
 -------
-Under-Review
+Accepted (circa December 2019)
 
 .. _0003-authnz: https://github.com/edx/registrar/blob/master/docs/decisions/0003-authnz.rst

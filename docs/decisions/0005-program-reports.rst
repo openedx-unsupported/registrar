@@ -23,7 +23,7 @@ Decision
 
 Status
 ------
-Under-Review
+Accepted (circa December 2019)
 
 .. _0004-program-authz: https://github.com/edx/registrar/edit/zhancock/reporting-decision/docs/decisions/0004-program-authz.rst
 
