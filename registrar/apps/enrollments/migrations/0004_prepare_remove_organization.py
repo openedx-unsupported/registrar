@@ -9,6 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('core', '0002_organization_organizationgroup'),
         ('enrollments', '0003_add_organization_group'),
     ]
 
