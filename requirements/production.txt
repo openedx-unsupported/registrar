@@ -8,10 +8,10 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.10.25
-botocore==1.13.25         # via boto3, s3transfer
+boto3==1.10.34
+botocore==1.13.34         # via boto3, s3transfer
 celery==3.1.26.post2
-certifi==2019.9.11        # via requests
+certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 defusedxml==0.6.0         # via python3-openid, social-auth-core
 django-cors-headers==3.2.0
@@ -19,9 +19,9 @@ django-extensions==2.2.5
 django-guardian==2.0.0
 django-model-utils==3.2.0
 django-mysql==3.2.0
-django-simple-history==2.7.3
+django-simple-history==2.8.0
 django-storages==1.8
-django-user-tasks==0.2.1
+django-user-tasks==0.3.0
 django-waffle==0.18.0
 django==1.11.26
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
@@ -36,14 +36,14 @@ edx-rest-api-client==1.9.2
 future==0.18.2            # via pyjwkest
 gevent==1.4.0
 greenlet==0.4.15          # via gevent
-gunicorn==20.0.0
+gunicorn==20.0.4
 idna==2.8                 # via requests
 jmespath==0.9.4           # via boto3, botocore
 kombu==3.0.37             # via celery
 mysqlclient==1.3.14
-newrelic==5.2.3.131       # via edx-django-utils
+newrelic==5.4.0.132       # via edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
-pbr==5.4.3                # via stevedore
+pbr==5.4.4                # via stevedore
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
 pycryptodomex==3.9.4      # via pyjwkest
 pyjwkest==1.3.2           # via edx-drf-extensions, social-auth-core
@@ -68,4 +68,4 @@ stevedore==1.31.0         # via edx-opaque-keys
 urllib3==1.25.7           # via botocore, requests
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.6.0        # via gunicorn
+# setuptools==42.0.2        # via gunicorn
