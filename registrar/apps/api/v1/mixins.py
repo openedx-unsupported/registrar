@@ -29,11 +29,11 @@ from registrar.apps.core import permissions as perms
 from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
 from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import start_job
+from registrar.apps.core.models import Program
 from registrar.apps.enrollments.data import (
     write_course_run_enrollments,
     write_program_enrollments,
 )
-from registrar.apps.enrollments.models import Program
 
 
 upload_filestore = get_filestore(UPLOADS_PATH_PREFIX)

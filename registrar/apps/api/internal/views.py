@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 from registrar.apps.api.v1.mixins import AuthMixin
 from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
-from registrar.apps.enrollments.models import Program
+from registrar.apps.core.models import Program
 
 
 class FlushProgramCacheView(AuthMixin, APIView):

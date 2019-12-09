@@ -6,9 +6,8 @@ from django.db import transaction
 from django.http import Http404
 from requests.exceptions import HTTPError
 
-from registrar.apps.core.models import Organization
+from registrar.apps.core.models import Organization, Program
 from registrar.apps.enrollments.data import DiscoveryProgram
-from registrar.apps.enrollments.models import Program
 
 
 logger = logging.getLogger(__name__)
