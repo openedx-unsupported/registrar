@@ -38,11 +38,12 @@ CELERY_IGNORE_RESULT = True
 
 # Media
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = 'registrar-test'
 AWS_LOCATION = ''
 AWS_QUERYSTRING_AUTH = True
 AWS_QUERYSTRING_EXPIRE = 3600
 AWS_DEFAULT_ACL = None
+REGISTRAR_BUCKET = 'registrar-test'
+PROGRAM_REPORTS_BUCKET = 'program-reports-test'
 
 # Publicly-exposed base URLs for service and API, respectively
 API_ROOT = 'http://localhost/api'

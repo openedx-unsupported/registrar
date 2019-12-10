@@ -6,14 +6,11 @@ from celery.utils.log import get_task_logger
 from user_tasks.models import UserTaskArtifact
 from user_tasks.tasks import UserTask
 
-from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
-from registrar.apps.core.filestore import get_filestore
 from registrar.apps.core.jobs import post_job_failure
 from registrar.apps.core.models import Program
 
 
 log = get_task_logger(__name__)
-uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
 
 # pylint: disable=unused-argument
 @shared_task(bind=True)

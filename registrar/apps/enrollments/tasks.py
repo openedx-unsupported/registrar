@@ -11,8 +11,7 @@ from rest_framework.exceptions import ValidationError
 from user_tasks.tasks import UserTask
 
 from registrar.apps.common.tasks import _get_program
-from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
-from registrar.apps.core.filestore import get_filestore
+from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import post_job_failure, post_job_success
 from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments import data
@@ -29,7 +28,7 @@ from registrar.apps.enrollments.utils import build_enrollment_job_status_name
 
 
 log = get_task_logger(__name__)
-uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
+uploads_filestore = get_enrollment_uploads_filestore()
 
 
 class EnrollmentReadTask(UserTask):

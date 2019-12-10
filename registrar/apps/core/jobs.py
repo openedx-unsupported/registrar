@@ -19,8 +19,7 @@ from collections import namedtuple
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
-from registrar.apps.core.constants import JOB_RESULT_PATH_PREFIX
-from registrar.apps.core.filestore import get_filestore
+from registrar.apps.core.filestore import get_job_results_filestore
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 
 
@@ -30,7 +29,7 @@ JobStatus = namedtuple(
 )
 
 logger = logging.getLogger(__name__)
-result_filestore = get_filestore(JOB_RESULT_PATH_PREFIX)
+result_filestore = get_job_results_filestore()
 
 _RESULT_ARTIFACT_NAME = 'Job Result'
 

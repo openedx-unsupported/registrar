@@ -16,8 +16,7 @@ from rest_framework.exceptions import ValidationError
 
 from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.common.tests.mixins import BaseTaskTestMixin
-from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
-from registrar.apps.core.filestore import get_filestore
+from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.models import Program
 from registrar.apps.enrollments import tasks
 from registrar.apps.enrollments.constants import (
@@ -32,7 +31,7 @@ FakeRequest = namedtuple('FakeRequest', ['url'])
 FakeResponse = namedtuple('FakeResponse', ['status_code'])
 
 
-uploads_filestore = get_filestore(UPLOADS_PATH_PREFIX)
+uploads_filestore = get_enrollment_uploads_filestore()
 
 
 class BaseEnrollmentTaskTestMixin(BaseTaskTestMixin):
@@ -210,7 +209,7 @@ class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
         cls._s3_mock = moto.mock_s3()
         cls._s3_mock.start()
         conn = boto3.resource('s3')
-        conn.create_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+        conn.create_bucket(Bucket=settings.REGISTRAR_BUCKET)
 
     @classmethod
     def tearDownClass(cls):

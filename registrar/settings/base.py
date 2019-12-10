@@ -177,6 +177,8 @@ LOCALE_PATHS = (
 MEDIA_ROOT = root('media')
 MEDIA_URL = '/api/media/'
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+REGISTRAR_BUCKET = 'registrar'
+PROGRAM_REPORTS_BUCKET = 'program-reports'
 
 # STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
@@ -313,3 +315,4 @@ CACHES = {
 EDX_DRF_EXTENSIONS = {
     "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
 }
+
