@@ -619,8 +619,8 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     event = 'registrar.v1.get_program_courses'
 
     program_uuid = str(uuid.uuid4())
-    program_title = Faker().sentence(nb_words=6)  # pylint: disable=no-member
-    program_url = Faker().uri()  # pylint: disable=no-member
+    program_title = Faker().sentence(nb_words=6)
+    program_url = Faker().uri()
     program_type = 'Masters'
 
     @ddt.data(True, False)
@@ -1403,7 +1403,7 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
 @shared_task(base=UserTask, bind=True)
 def _succeeding_job(self, job_id, user_id, *args, **kwargs):  # pylint: disable=unused-argument
     """ A job that just succeeds, posting an empty JSON list as its result. """
-    fake_data = Faker().pystruct(20, str, int, bool)  # pylint: disable=no-member
+    fake_data = Faker().pystruct(20, str, int, bool)
     post_job_success(job_id, json.dumps(fake_data), 'json')
 
 
