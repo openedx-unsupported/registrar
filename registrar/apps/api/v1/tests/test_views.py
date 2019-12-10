@@ -30,8 +30,7 @@ from registrar.apps.api.v1.views import (
 from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.core import permissions as perms
-from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
-from registrar.apps.core.filestore import get_filestore
+from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import (
     post_job_failure,
     post_job_success,
@@ -190,7 +189,11 @@ class S3MockMixin(object):
 
     Enables S3 mock and creates default bucket before tests.
     Disables S3 mock afterwards.
+
+    `s3_bucket` class variable specifies which bucket to use.
+    Defaults to settings.REGISTRAR_BUCKET.
     """
+    s3_bucket = settings.REGISTRAR_BUCKET
 
     @classmethod
     def setUpClass(cls):
@@ -198,7 +201,7 @@ class S3MockMixin(object):
         cls._s3_mock = moto.mock_s3()
         cls._s3_mock.start()
         conn = boto3.resource('s3', region_name='us-west-1')
-        conn.create_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+        conn.create_bucket(Bucket=cls.s3_bucket)
 
     @classmethod
     def tearDownClass(cls):
@@ -1954,9 +1957,9 @@ class EnrollmentUploadMixin(object):
         self.assertEqual(job_response.status_code, 200)
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
-        filestore = get_filestore(UPLOADS_PATH_PREFIX)
+        filestore = get_enrollment_uploads_filestore()
         retrieved = filestore.retrieve('/{}/{}.json'.format(
-            UPLOADS_PATH_PREFIX,
+            'uploads',
             upload_response.data['job_id'],
         ))
         self.assertEqual(json.loads(retrieved), enrollments)

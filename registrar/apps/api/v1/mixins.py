@@ -26,8 +26,7 @@ from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import JobAcceptanceSerializer
 from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.core import permissions as perms
-from registrar.apps.core.constants import UPLOADS_PATH_PREFIX
-from registrar.apps.core.filestore import get_filestore
+from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import start_job
 from registrar.apps.core.models import Program
 from registrar.apps.enrollments.data import (
@@ -36,7 +35,7 @@ from registrar.apps.enrollments.data import (
 )
 
 
-upload_filestore = get_filestore(UPLOADS_PATH_PREFIX)
+upload_filestore = get_enrollment_uploads_filestore()
 
 
 class AuthMixin(TrackViewMixin):

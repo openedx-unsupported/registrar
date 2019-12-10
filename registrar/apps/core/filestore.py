@@ -18,8 +18,7 @@ class FilestoreBase(object):
     """
     Abstract base class for file stores.
     """
-
-    def __init__(self, backend, path_prefix=""):
+    def __init__(self, backend, path_prefix):
         self.backend = backend
         self.path_prefix = path_prefix
 
@@ -106,6 +105,9 @@ class FileSystemFilestore(FilestoreBase):
     """
     File storage using Django's FileStorageBackend.
     """
+    def __init__(self, bucket, path_prefix):
+        prefix_with_bucket = posixpath.join(bucket, path_prefix)
+        super().__init__(default_storage, prefix_with_bucket)
 
     def get_url(self, path):
         """
@@ -119,19 +121,43 @@ class S3Filestore(FilestoreBase):
     """
     File storage using S3Boto3Storage.
     """
-    pass
+    def __init__(self, bucket, path_prefix):
+        storage_backend = get_storage_class()(bucket_name=bucket)
+        super().__init__(storage_backend, path_prefix)
 
 
-def get_filestore(path_prefix=""):
+def get_enrollment_uploads_filestore():
+    """
+    Get filestore instance for uploaded enrollment CSVs.
+    """
+    return get_filestore(settings.REGISTRAR_BUCKET, 'uploads')
+
+
+def get_job_results_filestore():
+    """
+    Get filestore instance for job results.
+    """
+    return get_filestore(settings.REGISTRAR_BUCKET, 'job-results')
+
+
+def get_program_reports_filestore():
+    """
+    Get filestore instance for program analytics reports.
+    """
+    # TODO: what is the correct path prefix for these reports?
+    return get_filestore(settings.PROGRAM_REPORTS_BUCKET, 'reports')
+
+
+def get_filestore(bucket, path_prefix):
     """
     Return an instance of a FilestoreBase subclass, based on the
     configured default storage backend.
     """
     class_name = get_storage_class().__name__
     if class_name == 'FileSystemStorage':  # pragma: no cover
-        return FileSystemFilestore(default_storage, path_prefix)
+        return FileSystemFilestore(bucket, path_prefix)
     elif class_name == 'S3Boto3Storage':
-        return S3Filestore(default_storage, path_prefix)
+        return S3Filestore(bucket, path_prefix)
     else:  # pragma: no cover
         raise ImproperlyConfigured(
             'Unsupported storage backend for filestore: {}'.format(class_name)
