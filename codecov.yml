@@ -9,3 +9,4 @@ coverage:
         target: 100
 ignore:
   - "registrar/apps/enrollments/models.py"
+  - "registrar/apps/core/permissions.py"
