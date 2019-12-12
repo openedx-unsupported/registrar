@@ -8,7 +8,7 @@ from django.db import transaction
 
 from registrar.apps.core.constants import ORGANIZATION_KEY_PATTERN
 from registrar.apps.core.models import Organization, OrganizationGroup
-from registrar.apps.core.permissions import ORGANIZATION_ROLES
+from registrar.apps.core.permissions import ROLES
 
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ class Command(BaseCommand):
     # pylint: disable=missing-docstring
 
     help = 'Creates an Organization with the given key, and any specified OrganizationGroups'
-    role_names = [role.name for role in ORGANIZATION_ROLES]
+    role_names = [role.name for role in ROLES]
 
     def add_arguments(self, parser):
         parser.add_argument('org_key')

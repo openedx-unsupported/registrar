@@ -57,9 +57,9 @@ class Organization(TimeStampedModel):
     class Meta(object):
         app_label = 'core'
         permissions = (
-            (perms.ORGANIZATION_READ_METADATA_KEY, 'View Organization Metadata'),
-            (perms.ORGANIZATION_READ_ENROLLMENTS_KEY, 'Read Organization enrollment data'),
-            (perms.ORGANIZATION_WRITE_ENROLLMENTS_KEY, 'Write Organization enrollment data'),
+            (perms.READ_METADATA_KEY, 'View Organization Metadata'),
+            (perms.READ_ENROLLMENTS_KEY, 'Read Organization enrollment data'),
+            (perms.WRITE_ENROLLMENTS_KEY, 'Write Organization enrollment data'),
         )
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
@@ -127,14 +127,14 @@ class OrganizationGroup(Group):
 
     ROLE_CHOICES = (
         (role.name, role.description)
-        for role in perms.ORGANIZATION_ROLES
+        for role in perms.ROLES
     )
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=255,
         choices=ROLE_CHOICES,
-        default=perms.OrganizationReadMetadataRole.name,
+        default=perms.ReadMetadataRole.name,
     )
 
     def __init__(self, *args, **kwargs):
@@ -151,7 +151,7 @@ class OrganizationGroup(Group):
         """
         Converts self.role (which is a role name) to its matching Role instance.
         """
-        for role in perms.ORGANIZATION_ROLES:
+        for role in perms.ROLES:
             if self.role == role.name:
                 return role
         return None  # pragma: no cover
@@ -160,7 +160,7 @@ class OrganizationGroup(Group):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self._initial_organization:  # pragma: no branch
-            for perm in perms.ORGANIZATION_PERMISSIONS:
+            for perm in perms.PERMISSIONS:
                 remove_perm(perm, self, self._initial_organization)
         self.role_object.assign_to_group(self, self.organization)
         self._initial_organization = self.organization

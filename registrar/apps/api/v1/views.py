@@ -129,13 +129,13 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         if self.permission_filter:
             return []
         else:
-            return [perms.ORGANIZATION_READ_METADATA]
+            return [perms.READ_METADATA]
 
     def get_permission_object(self):
         """
         Returns an organization object against which permissions should be checked.
 
-        If the requesting user does not have `organization_read_metadata`
+        If the requesting user does not have `read_metadata`
         permission for the organization specified by `org` (or globally
         on the Organization class), Guardian will raise a 403.
         """
@@ -191,7 +191,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 404: Program does not exist.
     """
     serializer_class = ProgramSerializer
-    permission_required = [perms.ORGANIZATION_READ_METADATA]
+    permission_required = [perms.READ_METADATA]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
 
@@ -211,7 +211,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
      * 404: Program does not exist.
     """
     serializer_class = CourseRunSerializer
-    permission_required = perms.ORGANIZATION_READ_METADATA
+    permission_required = perms.READ_METADATA
     event_method_map = {'GET': 'registrar.{api_version}.get_program_courses'}
     event_parameter_map = {'program_key': 'program_key'}
 
@@ -533,7 +533,7 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
 
     Path: /api/[version]/programs/{program_key}/courses/{course_id}/grades
     """
-    permission_required = [perms.ORGANIZATION_READ_ENROLLMENTS]
+    permission_required = [perms.READ_ENROLLMENTS]
     event_method_map = {
         'GET': 'registrar.v1.get_course_grades',
     }
