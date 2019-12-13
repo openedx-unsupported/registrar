@@ -14,6 +14,9 @@ APP_PREFIX = 'core.'
 ORGANIZATION_READ_METADATA_KEY = 'organization_read_metadata'
 ORGANIZATION_READ_ENROLLMENTS_KEY = 'organization_read_enrollments'
 ORGANIZATION_WRITE_ENROLLMENTS_KEY = 'organization_write_enrollments'
+PROGRAM_READ_METADATA_KEY = 'program_read_metadata'
+PROGRAM_READ_REPORTS_KEY = 'program_read_reports'
+
 
 # A user with this permission can read any metadata
 # about an organization, including metadata about
@@ -33,10 +36,24 @@ ORGANIZATION_READ_ENROLLMENTS = APP_PREFIX + ORGANIZATION_READ_ENROLLMENTS_KEY
 ORGANIZATION_WRITE_ENROLLMENTS = APP_PREFIX + ORGANIZATION_WRITE_ENROLLMENTS_KEY
 
 
+# A user with this permission can read any metadata about a program.
+PROGRAM_READ_METADATA = APP_PREFIX + PROGRAM_READ_METADATA_KEY
+
+
+# A user with this permission can read any reports contained in the scope of a program.
+PROGRAM_READ_REPORTS = APP_PREFIX + PROGRAM_READ_REPORTS_KEY
+
+
 ORGANIZATION_PERMISSIONS = {
     ORGANIZATION_READ_METADATA,
     ORGANIZATION_READ_ENROLLMENTS,
     ORGANIZATION_WRITE_ENROLLMENTS,
+}
+
+
+PROGRAM_PERMISSIONS = {
+    PROGRAM_READ_METADATA,
+    PROGRAM_READ_REPORTS,
 }
 
 
@@ -104,6 +121,51 @@ class OrganizationReadWriteEnrollmentsRole(OrganizationRole):
         ORGANIZATION_READ_METADATA,
         ORGANIZATION_READ_ENROLLMENTS,
         ORGANIZATION_WRITE_ENROLLMENTS,
+    )
+
+
+class ProgramSpecificRoleBase(object):
+    """
+    A collection of program access permissions that can be assigned
+    to a ProgramOrgGroup (i.e. a group inside a program). TODO: MST-60
+    """
+
+    name = None
+    description = None
+    permissions = ()
+
+    @classmethod
+    def assign_to_group(cls, programOrgGroup, program):
+        """
+        For the given program, assigns all permissions under this role
+        to the given ProgramOrgGroup.
+        """
+        for permission in cls.permissions:
+            assign_perm(permission, programOrgGroup, program)
+
+
+class ProgramReadMetadataRole(ProgramSpecificRoleBase):
+    """
+    The least-privileged program-scoped role, it may only
+    read a program's metadata.
+    """
+    name = 'program_read_metadata'
+    description = 'Read Program Metadata Only'
+    permissions = (
+        PROGRAM_READ_METADATA,
+    )
+
+
+class ProgramReadReportRole(ProgramSpecificRoleBase):
+    """
+    This role is allowed to access program metadata and
+    program reports, but cannot modify anything.
+    """
+    name = 'program_read_reports'
+    description = 'Read Program Reports'
+    permissions = (
+        PROGRAM_READ_METADATA,
+        PROGRAM_READ_REPORTS,
     )
 
 
