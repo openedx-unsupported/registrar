@@ -15,7 +15,7 @@ from registrar.apps.core.models import (
     PendingUserOrganizationGroup,
     Program,
 )
-from registrar.apps.core.permissions import OrganizationReadMetadataRole
+from registrar.apps.core.permissions import ReadMetadataRole
 
 
 # pylint: disable=missing-docstring
@@ -95,7 +95,7 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
         lambda og: '{}_{}'.format(og.organization.key, og.role)
     )
     organization = factory.SubFactory(OrganizationFactory)
-    role = OrganizationReadMetadataRole.name
+    role = ReadMetadataRole.name
 
 
 class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
