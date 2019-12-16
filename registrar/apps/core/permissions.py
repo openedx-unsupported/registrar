@@ -11,9 +11,9 @@ APP_PREFIX = 'core.'
 # In general, the prefixed versions (without _KEY) should be used, because
 # non-prefixed permission names break when you attempt to assign or check them
 # globally.
-READ_METADATA_KEY = 'read_metadata'
-READ_ENROLLMENTS_KEY = 'read_enrollments'
-WRITE_ENROLLMENTS_KEY = 'write_enrollments'
+READ_METADATA_KEY = 'organization_read_metadata'
+READ_ENROLLMENTS_KEY = 'organization_read_enrollments'
+WRITE_ENROLLMENTS_KEY = 'organization_write_enrollments'
 READ_REPORTS_KEY = 'read_reports'
 
 
