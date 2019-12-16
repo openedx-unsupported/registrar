@@ -72,7 +72,7 @@ class ReadMetadataRole(RoleBase):
     """
     The least-privileged role, it may only read metadata about an organization or a program.
     """
-    name = 'read_metadata'
+    name = 'organization_read_metadata'
     description = 'Read Metadata Only'
     permissions = (
         READ_METADATA,
@@ -83,7 +83,7 @@ class ReadEnrollmentsRole(RoleBase):
     """
     This role is allowed to access metadata and enrollment data, but cannot modify anything.
     """
-    name = 'read_enrollments'
+    name = 'organization_read_enrollments'
     description = 'Read Enrollments Data'
     permissions = (
         READ_METADATA,
@@ -96,7 +96,7 @@ class ReadWriteEnrollmentsRole(RoleBase):
     This role is allowed to access metadata and enrollment data.
     It can also create and modify data about enrollments.
     """
-    name = 'read_write_enrollments'
+    name = 'organization_read_write_enrollments'
     description = 'Read and Write Enrollments Data'
     permissions = (
         READ_METADATA,
