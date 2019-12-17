@@ -3,6 +3,8 @@ The public-facing REST API.
 """
 import json
 import logging
+import re
+from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
@@ -29,6 +31,7 @@ from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
     JobStatusSerializer,
+    ProgramReportMetadataSerializer,
     ProgramSerializer,
 )
 from registrar.apps.api.v1.mixins import (
@@ -39,6 +42,7 @@ from registrar.apps.api.v1.mixins import (
     ProgramSpecificViewMixin,
 )
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.filestore import get_program_reports_filestore
 from registrar.apps.core.jobs import (
     get_job_status,
     get_processing_jobs_for_user,
@@ -542,3 +546,121 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
             self.program.key,
             self.internal_course_key,
         )
+
+
+class ReportsListView(ProgramSpecificViewMixin, APIView):
+    """
+    A view for listing metadata about reports for a program.
+
+    Path: /api/[version]/programs/{program_key}/reports?min_created_date={min_created_date}
+
+    Example Response:
+    [
+        {
+            "name":"individual_report__2019_12_11.txt",
+            "created_date":"2019_12_11",
+            "download_url":null
+        },
+        {
+            "name":"aggregate_report__2019_12_12.txt",
+            "created_date":"2019_12_12",
+            "download_url":null
+        },
+        {
+            "name":"individual_report__2019_12_12.txt",
+            "created_date":"2019_12_12",
+            "download_url":null
+        }
+    ]
+
+    Returns:
+     * 200: Returns a list of metadata about available reports for a program.
+     * 401: User is not authenticated.
+     * 403: User is not authorized to view program reports.
+     * 404: Program does not exist.
+    """
+    event_method_map = {
+        'GET': 'registrar.v1.list_program_reports',
+    }
+    event_parameter_map = {
+        'program_key': 'program_key',
+        'min_created_date': 'min_created_date',
+    }
+    permission_required = [perms.READ_REPORTS]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get a list of reports for a program.
+        """
+        filestore = get_program_reports_filestore()
+        file_prefix = '{}/{}'.format(self.program.managing_organization.key, self.program.discovery_uuid)
+        filename_date_format_string = '%Y_%m_%d'
+        output_date_format_string = '%Y-%m-%d'
+
+        reports_metadata = []
+
+        # list method of the filestore returns a 2-tuple containing a
+        # list of directories and a list of files on the path, respectively,
+        # so iterate the list of files
+        reports = filestore.list(file_prefix)[1]
+
+        for report_name in reports:
+            report_metadata = {
+                'name': report_name,
+                'created_date': self._get_file_created_date(
+                    report_name, filename_date_format_string,
+                    output_date_format_string
+                ),
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, report_name))
+            }
+            reports_metadata.append(report_metadata)
+
+        if 'min_created_date' in request.query_params:
+            min_created_date = datetime.strptime(
+                request.query_params['min_created_date'],
+                output_date_format_string
+            )
+
+            reports_metadata = [
+                r for r
+                in reports_metadata
+                if r['created_date'] is not None and
+                datetime.strptime(r['created_date'], output_date_format_string) >= min_created_date
+            ]
+
+        serializer = ProgramReportMetadataSerializer(reports_metadata, many=True)
+        return Response(serializer.data)
+
+    def _get_file_created_date(self, filename, filename_date_format_string, output_date_format_string):
+        """
+        Return the date the file was created based on the date in the filename.
+
+        Parameters:
+            - filename: the name of the file
+
+        Returns:
+            - String: the date the file was created as a YYYY-MM-DD formatted string
+            - None: if the date is not in the filename or the date is misformatted
+        """
+        # pull out the date string from the filename
+        pattern = re.compile(r'.*__(\d*_\d*_\d*)[.]*\w*')
+        match = pattern.match(filename)
+
+        if match is None:
+            # if the filename is not as expected, return None
+            self._log_invalid_filename(filename)
+            return None
+
+        date_string = match.group(1)
+
+        try:
+            # validate that the date is actually a date; otherwise,
+            # return None
+            date = datetime.strptime(date_string, filename_date_format_string)
+        except ValueError:
+            self._log_invalid_filename(filename)
+            return None
+        return datetime.strftime(date, output_date_format_string)
+
+    def _log_invalid_filename(self, filename):
+        logger.warning('Filename {} is not in the expected format: report_name__YYYY_MM_DD.extension.'.format(filename))

@@ -16,6 +16,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
 from faker import Faker
+from freezegun import freeze_time
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
@@ -29,8 +30,12 @@ from registrar.apps.api.v1.views import (
 )
 from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
+from registrar.apps.common.tests.mixins import S3MockEnvVarsMixin
 from registrar.apps.core import permissions as perms
-from registrar.apps.core.filestore import get_enrollment_uploads_filestore
+from registrar.apps.core.filestore import (
+    get_enrollment_uploads_filestore,
+    get_program_reports_filestore,
+)
 from registrar.apps.core.jobs import (
     post_job_failure,
     post_job_success,
@@ -136,7 +141,13 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             organization=cls.hum_org,
             role=perms.OrganizationReadMetadataRole.name
         )
+        cls.hum_data_op_group = OrganizationGroupFactory(
+            name='hum-data-ops',
+            organization=cls.hum_org,
+            role=perms.ReadReportRole.name
+        )
         cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
+        cls.hum_admin.groups.add(cls.hum_data_op_group)  # pylint: disable=no-member
 
         cls.program_user = UserFactory(username='program-admin')
         cls.program_group = ProgramOrganizationGroupFactory(
@@ -196,7 +207,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         )
 
 
-class S3MockMixin(object):
+class S3MockMixin(S3MockEnvVarsMixin):
     """
     Mixin for classes that need to access S3 resources.
 
@@ -2403,3 +2414,166 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 path_fmt.format(program_key, course_id), self.hum_admin
             )
         self.assertEqual(response.status_code, 404)
+
+# the value returned by the get_url method depends on the time, so freeze time to ensure equality between
+# calls to get_url
+@freeze_time('2020-01-08')
+class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
+    """
+    Tests for GET /api/v1/programs/{program_key}/reports endpoint
+    """
+    method = 'GET'
+    path = 'programs/masters-in-english/reports'
+    s3_bucket = settings.PROGRAM_REPORTS_BUCKET
+
+    @classmethod
+    def tearDown(cls):
+        super().tearDown(cls)
+        filestore = get_program_reports_filestore()
+        files = filestore.list('{}/{}'.format(cls.hum_org.key, cls.english_program.discovery_uuid))
+
+        for file in files[1]:
+            file_path = '{}/{}/{}'.format(cls.hum_org.key, cls.english_program.discovery_uuid, file)
+            filestore.delete(file_path)
+
+    def test_ok(self):
+        files = [
+            {
+                'name': 'aggregate_report__2019_12_18',
+                'created_date': '2019-12-18',
+            },
+            {
+                'name': 'individual_report__2019_12_17',
+                'created_date': '2019-12-17',
+            },
+            {
+                'name': 'individual_report__2019_12_18',
+                'created_date': '2019-12-18',
+            },
+        ]
+
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        filestore = get_program_reports_filestore()
+        for file in files:
+            filestore.store(
+                '{}/{}'.format(file_prefix, file['name']),
+                'data'
+            )
+
+        expected_data = [
+            {
+                'name': file['name'],
+                'created_date': file['created_date'],
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file['name'])),
+            } for file in files
+        ]
+
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.data, expected_data)
+
+    def test_min_created_date_query_parameter(self):
+        files = [
+            {
+                'name': 'aggregate_report__2019_12_17',
+                'created_date': '2019-12-17',
+            },
+            {
+                'name': 'aggregate_report__2019_12_18',
+                'created_date': '2019-12-18',
+            },
+            {
+                'name': 'individual_report__2019_12_17',
+                'created_date': '2019-12-17',
+            },
+            {
+                'name': 'individual_report__2019_12_18',
+                'created_date': '2019-12-18',
+            },
+        ]
+
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        filestore = get_program_reports_filestore()
+        for file in files:
+            filestore.store(
+                '{}/{}'.format(file_prefix, file['name']),
+                'data',
+            )
+
+        expected_data = [
+            {
+                'name': 'aggregate_report__2019_12_18',
+                'created_date': '2019-12-18',
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'aggregate_report__2019_12_18')),
+            },
+            {
+                'name': 'individual_report__2019_12_18',
+                'created_date': '2019-12-18',
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'individual_report__2019_12_18')),
+            },
+        ]
+
+        response = self.get(self.path + '?min_created_date=2019-12-18', self.hum_admin)
+        self.assertEqual(response.data, expected_data)
+
+    def test_min_created_date_parameter_invalid_date(self):
+        filestore = get_program_reports_filestore()
+        filestore.store(
+            '{}/{}/individual_report_1'.format(self.hum_org.key, self.english_program.discovery_uuid),
+            'data',
+        )
+
+        response = self.get(self.path + '?min_created_date=2019-12-18', self.hum_admin)
+        self.assertEqual(response.data, [])
+
+    def test_filename_misformatted(self):
+        files = [
+            'aggregate_report_1',
+            'aggregate_report_2',
+            'individual_report_1',
+            'individual_report_2',
+        ]
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        filestore = get_program_reports_filestore()
+        for file in files:
+            filestore.store(
+                '{}/{}'.format(file_prefix, file),
+                'data',
+            )
+
+        expected_data = [
+            {
+                'name': file,
+                'created_date': None,
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file)),
+            } for file in files
+        ]
+
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.data, expected_data)
+
+    def test_invalid_date_in_filename(self):
+        files = [
+            'aggregate_report__2019_25_25',
+            'individual_report__2019_25_25',
+        ]
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        filestore = get_program_reports_filestore()
+        for file in files:
+            filestore.store(
+                '{}/{}'.format(file_prefix, file),
+                'data',
+            )
+
+        expected_data = [
+            {
+                'name': file,
+                'created_date': None,
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file))
+            } for file in files
+        ]
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.data, expected_data)
+
+    def test_get_program_list_unauthorized(self):
+        response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)

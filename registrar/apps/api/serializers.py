@@ -97,3 +97,12 @@ class JobStatusSerializer(serializers.Serializer):
     state = serializers.ChoiceField(choices=STATUS_CHOICES)
     result = serializers.URLField(allow_null=True)
     text = serializers.CharField(allow_null=True)
+
+
+class ProgramReportMetadataSerializer(serializers.Serializer):
+    """
+    Serializer for metadata about a program report.
+    """
+    name = serializers.CharField()
+    created_date = serializers.DateField()
+    download_url = serializers.URLField()

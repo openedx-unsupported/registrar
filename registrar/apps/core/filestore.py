@@ -86,6 +86,20 @@ class FilestoreBase(object):
         """
         return self._try_with_error_logging(self.backend.exists, "checking existence of", path)
 
+    def list(self, path):
+        """
+        List the contents of a specified path.
+
+        Arguents:
+            path: Path to file or directory.
+                Will be prefixed by `self.path_prefix`.
+
+        Returns:
+            2-tuple of lists; the first item being directories, the second item being files
+        """
+        full_path = self.get_full_path(path)
+        return self.backend.listdir(full_path)
+
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.
@@ -139,6 +153,24 @@ class FileSystemFilestore(FilestoreBase):
         Path will be prefixed by `self.path_prefix`.
         """
         return to_absolute_api_url(settings.MEDIA_URL, self.get_full_path(path))  # pragma: no cover
+
+    def list(self, path):
+        """
+        List the contents of a specified path. This method is almost identical to that of the base class
+        except that it returns a 2-tuple of empty lists when a listdir raises a FileNotFoundError
+
+        Arguents:
+            path: Path to file or directory.
+                Will be prefixed by `self.path_prefix`.
+
+        Returns:
+            2-tuple of lists; the first item being directories, the second item being files
+        """
+        full_path = self.get_full_path(path)
+        try:
+            return self.backend.listdir(full_path)
+        except FileNotFoundError:
+            return [], []
 
 
 class S3Filestore(FilestoreBase):

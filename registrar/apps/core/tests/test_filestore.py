@@ -1,6 +1,7 @@
 """ Tests for core/filestore.py """
 
 from itertools import product
+from pathlib import PurePath
 
 import boto3
 import ddt
@@ -10,6 +11,7 @@ import requests
 from botocore.exceptions import ClientError
 from django.test import TestCase
 
+from registrar.apps.common.tests.mixins import S3MockEnvVarsMixin
 from registrar.apps.core.filestore import (
     FilestoreBase,
     FileSystemFilestore,
@@ -23,7 +25,7 @@ from registrar.apps.core.filestore import logger as filestore_logger
 
 
 @ddt.ddt
-class S3FilestoreTests(TestCase):
+class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
     """
     Tests for S3Filestore, which is the default Filestore under test settings.
     """
@@ -69,6 +71,14 @@ class S3FilestoreTests(TestCase):
             url = filestore.store(path, contents)
             self.assertTrue(filestore.exists(path))
             self.assertIn(location, url)
+
+            pure_path = PurePath(path)
+            parent_path = pure_path.parent.name
+            file_name = pure_path.name
+
+            files = filestore.list(parent_path)[1]
+            self.assertEqual(files, [file_name])
+
             response = requests.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.text, contents)
