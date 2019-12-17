@@ -177,8 +177,8 @@ LOCALE_PATHS = (
 MEDIA_ROOT = root('media')
 MEDIA_URL = '/api/media/'
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-REGISTRAR_BUCKET = 'registrar'
-PROGRAM_REPORTS_BUCKET = 'program-reports'
+REGISTRAR_BUCKET = 'change-me-to-registrar-bucket'
+PROGRAM_REPORTS_BUCKET = 'change-me-to-program-reports-bucket'
 
 # STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root

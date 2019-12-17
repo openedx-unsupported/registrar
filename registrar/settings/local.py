@@ -76,8 +76,14 @@ CORS_ALLOW_HEADERS = corsheaders_default_headers + (
 
 CELERY_ALWAYS_EAGER = True
 
+# File storage.
+# Because S3 storage is not available for locally-run Registrar,
+# these "bucket names" will just be used as top-level folders in the
+# media directory.
+REGISTRAR_BUCKET = 'registrar'
+PROGRAM_REPORTS_BUCKET = 'program-reports'
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
-
