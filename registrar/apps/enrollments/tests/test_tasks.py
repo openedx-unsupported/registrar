@@ -15,7 +15,10 @@ from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
 from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
-from registrar.apps.common.tests.mixins import BaseTaskTestMixin
+from registrar.apps.common.tests.mixins import (
+    BaseTaskTestMixin,
+    S3MockEnvVarsMixin,
+)
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.models import Program
 from registrar.apps.enrollments import tasks
@@ -190,7 +193,7 @@ class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase)
         )
 
 
-class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
+class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin, S3MockEnvVarsMixin):
     """
     Tests common for both program and course-run enrollment writing tasks.
     """

@@ -407,6 +407,33 @@ endpoints:
         description: >
           Course does not exist within program, or program was not found.
 
+  list_program_reports: &list_program_reports
+    summary: List program reports
+    description: List the reports in a program
+    parameters:
+      - *program_path_param
+      - in: query
+        name: min_created_date
+        type: date
+        description: >
+          The ISO-format date used to limit the reports
+          returned based on their created date
+        required: false
+        example: '2019-12-18'
+
+
+    responses:
+      200:
+        description: OK
+        schema:
+          type: array
+          items:
+            $ref: '#/models/ProgramReport'
+      403:
+        description: User is not authorized to view program reports.
+      404:
+        description: Program was not found.
+
 
   swagger:
     get:
@@ -507,6 +534,12 @@ paths:
       <<: *patch_program_enrollments
       operationId: registrar_v1_patch_program_enrollments
       tags: ['v1']
+  '/v1/programs/{program_key}/reports':
+    get:
+      <<: *list_program_reports
+      operationId: registrar_v1_list_program_reports
+      tags: ['v1']
+
 
   ### V2 API ###
   '/v2/jobs/{job_id}/':
@@ -559,6 +592,11 @@ paths:
     patch:
       <<: *patch_program_enrollments
       operationId: registrar_v2_patch_program_enrollments
+      tags: ['v2']
+  '/v2/programs/{program_key}/reports':
+    get:
+      <<: *list_program_reports
+      operationId: registrar_v2_list_program_reports
       tags: ['v2']
 
 ################################################################################
@@ -631,3 +669,18 @@ models:
         format: uri
         nullable: true
         description: URL to result file; null if result unavailable
+  ProgramReport:
+    type: object
+    properties:
+      name:
+        type: string
+        description: The name of the program report
+      created_date:
+        type: string
+        format: date
+        description: >
+          The ISO-format date-time that the program report was created
+      download_url:
+        type: string
+        format: uri
+        description: URL to download the program report

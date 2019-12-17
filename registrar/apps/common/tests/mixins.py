@@ -1,6 +1,8 @@
 """
 Mixins that provide common tests and utilities
 """
+import os
+
 import requests
 from user_tasks.models import UserTaskStatus
 
@@ -63,3 +65,14 @@ class BaseTaskTestMixin(object):
         task = self.spawn_task(program_key="program-nonexistant")
         task.wait()
         self.assert_failed("Bad program key")
+
+
+class S3MockEnvVarsMixin(object):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # required to prevent moto from mutating real infrastructure
+        os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
+        os.environ['AWS_SECURITY_TOKEN'] = 'testing'
+        os.environ['AWS_SESSION_TOKEN'] = 'testing'
