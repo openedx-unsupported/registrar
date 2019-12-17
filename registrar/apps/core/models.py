@@ -122,6 +122,8 @@ class OrganizationGroup(Group):
 
     .. no_pii::
     """
+    objects = models.Manager()
+
     class Meta(object):
         app_label = 'core'
         verbose_name = 'Organization Group'
