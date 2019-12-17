@@ -7,6 +7,7 @@ import ddt
 import mock
 import moto
 import requests
+from botocore.exceptions import ClientError
 from django.test import TestCase
 
 from registrar.apps.core.filestore import (
@@ -107,3 +108,24 @@ class FilestoreTests(TestCase):
     @ddt.data(FileSystemFilestore, S3Filestore)
     def test_initialize_filestore_classes(self, filestore_class):
         filestore_class('test-bucket', 'test/path')
+
+    def test_filestore_error_logging(self):
+        bucket = 'fake-bucket'
+        path_prefix = 'fake/prefix'
+        filepath = 'faker/file.csv'
+        contents = 'ThisIsPotentiallyPII'
+        filestore = FileSystemFilestore(bucket, path_prefix)
+
+        log_error_patcher = mock.patch.object(filestore_logger, 'error', autospec=True)
+        save_patcher = mock.patch.object(
+            filestore.backend, 'save', autospec=True, side_effect=ClientError({}, 'fake-error')
+        )
+        with log_error_patcher as mock_log_error, save_patcher as _mock_save:
+            with self.assertRaises(ClientError):
+                filestore.store(filepath, contents)
+
+        log_message = mock_log_error.call_args_list[0][0][0]
+        assert bucket in log_message
+        assert path_prefix in log_message
+        assert filepath in log_message
+        assert contents not in log_message

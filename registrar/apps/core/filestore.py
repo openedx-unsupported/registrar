@@ -3,6 +3,7 @@
 import logging
 import posixpath
 
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
@@ -18,8 +19,9 @@ class FilestoreBase(object):
     """
     Abstract base class for file stores.
     """
-    def __init__(self, backend, path_prefix):
+    def __init__(self, backend, bucket, path_prefix):
         self.backend = backend
+        self.bucket = bucket
         self.path_prefix = path_prefix
 
     def store(self, path, contents):
@@ -34,8 +36,8 @@ class FilestoreBase(object):
         Returns: str
             URL to result
         """
-        full_path = self.get_full_path(path)
-        self.backend.save(full_path, ContentFile(bytes(contents, 'utf-8')))
+        to_save = ContentFile(bytes(contents, 'utf-8'))
+        self._try_with_error_logging(lambda p: self.backend.save(p, to_save), "saving to", path)
         return self.get_url(path)
 
     def retrieve(self, path):
@@ -56,8 +58,8 @@ class FilestoreBase(object):
                 return content if isinstance(content, str) else content.decode('utf-8')
         except IOError as e:
             logger.exception(
-                "Could not read file stored at path {}: {}".format(
-                    full_path, e
+                "Could not read file stored at path {} in bucket {}: {}".format(
+                    full_path, self.bucket, e
                 )
             )
             return None
@@ -70,8 +72,7 @@ class FilestoreBase(object):
             path: Path to file within filestore.
                 Will be prefixed by `self.path_prefix`.
         """
-        full_path = self.get_full_path(path)
-        self.backend.delete(full_path)
+        self._try_with_error_logging(self.backend.delete, "deleting", path)
 
     def exists(self, path):
         """
@@ -83,22 +84,45 @@ class FilestoreBase(object):
 
         Returns: bool
         """
-        full_path = self.get_full_path(path)
-        return self.backend.exists(full_path)
+        return self._try_with_error_logging(self.backend.exists, "checking existence of", path)
 
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.
         Path will be prefixed by `self.path_prefix`.
         """
-        full_path = self.get_full_path(path)
-        return self.backend.url(full_path)
+        return self._try_with_error_logging(self.backend.url, "getting URL of", path)
 
     def get_full_path(self, path):
         """
         Apply `self.path_prefix` to `path`. Use POSIX path joining.
         """
         return posixpath.join(self.path_prefix, path)
+
+    def _try_with_error_logging(self, operation, operation_description, path):
+        """
+        Attempt an operation on a (relative) path.
+
+        If it fails with a Boto client error, log the path and bucket name,
+        then re-raise that exception.
+
+        Arguments:
+            operation: str -> T
+            operation_description: str
+            path: str
+
+        Returns: T
+        """
+        full_path = self.get_full_path(path)
+        try:
+            return operation(full_path)
+        except ClientError:
+            logger.error(
+                "Error while {} {} in bucket {}.".format(
+                    operation_description, full_path, self.bucket
+                )
+            )
+            raise
 
 
 class FileSystemFilestore(FilestoreBase):
@@ -107,7 +131,7 @@ class FileSystemFilestore(FilestoreBase):
     """
     def __init__(self, bucket, path_prefix):
         prefix_with_bucket = posixpath.join(bucket, path_prefix)
-        super().__init__(default_storage, prefix_with_bucket)
+        super().__init__(default_storage, bucket, prefix_with_bucket)
 
     def get_url(self, path):
         """
@@ -123,7 +147,7 @@ class S3Filestore(FilestoreBase):
     """
     def __init__(self, bucket, path_prefix):
         storage_backend = get_storage_class()(bucket_name=bucket)
-        super().__init__(storage_backend, path_prefix)
+        super().__init__(storage_backend, bucket, path_prefix)
 
 
 def get_enrollment_uploads_filestore():
