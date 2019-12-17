@@ -58,7 +58,7 @@ class FilestoreBase(object):
                 return content if isinstance(content, str) else content.decode('utf-8')
         except IOError as e:
             logger.exception(
-                "Could not read file stored at path {} in bucket {}: {}".format(
+                "Could not read file stored at path {!r} in bucket {!r}: {}".format(
                     full_path, self.bucket, e
                 )
             )
@@ -118,7 +118,7 @@ class FilestoreBase(object):
             return operation(full_path)
         except ClientError:
             logger.error(
-                "Error while {} {} in bucket {}.".format(
+                "Error while {} {!r} in bucket {!r}.".format(
                     operation_description, full_path, self.bucket
                 )
             )
