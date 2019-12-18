@@ -11,11 +11,14 @@ from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     PendingUserOrganizationGroup,
+    Program,
+    ProgramOrganizationGroup,
     User,
 )
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
     OrganizationGroupFactory,
+    ProgramFactory,
     UserFactory,
 )
 
@@ -68,9 +71,9 @@ class OrganizationGroupTests(TestCase):
         self.user = UserFactory()
 
     @ddt.data(
-        perm.ReadMetadataRole,
-        perm.ReadEnrollmentsRole,
-        perm.ReadWriteEnrollmentsRole,
+        perm.OrganizationReadMetadataRole,
+        perm.OrganizationReadEnrollmentsRole,
+        perm.OrganizationReadWriteEnrollmentsRole,
     )
     def test_roles(self, role):
         org_group = OrganizationGroup.objects.create(
@@ -90,21 +93,21 @@ class OrganizationGroupTests(TestCase):
 
     def test_global_permission_not_granted(self):
         org_group = OrganizationGroup.objects.create(
-            role=perm.ReadMetadataRole.name,
+            role=perm.OrganizationReadMetadataRole.name,
             organization=self.organization,
         )
         self.user.groups.add(org_group)  # pylint: disable=no-member
-        permission = perm.ReadMetadataRole.permissions[0]
+        permission = perm.OrganizationReadMetadataRole.permissions[0]
         self.assertTrue(self.user.has_perm(permission, self.organization))
         self.assertFalse(self.user.has_perm(permission))
 
     def test_roles_are_org_specific(self):
         organization2 = OrganizationFactory()
-        permission = perm.ReadMetadataRole.permissions[0]
+        permission = perm.OrganizationReadMetadataRole.permissions[0]
         self.assertFalse(self.user.has_perm(permission, self.organization))
         self.assertFalse(self.user.has_perm(permission, organization2))
         org_group = OrganizationGroup.objects.create(
-            role=perm.ReadMetadataRole.name,
+            role=perm.OrganizationReadMetadataRole.name,
             organization=self.organization,
         )
         self.user.groups.add(org_group)  # pylint: disable=no-member
@@ -114,12 +117,12 @@ class OrganizationGroupTests(TestCase):
     def test_org_group_recalculates_permissions(self):
         org1 = self.organization
         org2 = OrganizationFactory()
-        metdata_permission = perm.READ_METADATA
-        write_permission = perm.WRITE_ENROLLMENTS
+        metdata_permission = perm.ORGANIZATION_READ_METADATA
+        write_permission = perm.ORGANIZATION_WRITE_ENROLLMENTS
 
         # Scenario 1: read/write on org1
         org_group = OrganizationGroup.objects.create(
-            role=perm.ReadWriteEnrollmentsRole.name,
+            role=perm.OrganizationReadWriteEnrollmentsRole.name,
             organization=org1,
         )
         self.user.groups.add(org_group)  # pylint: disable=no-member
@@ -129,7 +132,7 @@ class OrganizationGroupTests(TestCase):
         self.assertFalse(self.user.has_perm(write_permission, org2))
 
         # Scenario 2: metadata only on org1
-        org_group.role = perm.ReadEnrollmentsRole.name
+        org_group.role = perm.OrganizationReadEnrollmentsRole.name
         org_group.save()
         self.assertTrue(self.user.has_perm(metdata_permission, org1))
         self.assertFalse(self.user.has_perm(write_permission, org1))
@@ -145,12 +148,111 @@ class OrganizationGroupTests(TestCase):
         self.assertFalse(self.user.has_perm(write_permission, org2))
 
         # Scenario 4: read/write on org2
-        org_group.role = perm.ReadWriteEnrollmentsRole.name
+        org_group.role = perm.OrganizationReadWriteEnrollmentsRole.name
         org_group.save()
         self.assertFalse(self.user.has_perm(metdata_permission, org1))
         self.assertFalse(self.user.has_perm(write_permission, org1))
         self.assertTrue(self.user.has_perm(metdata_permission, org2))
         self.assertTrue(self.user.has_perm(write_permission, org2))
+
+
+@ddt.ddt
+class ProgramOrganizationGroupTests(TestCase):
+    """ Tests for ProgramOrganizationGroup model """
+
+    def setUp(self):
+        super(ProgramOrganizationGroupTests, self).setUp()
+        self.program = ProgramFactory()
+        self.user = UserFactory()
+
+    @ddt.data(
+        perm.ProgramReadMetadataRole,
+        perm.ProgramReadEnrollmentsRole,
+        perm.ProgramReadWriteEnrollmentsRole,
+    )
+    def test_roles(self, role):
+        program_group = ProgramOrganizationGroup.objects.create(
+            role=role.name,
+            program=self.program,
+            granting_organization=self.program.managing_organization,
+        )
+        permissions = get_perms(self.user, self.program)
+        self.assertEqual([], permissions)
+        self.user.groups.add(program_group)  # pylint: disable=no-member
+        permissions = get_perms(self.user, self.program)
+        self.assertEqual(len(role.permissions), len(permissions))
+        for permission in Program._meta.permissions:
+            self.assertEqual(
+                permission in role.permissions,
+                self.user.has_perm(permission, self.program)
+            )
+
+    def test_global_permission_not_granted(self):
+        program_group = ProgramOrganizationGroup.objects.create(
+            role=perm.ProgramReadMetadataRole.name,
+            program=self.program,
+            granting_organization=self.program.managing_organization,
+        )
+        self.user.groups.add(program_group)  # pylint: disable=no-member
+        permission = perm.ProgramReadMetadataRole.permissions[0]
+        self.assertTrue(self.user.has_perm(permission, self.program))
+        self.assertFalse(self.user.has_perm(permission))
+
+    def test_roles_are_program_specific(self):
+        program2 = ProgramFactory()
+        permission = perm.ProgramReadMetadataRole.permissions[0]
+        self.assertFalse(self.user.has_perm(permission, self.program))
+        self.assertFalse(self.user.has_perm(permission, program2))
+        program_group = ProgramOrganizationGroup.objects.create(
+            role=perm.ProgramReadMetadataRole.name,
+            program=self.program,
+            granting_organization=self.program.managing_organization,
+        )
+        self.user.groups.add(program_group)  # pylint: disable=no-member
+        self.assertTrue(self.user.has_perm(permission, self.program))
+        self.assertFalse(self.user.has_perm(permission, program2))
+
+    def test_program_group_recalculates_permissions(self):
+        program1 = self.program
+        program2 = ProgramFactory()
+        metdata_permission = perm.PROGRAM_READ_METADATA
+        write_permission = perm.PROGRAM_WRITE_ENROLLMENTS
+
+        # Scenario 1: read/write on program1
+        program_group = ProgramOrganizationGroup.objects.create(
+            role=perm.ProgramReadWriteEnrollmentsRole.name,
+            program=program1,
+            granting_organization=program1.managing_organization,
+        )
+        self.user.groups.add(program_group)  # pylint: disable=no-member
+        self.assertTrue(self.user.has_perm(metdata_permission, program1))
+        self.assertTrue(self.user.has_perm(write_permission, program1))
+        self.assertFalse(self.user.has_perm(metdata_permission, program2))
+        self.assertFalse(self.user.has_perm(write_permission, program2))
+
+        # Scenario 2: metadata only on program1
+        program_group.role = perm.ProgramReadEnrollmentsRole.name
+        program_group.save()
+        self.assertTrue(self.user.has_perm(metdata_permission, program1))
+        self.assertFalse(self.user.has_perm(write_permission, program1))
+        self.assertFalse(self.user.has_perm(metdata_permission, program2))
+        self.assertFalse(self.user.has_perm(write_permission, program2))
+
+        # Scenario 3: metadata only on program2
+        program_group.program = program2
+        program_group.save()
+        self.assertFalse(self.user.has_perm(metdata_permission, program1))
+        self.assertFalse(self.user.has_perm(write_permission, program1))
+        self.assertTrue(self.user.has_perm(metdata_permission, program2))
+        self.assertFalse(self.user.has_perm(write_permission, program2))
+
+        # Scenario 4: read/write on program2
+        program_group.role = perm.ProgramReadWriteEnrollmentsRole.name
+        program_group.save()
+        self.assertFalse(self.user.has_perm(metdata_permission, program1))
+        self.assertFalse(self.user.has_perm(write_permission, program1))
+        self.assertTrue(self.user.has_perm(metdata_permission, program2))
+        self.assertTrue(self.user.has_perm(write_permission, program2))
 
 
 class PendingUserOrganizationGroupTests(TestCase):

@@ -10,6 +10,7 @@ import mock
 from django.conf import settings
 
 from registrar.apps.api.constants import TRACKING_CATEGORY
+from registrar.apps.api.mixins import CustomEncoder
 from registrar.apps.core.utils import get_user_organizations
 
 
@@ -84,7 +85,7 @@ class TrackTestMixin(object):
             '%s invoked on Registrar by user with ID=%s with properties %s',
             event,
             user.id,
-            json.dumps(properties, skipkeys=True, sort_keys=True),
+            json.dumps(properties, skipkeys=True, sort_keys=True, cls=CustomEncoder),
         )
 
 

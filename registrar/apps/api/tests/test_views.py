@@ -22,7 +22,7 @@ class APIDocViewTest(APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.admin_user = UserFactory()
-        assign_perm(perms.WRITE_ENROLLMENTS, cls.admin_user)
+        assign_perm(perms.ORGANIZATION_WRITE_ENROLLMENTS, cls.admin_user)
 
         cls.org = OrganizationFactory(name='Test Organization')
         cls.program = ProgramFactory(
@@ -30,7 +30,7 @@ class APIDocViewTest(APITestCase):
         )
         cls.org_admin_group = OrganizationGroupFactory(
             organization=cls.org,
-            role=perms.ReadWriteEnrollmentsRole.name
+            role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
         cls.org_admin = UserFactory()
         cls.org_admin.groups.add(cls.org_admin_group)  # pylint: disable=no-member
