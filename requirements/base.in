@@ -19,3 +19,5 @@ edx-drf-extensions
 edx-rest-api-client==1.9.2
 pytz
 redis==2.8
+
+-e git+https://github.com/edx/api-doc-tools.git@kdmccormick/move-code#egg=edx-api-doc-tools==1.0
