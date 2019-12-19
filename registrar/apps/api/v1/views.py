@@ -7,7 +7,6 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
-from edx_api_doc_tools import schema_for, query_parameter
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -20,6 +19,12 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
+from edx_api_doc_tools import (
+    path_parameter,
+    query_parameter,
+    schema,
+    schema_for,
+)
 from registrar.apps.api.constants import (
     ENROLLMENT_PERMISSIONS_LIST,
     PERMISSION_QUERY_PARAM_MAP,
@@ -29,6 +34,7 @@ from registrar.apps.api.exceptions import FileTooLarge
 from registrar.apps.api.mixins import TrackViewMixin
 from registrar.apps.api.serializers import (
     CourseRunSerializer,
+    JobAcceptanceSerializer,
     JobStatusSerializer,
     ProgramSerializer,
 )
@@ -233,6 +239,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
         return discovery_program.course_runs
 
 
+
 class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
@@ -286,9 +293,22 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         'fmt': 'result_format',
     }
 
+    @schema(
+        parameters=[
+            path_parameter('program_key', str, 'edX human-readable program key'),
+            query_parameter('fmt', str, 'Response format: "json" or "csv"'),
+        ],
+        responses={
+            200: JobAcceptanceSerializer,
+            403: "No program access.",
+            404: "Invalid program key.",
+        },
+    )
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves program enrollment data.
+
+        Here we describe the operation futher, using _Markdown_!
         """
         return self.invoke_download_job(list_program_enrollments, self.program.key)
 

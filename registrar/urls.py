@@ -21,8 +21,8 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView
-from edx_api_doc_tools import make_api_info, make_docs_urls
 
+from edx_api_doc_tools import make_api_info, make_docs_urls
 from registrar.apps.api import urls as api_urls
 from registrar.apps.core import views as core_views
 
