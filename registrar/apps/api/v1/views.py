@@ -7,6 +7,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
+from edx_api_doc_tools import schema_for, query_parameter
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -60,6 +61,17 @@ from registrar.apps.grades.tasks import get_course_run_grades
 logger = logging.getLogger(__name__)
 
 
+@schema_for(
+    'get',
+    parameters=[
+        query_parameter('org_key', str, 'Organization filter'),
+        query_parameter('user_has_perm', str, 'Permission filter'),
+    ],
+    responses={
+        403: 'User lacks access to organization.',
+        404: 'Organization does not exist.',
+    },
+)
 class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
