@@ -8,8 +8,8 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.10.39
-botocore==1.13.39         # via boto3, s3transfer
+boto3==1.10.43
+botocore==1.13.43         # via boto3, s3transfer
 celery==3.1.26.post2
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
@@ -23,7 +23,7 @@ django-simple-history==2.8.0
 django-storages==1.8
 django-user-tasks==0.3.0
 django-waffle==0.18.0
-django==1.11.26
+django==1.11.27
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
 djangorestframework==3.11.0
 docutils==0.15.2          # via botocore
@@ -41,7 +41,7 @@ idna==2.8                 # via requests
 jmespath==0.9.4           # via boto3, botocore
 kombu==3.0.37             # via celery
 mysqlclient==1.3.14
-newrelic==5.4.0.132       # via edx-django-utils
+newrelic==5.4.1.134       # via edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 pbr==5.4.4                # via stevedore
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
