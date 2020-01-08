@@ -23,6 +23,7 @@ from registrar.apps.core.filestore import (
 )
 from registrar.apps.core.filestore import logger as filestore_logger
 
+
 class FilestoreTestMixin(object):
     test_bucket_1 = 'test-bucket1'
     test_bucket_2 = 'test-bucket2'
@@ -39,7 +40,7 @@ class FilestoreTestMixin(object):
         conn = boto3.resource('s3')
         conn.create_bucket(Bucket=self.test_bucket_1)
         conn.create_bucket(Bucket=self.test_bucket_2)
-    
+
     def tearDown(self):
         self._s3_mock.stop()
         super().tearDown()
@@ -104,6 +105,7 @@ class S3FilestoreTests(FilestoreTestMixin, TestCase, S3MockEnvVarsMixin):
         self.assertFalse(filestore.exists("x.txt"))
         filestore.delete("x.txt")
 
+
 @ddt.ddt
 class FileSystemFilestoreTests(FilestoreTestMixin, TestCase):
     test_bucket_1 = 'test-bucket1'
@@ -140,7 +142,7 @@ class FileSystemFilestoreTests(FilestoreTestMixin, TestCase):
     def test_filestore_list_exception(self):
         filestore = get_filestore(self.test_bucket_1, '')
         files_and_dirs = filestore.list('test')
-        self.assertEqual(files_and_dirs, ([],[]))
+        self.assertEqual(files_and_dirs, ([], []))
 
 
 @ddt.ddt
