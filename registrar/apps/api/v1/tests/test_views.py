@@ -16,7 +16,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
 from faker import Faker
-# from freezegun import freeze_time
+from freezegun import freeze_time
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
@@ -2418,7 +2418,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
 
 # the value returned by the get_url method depends on the time, so freeze time to ensure equality between
 # calls to get_url
-# @freeze_time('2020-01-08')
+@freeze_time('2020-01-08')
 class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     """
     Tests for GET /api/v1/programs/{program_key}/reports endpoint
@@ -2461,16 +2461,16 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 'data'
             )
 
-        # expected_data = [
-        #     {
-        #         'name': file['name'],
-        #         'created_date': file['created_date'],
-        #         'download_url': filestore.get_url('{}/{}'.format(file_prefix, file['name'])),
-        #     } for file in files
-        # ]
+        expected_data = [
+            {
+                'name': file['name'],
+                'created_date': file['created_date'],
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file['name'])),
+            } for file in files
+        ]
 
-        # response = self.get(self.path, self.hum_admin)
-        # self.assertEqual(response.data, expected_data)
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.data, expected_data)
 
     def test_min_created_date_query_parameter(self):
         files = [
@@ -2500,21 +2500,21 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 'data',
             )
 
-        # expected_data = [
-        #     {
-        #         'name': 'aggregate_report__2019_12_18',
-        #         'created_date': '2019-12-18',
-        #         'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'aggregate_report__2019_12_18')),
-        #     },
-        #     {
-        #         'name': 'individual_report__2019_12_18',
-        #         'created_date': '2019-12-18',
-        #         'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'individual_report__2019_12_18')),
-        #     },
-        # ]
+        expected_data = [
+            {
+                'name': 'aggregate_report__2019_12_18',
+                'created_date': '2019-12-18',
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'aggregate_report__2019_12_18')),
+            },
+            {
+                'name': 'individual_report__2019_12_18',
+                'created_date': '2019-12-18',
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'individual_report__2019_12_18')),
+            },
+        ]
 
-        # response = self.get(self.path + '?min_created_date=2019-12-18', self.hum_admin)
-        # self.assertEqual(response.data, expected_data)
+        response = self.get(self.path + '?min_created_date=2019-12-18', self.hum_admin)
+        self.assertEqual(response.data, expected_data)
 
     def test_min_created_date_parameter_invalid_date(self):
         filestore = get_program_reports_filestore()
@@ -2523,8 +2523,8 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             'data',
         )
 
-        # response = self.get(self.path + '?min_created_date=2019-12-18', self.hum_admin)
-        # self.assertEqual(response.data, [])
+        response = self.get(self.path + '?min_created_date=2019-12-18', self.hum_admin)
+        self.assertEqual(response.data, [])
 
     def test_filename_misformatted(self):
         files = [
@@ -2541,16 +2541,16 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 'data',
             )
 
-        # expected_data = [
-        #     {
-        #         'name': file,
-        #         'created_date': None,
-        #         'download_url': filestore.get_url('{}/{}'.format(file_prefix, file)),
-        #     } for file in files
-        # ]
+        expected_data = [
+            {
+                'name': file,
+                'created_date': None,
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file)),
+            } for file in files
+        ]
 
-        # response = self.get(self.path, self.hum_admin)
-        # self.assertEqual(response.data, expected_data)
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.data, expected_data)
 
     def test_invalid_date_in_filename(self):
         files = [
@@ -2565,16 +2565,16 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 'data',
             )
 
-        # expected_data = [
-        #     {
-        #         'name': file,
-        #         'created_date': None,
-        #         'download_url': filestore.get_url('{}/{}'.format(file_prefix, file))
-        #     } for file in files
-        # ]
-        # response = self.get(self.path, self.hum_admin)
-        # self.assertEqual(response.data, expected_data)
+        expected_data = [
+            {
+                'name': file,
+                'created_date': None,
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file))
+            } for file in files
+        ]
+        response = self.get(self.path, self.hum_admin)
+        self.assertEqual(response.data, expected_data)
 
-    # def test_get_program_list_unauthorized(self):
-        # response = self.get(self.path, self.stem_admin)
-        # self.assertEqual(response.status_code, 403)
+    def test_get_program_list_unauthorized(self):
+        response = self.get(self.path, self.stem_admin)
+        self.assertEqual(response.status_code, 403)
