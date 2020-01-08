@@ -2415,6 +2415,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             )
         self.assertEqual(response.status_code, 404)
 
+
 # the value returned by the get_url method depends on the time, so freeze time to ensure equality between
 # calls to get_url
 # @freeze_time('2020-01-08')
