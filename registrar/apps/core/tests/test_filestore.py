@@ -104,6 +104,7 @@ class S3FilestoreTests(FilestoreTestMixin, TestCase, S3MockEnvVarsMixin):
         self.assertFalse(filestore.exists("x.txt"))
         filestore.delete("x.txt")
 
+@ddt.ddt
 class FileSystemFilestoreTests(FilestoreTestMixin, TestCase):
     test_bucket_1 = 'test-bucket1'
     test_bucket_2 = 'test-bucket2'
