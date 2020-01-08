@@ -23,12 +23,7 @@ from registrar.apps.core.filestore import (
 )
 from registrar.apps.core.filestore import logger as filestore_logger
 
-
-@ddt.ddt
-class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
-    """
-    Tests for S3Filestore, which is the default Filestore under test settings.
-    """
+class FilestoreTestMixin(object):
     test_bucket_1 = 'test-bucket1'
     test_bucket_2 = 'test-bucket2'
 
@@ -44,10 +39,19 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
         conn = boto3.resource('s3')
         conn.create_bucket(Bucket=self.test_bucket_1)
         conn.create_bucket(Bucket=self.test_bucket_2)
-
+    
     def tearDown(self):
         self._s3_mock.stop()
         super().tearDown()
+
+
+@ddt.ddt
+class S3FilestoreTests(FilestoreTestMixin, TestCase, S3MockEnvVarsMixin):
+    """
+    Tests for S3Filestore, which is the default Filestore under test settings.
+    """
+    test_bucket_1 = 'test-bucket1'
+    test_bucket_2 = 'test-bucket2'
 
     bucket_variants = (test_bucket_1, test_bucket_2)
     location_variants = ('', 'bucketprefix/')
@@ -99,6 +103,43 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
         filestore = get_filestore(self.test_bucket_1, "")
         self.assertFalse(filestore.exists("x.txt"))
         filestore.delete("x.txt")
+
+class FileSystemFilestoreTests(FilestoreTestMixin, TestCase):
+    test_bucket_1 = 'test-bucket1'
+    test_bucket_2 = 'test-bucket2'
+
+    bucket_variants = (test_bucket_1, test_bucket_2)
+    location_variants = ('', 'bucketprefix/')
+    prefix_variants = ("", "prefix", "prefix/withslashes/")
+    path_variants = ("file.txt", "folder/file.txt")
+    contents_variants = ("filecontents!", "")
+
+    @ddt.data(
+        *product(
+            bucket_variants,
+            location_variants,
+            prefix_variants,
+            path_variants,
+            contents_variants,
+        )
+    )
+    @ddt.unpack
+    def test_filestore_list(self, bucket, location, prefix, path, contents):
+        filestore = get_filestore(bucket, prefix)
+        with mock.patch.object(filestore.backend, 'location', new=location):
+            url = filestore.store(path, contents)
+
+            pure_path = PurePath(path)
+            parent_path = pure_path.parent.name
+            file_name = pure_path.name
+
+            files = filestore.list(parent_path)[1]
+            self.assertEqual(files, [file_name])
+
+    def test_filestore_list_exception(self):
+        filestore = get_filestore(self.test_bucket_1, '')
+        files_and_dirs = filestore.list('test')
+        self.assertEqual(files_and_dirs, ([],[]))
 
 
 @ddt.ddt

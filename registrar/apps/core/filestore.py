@@ -157,7 +157,8 @@ class FileSystemFilestore(FilestoreBase):
     def list(self, path):
         """
         List the contents of a specified path. This method is almost identical to that of the base class
-        except that it returns a 2-tuple of empty lists when a listdir raises a FileNotFoundError
+        except that it returns a 2-tuple of empty lists when a listdir raises a FileNotFoundError. This
+        more closely mirrors the behavior of S3Filestore, which prevents the need for special cases in tests.
 
         Arguents:
             path: Path to file or directory.
