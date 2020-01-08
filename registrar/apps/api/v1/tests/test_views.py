@@ -16,7 +16,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
 from faker import Faker
-from freezegun import freeze_time
+# from freezegun import freeze_time
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
@@ -2417,7 +2417,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
 
 # the value returned by the get_url method depends on the time, so freeze time to ensure equality between
 # calls to get_url
-@freeze_time('2020-01-08')
+# @freeze_time('2020-01-08')
 class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     """
     Tests for GET /api/v1/programs/{program_key}/reports endpoint
