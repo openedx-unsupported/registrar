@@ -2575,6 +2575,6 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         # response = self.get(self.path, self.hum_admin)
         # self.assertEqual(response.data, expected_data)
 
-    def test_get_program_list_unauthorized(self):
+    # def test_get_program_list_unauthorized(self):
         # response = self.get(self.path, self.stem_admin)
         # self.assertEqual(response.status_code, 403)
