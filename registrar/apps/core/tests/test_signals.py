@@ -39,9 +39,9 @@ class HandleUserPostSaveTests(TestCase):
         self._assert_deletion()
 
     @ddt.data(
-        perms.ReadEnrollmentsRole.name,
-        perms.ReadMetadataRole.name,
-        perms.ReadWriteEnrollmentsRole.name,
+        perms.OrganizationReadEnrollmentsRole.name,
+        perms.OrganizationReadMetadataRole.name,
+        perms.OrganizationReadWriteEnrollmentsRole.name,
     )
     def test_multiple_pending_org_group(self, role_name):
         another_group = OrganizationGroupFactory(

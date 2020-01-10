@@ -57,10 +57,10 @@ class Organization(TimeStampedModel):
     class Meta(object):
         app_label = 'core'
         permissions = (
-            (perms.READ_METADATA_KEY, 'View Metadata'),
-            (perms.READ_ENROLLMENTS_KEY, 'Read enrollment data'),
-            (perms.WRITE_ENROLLMENTS_KEY, 'Write enrollment data'),
-            (perms.READ_REPORTS_KEY, 'Read reports data'),
+            (perms.ORGANIZATION_READ_METADATA_KEY, 'View Metadata'),
+            (perms.ORGANIZATION_READ_ENROLLMENTS_KEY, 'Read enrollment data'),
+            (perms.ORGANIZATION_WRITE_ENROLLMENTS_KEY, 'Write enrollment data'),
+            (perms.ORGANIZATION_READ_REPORTS_KEY, 'Read reports data'),
         )
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
@@ -78,7 +78,12 @@ class Program(TimeStampedModel):
     """
     class Meta(object):
         app_label = 'core'
-
+        permissions = (
+            (perms.PROGRAM_READ_METADATA_KEY, 'View program metadata'),
+            (perms.PROGRAM_READ_ENROLLMENTS_KEY, 'Read program enrollment data'),
+            (perms.PROGRAM_WRITE_ENROLLMENTS_KEY, 'Write program enrollment data'),
+            (perms.PROGRAM_READ_REPORTS_KEY, 'Read program reports data'),
+        )
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     managing_organization = models.ForeignKey(Organization)
@@ -130,14 +135,14 @@ class OrganizationGroup(Group):
 
     ROLE_CHOICES = (
         (role.name, role.description)
-        for role in perms.ROLES
+        for role in perms.ORGANIZATION_ROLES
     )
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=255,
         choices=ROLE_CHOICES,
-        default=perms.ReadMetadataRole.name,
+        default=perms.OrganizationReadMetadataRole.name,
     )
 
     def __init__(self, *args, **kwargs):
@@ -154,7 +159,7 @@ class OrganizationGroup(Group):
         """
         Converts self.role (which is a role name) to its matching Role instance.
         """
-        for role in perms.ROLES:
+        for role in perms.ORGANIZATION_ROLES:
             if self.role == role.name:
                 return role
         return None  # pragma: no cover
@@ -163,13 +168,69 @@ class OrganizationGroup(Group):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self._initial_organization:  # pragma: no branch
-            for perm in perms.PERMISSIONS:
+            for perm in perms.ORGANIZATION_PERMISSIONS:
                 remove_perm(perm, self, self._initial_organization)
         self.role_object.assign_to_group(self, self.organization)
         self._initial_organization = self.organization
 
     def __str__(self):
         return 'OrganizationGroup: {} role={}'.format(self.organization.name, self.role)
+
+
+class ProgramOrganizationGroup(Group):
+    """
+    Group subclass to grant select guardian permissions to a group on a program level.
+
+    .. no_pii::
+    """
+
+    objects = models.Manager()
+
+    class Meta(object):
+        app_label = 'core'
+        verbose_name = 'Program Group'
+
+    ROLE_CHOICES = (
+        (role.name, role.description)
+        for role in perms.PROGRAM_ROLES
+    )
+
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    granting_organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=255,
+        choices=ROLE_CHOICES,
+        default=perms.ProgramReadMetadataRole.name,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            self._initial_program = self.program
+        except Program.DoesNotExist:   # pragma: no cover
+            self._initial_program = None
+
+    @property
+    def role_object(self):
+        """
+        Converts self.role (which is a role name) to its matching Role instance.
+        """
+        for role in perms.PROGRAM_ROLES:
+            if self.role == role.name:  # pragma: no branch
+                return role
+        return None  # pragma: no cover
+
+    # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self._initial_program:  # pragma: no branch
+            for perm in perms.PROGRAM_PERMISSIONS:
+                remove_perm(perm, self, self._initial_program)
+        self.role_object.assign_to_group(self, self.program)
+        self._initial_program = self.program
+
+    def __str__(self):
+        return 'ProgramOrganizationGroup: {} role={}'.format(self.program.title, self.role)  # pragma: no cover
 
 
 class PendingUserOrganizationGroup(TimeStampedModel):

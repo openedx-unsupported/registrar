@@ -14,8 +14,12 @@ from registrar.apps.core.models import (
     OrganizationGroup,
     PendingUserOrganizationGroup,
     Program,
+    ProgramOrganizationGroup,
 )
-from registrar.apps.core.permissions import ReadMetadataRole
+from registrar.apps.core.permissions import (
+    OrganizationReadMetadataRole,
+    ProgramReadMetadataRole,
+)
 
 
 # pylint: disable=missing-docstring
@@ -95,7 +99,7 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
         lambda og: '{}_{}'.format(og.organization.key, og.role)
     )
     organization = factory.SubFactory(OrganizationFactory)
-    role = ReadMetadataRole.name
+    role = OrganizationReadMetadataRole.name
 
 
 class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
@@ -112,3 +116,16 @@ class ProgramFactory(factory.DjangoModelFactory):
 
     key = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     discovery_uuid = factory.Faker('uuid4')
+    managing_organization = factory.SubFactory(OrganizationFactory)
+
+
+class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = ProgramOrganizationGroup
+
+    name = factory.LazyAttribute(  # pragma: no cover
+        lambda pg: '{}_{}'.format(pg.program.key, pg.role)
+    )
+    program = factory.SubFactory(ProgramFactory)
+    granting_organization = factory.SubFactory(OrganizationFactory)
+    role = ProgramReadMetadataRole.name

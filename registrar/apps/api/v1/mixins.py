@@ -52,13 +52,13 @@ class AuthMixin(TrackViewMixin):
     raise_404_if_unauthorized = False
     staff_only = False
 
-    def get_permission_object(self):
+    def get_permission_objects(self):
         """
-        Get an object against which required permissions will be checked.
+        Returns a list of objects for which permission on at least one is required.
 
         If None, permissions will be checked globally.
         """
-        return None  # pragma: no cover
+        return []  # pragma: no cover
 
     def get_required_permissions(self, _request):
         """
@@ -66,8 +66,8 @@ class AuthMixin(TrackViewMixin):
         should be checked against request.user and object. By default, it
         returns list from `permission_required` attribute.
         """
-        if isinstance(self.permission_required, str):
-            return [self.permission_required]
+        if isinstance(self.permission_required, str):  # pragma: no branch
+            return [self.permission_required]  # pragma: no cover
         elif isinstance(self.permission_required, Iterable):
             return [p for p in self.permission_required]
         else:  # pragma: no cover
@@ -82,7 +82,7 @@ class AuthMixin(TrackViewMixin):
 
         Ensure that the user has all of the permissions specified in
         `permission_required` granted on the object returned by
-        `get_permission_object`. If not, an HTTP 403 (or, HTTP 404 if
+        `get_permission_objects`. If not, an HTTP 403 (or, HTTP 404 if
         `raise_404_if_unauthorized` is True) is raised.
 
         Overrides APIView.check_permissions.
@@ -97,22 +97,29 @@ class AuthMixin(TrackViewMixin):
         required = self.get_required_permissions(request)
         missing_global_permissions = {
             perm for perm in required
-            if not request.user.has_perm(perm)
+            if not perm.global_check(request.user)  # pylint: disable=no-member
         }
-        obj = self.get_permission_object()
+        objects = self.get_permission_objects()
         if not missing_global_permissions:
             missing_permissions = set()
-        elif obj:
+        elif objects:
             missing_permissions = {
                 perm for perm in required
-                if not request.user.has_perm(perm, obj)
+                if not AuthMixin._has_permission_on_any(request.user, perm, objects)
             }
         else:
-            missing_permissions = missing_global_permissions
+            missing_permissions = missing_global_permissions  # pragma: no cover
 
         if missing_permissions:
             self.add_tracking_data(missing_permissions=list(missing_permissions))
             self._unauthorized_response()
+
+    @staticmethod
+    def _has_permission_on_any(user, perm, objects):
+        for obj in objects:
+            if perm.check(user, obj):
+                return True
+        return False
 
     def _unauthorized_response(self):
         """
@@ -141,11 +148,11 @@ class ProgramSpecificViewMixin(AuthMixin):
             self.add_tracking_data(failure='program_not_found')
             raise Http404()
 
-    def get_permission_object(self):
+    def get_permission_objects(self):
         """
         Returns an organization object against which permissions should be checked.
         """
-        return self.program.managing_organization
+        return [self.program.managing_organization, self.program]
 
 
 class CourseSpecificViewMixin(ProgramSpecificViewMixin):
@@ -234,9 +241,9 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
     """
     def get_required_permissions(self, request):
         if request.method == 'GET':
-            return [perms.READ_ENROLLMENTS]
+            return [perms.APIReadEnrollmentsPermission]
         if request.method == 'POST' or self.request.method == 'PATCH':
-            return [perms.WRITE_ENROLLMENTS]
+            return [perms.APIWriteEnrollmentsPermission]
         return []  # pragma: no cover
 
     def check_permissions(self, request):

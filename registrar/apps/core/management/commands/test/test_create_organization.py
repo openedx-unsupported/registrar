@@ -7,10 +7,10 @@ from mock import patch
 
 from registrar.apps.core.models import Organization
 from registrar.apps.core.permissions import (
-    ROLES,
-    ReadEnrollmentsRole,
-    ReadMetadataRole,
-    ReadWriteEnrollmentsRole,
+    ORGANIZATION_ROLES,
+    OrganizationReadEnrollmentsRole,
+    OrganizationReadMetadataRole,
+    OrganizationReadWriteEnrollmentsRole,
 )
 
 
@@ -28,28 +28,28 @@ class TestCreateOrganization(TestCase):
 
     @ddt.data(
         [
-            [ReadMetadataRole.name, 'meta_1'],
-            [ReadMetadataRole.name, 'meta_2']
+            [OrganizationReadMetadataRole.name, 'meta_1'],
+            [OrganizationReadMetadataRole.name, 'meta_2']
         ],
         [
-            [ReadMetadataRole.name],
-            [ReadEnrollmentsRole.name],
-            [ReadWriteEnrollmentsRole.name]
+            [OrganizationReadMetadataRole.name],
+            [OrganizationReadEnrollmentsRole.name],
+            [OrganizationReadWriteEnrollmentsRole.name]
         ],
         [
-            [ReadMetadataRole.name],
-            [ReadEnrollmentsRole.name, 'g1'],
-            [ReadWriteEnrollmentsRole.name]
+            [OrganizationReadMetadataRole.name],
+            [OrganizationReadEnrollmentsRole.name, 'g1'],
+            [OrganizationReadWriteEnrollmentsRole.name]
         ],
         [
-            [ReadEnrollmentsRole.name, 'r1'],
-            [ReadWriteEnrollmentsRole.name]
+            [OrganizationReadEnrollmentsRole.name, 'r1'],
+            [OrganizationReadWriteEnrollmentsRole.name]
         ],
     )
     def test_create_org_groups(self, groups):
         call_command(self.command, self.org_key, groups=groups)
         org = Organization.objects.get(key=self.org_key)
-        groups_by_role = {role.name: [] for role in ROLES}
+        groups_by_role = {role.name: [] for role in ORGANIZATION_ROLES}
         for group in groups:
             groups_by_role[group[0]].append(group)
 
@@ -65,7 +65,7 @@ class TestCreateOrganization(TestCase):
                 qs.get(name=group_name)  # will raise exception if not found
 
     def test_group_parsing_too_many_args(self):
-        groups = [[ReadMetadataRole.name, 'g1', 'test'], [ReadEnrollmentsRole.name, 'g2']]
+        groups = [[OrganizationReadMetadataRole.name, 'g1', 'test'], [OrganizationReadEnrollmentsRole.name, 'g2']]
         # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, '--group only accepts one or two arguments'):
             call_command(self.command, self.org_key, groups=groups)
@@ -88,7 +88,7 @@ class TestCreateOrganization(TestCase):
         mocked_create.side_effect = Exception('myexception')
         # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Unable to create OrganizationGroup g1. cause: myexception'):
-            call_command(self.command, self.org_key, groups=[[ReadMetadataRole.name, 'g1']])
+            call_command(self.command, self.org_key, groups=[[OrganizationReadMetadataRole.name, 'g1']])
 
     def test_invalid_group_name(self):
         msg = 'org_key can only contain alphanumeric characters, dashes, and underscores'

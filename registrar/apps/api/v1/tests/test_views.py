@@ -36,13 +36,18 @@ from registrar.apps.core.jobs import (
     post_job_success,
     start_job,
 )
-from registrar.apps.core.models import Organization, OrganizationGroup
+from registrar.apps.core.models import (
+    Organization,
+    OrganizationGroup,
+    ProgramOrganizationGroup,
+)
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 from registrar.apps.core.tests.factories import (
     GroupFactory,
     OrganizationFactory,
     OrganizationGroupFactory,
     ProgramFactory,
+    ProgramOrganizationGroupFactory,
     UserFactory,
 )
 from registrar.apps.core.tests.utils import mock_oauth_login
@@ -64,7 +69,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         super().setUpTestData()
 
         cls.edx_admin = UserFactory(username='edx-admin')
-        assign_perm(perms.READ_METADATA, cls.edx_admin)
+        assign_perm(perms.ORGANIZATION_READ_METADATA, cls.edx_admin)
 
         # Some testing-specific terminology for the oranization groups here:
         #  - "admins" have enrollment read/write access & metadata read access
@@ -85,22 +90,22 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         cls.stem_user = UserFactory(username='stem-institute-user')
         cls.global_read_and_write_group = GroupFactory(
             name='GlobalReadAndWrite',
-            permissions=perms.ReadWriteEnrollmentsRole.permissions
+            permissions=perms.OrganizationReadWriteEnrollmentsRole.permissions
         )
         cls.stem_admin_group = OrganizationGroupFactory(
             name='stem-admins',
             organization=cls.stem_org,
-            role=perms.ReadWriteEnrollmentsRole.name
+            role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
         cls.stem_op_group = OrganizationGroupFactory(
             name='stem-ops',
             organization=cls.stem_org,
-            role=perms.ReadEnrollmentsRole.name
+            role=perms.OrganizationReadEnrollmentsRole.name
         )
         cls.stem_user_group = OrganizationGroupFactory(
             name='stem-users',
             organization=cls.stem_org,
-            role=perms.ReadMetadataRole.name
+            role=perms.OrganizationReadMetadataRole.name
         )
         cls.stem_admin.groups.add(cls.stem_admin_group)  # pylint: disable=no-member
         cls.stem_user.groups.add(cls.stem_user_group)  # pylint: disable=no-member
@@ -119,19 +124,27 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         cls.hum_admin_group = OrganizationGroupFactory(
             name='hum-admins',
             organization=cls.hum_org,
-            role=perms.ReadWriteEnrollmentsRole.name
+            role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
         cls.hum_op_group = OrganizationGroupFactory(
             name='hum-ops',
             organization=cls.hum_org,
-            role=perms.ReadEnrollmentsRole.name
+            role=perms.OrganizationReadEnrollmentsRole.name
         )
         cls.hum_user_group = OrganizationGroupFactory(
             name='hum-users',
             organization=cls.hum_org,
-            role=perms.ReadMetadataRole.name
+            role=perms.OrganizationReadMetadataRole.name
         )
         cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
+
+        cls.program_user = UserFactory(username='program-admin')
+        cls.program_group = ProgramOrganizationGroupFactory(
+            name='program-users',
+            program=cls.english_program,
+            role=perms.ProgramReadMetadataRole.name
+        )
+        cls.program_user.groups.add(cls.program_group)  # pylint: disable=no-member
 
     def setUp(self):
         super().setUp()
@@ -284,34 +297,25 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             ]
         )
 
+    def test_partial_programs_200(self):
+        with self.assert_tracking(user=self.program_user):
+            response = self.get('programs', self.program_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        response_programs = sorted(response.data, key=lambda p: p['program_key'])
+        self.assertListEqual(
+            response_programs,
+            [
+                {
+                    'program_key': 'masters-in-english',
+                    'program_title': 'masters in english',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
+                    'program_type': 'Masters',
+                }
+            ]
+        )
+
     @ddt.data(
-
-        # If you aren't staff and you don't supply a filter, you get a 403.
-        {
-            'groups': set(),
-            'expected_status': 403,
-        },
-        {
-            'groups': {'stem-admins'},
-            'expected_status': 403,
-        },
-        {
-            'groups': {'stem-ops', 'hum-admins'},
-            'expected_status': 403,
-        },
-
-        # If you use only an org filter, and you don't have access to that org,
-        # you get a 403
-        {
-            'groups': set(),
-            'org_filter': 'stem-institute',
-            'expected_status': 403,
-        },
-        {
-            'groups': {'hum-admins'},
-            'org_filter': 'stem-institute',
-            'expected_status': 403,
-        },
 
         # If you use only an org filter, and you DO have access to that org,
         # you get only that org's programs.
@@ -329,6 +333,15 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             'groups': {'stem-ops', 'hum-admins'},
             'org_filter': 'stem-institute',
             'expect_stem_programs': True,
+        },
+
+        # If you use only an org filter, and you only have access to one program in that org,
+        # then you get only that program.
+        {
+            'groups': {'program-users'},
+            'org_filter': 'humanities-college',
+            'expect_hum_program': True,
+            'test_program_group': True,
         },
 
         # If you use a permissions filter, you always get a 200, with all
@@ -407,9 +420,12 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             expected_status=200,
             expect_stem_programs=False,
             expect_hum_programs=False,
+            expect_hum_program=False,
+            test_program_group=False,
     ):
-        org_groups = [OrganizationGroup.objects.get(name=name) for name in groups]
-        user = UserFactory(groups=org_groups)
+        org_or_program_groups = [ProgramOrganizationGroup.objects.get(name=name) for name in groups] \
+            if test_program_group else [OrganizationGroup.objects.get(name=name) for name in groups]
+        user = UserFactory(groups=org_or_program_groups)
         if global_perm:
             user.groups.add(self.global_read_and_write_group)  # pylint: disable=no-member
 
@@ -421,10 +437,6 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         if perm_filter:
             query.append('user_has_perm=' + perm_filter)
             tracking_kwargs['permission_filter'] = perm_filter
-        if expected_status == 403:
-            tracking_kwargs['missing_permissions'] = [
-                perms.READ_METADATA
-            ]
         querystring = '&'.join(query)
 
         expected_programs_keys = set()
@@ -436,6 +448,10 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             expected_programs_keys.update({
                 'masters-in-english', 'masters-in-philosophy'
             })
+        if expect_hum_program:
+            expected_programs_keys.update({
+                'masters-in-english'
+            })
 
         with self.assert_tracking(
                 user=user,
@@ -445,7 +461,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             response = self.get('programs?' + querystring, user)
         self.assertEqual(response.status_code, expected_status)
 
-        if expected_status == 200:
+        if expected_status == 200:  # pragma: no branch
             actual_program_keys = {
                 program['program_key'] for program in response.data
             }
@@ -537,7 +553,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         # Note: whether this raises `no_such_perm` or `org_not_found`
         #       is essentially an implementation detail; either would
         #       be acceptable. Either way, the user sees a 404.
-        ('intergalactic-univ', 'right', 'no_such_perm'),
+        ('intergalactic-univ', 'right', 'org_not_found'),
     )
     @ddt.unpack
     def test_404(self, org_filter, perm_filter, expected_failure):
@@ -598,7 +614,7 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                missing_permissions=[perms.READ_METADATA],
+                missing_permissions=[perms.APIReadMetadataPermission],
         ):
             response = self.get('programs/masters-in-english', self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -678,7 +694,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.READ_METADATA],
+                missing_permissions=[perms.APIReadMetadataPermission],
         ):
             response = self.get('programs/masters-in-cs/courses', self.hum_admin)
         self.assertEqual(response.status_code, 403)
@@ -859,7 +875,7 @@ class ProgramEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.WRITE_ENROLLMENTS],
+                missing_permissions=[perms.APIWriteEnrollmentsPermission],
         ):
             response = self.request(
                 self.method,
@@ -876,7 +892,7 @@ class ProgramEnrollmentWriteMixin(object):
         with self.assert_tracking(
                 user=self.stem_user,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.WRITE_ENROLLMENTS],
+                missing_permissions=[perms.APIWriteEnrollmentsPermission],
         ):
             response = self.request(
                 self.method,
@@ -1167,7 +1183,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                missing_permissions=[perms.READ_ENROLLMENTS],
+                missing_permissions=[perms.APIReadEnrollmentsPermission],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -1287,7 +1303,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
                 user=self.stem_admin,
                 program_key='masters-in-english',
                 course_id='HUMx+English-550+Spring',
-                missing_permissions=[perms.READ_ENROLLMENTS],
+                missing_permissions=[perms.APIReadEnrollmentsPermission],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -1475,7 +1491,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
                 user=self.hum_admin,
                 program_key=self.cs_program.key,
                 course_id=self.course_id,
-                missing_permissions=[perms.WRITE_ENROLLMENTS],
+                missing_permissions=[perms.APIWriteEnrollmentsPermission],
         ):
             response = self.request(
                 self.method, self.get_url(), self.hum_admin, req_data
@@ -1491,7 +1507,7 @@ class ProgramCourseEnrollmentWriteMixin(object):
                 user=self.stem_user,
                 program_key=self.cs_program.key,
                 course_id=self.course_id,
-                missing_permissions=[perms.WRITE_ENROLLMENTS],
+                missing_permissions=[perms.APIWriteEnrollmentsPermission],
         ):
             response = self.request(
                 self.method, self.get_url(), self.stem_user, req_data
@@ -1903,7 +1919,7 @@ class EnrollmentUploadMixin(object):
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.WRITE_ENROLLMENTS],
+                missing_permissions=[perms.APIWriteEnrollmentsPermission],
         ):
             response = self._upload_enrollments(enrollments, user=self.hum_admin)
         self.assertEqual(response.status_code, 403)
@@ -1915,7 +1931,7 @@ class EnrollmentUploadMixin(object):
         with self.assert_tracking(
                 user=self.stem_user,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.WRITE_ENROLLMENTS],
+                missing_permissions=[perms.APIWriteEnrollmentsPermission],
         ):
             response = self._upload_enrollments(enrollments, user=self.stem_user)
         self.assertEqual(response.status_code, 403)
@@ -2222,7 +2238,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                missing_permissions=[perms.READ_ENROLLMENTS],
+                missing_permissions=[perms.APIReadEnrollmentsPermission],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -2360,7 +2376,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 user=self.stem_admin,
                 program_key='masters-in-english',
                 course_id='HUMx+English-550+Spring',
-                missing_permissions=[perms.READ_ENROLLMENTS],
+                missing_permissions=[perms.APIReadEnrollmentsPermission],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)

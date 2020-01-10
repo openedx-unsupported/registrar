@@ -5,6 +5,7 @@ import json
 import logging
 
 from registrar.apps.api import segment
+from registrar.apps.core.permissions import APIPermissionBase
 
 
 logger = logging.getLogger(__name__)
@@ -107,5 +108,19 @@ class TrackViewMixin(object):
             '%s invoked on Registrar by user with ID=%s with properties %s',
             event_name,
             self.request.user.id,
-            json.dumps(properties, skipkeys=True, sort_keys=True),
+            json.dumps(properties, skipkeys=True, sort_keys=True, cls=CustomEncoder),
         )
+
+
+class CustomEncoder(json.JSONEncoder):
+    """
+    We log information like user, permission_required, status_code, etc.
+    Previously permission_required was a list of strings which works well with JSON's
+    default encoder.
+    Now permission_required becomes a list of APIPermission classes and this CustomEncoder
+    helps encode APIPermission class to JSON.
+    """
+    def default(self, o):  # pylint: disable=method-hidden
+        if issubclass(o, APIPermissionBase):
+            return o.permissions
+        return json.JSONEncoder.default(self, o)  # pragma: no cover

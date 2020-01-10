@@ -10,6 +10,7 @@ from registrar.apps.core.models import (
     OrganizationGroup,
     PendingUserOrganizationGroup,
     Program,
+    ProgramOrganizationGroup,
     User,
 )
 
@@ -50,8 +51,14 @@ class ProgramAdmin(admin.ModelAdmin):
     list_display = ("key", "discovery_uuid", "managing_organization")
 
 
+class ProgramGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'program', 'granting_organization', 'role')
+    exclude = ('permissions', )
+
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
 admin.site.register(PendingUserOrganizationGroup, PendingUserOrganizationGroupAdmin)
 admin.site.register(Program, ProgramAdmin)
+admin.site.register(ProgramOrganizationGroup, ProgramGroupAdmin)

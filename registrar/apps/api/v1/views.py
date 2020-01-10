@@ -85,25 +85,33 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
 
     def get_queryset(self):
         programs = Program.objects.all()
+        user = self.request.user
+
         if self.organization_filter:
             programs = programs.filter(
                 managing_organization=self.organization_filter
             )
         if not self.permission_filter:
+            if user.has_perm(perms.ORGANIZATION_READ_METADATA, self.organization_filter):
+                return programs
+
+            programs = (
+                program for program in programs
+                if user.has_perm(perms.PROGRAM_READ_METADATA, program)
+            )
             return programs
 
         # if the user has permissions across organizations
         # via membership in a "global-access" group, give them
         # access to all programs that fits their permission criteria
-        user = self.request.user
-        if not user.has_perm(self.permission_filter):
+
+        if not self.permission_filter.global_check(user):
             # otherwise, check if the user has the required permissions
             # within the organization for each program
             programs = (
                 program for program in programs
-                if user.has_perm(
-                    self.permission_filter, program.managing_organization
-                )
+                if (self.permission_filter.check(user, program.managing_organization) or
+                    self.permission_filter.check(user, program))
             )
         # Filter out programs with enrollments disabled if the user requested
         # permission filter to operate on enrollments
@@ -113,35 +121,17 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
 
     def get_required_permissions(self, _request):
         """
-        Returns permissions that user must have on object returned by
-        `get_permission_object`.
-
-        If the user specifies a `user_has_perm` filter, then we filter
-        programs based on the user's permissions in `get_queryset`, so we
-        don't want to require any permissions. In the case that the user does
-        not have the specified permissions, they will get a 200 with an empty
-        list.
-
-        If the user does NOT specify a `user_has_perm` filter, then we
-        enforce that they have metadata-reading permission, and return a 403
-        if they do not have it for the specified organization(s).
+        Return a list of required permissions.
+        Here an empty list is returned because for this endpoint, permission check is done in get_queryset.
         """
-        if self.permission_filter:
-            return []
-        else:
-            return [perms.READ_METADATA]
+        return []
 
-    def get_permission_object(self):
+    def get_permission_objects(self):
         """
-        Returns an organization object against which permissions should be checked.
-
-        If the requesting user does not have `read_metadata`
-        permission for the organization specified by `org` (or globally
-        on the Organization class), Guardian will raise a 403.
+        Returns a list of objects against which permissions should be checked.
+        Here an empty list is returned because for this endpoint, permission check is done in get_queryset.
         """
-        # If this call returns None, Guardian will check for global Organization
-        # access instead of access against a specific Organization.
-        return self.organization_filter
+        return []
 
     @cached_property
     def organization_filter(self):
@@ -187,11 +177,11 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
 
     Returns:
      * 200: OK
-     * 403: User lacks read access organization of specified program.
+     * 403: User lacks read access to the specified program.
      * 404: Program does not exist.
     """
     serializer_class = ProgramSerializer
-    permission_required = [perms.READ_METADATA]
+    permission_required = [perms.APIReadMetadataPermission]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
 
@@ -207,11 +197,11 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
 
     Returns:
      * 200: OK
-     * 403: User lacks read access organization of specified program.
+     * 403: User lacks read access to the specified program.
      * 404: Program does not exist.
     """
     serializer_class = CourseRunSerializer
-    permission_required = perms.READ_METADATA
+    permission_required = [perms.APIReadMetadataPermission]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_courses'}
     event_parameter_map = {'program_key': 'program_key'}
 
@@ -239,7 +229,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     Returns:
      * 202: Accepted, an asynchronous job was successfully started.
      * 401: User is not authenticated
-     * 403: User lacks read access organization of specified program.
+     * 403: User lacks enrollment read access to the specified program.
      * 404: Program does not exist.
 
     Example Response:
@@ -259,7 +249,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
      * 200: Returns a map of students and their enrollment status.
      * 207: Not all students enrolled. Returns resulting enrollment status.
      * 401: User is not authenticated
-     * 403: User lacks read access for the organization of specified program.
+     * 403: User lacks enrollment write access to the specified program.
      * 404: Program does not exist.
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
@@ -307,7 +297,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
     Returns:
      * 202: Accepted, an asynchronous job was successfully started.
      * 401: User is not authenticated
-     * 403: User lacks enrollment read access to organization of specified course run.
+     * 403: User lacks enrollment read access to the program of specified course run.
      * 404: Course run does not exist within specified program.
 
     Example Response:
@@ -327,7 +317,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
      * 200: Returns a map of students and their course enrollment status.
      * 207: Not all students enrolled. Returns resulting enrollment status.
      * 401: User is not authenticated
-     * 403: User lacks read access for the organization of specified program.
+     * 403: User lacks enrollment write access to the  specified program.
      * 404: Program does not exist.
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
@@ -533,7 +523,7 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
 
     Path: /api/[version]/programs/{program_key}/courses/{course_id}/grades
     """
-    permission_required = [perms.READ_ENROLLMENTS]
+    permission_required = [perms.APIReadEnrollmentsPermission]
     event_method_map = {
         'GET': 'registrar.v1.get_course_grades',
     }
