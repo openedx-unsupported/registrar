@@ -61,13 +61,13 @@ All API endpoints that reference permissions in requests or responses
 will use these new permission codenames. 
 
 The API permissions that a user of Registrar posseses
-are determined by the internal permissions they are assigned within Registrar database;
-however, the those internal permissions are not exposed to the user
+are determined by the internal permissions they are assigned within Registrar's database;
+however, those internal permissions are not exposed to the user
 in the interest of minimizing complexity
 and allowing the underlying representation to change if necessary.
 The mapping from internal permissions to API permissions
 will be defined in ``core/permissions.py``.
-A logic to convert from internal to API permissions
+Logic to convert from internal to API permissions
 will also be defined in that module,
 such that conversion logic is not duplicated throughout the codebase.
 
