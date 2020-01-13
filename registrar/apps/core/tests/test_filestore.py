@@ -25,6 +25,10 @@ from registrar.apps.core.filestore import logger as filestore_logger
 
 
 class FilestoreTestMixin(object):
+    """
+    TODO: DUMMY DOCSTRING TO FIX LATER
+    """
+
     test_bucket_1 = 'test-bucket1'
     test_bucket_2 = 'test-bucket2'
 
@@ -108,6 +112,10 @@ class S3FilestoreTests(FilestoreTestMixin, TestCase, S3MockEnvVarsMixin):
 
 @ddt.ddt
 class FileSystemFilestoreTests(FilestoreTestMixin, TestCase):
+    """
+    TODO: DUMMY DOCSTRING TO FIX LATER
+    """
+
     test_bucket_1 = 'test-bucket1'
     test_bucket_2 = 'test-bucket2'
 
