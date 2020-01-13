@@ -53,7 +53,7 @@ production-requirements: piptools ## install requirements for production
 prod-requirements: production-requirements ## synonymous to 'production-requirements'
 
 devstack-requirements: piptools ## install requirements for devstack development
-	pip-sync -q requirements/devstack.txt
+	pip-sync requirements/devstack.txt
 
 local-requirements: piptools ## install requirements for local development
 	pip-sync -q requirements/local.txt
