@@ -144,7 +144,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         cls.hum_data_op_group = OrganizationGroupFactory(
             name='hum-data-ops',
             organization=cls.hum_org,
-            role=perms.ReadReportRole.name
+            role=perms.OrganizationReadReportRole.name
         )
         cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
         cls.hum_admin.groups.add(cls.hum_data_op_group)  # pylint: disable=no-member

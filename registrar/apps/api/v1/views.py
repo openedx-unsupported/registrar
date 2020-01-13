@@ -586,7 +586,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         'program_key': 'program_key',
         'min_created_date': 'min_created_date',
     }
-    permission_required = [perms.READ_REPORTS]
+    permission_required = [perms.APIReadReportPermission]
 
     def get(self, request, *args, **kwargs):
         """

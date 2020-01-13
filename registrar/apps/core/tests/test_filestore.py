@@ -130,7 +130,7 @@ class FileSystemFilestoreTests(FilestoreTestMixin, TestCase):
     def test_filestore_list(self, bucket, location, prefix, path, contents):
         filestore = get_filestore(bucket, prefix)
         with mock.patch.object(filestore.backend, 'location', new=location):
-            url = filestore.store(path, contents)
+            filestore.store(path, contents)
 
             pure_path = PurePath(path)
             parent_path = pure_path.parent.name
