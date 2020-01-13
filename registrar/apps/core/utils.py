@@ -1,10 +1,13 @@
 """ Miscellaneous utilities not specific to any app. """
 import csv
+import re
 from io import StringIO
 
+from guardian.shortcuts import get_perms
 from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.models import OrganizationGroup
+from registrar.apps.core.permissions import API_PERMISSIONS
 
 
 def get_user_organizations(user):
@@ -22,6 +25,33 @@ def get_user_organizations(user):
         except OrganizationGroup.DoesNotExist:
             pass
     return user_organizations
+
+
+def get_user_api_permissions(user, obj):
+    """
+    Returns a set of all APIPermissions granted to the user on a
+    provided object instance. This includes permissions granted though a
+    global permission or role.
+    """
+    user_object_permissions = get_perms(user, obj)
+    user_global_permissions = list(user.user_permissions.all().values_list('codename', flat=True))
+
+    user_api_permissions = set()
+
+    api_permission_map = {}
+    for api_permission in API_PERMISSIONS:
+        for db_perm in api_permission.permissions:
+            # strip app name from permission
+            match = re.match(r'\w+\.(\w+)', db_perm)
+            if match:
+                db_perm = match.groups()[0]
+                api_permission_map[db_perm] = api_permission
+
+    for db_perm in user_object_permissions + user_global_permissions:
+        if db_perm in api_permission_map:
+            user_api_permissions.add(api_permission_map.get(db_perm))
+
+    return user_api_permissions
 
 
 def serialize_to_csv(items, field_names, include_headers=False):

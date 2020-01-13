@@ -166,11 +166,17 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         perm_query_param = self.request.GET.get('user_has_perm', None)
         if not perm_query_param:
             return None
-        elif perm_query_param in PERMISSION_QUERY_PARAM_MAP:
-            return PERMISSION_QUERY_PARAM_MAP[perm_query_param]
-        else:
-            self.add_tracking_data(failure='no_such_perm')
-            raise Http404()
+
+        try:
+            return next(p for p in perms.API_PERMISSIONS if p.name == perm_query_param)
+        except StopIteration:
+            # maintains functionality with the currently deployed version of the UI
+            # and can be removed once these query params are no loger in use
+            if perm_query_param in PERMISSION_QUERY_PARAM_MAP:
+                return PERMISSION_QUERY_PARAM_MAP[perm_query_param]
+            else:
+                self.add_tracking_data(failure='no_such_perm')
+                raise Http404()
 
 
 class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):

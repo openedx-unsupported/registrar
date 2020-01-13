@@ -217,19 +217,31 @@ class APIPermissionBase(object):
 
 
 class APIReadMetadataPermission(APIPermissionBase):
+    name = 'read_metadata'
     permissions = [ORGANIZATION_READ_METADATA, PROGRAM_READ_METADATA]
 
 
 class APIReadEnrollmentsPermission(APIPermissionBase):
+    name = 'read_enrollments'
     permissions = [ORGANIZATION_READ_ENROLLMENTS, PROGRAM_READ_ENROLLMENTS]
 
 
 class APIWriteEnrollmentsPermission(APIPermissionBase):
+    name = 'write_enrollments'
     permissions = [ORGANIZATION_WRITE_ENROLLMENTS, PROGRAM_WRITE_ENROLLMENTS]
 
 
 class APIReadReportPermission(APIPermissionBase):
+    name = 'read_reports'
     permissions = [ORGANIZATION_READ_REPORTS, PROGRAM_READ_REPORTS]
+
+
+API_PERMISSIONS = [
+    APIReadMetadataPermission,
+    APIReadEnrollmentsPermission,
+    APIWriteEnrollmentsPermission,
+    APIReadReportPermission
+]
 
 
 ORGANIZATION_ROLES = [
