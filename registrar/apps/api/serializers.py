@@ -4,9 +4,7 @@ should be created here. As the API evolves, serializers may become more
 specific to a particular version of the API. In this case, the serializers
 in question should be moved to versioned sub-package.
 """
-from guardian.shortcuts import get_perms
 from rest_framework import serializers
-from rest_framework.fields import CurrentUserDefault
 from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.models import Program
@@ -35,7 +33,11 @@ class ProgramSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
             user = request.user
-            user_permissions = get_user_api_permissions(user, program).union(get_user_api_permissions(user, program.managing_organization))
+            user_permissions = get_user_api_permissions(
+                user, program
+            ).union(
+                get_user_api_permissions(user, program.managing_organization)
+            )
             return [permission.name for permission in user_permissions]
         else:
             return []

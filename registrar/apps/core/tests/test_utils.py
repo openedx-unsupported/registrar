@@ -2,8 +2,16 @@
 import ddt
 from django.contrib.auth.models import Group
 from django.test import TestCase
+from guardian.shortcuts import assign_perm
 from rest_framework.exceptions import ValidationError
 
+from registrar.apps.core.permissions import (
+    ORGANIZATION_READ_METADATA,
+    APIReadEnrollmentsPermission,
+    APIReadMetadataPermission,
+    APIWriteEnrollmentsPermission,
+    OrganizationReadWriteEnrollmentsRole,
+)
 from registrar.apps.core.tests.factories import (
     GroupFactory,
     OrganizationFactory,
@@ -11,6 +19,7 @@ from registrar.apps.core.tests.factories import (
     UserFactory,
 )
 from registrar.apps.core.utils import (
+    get_user_api_permissions,
     get_user_organizations,
     load_records_from_csv,
     serialize_to_csv,
@@ -54,6 +63,37 @@ class GetUserOrganizationsTests(TestCase):
         orgs = get_user_organizations(user)
         org_keys = {org.key for org in orgs}
         self.assertEqual(org_keys, expected_org_keys)
+
+
+class GetUserAPIPermissionsTests(TestCase):
+    """ Tests for get_user_api_permissions """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.org1 = OrganizationFactory()
+        org1_readwrite = OrganizationGroupFactory(
+            organization=cls.org1,
+            role=OrganizationReadWriteEnrollmentsRole.name
+        )
+
+        cls.org2 = OrganizationFactory()
+
+        cls.user = UserFactory(groups=[org1_readwrite])
+        assign_perm(ORGANIZATION_READ_METADATA, cls.user)
+
+    def test_get_api_permissions(self):
+        # validate permissions assigned at the object
+        perms = get_user_api_permissions(self.user, self.org1)
+        self.assertSetEqual(perms, set([
+            APIReadMetadataPermission,
+            APIReadEnrollmentsPermission,
+            APIWriteEnrollmentsPermission,
+        ]))
+
+        # validate permissions assigned globally
+        perms = get_user_api_permissions(self.user, self.org2)
+        self.assertSetEqual(perms, set([APIReadMetadataPermission]))
 
 
 def _create_food(name, is_fruit, rating, color):
