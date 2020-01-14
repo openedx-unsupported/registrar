@@ -43,12 +43,12 @@ def get_user_api_permissions(user, obj):
         for db_perm in api_permission.permissions:
             # strip app name from permission
             match = re.match(r'\w+\.(\w+)', db_perm)
-            if match:
+            if match:  # pragma: no branch
                 db_perm = match.groups()[0]
                 api_permission_map[db_perm] = api_permission
 
     for db_perm in user_object_permissions + user_global_permissions:
-        if db_perm in api_permission_map:
+        if db_perm in api_permission_map:  # pragma: no branch
             user_api_permissions.add(api_permission_map.get(db_perm))
 
     return user_api_permissions
