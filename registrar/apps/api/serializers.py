@@ -38,7 +38,7 @@ class ProgramSerializer(serializers.ModelSerializer):
             ).union(
                 get_user_api_permissions(user, program.managing_organization)
             )
-            return [permission.name for permission in user_permissions]
+            return sorted([permission.name for permission in user_permissions])
         else:
             return []
 
