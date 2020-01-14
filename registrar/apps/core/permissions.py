@@ -231,7 +231,7 @@ class APIWriteEnrollmentsPermission(APIPermissionBase):
     permissions = [ORGANIZATION_WRITE_ENROLLMENTS, PROGRAM_WRITE_ENROLLMENTS]
 
 
-class APIReadReportPermission(APIPermissionBase):
+class APIReadReportsPermission(APIPermissionBase):
     name = 'read_reports'
     permissions = [ORGANIZATION_READ_REPORTS, PROGRAM_READ_REPORTS]
 
@@ -240,7 +240,7 @@ API_PERMISSIONS = [
     APIReadMetadataPermission,
     APIReadEnrollmentsPermission,
     APIWriteEnrollmentsPermission,
-    APIReadReportPermission
+    APIReadReportsPermission
 ]
 
 

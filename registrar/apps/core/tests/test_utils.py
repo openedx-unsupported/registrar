@@ -7,8 +7,10 @@ from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.permissions import (
     ORGANIZATION_READ_METADATA,
+    ORGANIZATION_READ_REPORTS,
     APIReadEnrollmentsPermission,
     APIReadMetadataPermission,
+    APIReadReportsPermission,
     APIWriteEnrollmentsPermission,
     OrganizationReadWriteEnrollmentsRole,
 )
@@ -78,12 +80,14 @@ class GetUserAPIPermissionsTests(TestCase):
         )
 
         cls.org2 = OrganizationFactory()
+        cls.org3 = OrganizationFactory()
 
         cls.user = UserFactory(groups=[org1_readwrite])
         assign_perm(ORGANIZATION_READ_METADATA, cls.user)
+        assign_perm(ORGANIZATION_READ_REPORTS, cls.user, cls.org3)
 
     def test_get_api_permissions(self):
-        # validate permissions assigned at the object
+        # validate permissions assigned by a group
         perms = get_user_api_permissions(self.user, self.org1)
         self.assertSetEqual(perms, set([
             APIReadMetadataPermission,
@@ -94,6 +98,10 @@ class GetUserAPIPermissionsTests(TestCase):
         # validate permissions assigned globally
         perms = get_user_api_permissions(self.user, self.org2)
         self.assertSetEqual(perms, set([APIReadMetadataPermission]))
+
+        # validate permissions assigned directly on the object
+        perms = get_user_api_permissions(self.user, self.org3)
+        self.assertSetEqual(perms, set([APIReadReportsPermission, APIReadMetadataPermission]))
 
 
 def _create_food(name, is_fruit, rating, color):
