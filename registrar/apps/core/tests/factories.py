@@ -12,6 +12,7 @@ from guardian.shortcuts import assign_perm
 from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
+    PendingUserGroup,
     PendingUserOrganizationGroup,
     Program,
     ProgramOrganizationGroup,
@@ -91,6 +92,15 @@ class OrganizationFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: "Test Organization " + str(n))
 
 
+class ProgramFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Program
+
+    key = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    discovery_uuid = factory.Faker('uuid4')
+    managing_organization = factory.SubFactory(OrganizationFactory)
+
+
 class OrganizationGroupFactory(factory.DjangoModelFactory):
     class Meta(object):
         model = OrganizationGroup
@@ -100,23 +110,6 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
     )
     organization = factory.SubFactory(OrganizationFactory)
     role = OrganizationReadMetadataRole.name
-
-
-class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
-        model = PendingUserOrganizationGroup
-
-    organization_group = factory.SubFactory(OrganizationGroupFactory)
-    user_email = factory.Faker('email')
-
-
-class ProgramFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = Program
-
-    key = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
-    discovery_uuid = factory.Faker('uuid4')
-    managing_organization = factory.SubFactory(OrganizationFactory)
 
 
 class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
@@ -129,3 +122,19 @@ class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
     program = factory.SubFactory(ProgramFactory)
     granting_organization = factory.SubFactory(OrganizationFactory)
     role = ProgramReadMetadataRole.name
+
+
+class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = PendingUserOrganizationGroup
+
+    organization_group = factory.SubFactory(OrganizationGroupFactory)
+    user_email = factory.Faker('email')
+
+
+class PendingUserProgramGroupFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = PendingUserGroup
+
+    group = factory.SubFactory(ProgramOrganizationGroupFactory)
+    user_email = factory.Faker('email')

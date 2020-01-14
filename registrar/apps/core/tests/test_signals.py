@@ -10,6 +10,8 @@ from registrar.apps.core.models import PendingUserOrganizationGroup, User
 from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     PendingUserOrganizationGroupFactory,
+    PendingUserProgramGroupFactory,
+    ProgramOrganizationGroupFactory,
 )
 
 
@@ -21,10 +23,15 @@ class HandleUserPostSaveTests(TestCase):
     def setUp(self):
         super(HandleUserPostSaveTests, self).setUp()
         self.organization_group = OrganizationGroupFactory()
+        self.program_group = ProgramOrganizationGroupFactory()
         self.user_email = 'test@edx.org'
         self.user_password = 'password'
         self.pending_user_org_group = PendingUserOrganizationGroupFactory(
             organization_group=self.organization_group,
+            user_email=self.user_email
+        )
+        self.pending_user_program_group = PendingUserProgramGroupFactory(
+            group=self.program_group,
             user_email=self.user_email
         )
         apps.get_app_config('core').ready()
@@ -36,6 +43,15 @@ class HandleUserPostSaveTests(TestCase):
             password=self.user_password
         )
         self._assert_group_membership(user, self.organization_group.name)
+        self._assert_deletion()
+
+    def test_single_pending_program_group(self):
+        user = User.objects.create(
+            username=self.user_email,
+            email=self.user_email,
+            password=self.user_password
+        )
+        self._assert_group_membership(user, self.program_group.name)
         self._assert_deletion()
 
     @ddt.data(
@@ -67,18 +83,26 @@ class HandleUserPostSaveTests(TestCase):
             password=self.user_password
         )
         self._assert_group_membership(user, self.organization_group.name)
+        self._assert_group_membership(user, self.program_group.name)
+
         self._assert_deletion()
         PendingUserOrganizationGroupFactory(
             user_email=self.user_email,
             organization_group=self.organization_group,
         )
+        PendingUserProgramGroupFactory(
+            user_email=self.user_email,
+            group=self.program_group,
+        )
         user.full_name = 'test name'
         user.save()
-        self.assertEqual(len(user.groups.all()), 1)
+        self.assertEqual(len(user.groups.all()), 2)
         self._assert_deletion()
 
     def test_no_pending_user_organization_group(self):
         self.pending_user_org_group.delete()
+        self.pending_user_program_group.delete()
+
         user = User.objects.create(
             username=self.user_email,
             email=self.user_email,

@@ -10,6 +10,7 @@ import registrar.apps.core.permissions as perm
 from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
+    PendingUserGroup,
     PendingUserOrganizationGroup,
     Program,
     ProgramOrganizationGroup,
@@ -274,3 +275,42 @@ class PendingUserOrganizationGroupTests(TestCase):
         self.assertIn(user_email, pending_user_org_group_string)
         self.assertIn(self.organization.name, pending_user_org_group_string)
         self.assertIn(self.organization_group.role, pending_user_org_group_string)
+
+
+class PendingUserGroupTests(TestCase):
+    """ Tests for PendingUserGroup model """
+
+    def setUp(self):
+        super(PendingUserGroupTests, self).setUp()
+        self.organization = OrganizationFactory()
+        self.organization_group = OrganizationGroupFactory(organization=self.organization)
+        self.program = ProgramFactory()
+        self.program_group = ProgramOrganizationGroup.objects.create(
+            program=self.program,
+            granting_organization=self.program.managing_organization,
+        )
+
+    def test_pending_org_group_string(self):
+        user_email = 'test_pending_org_group@example.com'
+        pending_user_group = PendingUserGroup.objects.create(
+            user_email=user_email,
+            group=self.organization_group,
+        )
+        pending_user_group_string = str(pending_user_group)
+        self.assertIn('PendingUserGroup', pending_user_group_string)
+        self.assertIn(user_email, pending_user_group_string)
+        self.assertIn(self.organization.name, pending_user_group_string)
+        self.assertIn(self.organization_group.role, pending_user_group_string)
+
+    def test_pending_program_group_string(self):
+        user_email = 'test_pending_program_group@example.com'
+        pending_user_group = PendingUserGroup.objects.create(
+            user_email=user_email,
+            group=self.program_group,
+        )
+        pending_user_group_string = str(pending_user_group)
+        self.assertIn('PendingUserGroup', pending_user_group_string)
+        self.assertIn(user_email, pending_user_group_string)
+        self.assertIn(self.program.managing_organization.name, pending_user_group_string)
+        self.assertIn(self.program.key, pending_user_group_string)
+        self.assertIn(self.program_group.role, pending_user_group_string)

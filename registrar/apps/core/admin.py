@@ -8,7 +8,7 @@ from guardian.admin import GuardedModelAdmin
 from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
-    PendingUserOrganizationGroup,
+    PendingUserGroup,
     Program,
     ProgramOrganizationGroup,
     User,
@@ -39,8 +39,8 @@ class OrganizationGroupAdmin(admin.ModelAdmin):
     exclude = ('permissions',)
 
 
-class PendingUserOrganizationGroupAdmin(admin.ModelAdmin):
-    list_display = ('user_email', 'organization_group')
+class PendingUserGroupAdmin(admin.ModelAdmin):
+    list_display = ('user_email', 'group')
     search_fields = ('user_email', )
 
 
@@ -59,6 +59,6 @@ class ProgramGroupAdmin(admin.ModelAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
-admin.site.register(PendingUserOrganizationGroup, PendingUserOrganizationGroupAdmin)
+admin.site.register(PendingUserGroup, PendingUserGroupAdmin)
 admin.site.register(Program, ProgramAdmin)
 admin.site.register(ProgramOrganizationGroup, ProgramGroupAdmin)
