@@ -16,7 +16,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
 from faker import Faker
-from freezegun import freeze_time
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
@@ -55,6 +54,7 @@ from registrar.apps.core.tests.factories import (
     ProgramOrganizationGroupFactory,
     UserFactory,
 )
+from registrar.apps.core.tests.freezegun_wrapper import freeze_time
 from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.data import (
