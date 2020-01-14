@@ -49,7 +49,7 @@ class ProgramSerializerTests(TestCase):
     def test_get_user_permissions(self, fake_get_perms):
         """
         Program permissions should be populated with the union of all
-        assingned at that program or its managing organization
+        permissions assigned at that program and its managing organization
         """
         fake_get_perms.side_effect = [
             set([APIWriteEnrollmentsPermission]),  # mocked permissions on program
