@@ -1,13 +1,12 @@
 """ Miscellaneous utilities not specific to any app. """
 import csv
-import re
 from io import StringIO
 
 from guardian.shortcuts import get_perms
 from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.models import OrganizationGroup
-from registrar.apps.core.permissions import API_PERMISSIONS
+from registrar.apps.core.permissions import DB_TO_API_PERMISSION_MAPPING
 
 
 def get_user_organizations(user):
@@ -27,29 +26,20 @@ def get_user_organizations(user):
     return user_organizations
 
 
-def get_user_api_permissions(user, obj):
+def get_user_api_permissions(user, obj=None):
     """
     Returns a set of all APIPermissions granted to the user on a
     provided object instance. This includes permissions granted though a
     global permission or role.
     """
-    user_object_permissions = get_perms(user, obj)
+    user_object_permissions = get_perms(user, obj) if obj is not None else []
     user_global_permissions = list(user.user_permissions.all().values_list('codename', flat=True))
 
     user_api_permissions = set()
 
-    api_permission_map = {}
-    for api_permission in API_PERMISSIONS:
-        for db_perm in api_permission.permissions:
-            # strip app name from permission
-            match = re.match(r'\w+\.(\w+)', db_perm)
-            if match:  # pragma: no branch
-                db_perm = match.groups()[0]
-                api_permission_map[db_perm] = api_permission
-
     for db_perm in user_object_permissions + user_global_permissions:
-        if db_perm in api_permission_map:  # pragma: no branch
-            user_api_permissions.add(api_permission_map.get(db_perm))
+        if db_perm in DB_TO_API_PERMISSION_MAPPING:  # pragma: no branch
+            user_api_permissions.add(DB_TO_API_PERMISSION_MAPPING.get(db_perm))
 
     return user_api_permissions
 

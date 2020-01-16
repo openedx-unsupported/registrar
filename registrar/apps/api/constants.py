@@ -9,7 +9,8 @@ UPLOAD_FILE_MAX_SIZE = 5 * 1024 * 1024
 
 TRACKING_CATEGORY = 'Registrar API'
 
-PERMISSION_QUERY_PARAM_MAP = {
+# To be deprecated with upcoming program manager changes (01/2020)
+LEGACY_PERMISSION_QUERY_PARAMS = {
     'metadata': perms.APIReadMetadataPermission,
     'read': perms.APIReadEnrollmentsPermission,
     'write': perms.APIWriteEnrollmentsPermission,

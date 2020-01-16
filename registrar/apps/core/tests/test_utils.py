@@ -103,6 +103,10 @@ class GetUserAPIPermissionsTests(TestCase):
         perms = get_user_api_permissions(self.user, self.org3)
         self.assertSetEqual(perms, set([APIReadReportsPermission, APIReadMetadataPermission]))
 
+        # request only permissions assigned globally
+        perms = get_user_api_permissions(self.user)
+        self.assertSetEqual(perms, set([APIReadMetadataPermission]))
+
 
 def _create_food(name, is_fruit, rating, color):
     return {

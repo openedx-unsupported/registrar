@@ -2,6 +2,8 @@
 This module defines constants for permission codenames
 and sets of permissions that can be used as roles.
 """
+import re
+
 from guardian.shortcuts import assign_perm
 
 
@@ -258,3 +260,22 @@ PROGRAM_ROLES = [
     ProgramReadWriteEnrollmentsRole,
     ProgramReadReportRole,
 ]
+
+
+def _build_db_to_api_permissions():
+    """
+    Return a dict mappping a database permission (with app prefix stripped) to
+    a corresponding APIPermission.
+    """
+    permission_map = {}
+    for api_permission in API_PERMISSIONS:
+        for db_perm in api_permission.permissions:
+            # strip app name from permission
+            match = re.match(r'\w+\.(\w+)', db_perm)
+            if match:  # pragma: no branch
+                db_perm = match.groups()[0]
+                permission_map[db_perm] = api_permission
+    return permission_map
+
+
+DB_TO_API_PERMISSION_MAPPING = _build_db_to_api_permissions()

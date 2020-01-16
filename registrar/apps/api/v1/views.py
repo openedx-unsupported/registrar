@@ -23,7 +23,7 @@ from rest_framework.views import APIView
 
 from registrar.apps.api.constants import (
     ENROLLMENT_PERMISSIONS_LIST,
-    PERMISSION_QUERY_PARAM_MAP,
+    LEGACY_PERMISSION_QUERY_PARAMS,
     UPLOAD_FILE_MAX_SIZE,
 )
 from registrar.apps.api.exceptions import FileTooLarge
@@ -158,8 +158,8 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     @cached_property
     def permission_filter(self):
         """
-        Return the user permissions by which results will be filtered,
-        or None if on filter specified.
+        Return a list of ApiPermissionBase by which results will be filtered,
+        or None if no filter specified.
 
         Raises 404 for bad permission query param.
         """
@@ -172,8 +172,8 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         except StopIteration:
             # maintains functionality with the currently deployed version of the UI
             # and can be removed once these query params are no loger in use
-            if perm_query_param in PERMISSION_QUERY_PARAM_MAP:
-                return PERMISSION_QUERY_PARAM_MAP[perm_query_param]
+            if perm_query_param in LEGACY_PERMISSION_QUERY_PARAMS:
+                return LEGACY_PERMISSION_QUERY_PARAMS[perm_query_param]
             else:
                 self.add_tracking_data(failure='no_such_perm')
                 raise Http404()
