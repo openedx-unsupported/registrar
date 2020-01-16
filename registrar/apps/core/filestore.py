@@ -86,6 +86,20 @@ class FilestoreBase(object):
         """
         return self._try_with_error_logging(self.backend.exists, "checking existence of", path)
 
+    def list(self, path):
+        """
+        List the contents of a specified path.
+
+        Arguents:
+            path: Path to file or directory.
+                Will be prefixed by `self.path_prefix`.
+
+        Returns:
+            2-tuple of lists; the first item being directories, the second item being files
+        """
+        full_path = self.get_full_path(path)
+        return self.backend.listdir(full_path)
+
     def get_url(self, path):
         """
         Given the path of a file in the store, return a URL to the file.

@@ -194,6 +194,34 @@ endpoints:
       404:
         description: Program was not found.
     summary: List program courses
+  list_program_reports:
+    description: List the reports in a program
+    parameters:
+    - description: edX program key
+      example: uexample-master-of-science
+      in: path
+      name: program_key
+      required: true
+      type: string
+    - description: "The ISO-format date used to limit the reports returned based on\
+        \ their created date\n"
+      example: '2019-12-18'
+      in: query
+      name: min_created_date
+      required: false
+      type: date
+    responses:
+      200:
+        description: OK
+        schema:
+          items:
+            $ref: '#/models/ProgramReport'
+          type: array
+      403:
+        description: User is not authorized to view program reports.
+      404:
+        description: Program was not found.
+    summary: List program reports
   list_programs:
     description: List all programs, requires an organization key for non-admins
     parameters:
@@ -571,6 +599,20 @@ models:
       - internal-error
       type: string
     description: Mapping from student_keys to program enrollment statuses
+    type: object
+  ProgramReport:
+    properties:
+      created_date:
+        description: "The ISO-format date-time that the program report was created\n"
+        format: date
+        type: string
+      download_url:
+        description: URL to download the program report
+        format: uri
+        type: string
+      name:
+        description: The name of the program report
+        type: string
     type: object
 paths:
   /v1/jobs/{job_id}/:
@@ -1006,6 +1048,38 @@ paths:
       summary: Enroll students in a program
       tags:
       - v1
+  /v1/programs/{program_key}/reports:
+    get:
+      description: List the reports in a program
+      operationId: registrar_v1_list_program_reports
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: "The ISO-format date used to limit the reports returned based\
+          \ on their created date\n"
+        example: '2019-12-18'
+        in: query
+        name: min_created_date
+        required: false
+        type: date
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/models/ProgramReport'
+            type: array
+        403:
+          description: User is not authorized to view program reports.
+        404:
+          description: Program was not found.
+      summary: List program reports
+      tags:
+      - v1
   /v2/jobs/{job_id}/:
     get:
       operationId: registrar_v2_get_job_status
@@ -1437,6 +1511,38 @@ paths:
           schema:
             $ref: '#/models/ProgramEnrollmentResult'
       summary: Enroll students in a program
+      tags:
+      - v2
+  /v2/programs/{program_key}/reports:
+    get:
+      description: List the reports in a program
+      operationId: registrar_v2_list_program_reports
+      parameters:
+      - description: edX program key
+        example: uexample-master-of-science
+        in: path
+        name: program_key
+        required: true
+        type: string
+      - description: "The ISO-format date used to limit the reports returned based\
+          \ on their created date\n"
+        example: '2019-12-18'
+        in: query
+        name: min_created_date
+        required: false
+        type: date
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/models/ProgramReport'
+            type: array
+        403:
+          description: User is not authorized to view program reports.
+        404:
+          description: Program was not found.
+      summary: List program reports
       tags:
       - v2
 produces:

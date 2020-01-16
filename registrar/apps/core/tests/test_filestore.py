@@ -1,6 +1,7 @@
 """ Tests for core/filestore.py """
 
 from itertools import product
+from pathlib import PurePath
 
 import boto3
 import ddt
@@ -10,6 +11,7 @@ import requests
 from botocore.exceptions import ClientError
 from django.test import TestCase
 
+from registrar.apps.common.tests.mixins import S3MockEnvVarsMixin
 from registrar.apps.core.filestore import (
     FilestoreBase,
     FileSystemFilestore,
@@ -23,12 +25,18 @@ from registrar.apps.core.filestore import logger as filestore_logger
 
 
 @ddt.ddt
-class S3FilestoreTests(TestCase):
+class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
     """
     Tests for S3Filestore, which is the default Filestore under test settings.
     """
     test_bucket_1 = 'test-bucket1'
     test_bucket_2 = 'test-bucket2'
+
+    bucket_variants = (test_bucket_1, test_bucket_2)
+    location_variants = ('', 'bucketprefix/')
+    prefix_variants = ("", "prefix", "prefix/withslashes/")
+    path_variants = ("file.txt", "folder/file.txt")
+    contents_variants = ("filecontents!", "")
 
     def setUp(self):
         # This is unfortunately duplicated from:
@@ -47,12 +55,6 @@ class S3FilestoreTests(TestCase):
         self._s3_mock.stop()
         super().tearDown()
 
-    bucket_variants = (test_bucket_1, test_bucket_2)
-    location_variants = ('', 'bucketprefix/')
-    prefix_variants = ("", "prefix", "prefix/withslashes/")
-    path_variants = ("file.txt", "folder/file.txt")
-    contents_variants = ("filecontents!", "")
-
     @ddt.data(
         *product(
             bucket_variants,
@@ -69,6 +71,14 @@ class S3FilestoreTests(TestCase):
             url = filestore.store(path, contents)
             self.assertTrue(filestore.exists(path))
             self.assertIn(location, url)
+
+            pure_path = PurePath(path)
+            parent_path = pure_path.parent.name
+            file_name = pure_path.name
+
+            files = filestore.list(parent_path)[1]
+            self.assertEqual(files, [file_name])
+
             response = requests.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.text, contents)
