@@ -48,7 +48,11 @@ from registrar.apps.core.jobs import (
     get_processing_jobs_for_user,
 )
 from registrar.apps.core.models import Organization, Program
-from registrar.apps.core.utils import load_records_from_uploaded_csv
+from registrar.apps.core.permissions import APIReadMetadataPermission
+from registrar.apps.core.utils import (
+    get_user_api_permissions,
+    load_records_from_uploaded_csv,
+)
 from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.tasks import (
     list_all_course_run_enrollments,
@@ -95,28 +99,18 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
             programs = programs.filter(
                 managing_organization=self.organization_filter
             )
-        if not self.permission_filter:
-            if user.has_perm(perms.ORGANIZATION_READ_METADATA, self.organization_filter):
-                return programs
 
-            programs = (
-                program for program in programs
-                if user.has_perm(perms.PROGRAM_READ_METADATA, program)
+        if self.permission_filter:
+            required_permission = self.permission_filter
+        else:
+            required_permission = APIReadMetadataPermission
+
+        programs = (
+            program for program in programs
+            if required_permission in get_user_api_permissions(user, program).union(
+                get_user_api_permissions(user, program.managing_organization)
             )
-            return programs
-
-        # if the user has permissions across organizations
-        # via membership in a "global-access" group, give them
-        # access to all programs that fits their permission criteria
-
-        if not self.permission_filter.global_check(user):
-            # otherwise, check if the user has the required permissions
-            # within the organization for each program
-            programs = (
-                program for program in programs
-                if (self.permission_filter.check(user, program.managing_organization) or
-                    self.permission_filter.check(user, program))
-            )
+        )
         # Filter out programs with enrollments disabled if the user requested
         # permission filter to operate on enrollments
         if self.permission_filter in ENROLLMENT_PERMISSIONS_LIST:

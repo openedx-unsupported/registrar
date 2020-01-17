@@ -34,13 +34,13 @@ def get_user_api_permissions(user, obj=None):
     will be returned.
     """
     user_object_permissions = get_perms(user, obj) if obj is not None else []
-    user_global_permissions = list(user.user_permissions.all().values_list('codename', flat=True))
+    user_global_permissions = list(user.get_all_permissions())
 
     user_api_permissions = set()
 
     for db_perm in user_object_permissions + user_global_permissions:
         if db_perm in DB_TO_API_PERMISSION_MAPPING:  # pragma: no branch
-            user_api_permissions.add(DB_TO_API_PERMISSION_MAPPING.get(db_perm))
+            user_api_permissions.add(DB_TO_API_PERMISSION_MAPPING[db_perm])
 
     return user_api_permissions
 

@@ -6,8 +6,10 @@ from guardian.shortcuts import assign_perm
 from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.permissions import (
+    ORGANIZATION_READ_ENROLLMENTS,
     ORGANIZATION_READ_METADATA,
     ORGANIZATION_READ_REPORTS,
+    ORGANIZATION_WRITE_ENROLLMENTS,
     APIReadEnrollmentsPermission,
     APIReadMetadataPermission,
     APIReadReportsPermission,
@@ -79,6 +81,10 @@ class GetUserAPIPermissionsTests(TestCase):
             role=OrganizationReadWriteEnrollmentsRole.name
         )
 
+        cls.global_readwrite_enrollments = GroupFactory(
+            permissions=[ORGANIZATION_READ_ENROLLMENTS, ORGANIZATION_WRITE_ENROLLMENTS]
+        )
+
         cls.org2 = OrganizationFactory()
         cls.org3 = OrganizationFactory()
 
@@ -106,6 +112,14 @@ class GetUserAPIPermissionsTests(TestCase):
         # request only permissions assigned globally
         perms = get_user_api_permissions(self.user)
         self.assertSetEqual(perms, set([APIReadMetadataPermission]))
+
+        # validate permissions assigned globally by a django group
+        user = UserFactory(groups=[self.global_readwrite_enrollments])
+        perms = get_user_api_permissions(user)
+        self.assertSetEqual(perms, set([
+            APIReadEnrollmentsPermission,
+            APIWriteEnrollmentsPermission,
+        ]))
 
 
 def _create_food(name, is_fruit, rating, color):

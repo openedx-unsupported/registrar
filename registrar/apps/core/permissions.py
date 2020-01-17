@@ -264,13 +264,16 @@ PROGRAM_ROLES = [
 
 def _build_db_to_api_permissions():
     """
-    Return a dict mappping a database permission (with app prefix stripped) to
-    a corresponding APIPermission.
+    Return a dict mappping a each permission string to a corresponding
+    APIPermission. Two versions of each string are mapped, one with the app
+    prefix (used by django functions) and another without (used by guardian)
     """
     permission_map = {}
     for api_permission in API_PERMISSIONS:
         for db_perm in api_permission.permissions:
-            # strip app name from permission
+            # map permission string that includes app name
+            permission_map[db_perm] = api_permission
+            # strip app name from permission to match guardian's usage
             match = re.match(r'\w+\.(\w+)', db_perm)
             if match:  # pragma: no branch
                 db_perm = match.groups()[0]
