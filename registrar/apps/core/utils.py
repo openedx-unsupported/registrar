@@ -30,7 +30,8 @@ def get_user_api_permissions(user, obj=None):
     """
     Returns a set of all APIPermissions granted to the user on a
     provided object instance. This includes permissions granted though a
-    global permission or role.
+    global permission or role. If no object is passed only global permissions
+    will be returned.
     """
     user_object_permissions = get_perms(user, obj) if obj is not None else []
     user_global_permissions = list(user.user_permissions.all().values_list('codename', flat=True))
