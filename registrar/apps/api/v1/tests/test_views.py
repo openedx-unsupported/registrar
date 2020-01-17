@@ -622,6 +622,7 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
         ('english-program-user', ['read_metadata']),
         ('humanities-college-admin', [
             'read_metadata',
+            'read_reports',
             'read_enrollments',
             'write_enrollments',
         ]),
