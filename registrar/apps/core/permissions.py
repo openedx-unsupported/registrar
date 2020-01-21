@@ -2,6 +2,8 @@
 This module defines constants for permission codenames
 and sets of permissions that can be used as roles.
 """
+import re
+
 from guardian.shortcuts import assign_perm
 
 
@@ -217,19 +219,31 @@ class APIPermissionBase(object):
 
 
 class APIReadMetadataPermission(APIPermissionBase):
+    name = 'read_metadata'
     permissions = [ORGANIZATION_READ_METADATA, PROGRAM_READ_METADATA]
 
 
 class APIReadEnrollmentsPermission(APIPermissionBase):
+    name = 'read_enrollments'
     permissions = [ORGANIZATION_READ_ENROLLMENTS, PROGRAM_READ_ENROLLMENTS]
 
 
 class APIWriteEnrollmentsPermission(APIPermissionBase):
+    name = 'write_enrollments'
     permissions = [ORGANIZATION_WRITE_ENROLLMENTS, PROGRAM_WRITE_ENROLLMENTS]
 
 
-class APIReadReportPermission(APIPermissionBase):
+class APIReadReportsPermission(APIPermissionBase):
+    name = 'read_reports'
     permissions = [ORGANIZATION_READ_REPORTS, PROGRAM_READ_REPORTS]
+
+
+API_PERMISSIONS = [
+    APIReadMetadataPermission,
+    APIReadEnrollmentsPermission,
+    APIWriteEnrollmentsPermission,
+    APIReadReportsPermission
+]
 
 
 ORGANIZATION_ROLES = [
@@ -246,3 +260,25 @@ PROGRAM_ROLES = [
     ProgramReadWriteEnrollmentsRole,
     ProgramReadReportRole,
 ]
+
+
+def _build_db_to_api_permissions():
+    """
+    Return a dict mappping a each permission string to a corresponding
+    APIPermission. Two versions of each string are mapped, one with the app
+    prefix (used by django functions) and another without (used by guardian)
+    """
+    permission_map = {}
+    for api_permission in API_PERMISSIONS:
+        for db_perm in api_permission.permissions:
+            # map permission string that includes app name
+            permission_map[db_perm] = api_permission
+            # strip app name from permission to match guardian's usage
+            match = re.match(r'\w+\.(\w+)', db_perm)
+            if match:  # pragma: no branch
+                db_perm = match.groups()[0]
+                permission_map[db_perm] = api_permission
+    return permission_map
+
+
+DB_TO_API_PERMISSION_MAPPING = _build_db_to_api_permissions()

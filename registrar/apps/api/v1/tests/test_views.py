@@ -44,6 +44,7 @@ from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     ProgramOrganizationGroup,
+    User,
 )
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
 from registrar.apps.core.tests.factories import (
@@ -149,9 +150,9 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
         cls.hum_admin.groups.add(cls.hum_data_op_group)  # pylint: disable=no-member
 
-        cls.program_user = UserFactory(username='program-admin')
+        cls.program_user = UserFactory(username='english-program-user')
         cls.program_group = ProgramOrganizationGroupFactory(
-            name='program-users',
+            name='english-program-users',
             program=cls.english_program,
             role=perms.ProgramReadMetadataRole.name
         )
@@ -286,24 +287,28 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                     'program_title': 'masters in cs',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-cs/',
                     'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
                 },
                 {
                     'program_key': 'masters-in-english',
                     'program_title': 'masters in english',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
                     'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
                 },
                 {
                     'program_key': 'masters-in-me',
                     'program_title': 'masters in me',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-me/',
                     'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
                 },
                 {
                     'program_key': 'masters-in-philosophy',
                     'program_title': 'masters in philosophy',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-philosophy/',
                     'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
                 },
             ]
         )
@@ -322,6 +327,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                     'program_title': 'masters in english',
                     'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
                     'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
                 }
             ]
         )
@@ -349,7 +355,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         # If you use only an org filter, and you only have access to one program in that org,
         # then you get only that program.
         {
-            'groups': {'program-users'},
+            'groups': {'english-program-users'},
             'org_filter': 'humanities-college',
             'expect_hum_program': True,
             'test_program_group': True,
@@ -359,43 +365,49 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         # the programs you have access to (which may be an empty list).
         {
             'groups': set(),
-            'perm_filter': 'metadata',
+            'perm_filter': 'read_metadata',
         },
         {
             'groups': set(),
-            'perm_filter': 'read',
+            'perm_filter': 'read_enrollments',
         },
         {
             'groups': set(),
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
         },
         {
             'groups': set(),
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'global_perm': True,
             'expect_stem_programs': True,
             'expect_hum_programs': True,
         },
         {
             'groups': {'stem-users', 'hum-ops'},
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
         },
         {
             'groups': {'stem-admins', 'hum-ops'},
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'expect_stem_programs': True,
         },
         {
             'groups': {'stem-admins', 'hum-ops'},
-            'perm_filter': 'read',
+            'perm_filter': 'read_enrollments',
             'expect_stem_programs': True,
             'expect_hum_programs': True,
         },
         {
             'groups': {'hum-admins', 'hum-users'},
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'expect_hum_programs': True,
         },
+        {
+            'groups': {'hum-admins', 'hum-users'},
+            'perm_filter': 'read_metadata',
+            'expect_hum_programs': True,
+        },
+        # Validate old permissions filter (to be deprecated)
         {
             'groups': {'hum-admins', 'hum-users'},
             'perm_filter': 'metadata',
@@ -405,19 +417,19 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         # Finally, the filters may be combined
         {
             'groups': {'stem-admins', 'hum-ops'},
-            'perm_filter': 'read',
+            'perm_filter': 'read_enrollments',
             'org_filter': 'humanities-college',
             'expect_hum_programs': True,
         },
         {
             'groups': {'stem-admins', 'hum-ops'},
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'org_filter': 'stem-institute',
             'expect_stem_programs': True,
         },
         {
             'groups': {'stem-admins', 'hum-ops'},
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'org_filter': 'humanities-college',
         },
     )
@@ -481,7 +493,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     @ddt.data(
         {
             'groups': set(),
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'expected_programs': {
                 'masters-in-cs',
                 'masters-in-me',
@@ -491,7 +503,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         },
         {
             'groups': set(),
-            'perm_filter': 'read',
+            'perm_filter': 'read_enrollments',
             'expected_programs': {
                 'masters-in-cs',
                 'masters-in-me',
@@ -501,7 +513,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         },
         {
             'groups': set(),
-            'perm_filter': 'metadata',
+            'perm_filter': 'read_metadata',
             'expected_programs': {
                 'masters-in-cs',
                 'masters-in-me',
@@ -512,17 +524,17 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         },
         {
             'groups': {'hum-admins'},
-            'perm_filter': 'write',
+            'perm_filter': 'write_enrollments',
             'expected_programs': {'masters-in-philosophy'},
         },
         {
             'groups': {'hum-ops'},
-            'perm_filter': 'read',
+            'perm_filter': 'read_enrollments',
             'expected_programs': {'masters-in-philosophy'},
         },
         {
             'groups': {'hum-users'},
-            'perm_filter': 'metadata',
+            'perm_filter': 'read_metadata',
             'expected_programs': {'masters-in-english', 'masters-in-philosophy'},
         },
     )
@@ -555,7 +567,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         # Bad org filter, no perm filter
         ('intergalactic-univ', None, 'org_not_found'),
         # Bad org filter, good perm filter
-        ('intergalactic-univ', 'write', 'org_not_found'),
+        ('intergalactic-univ', 'write_enrollments', 'org_not_found'),
         # No org filter, bad perm filter
         (None, 'right', 'no_such_perm'),
         # Good org filter, bad perm filter
@@ -605,12 +617,24 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
     path = 'programs/masters-in-english'
     event = 'registrar.v1.get_program_detail'
 
-    @ddt.data(True, False)
-    def test_get_program(self, is_staff):
-        user = self.edx_admin if is_staff else self.hum_admin
+    @ddt.data(
+        ('edx-admin', ['read_metadata']),
+        ('english-program-user', ['read_metadata']),
+        ('humanities-college-admin', [
+            'read_metadata',
+            'read_reports',
+            'read_enrollments',
+            'write_enrollments',
+        ]),
+    )
+    @ddt.unpack
+    def test_get_program(self, username, api_permissions):
+        user = User.objects.get(username=username)
         with self.assert_tracking(user=user, program_key='masters-in-english'):
             response = self.get('programs/masters-in-english', user)
         self.assertEqual(response.status_code, 200)
+        response.data['permissions'] = sorted(response.data['permissions'])
+        api_permissions = sorted(api_permissions)
         self.assertDictEqual(
             response.data,
             {
@@ -618,6 +642,7 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
                 'program_title': 'masters in english',
                 'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
                 'program_type': 'Masters',
+                'permissions': api_permissions,
             },
         )
 
