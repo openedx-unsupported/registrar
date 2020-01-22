@@ -2453,13 +2453,17 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     s3_bucket = settings.PROGRAM_REPORTS_BUCKET
 
     @classmethod
+    def uuid_hexify(cls, uuid_string):
+        return uuid_string.replace('-', '')
+
+    @classmethod
     def tearDown(cls):
         super().tearDown(cls)
         filestore = get_program_reports_filestore()
-        files = filestore.list('{}/{}'.format(cls.hum_org.key, cls.english_program.discovery_uuid))
+        files = filestore.list('{}/{}'.format(cls.hum_org.key, cls.uuid_hexify(cls.english_program.discovery_uuid)))
 
         for file in files[1]:
-            file_path = '{}/{}/{}'.format(cls.hum_org.key, cls.english_program.discovery_uuid, file)
+            file_path = '{}/{}/{}'.format(cls.hum_org.key, cls.uuid_hexify(cls.english_program.discovery_uuid), file)
             filestore.delete(file_path)
 
     def test_ok(self):
@@ -2478,7 +2482,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             },
         ]
 
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
@@ -2517,7 +2521,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             },
         ]
 
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
@@ -2544,7 +2548,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     def test_min_created_date_parameter_invalid_date(self):
         filestore = get_program_reports_filestore()
         filestore.store(
-            '{}/{}/individual_report_1'.format(self.hum_org.key, self.english_program.discovery_uuid),
+            '{}/{}/individual_report_1'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid)),
             'data',
         )
 
@@ -2558,7 +2562,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             'individual_report_1',
             'individual_report_2',
         ]
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
@@ -2582,7 +2586,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             'aggregate_report__2019_25_25',
             'individual_report__2019_25_25',
         ]
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.english_program.discovery_uuid)
+        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
