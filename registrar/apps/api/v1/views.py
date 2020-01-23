@@ -602,9 +602,13 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         # list method of the filestore returns a 2-tuple containing a
         # list of directories and a list of files on the path, respectively,
         # so iterate the list of files
-        reports = filestore.list(file_prefix)[1]
+        logger.info('Reports file prefix is {}'.format(file_prefix))
+        file_store_list_result = filestore.list(file_prefix)
+        logger.info('File store list result: {}'.format(file_store_list_result))
+        reports = file_store_list_result[1]
 
         for report_name in reports:
+            logger.info('Retrieved from file store with filename {}'.format(report_name))
             report_metadata = {
                 'name': report_name,
                 'created_date': self._get_file_created_date(
