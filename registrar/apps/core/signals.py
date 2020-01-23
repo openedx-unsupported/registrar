@@ -25,8 +25,8 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     pending_groups = PendingUserGroup.objects.filter(user_email=user_instance.email)
     for pending_group in pending_groups:
         logger.info(
-            'add group {} into user group for user {}'.format(
-                pending_group.group, user_instance.email
+            'add user {} to group {}'.format(
+                user_instance.email, pending_group.group
             )
         )
         user_instance.groups.add(pending_group.group)
@@ -36,8 +36,8 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     pending_org_groups = PendingUserOrganizationGroup.objects.filter(user_email=user_instance.email)
     for pending_group in pending_org_groups:
         logger.info(
-            'add organization_group {} into user group for user {}'.format(
-                pending_group.organization_group, user_instance.email
+            'add user {} to organization_group {} '.format(
+                user_instance.email, pending_group.organization_group 
             )
         )
         user_instance.groups.add(pending_group.organization_group)

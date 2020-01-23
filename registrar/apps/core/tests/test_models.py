@@ -5,6 +5,7 @@ from django.test import TestCase
 from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
 from social_django.models import UserSocialAuth
+from django.contrib.auth.models import Group
 
 import registrar.apps.core.permissions as perm
 from registrar.apps.core.models import (
@@ -289,6 +290,7 @@ class PendingUserGroupTests(TestCase):
             program=self.program,
             granting_organization=self.program.managing_organization,
         )
+        self.generic_group = Group.objects.create(name='generic_group')
 
     def test_pending_org_group_string(self):
         user_email = 'test_pending_org_group@example.com'
@@ -314,3 +316,14 @@ class PendingUserGroupTests(TestCase):
         self.assertIn(self.program.managing_organization.name, pending_user_group_string)
         self.assertIn(self.program.key, pending_user_group_string)
         self.assertIn(self.program_group.role, pending_user_group_string)
+
+    def test_pending_generic_group_string(self):
+        user_email = 'test_pending_generic_group@example.com'
+        pending_user_group = PendingUserGroup.objects.create(
+            user_email=user_email,
+            group=self.generic_group,
+        )
+        pending_user_group_string = str(pending_user_group)
+        self.assertIn('PendingUserGroup', pending_user_group_string)
+        self.assertIn(user_email, pending_user_group_string)
+        self.assertIn(self.generic_group.name, pending_user_group_string)

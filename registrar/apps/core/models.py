@@ -307,6 +307,12 @@ class PendingUserGroup(TimeStampedModel):
                 role=self.group.role,
             )
 
+        return "<PendingUserGroup {ID}>: {group_name} - {user_email}".format(
+            ID=self.id,
+            group_name=self.group.name,
+            user_email=self.user_email,
+        )
+
     def __repr__(self):
         """
         Return uniquely identifying string representation.
