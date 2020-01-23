@@ -2469,15 +2469,15 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     def test_ok(self):
         files = [
             {
-                'name': 'aggregate_report__2019_12_18',
+                'name': 'aggregate_report__2019-12-18',
                 'created_date': '2019-12-18',
             },
             {
-                'name': 'individual_report__2019_12_17',
+                'name': 'individual_report__2019-12-17',
                 'created_date': '2019-12-17',
             },
             {
-                'name': 'individual_report__2019_12_18',
+                'name': 'individual_report__2019-12-18.csv',
                 'created_date': '2019-12-18',
             },
         ]
@@ -2497,26 +2497,25 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 'download_url': filestore.get_url('{}/{}'.format(file_prefix, file['name'])),
             } for file in files
         ]
-
         response = self.get(self.path, self.hum_admin)
         self.assertEqual(response.data, expected_data)
 
     def test_min_created_date_query_parameter(self):
         files = [
             {
-                'name': 'aggregate_report__2019_12_17',
+                'name': 'aggregate_report__2019-12-17',
                 'created_date': '2019-12-17',
             },
             {
-                'name': 'aggregate_report__2019_12_18',
+                'name': 'aggregate_report__2019-12-18',
                 'created_date': '2019-12-18',
             },
             {
-                'name': 'individual_report__2019_12_17',
+                'name': 'individual_report__2019-12-17',
                 'created_date': '2019-12-17',
             },
             {
-                'name': 'individual_report__2019_12_18',
+                'name': 'individual_report__2019-12-18',
                 'created_date': '2019-12-18',
             },
         ]
@@ -2531,14 +2530,14 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
 
         expected_data = [
             {
-                'name': 'aggregate_report__2019_12_18',
+                'name': 'aggregate_report__2019-12-18',
                 'created_date': '2019-12-18',
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'aggregate_report__2019_12_18')),
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'aggregate_report__2019-12-18')),
             },
             {
-                'name': 'individual_report__2019_12_18',
+                'name': 'individual_report__2019-12-18',
                 'created_date': '2019-12-18',
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'individual_report__2019_12_18')),
+                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'individual_report__2019-12-18')),
             },
         ]
 
@@ -2583,8 +2582,8 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
 
     def test_invalid_date_in_filename(self):
         files = [
-            'aggregate_report__2019_25_25',
-            'individual_report__2019_25_25',
+            'aggregate_report__2019-25-25',
+            'individual_report__2019-25-25',
         ]
         file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
         filestore = get_program_reports_filestore()
