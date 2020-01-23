@@ -235,6 +235,9 @@ class ProgramOrganizationGroup(Group):
 
 class PendingUserOrganizationGroup(TimeStampedModel):
     """
+    PendingUserOrganizationGroup is now deprecated, and is replaced by PendingUserGroup
+    which supports both Organization Group and Program Group.
+
     Organization Membership model for user who have not yet been created in the user table
 
     .. pii:: stores the user email address field for pending users.
@@ -258,6 +261,56 @@ class PendingUserOrganizationGroup(TimeStampedModel):
             organization_name=self.organization_group.organization.name,
             user_email=self.user_email,
             role=self.organization_group.role,
+        )
+
+    def __repr__(self):
+        """
+        Return uniquely identifying string representation.
+        """
+        return self.__str__()  # pragma: no cover
+
+
+class PendingUserGroup(TimeStampedModel):
+    """
+    Membership model for user who have not yet been created in the user table
+
+    .. pii:: stores the user email address field for pending users.
+             The pii data gets deleted after a real user gets created
+    .. pii_types:: email_address
+    .. pii_retirement:: local_api
+    """
+    class Meta(object):
+        ordering = ['created']
+        unique_together = ('user_email', 'group')
+
+    user_email = models.EmailField()
+    group = models.ForeignKey(Group)
+
+    def __str__(self):
+        """
+        Return human-readable string representation
+        """
+        if isinstance(self.group, OrganizationGroup):
+            return "<PendingUserGroup {ID}>: {organization_name} - {user_email} - {role}".format(
+                ID=self.id,
+                organization_name=self.group.organization.name,
+                user_email=self.user_email,
+                role=self.group.role,
+            )
+
+        if isinstance(self.group, ProgramOrganizationGroup):  # pragma: no branch
+            return "<PendingUserGroup {ID}>: {organization_name} - {program_name} - {user_email} - {role}".format(
+                ID=self.id,
+                organization_name=self.group.granting_organization.name,
+                program_name=self.group.program.key,
+                user_email=self.user_email,
+                role=self.group.role,
+            )
+
+        return "<PendingUserGroup {ID}>: {group_name} - {user_email}".format(
+            ID=self.id,
+            group_name=self.group.name,
+            user_email=self.user_email,
         )
 
     def __repr__(self):
