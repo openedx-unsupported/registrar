@@ -37,7 +37,7 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     for pending_group in pending_org_groups:
         logger.info(
             'add user {} to organization_group {} '.format(
-                user_instance.email, pending_group.organization_group 
+                user_instance.email, pending_group.organization_group
             )
         )
         user_instance.groups.add(pending_group.organization_group)

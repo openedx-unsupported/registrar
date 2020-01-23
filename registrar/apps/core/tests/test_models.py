@@ -1,11 +1,11 @@
 """ Tests for core models. """
 
 import ddt
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
 from social_django.models import UserSocialAuth
-from django.contrib.auth.models import Group
 
 import registrar.apps.core.permissions as perm
 from registrar.apps.core.models import (
