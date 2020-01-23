@@ -557,18 +557,18 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
     Example Response:
     [
         {
-            "name":"individual_report__2019_12_11.txt",
-            "created_date":"2019_12_11",
+            "name":"individual_report__2019-12-11.txt",
+            "created_date":"2019-12-11",
             "download_url":null
         },
         {
-            "name":"aggregate_report__2019_12_12.txt",
+            "name":"aggregate_report__2019-12-12.txt",
             "created_date":"2019_12_12",
             "download_url":null
         },
         {
-            "name":"individual_report__2019_12_12.txt",
-            "created_date":"2019_12_12",
+            "name":"individual_report__2019-12-12.txt",
+            "created_date":"2019-12-12",
             "download_url":null
         }
     ]
@@ -594,8 +594,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         """
         filestore = get_program_reports_filestore()
         file_prefix = '{}/{}'.format(self.program.managing_organization.key, self.program.discovery_uuid.hex)
-        filename_date_format_string = '%Y_%m_%d'
-        output_date_format_string = '%Y-%m-%d'
+        date_format_string = '%Y-%m-%d'
 
         reports_metadata = []
 
@@ -608,8 +607,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
             report_metadata = {
                 'name': report_name,
                 'created_date': self._get_file_created_date(
-                    report_name, filename_date_format_string,
-                    output_date_format_string
+                    report_name, date_format_string,
                 ),
             }
             reports_metadata.append(report_metadata)
@@ -617,14 +615,14 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         if 'min_created_date' in request.query_params:
             min_created_date = datetime.strptime(
                 request.query_params['min_created_date'],
-                output_date_format_string
+                date_format_string
             )
 
             reports_metadata = [
                 r for r
                 in reports_metadata
                 if r['created_date'] is not None and
-                datetime.strptime(r['created_date'], output_date_format_string) >= min_created_date
+                datetime.strptime(r['created_date'], date_format_string) >= min_created_date
             ]
 
         # wait to generate the download url until after we've done any filtering
@@ -635,19 +633,20 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         serializer = ProgramReportMetadataSerializer(reports_metadata, many=True)
         return Response(serializer.data)
 
-    def _get_file_created_date(self, filename, filename_date_format_string, output_date_format_string):
+    def _get_file_created_date(self, filename, date_format_string):
         """
         Return the date the file was created based on the date in the filename.
 
         Parameters:
             - filename: the name of the file
+            - date_format_string: a string representing the expected format of dates
 
         Returns:
-            - String: the date the file was created as a YYYY-MM-DD formatted string
+            - String: the date the file was created as a formatted string that matches date_format_string
             - None: if the date is not in the filename or the date is misformatted
         """
         # pull out the date string from the filename
-        pattern = re.compile(r'.*__(\d*_\d*_\d*)[.]*\w*')
+        pattern = re.compile(r'.*__(\d*-\d*-\d*)[.]*\w*')
         match = pattern.match(filename)
 
         if match is None:
@@ -660,11 +659,11 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         try:
             # validate that the date is actually a date; otherwise,
             # return None
-            date = datetime.strptime(date_string, filename_date_format_string)
+            date = datetime.strptime(date_string, date_format_string)
         except ValueError:
             self._log_invalid_filename(filename)
             return None
-        return datetime.strftime(date, output_date_format_string)
+        return datetime.strftime(date, date_format_string)
 
     def _log_invalid_filename(self, filename):
-        logger.warning('Filename {} is not in the expected format: report_name__YYYY_MM_DD.extension.'.format(filename))
+        logger.warning('Filename {} is not in the expected format: report_name__YYYY-MM-DD.extension.'.format(filename))
