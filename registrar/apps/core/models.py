@@ -86,7 +86,7 @@ class Program(TimeStampedModel):
         )
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
-    managing_organization = models.ForeignKey(Organization)
+    managing_organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     @property
     def discovery_program(self):
@@ -250,7 +250,7 @@ class PendingUserOrganizationGroup(TimeStampedModel):
         unique_together = ('user_email', 'organization_group')
 
     user_email = models.EmailField()
-    organization_group = models.ForeignKey(OrganizationGroup)
+    organization_group = models.ForeignKey(OrganizationGroup, on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -284,7 +284,7 @@ class PendingUserGroup(TimeStampedModel):
         unique_together = ('user_email', 'group')
 
     user_email = models.EmailField()
-    group = models.ForeignKey(Group)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
 
     def __str__(self):
         """
