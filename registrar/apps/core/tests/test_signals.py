@@ -6,7 +6,7 @@ from django.apps import apps
 from django.test import TestCase
 
 from registrar.apps.core import permissions as perms
-from registrar.apps.core.models import PendingUserOrganizationGroup, User
+from registrar.apps.core.models import PendingUserGroup, User
 from registrar.apps.core.tests.factories import (
     OrganizationGroupFactory,
     PendingUserOrganizationGroupFactory,
@@ -27,7 +27,7 @@ class HandleUserPostSaveTests(TestCase):
         self.user_email = 'test@edx.org'
         self.user_password = 'password'
         self.pending_user_org_group = PendingUserOrganizationGroupFactory(
-            organization_group=self.organization_group,
+            group=self.organization_group,
             user_email=self.user_email
         )
         self.pending_user_program_group = PendingUserProgramGroupFactory(
@@ -43,7 +43,6 @@ class HandleUserPostSaveTests(TestCase):
             password=self.user_password
         )
         self._assert_group_membership(user, self.organization_group.name)
-        self._assert_deletion()
 
     def test_single_pending_program_group(self):
         user = User.objects.create(
@@ -65,7 +64,7 @@ class HandleUserPostSaveTests(TestCase):
         )
         PendingUserOrganizationGroupFactory(
             user_email=self.user_email,
-            organization_group=another_group,
+            group=another_group,
         )
         user = User.objects.create(
             username=self.user_email,
@@ -88,7 +87,7 @@ class HandleUserPostSaveTests(TestCase):
         self._assert_deletion()
         PendingUserOrganizationGroupFactory(
             user_email=self.user_email,
-            organization_group=self.organization_group,
+            group=self.organization_group,
         )
         PendingUserProgramGroupFactory(
             user_email=self.user_email,
@@ -111,8 +110,8 @@ class HandleUserPostSaveTests(TestCase):
         self.assertEqual(len(user.groups.all()), 0)
 
     def _assert_deletion(self):
-        with self.assertRaises(PendingUserOrganizationGroup.DoesNotExist):
-            PendingUserOrganizationGroup.objects.get(
+        with self.assertRaises(PendingUserGroup.DoesNotExist):
+            PendingUserGroup.objects.get(
                 user_email=self.user_email
             )
 
