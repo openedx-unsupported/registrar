@@ -13,7 +13,6 @@ from registrar.apps.core.models import (
     Organization,
     OrganizationGroup,
     PendingUserGroup,
-    PendingUserOrganizationGroup,
     Program,
     ProgramOrganizationGroup,
 )
@@ -126,9 +125,9 @@ class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
 
 class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
     class Meta(object):
-        model = PendingUserOrganizationGroup
+        model = PendingUserGroup
 
-    organization_group = factory.SubFactory(OrganizationGroupFactory)
+    group = factory.SubFactory(OrganizationGroupFactory)
     user_email = factory.Faker('email')
 
 

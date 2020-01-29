@@ -233,43 +233,6 @@ class ProgramOrganizationGroup(Group):
         return 'ProgramOrganizationGroup: {} role={}'.format(self.program.title, self.role)  # pragma: no cover
 
 
-class PendingUserOrganizationGroup(TimeStampedModel):
-    """
-    PendingUserOrganizationGroup is now deprecated, and is replaced by PendingUserGroup
-    which supports both Organization Group and Program Group.
-
-    Organization Membership model for user who have not yet been created in the user table
-
-    .. pii:: stores the user email address field for pending users.
-             The pii data gets deleted after a real user gets created
-    .. pii_types:: email_address
-    .. pii_retirement:: local_api
-    """
-    class Meta(object):
-        ordering = ['created']
-        unique_together = ('user_email', 'organization_group')
-
-    user_email = models.EmailField()
-    organization_group = models.ForeignKey(OrganizationGroup, on_delete=models.CASCADE)
-
-    def __str__(self):
-        """
-        Return human-readable string representation
-        """
-        return "<PendingUserOrganizationGroup {ID}>: {organization_name} - {user_email} - {role}".format(
-            ID=self.id,
-            organization_name=self.organization_group.organization.name,
-            user_email=self.user_email,
-            role=self.organization_group.role,
-        )
-
-    def __repr__(self):
-        """
-        Return uniquely identifying string representation.
-        """
-        return self.__str__()  # pragma: no cover
-
-
 class PendingUserGroup(TimeStampedModel):
     """
     Membership model for user who have not yet been created in the user table
