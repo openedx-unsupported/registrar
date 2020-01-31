@@ -12,7 +12,7 @@ from user_tasks.tasks import UserTask
 
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import post_job_failure, post_job_success
-from registrar.apps.core.tasks import _get_program
+from registrar.apps.core.tasks import get_program
 from registrar.apps.core.utils import serialize_to_csv
 
 from . import data

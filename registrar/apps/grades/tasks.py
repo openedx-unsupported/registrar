@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from user_tasks.tasks import UserTask
 
 from registrar.apps.core.jobs import post_job_failure, post_job_success
-from registrar.apps.core.tasks import _get_program
+from registrar.apps.core.tasks import get_program
 
 from . import data
 from .constants import GradeReadStatus

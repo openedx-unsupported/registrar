@@ -3,12 +3,13 @@
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
 from . import permissions as perms
-from .data import DiscoveryProgram
+from .discovery_cache import DiscoveryProgram
 
 
 ACCESS_ADMIN = ('admin', 2)
@@ -88,34 +89,25 @@ class Program(TimeStampedModel):
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     managing_organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
-    @property
-    def discovery_program(self):
-        return DiscoveryProgram.get(self.discovery_uuid)
+    @cached_property
+    def _discovery_data(self):
+        return load_program_from_discovery(self.discovery_uuid)
 
     @property
     def title(self):
-        return self._get_cached_field('title')
+        return self._discovery_data.get('title') or self.key
 
     @property
     def url(self):
-        return self._get_cached_field('url')
+        return self._discovery_data.get('url')
 
     @property
     def program_type(self):
-        return self._get_cached_field('program_type')
+        return self._discovery_data.get('program_type')
 
     @property
     def is_enrollment_enabled(self):
-        return self.program_type == 'Masters'
-
-    def _get_cached_field(self, field):
-        """
-        Returns the specified field from a cached Discovery program.
-        If the program is not found in the cache it is loaded from discovery
-        """
-        discovery_program = DiscoveryProgram.get(self.discovery_uuid)
-        val = getattr(discovery_program, field)
-        return val
+        return self._discovery_data == 'Masters'
 
     def __str__(self):
         return self.key  # pragma: no cover

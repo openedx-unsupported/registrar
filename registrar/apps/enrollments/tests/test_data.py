@@ -17,7 +17,7 @@ from django.test import TestCase
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.data import DiscoveryProgram
+from registrar.apps.core.discovery_cache import DiscoveryProgram
 from registrar.apps.core.tests.utils import mock_oauth_login
 
 from ..data import (

@@ -14,7 +14,10 @@ from django.test import TestCase
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.data import DiscoveryCourseRun, DiscoveryProgram
+from registrar.apps.core.discovery_cache import (
+    DiscoveryCourseRun,
+    DiscoveryProgram,
+)
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.models import Program
 from registrar.apps.core.tests.mixins import (

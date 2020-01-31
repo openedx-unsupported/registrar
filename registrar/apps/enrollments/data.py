@@ -14,10 +14,10 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.core.data import (
-    DiscoveryProgram,
-    _do_batched_lms_write,
-    _get_all_paginated_results,
+from registrar.apps.core.discovery_cache import DiscoveryProgram
+from registrar.apps.core.rest_utils import (
+    do_batched_lms_write,
+    get_all_paginated_results,
 )
 
 from .constants import (
@@ -50,7 +50,7 @@ def get_program_enrollments(program_uuid, client=None):
         - ValidationError if enrollment data from LMS is invalid
     """
     url = _lms_program_enrollment_url(program_uuid)
-    enrollments = _get_all_paginated_results(url, client)
+    enrollments = get_all_paginated_results(url, client)
     serializer = ProgramEnrollmentSerializer(data=enrollments, many=True)
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
@@ -74,7 +74,7 @@ def get_course_run_enrollments(program_uuid, internal_course_key, external_cours
         - ValidationError if enrollment data from LMS is invalid
     """
     url = _lms_course_run_enrollment_url(program_uuid, internal_course_key)
-    enrollments = _get_all_paginated_results(url, client)
+    enrollments = get_all_paginated_results(url, client)
     context = {'course_id': external_course_key or internal_course_key}
     serializer = CourseEnrollmentSerializer(data=enrollments, many=True, context=context)
     serializer.is_valid(raise_exception=True)
@@ -144,7 +144,7 @@ def _write_enrollments(method, url, enrollments, client=None):
         for enrollment in enrollments
         if enrollment['student_key'] not in duplicated_student_keys
     ]
-    responses = _do_batched_lms_write(
+    responses = do_batched_lms_write(
         method, url, unique_enrollments, LMS_ENROLLMENT_WRITE_MAX_SIZE, client
     )
 

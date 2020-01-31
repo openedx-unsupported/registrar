@@ -13,7 +13,7 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.core.data import _get_all_paginated_responses
+from registrar.apps.core.rest_utils import get_all_paginated_responses
 
 from .serializers import CourseGradeSerializer
 
