@@ -21,6 +21,8 @@ from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
 from user_tasks.tasks import UserTask
 
+from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
+from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.core.data import DiscoveryCourseRun, DiscoveryProgram
@@ -57,8 +59,6 @@ from registrar.apps.enrollments.data import (
 )
 from registrar.apps.grades.constants import GradeReadStatus
 
-from ...constants import ENROLLMENT_WRITE_MAX_SIZE
-from ...tests.mixins import AuthRequestMixin, TrackTestMixin
 from ..views import CourseRunEnrollmentUploadView, ProgramEnrollmentUploadView
 
 
