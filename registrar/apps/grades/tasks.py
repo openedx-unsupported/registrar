@@ -6,11 +6,12 @@ from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 from user_tasks.tasks import UserTask
 
-from registrar.apps.common.tasks import _get_program
 from registrar.apps.core.jobs import post_job_failure, post_job_success
-from registrar.apps.grades import data
-from registrar.apps.grades.constants import GradeReadStatus
-from registrar.apps.grades.serializers import serialize_course_run_grades_to_csv
+from registrar.apps.core.tasks import _get_program
+
+from . import data
+from .constants import GradeReadStatus
+from .serializers import serialize_course_run_grades_to_csv
 
 
 @shared_task(base=UserTask, bind=True)

@@ -6,8 +6,9 @@ import logging
 import analytics
 from django.conf import settings
 
-from registrar.apps.api.constants import TRACKING_CATEGORY
 from registrar.apps.core.utils import get_user_organizations
+
+from .constants import TRACKING_CATEGORY
 
 
 logger = logging.getLogger(__name__)

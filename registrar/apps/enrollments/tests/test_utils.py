@@ -11,7 +11,8 @@ from registrar.apps.core.tests.factories import (
     ProgramFactory,
     UserFactory,
 )
-from registrar.apps.enrollments.utils import (
+
+from ..utils import (
     build_enrollment_job_status_name,
     is_enrollment_write_blocked,
 )

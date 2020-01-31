@@ -9,9 +9,10 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
-from registrar.apps.api.v1.mixins import AuthMixin
-from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.core.models import Program
+
+from ..v1.mixins import AuthMixin
 
 
 class FlushProgramCacheView(AuthMixin, APIView):

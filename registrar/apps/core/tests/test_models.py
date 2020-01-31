@@ -7,8 +7,8 @@ from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
 from social_django.models import UserSocialAuth
 
-import registrar.apps.core.permissions as perm
-from registrar.apps.core.models import (
+from .. import permissions as perm
+from ..models import (
     Organization,
     OrganizationGroup,
     PendingUserGroup,
@@ -16,7 +16,7 @@ from registrar.apps.core.models import (
     ProgramOrganizationGroup,
     User,
 )
-from registrar.apps.core.tests.factories import (
+from .factories import (
     OrganizationFactory,
     OrganizationGroupFactory,
     ProgramFactory,

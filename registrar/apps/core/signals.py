@@ -3,7 +3,7 @@ Django signal handlers.
 """
 from logging import getLogger
 
-from registrar.apps.core.models import PendingUserGroup
+from .models import PendingUserGroup
 
 
 logger = getLogger(__name__)

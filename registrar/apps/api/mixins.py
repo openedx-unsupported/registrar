@@ -4,8 +4,9 @@ Mixins common to more than one version of the REST API.
 import json
 import logging
 
-from registrar.apps.api import segment
 from registrar.apps.core.permissions import APIPermissionBase
+
+from . import segment
 
 
 logger = logging.getLogger(__name__)

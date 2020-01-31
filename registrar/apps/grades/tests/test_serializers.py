@@ -5,7 +5,7 @@ import ddt
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.grades.serializers import CourseGradeSerializer
+from ..serializers import CourseGradeSerializer
 
 
 @ddt.ddt

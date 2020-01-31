@@ -2,8 +2,9 @@
 
 from django.conf.urls import url
 
-from registrar.apps.api.internal import views
 from registrar.apps.core.constants import PROGRAM_KEY_PATTERN
+
+from . import views
 
 
 app_name = 'internal'

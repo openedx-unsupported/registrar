@@ -13,10 +13,7 @@ from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from registrar.apps.common.constants import (
-    PROGRAM_CACHE_KEY_TPL,
-    PROGRAM_CACHE_TIMEOUT,
-)
+from .constants import PROGRAM_CACHE_KEY_TPL, PROGRAM_CACHE_TIMEOUT
 
 
 logger = logging.getLogger(__name__)

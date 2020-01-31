@@ -4,10 +4,7 @@ Custom exceptions extending those definined by DRF.
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from registrar.apps.api.constants import (
-    ENROLLMENT_WRITE_MAX_SIZE,
-    UPLOAD_FILE_MAX_SIZE,
-)
+from .constants import ENROLLMENT_WRITE_MAX_SIZE, UPLOAD_FILE_MAX_SIZE
 
 
 class EnrollmentPayloadTooLarge(APIException):

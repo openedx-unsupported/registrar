@@ -11,8 +11,7 @@ import requests
 from botocore.exceptions import ClientError
 from django.test import TestCase
 
-from registrar.apps.common.tests.mixins import S3MockEnvVarsMixin
-from registrar.apps.core.filestore import (
+from ..filestore import (
     FilestoreBase,
     FileSystemFilestore,
     S3Filestore,
@@ -21,7 +20,8 @@ from registrar.apps.core.filestore import (
     get_job_results_filestore,
     get_program_reports_filestore,
 )
-from registrar.apps.core.filestore import logger as filestore_logger
+from ..filestore import logger as filestore_logger
+from .mixins import S3MockEnvVarsMixin
 
 
 @ddt.ddt

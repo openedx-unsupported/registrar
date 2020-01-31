@@ -21,26 +21,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
-from registrar.apps.api.constants import (
-    ENROLLMENT_PERMISSIONS_LIST,
-    LEGACY_PERMISSION_QUERY_PARAMS,
-    UPLOAD_FILE_MAX_SIZE,
-)
-from registrar.apps.api.exceptions import FileTooLarge
-from registrar.apps.api.mixins import TrackViewMixin
-from registrar.apps.api.serializers import (
-    CourseRunSerializer,
-    JobStatusSerializer,
-    ProgramReportMetadataSerializer,
-    ProgramSerializer,
-)
-from registrar.apps.api.v1.mixins import (
-    AuthMixin,
-    CourseSpecificViewMixin,
-    EnrollmentMixin,
-    JobInvokerMixin,
-    ProgramSpecificViewMixin,
-)
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.filestore import get_program_reports_filestore
 from registrar.apps.core.jobs import (
@@ -63,6 +43,27 @@ from registrar.apps.enrollments.tasks import (
 )
 from registrar.apps.enrollments.utils import is_enrollment_write_blocked
 from registrar.apps.grades.tasks import get_course_run_grades
+
+from ..constants import (
+    ENROLLMENT_PERMISSIONS_LIST,
+    LEGACY_PERMISSION_QUERY_PARAMS,
+    UPLOAD_FILE_MAX_SIZE,
+)
+from ..exceptions import FileTooLarge
+from ..mixins import TrackViewMixin
+from ..serializers import (
+    CourseRunSerializer,
+    JobStatusSerializer,
+    ProgramReportMetadataSerializer,
+    ProgramSerializer,
+)
+from .mixins import (
+    AuthMixin,
+    CourseSpecificViewMixin,
+    EnrollmentMixin,
+    JobInvokerMixin,
+    ProgramSpecificViewMixin,
+)
 
 
 logger = logging.getLogger(__name__)

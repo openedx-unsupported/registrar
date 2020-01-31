@@ -14,12 +14,12 @@ from django.http import Http404
 from django.test import TestCase
 from requests.exceptions import HTTPError
 
-from registrar.apps.common.data import (
+from ..data import (
     DISCOVERY_PROGRAM_API_TPL,
     DiscoveryCourseRun,
     DiscoveryProgram,
 )
-from registrar.apps.core.tests.utils import mock_oauth_login
+from .utils import mock_oauth_login
 
 
 class GetDiscoveryProgramTestCase(TestCase):

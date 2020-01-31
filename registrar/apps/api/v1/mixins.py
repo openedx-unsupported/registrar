@@ -20,11 +20,6 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.api import exceptions
-from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
-from registrar.apps.api.mixins import TrackViewMixin
-from registrar.apps.api.serializers import JobAcceptanceSerializer
-from registrar.apps.api.utils import build_absolute_api_url
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import start_job
@@ -33,6 +28,12 @@ from registrar.apps.enrollments.data import (
     write_course_run_enrollments,
     write_program_enrollments,
 )
+
+from .. import exceptions
+from ..constants import ENROLLMENT_WRITE_MAX_SIZE
+from ..mixins import TrackViewMixin
+from ..serializers import JobAcceptanceSerializer
+from ..utils import build_absolute_api_url
 
 
 upload_filestore = get_enrollment_uploads_filestore()

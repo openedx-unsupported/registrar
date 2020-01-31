@@ -19,8 +19,8 @@ from collections import namedtuple
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
-from registrar.apps.core.filestore import get_job_results_filestore
-from registrar.apps.core.permissions import JOB_GLOBAL_READ
+from .filestore import get_job_results_filestore
+from .permissions import JOB_GLOBAL_READ
 
 
 JobStatus = namedtuple(

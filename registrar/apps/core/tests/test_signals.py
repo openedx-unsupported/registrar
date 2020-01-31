@@ -5,9 +5,9 @@ import ddt
 from django.apps import apps
 from django.test import TestCase
 
-from registrar.apps.core import permissions as perms
-from registrar.apps.core.models import PendingUserGroup, User
-from registrar.apps.core.tests.factories import (
+from .. import permissions as perms
+from ..models import PendingUserGroup, User
+from .factories import (
     OrganizationGroupFactory,
     PendingUserOrganizationGroupFactory,
     PendingUserProgramGroupFactory,

@@ -6,8 +6,8 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 
 from registrar.apps.api.serializers import ProgramSerializer
-from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
-from registrar.apps.common.data import DiscoveryProgram
+from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.permissions import (
     APIReadMetadataPermission,
     APIWriteEnrollmentsPermission,
