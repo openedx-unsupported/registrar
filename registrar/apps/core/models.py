@@ -1,4 +1,8 @@
-""" Core models. """
+"""
+Core models.
+"""
+
+from collections import namedtuple
 
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
@@ -9,7 +13,10 @@ from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
 from . import permissions as perms
-from .discovery_cache import DiscoveryProgram
+from .discovery_cache import (
+    PROGRAM_DATA_LOAD_FAILED,
+    get_program_discovery_data,
+)
 
 
 ACCESS_ADMIN = ('admin', 2)
@@ -68,7 +75,18 @@ class Organization(TimeStampedModel):
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name  # pragma: no cover
+        """
+        Human-friendly string representation of this organization.
+        """
+        return self.name
+
+    def __repr__(self):
+        """
+        Developer-friendly string representation of this organization.
+        """
+        return "<Organization key={} discovery_uuid={} name={!r}>".format(
+            self.key, self.discovery_uuid, self.name
+        )
 
 
 class Program(TimeStampedModel):
@@ -89,28 +107,181 @@ class Program(TimeStampedModel):
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     managing_organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
+    def __str__(self):
+        """
+        Human-friendly string representation of this program.
+        """
+        return self.title
+
+    def __repr__(self):
+        """
+        Developer-friendly string representation of this program.
+        """
+        return "<Program key={} discovery_uuid={} managing_organization={}>".format(
+            self.key, self.discovery_uuid, self.managing_organization.key
+        )
+
     @cached_property
     def _discovery_data(self):
-        return load_program_from_discovery(self.discovery_uuid)
+        """
+        Get data about this program from Discovery cache.
 
-    @property
+        Returns an empty dict if program does not exist in Discovery.
+        """
+        loaded = get_program_discovery_data(self.discovery_uuid)
+        if isinstance(loaded, dict):
+            return loaded
+        elif loaded == PROGRAM_DATA_LOAD_FAILED:
+            return {}
+        else:
+            raise Exception(
+                "Unexpected data returned from Discovery for program {}: {}".format(
+                    self.discovery_uuid, loaded
+                )
+            )
+
+    @cached_property
     def title(self):
+        """
+        Title of the program.
+
+        Falls back to program key if not available.
+        """
         return self._discovery_data.get('title') or self.key
 
-    @property
+    @cached_property
     def url(self):
+        """
+        URL of the program.
+
+        Falls back to None if not available.
+        """
         return self._discovery_data.get('url')
 
-    @property
+    @cached_property
     def program_type(self):
+        """
+        Type of the program (Masters, MicroMasters, etc.).
+
+        Falls back to None if not available.
+        """
         return self._discovery_data.get('program_type')
 
-    @property
+    @cached_property
     def is_enrollment_enabled(self):
-        return self._discovery_data == 'Masters'
+        """
+        Whether Registrar can be used to manage enrollments for this program.
 
-    def __str__(self):
-        return self.key  # pragma: no cover
+        Falls back to False if not available.
+        """
+        return self.program_type == 'Masters'
+
+    @cached_property
+    def _active_curriculum(self):
+        """
+        Dict containing data for active curriculum.
+
+        We define 'active' curriculum as the first one in the list of
+        curricula where is_active is True.
+
+        TODO:
+        This is a temporary assumption, originally made in March 2019.
+        We expect that future programs may have more than one curriculum
+        active simultaneously, which will require modifying the API.
+
+        Falls back to empty dict if no active curriculum or if data unavailable.
+        """
+        try:
+            return next(
+                c for c in self._discovery_data.get('curricula', [])
+                if c.get('is_active')
+            )
+        except StopIteration:
+            logger.exception(
+                'Discovery API returned no active curricula for program {}'.format(
+                    program_uuid
+                )
+            )
+            return {}
+
+    @cached_property
+    def active_curriculum_uuid(self):
+        """
+        Get UUID string of active curriculum, or None if no active curriculum.
+
+        See `_active_curriculum` docstring for more details.
+        """
+
+    @cached_property
+    def course_runs(self):
+        """
+        Get list of CourseRuns defined in root of active curriculum.
+
+        TODO:
+        In March 2019 we made a temporary assumption that the curriculum
+        does not contain nested programs.
+        We expect that this will need revisiting eventually.
+        We expect that future programs may have more than one curriculum
+
+        Also see `_active_curriculum` docstring details on how the 'active'
+        curriculum is determined.
+
+        Falls back to empty list if no active curriculum or if data unavailable.
+        """
+        return [
+            CourseRun(
+                key=course_run.get("key"),
+                external_key=course_run.get("external_key"),
+                title=course_run.get("title"),
+                marketing_url=course_run.get("marketing_url"),
+            )
+            for course in self._active_curriculum.get("courses", [])
+            for course_run in course.get("course_runs", [])
+        ]
+
+    def find_course_run(self, course_id):
+        """
+        Given a course id, return the course_run with that `key` or `external_key`
+
+        Returns None if course run is not found in the cached program.
+        """
+        try:
+            return next(
+                course_run for course_run in self.course_runs
+                if course_id in {course_run.key, course_run.external_key}
+            )
+        except StopIteration:
+            return None
+
+    def get_external_course_key(self, course_id):
+        """
+        Given a course ID, return the external course key for that course_run.
+        The course key passed in may be an external or internal course key.
+
+        Returns None if course run is not found in the cached program.
+        """
+        course_run = self.find_course_run(course_id)
+        if course_run:
+            return course_run.external_key
+        return None
+
+    def get_course_key(self, course_id):
+        """
+        Given a course ID, return the internal course ID for that course run.
+        The course ID passed in may be an external or internal course key.
+
+        Returns None if course run is not found in the cached program.
+        """
+        course_run = self.find_course_run(course_id)
+        if course_run:
+            return course_run.key
+        return None
+
+
+CourseRun = namedtuple(
+    "CourseRun",
+    ("key", "external_key", "title", "marketing_url"),
+)
 
 
 class OrganizationGroup(Group):
