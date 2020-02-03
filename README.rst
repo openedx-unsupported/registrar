@@ -11,9 +11,20 @@ providing REST APIs involving program structure, enrollment, and grading.
 
 Through Django Admin, it allows the definition of access roles for different API users.
 
-It supports import and exporting of enrollment data through `Program Manager <https://github.com/edx/frontend-app-program-manager>`_.
+It supports import and exporting of enrollment data through `Program Manager`_.
 
- 
+.. _Program Manager: https://github.com/edx/frontend-app-program-manager
+
+
+Coding Guidelines
+-----------------
+
+Before opening a PR, please check out the `Registrar Coding Guide`_,
+which contains code style conventions
+as well as important information about PII annotation.
+
+.. _Registrar Coding Guide: docs/coding-guide.rst
+
 Using with Devstack
 -----------------
 
@@ -84,44 +95,6 @@ To add/update endpoints or parameters:
   2. restart the registrar application and validate appearance on the ``/api-docs`` page
   3. before merging your changes run ``make api_generated``. This will create the expanded document.
   4. commit new  `.api-generated.yaml <./.api-generated.yaml>`_ file
-
-
-Annotating and Checking PII
----------------------------
-
-As part of edX's GDPR compliance, every Django model requires either positive (when the model
-stores PII) or negative (no PII is stored) annotations.  For example::
-
-  class MyModel(models.Model):
-    """
-    Normal description for this model.
-    .. pii:: the field named pii_field contains pii...
-    .. pii_types:: <comma separated list of the types of PII stored here, required if the PII annotation exists>
-    .. pii_retirement:: local_api
-    """
-    pii_field = models.CharField(max_length=255)
-
-And in the negative case::
-
-  class MyModel(models.Model):
-    """
-    Normal description for this model.
-    .. no_pii::
-    """
-
-We must also capture annotations for models generated via 3rd-party libraries.
-We use the ``.annotations_safe_list.yml`` file to capture such annotations, with entries as follows::
-
-  sessions.Session:
-    ".. no_pii::": "This model has no PII"
-  enrollments.HistoricalLearner:
-    ".. pii::": "Learner email_address."
-    ".. pii_types::": email_address
-    ".. pii_retirement::": local_api
-
-You can check that all models are annotated by running the ``make pii_check`` command
-from inside a registrar container/shell.
-
 
 License
 -------
