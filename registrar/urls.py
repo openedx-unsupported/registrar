@@ -22,9 +22,9 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView
 
-from registrar import api_renderer
-from registrar.apps.api import urls as api_urls
-from registrar.apps.core import views as core_views
+from . import api_renderer
+from .apps.api import urls as api_urls
+from .apps.core import views as core_views
 
 
 admin.site.site_header = 'Registrar Service Administration'
