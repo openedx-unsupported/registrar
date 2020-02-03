@@ -6,8 +6,9 @@ import requests
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.common.tests.mixins import BaseTaskTestMixin
-from registrar.apps.grades.tasks import get_course_run_grades
+from registrar.apps.core.tests.mixins import BaseTaskTestMixin
+
+from ..tasks import get_course_run_grades
 
 
 @ddt.ddt

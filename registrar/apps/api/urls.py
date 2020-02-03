@@ -6,9 +6,9 @@ contain namespaces for the active versions of the API.
 """
 from django.conf.urls import include, url
 
-from registrar.apps.api.internal import urls as internal_urls
-from registrar.apps.api.v1 import urls as v1_urls
-from registrar.apps.api.v2 import urls as v2_urls
+from .internal import urls as internal_urls
+from .v1 import urls as v1_urls
+from .v2 import urls as v2_urls
 
 
 app_name = 'api'

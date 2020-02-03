@@ -14,20 +14,18 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.common.data import (
+from registrar.apps.core.data import (
     DiscoveryProgram,
     _do_batched_lms_write,
     _get_all_paginated_results,
 )
-from registrar.apps.enrollments.constants import (
+
+from .constants import (
     ENROLLMENT_ERROR_DUPLICATED,
     ENROLLMENT_ERROR_INTERNAL,
     LMS_ENROLLMENT_WRITE_MAX_SIZE,
 )
-from registrar.apps.enrollments.serializers import (
-    CourseEnrollmentSerializer,
-    ProgramEnrollmentSerializer,
-)
+from .serializers import CourseEnrollmentSerializer, ProgramEnrollmentSerializer
 
 
 logger = logging.getLogger(__name__)

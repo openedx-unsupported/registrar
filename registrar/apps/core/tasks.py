@@ -6,8 +6,8 @@ from celery.utils.log import get_task_logger
 from user_tasks.models import UserTaskArtifact
 from user_tasks.tasks import UserTask
 
-from registrar.apps.core.jobs import post_job_failure
-from registrar.apps.core.models import Program
+from .jobs import post_job_failure
+from .models import Program
 
 
 log = get_task_logger(__name__)

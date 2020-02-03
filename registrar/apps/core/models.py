@@ -7,8 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
-from registrar.apps.common.data import DiscoveryProgram
-from registrar.apps.core import permissions as perms
+from . import permissions as perms
+from .data import DiscoveryProgram
 
 
 ACCESS_ADMIN = ('admin', 2)

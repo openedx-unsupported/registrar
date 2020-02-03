@@ -27,3 +27,6 @@ PROGRAM_KEY_PATTERN = r'(?P<program_key>[A-Za-z0-9-_]+)'
 JOB_ID_PATTERN = r'(?P<job_id>[0-9a-f-]+)'
 
 ORGANIZATION_KEY_PATTERN = r'[A-Za-z0-9-_]+'
+
+PROGRAM_CACHE_KEY_TPL = 'program:{uuid}'
+PROGRAM_CACHE_TIMEOUT = 120

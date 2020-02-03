@@ -5,8 +5,8 @@ from io import StringIO
 from guardian.shortcuts import get_perms
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.models import OrganizationGroup
-from registrar.apps.core.permissions import DB_TO_API_PERMISSION_MAPPING
+from .models import OrganizationGroup
+from .permissions import DB_TO_API_PERMISSION_MAPPING
 
 
 def get_user_organizations(user):

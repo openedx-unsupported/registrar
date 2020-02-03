@@ -10,21 +10,19 @@ from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 from user_tasks.tasks import UserTask
 
-from registrar.apps.common.tasks import _get_program
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import post_job_failure, post_job_success
+from registrar.apps.core.tasks import _get_program
 from registrar.apps.core.utils import serialize_to_csv
-from registrar.apps.enrollments import data
-from registrar.apps.enrollments.constants import (
-    ENROLLMENT_ERROR_COURSE_NOT_FOUND,
-    EnrollmentWriteStatus,
-)
-from registrar.apps.enrollments.serializers import (
+
+from . import data
+from .constants import ENROLLMENT_ERROR_COURSE_NOT_FOUND, EnrollmentWriteStatus
+from .serializers import (
     serialize_course_run_enrollments_to_csv,
     serialize_enrollment_results_to_csv,
     serialize_program_enrollments_to_csv,
 )
-from registrar.apps.enrollments.utils import build_enrollment_job_status_name
+from .utils import build_enrollment_job_status_name
 
 
 log = get_task_logger(__name__)

@@ -3,10 +3,8 @@
 from rest_framework import serializers
 
 from registrar.apps.core.utils import serialize_to_csv
-from registrar.apps.enrollments.constants import (
-    COURSE_ENROLLMENT_STATUSES,
-    PROGRAM_ENROLLMENT_STATUSES,
-)
+
+from .constants import COURSE_ENROLLMENT_STATUSES, PROGRAM_ENROLLMENT_STATUSES
 
 
 # pylint: disable=abstract-method

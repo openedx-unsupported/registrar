@@ -11,8 +11,8 @@ import ddt
 from django.test import TestCase
 from user_tasks.models import UserTaskStatus
 
-from registrar.apps.core.jobs import get_processing_jobs_for_user
-from registrar.apps.core.tests.factories import UserFactory
+from ..jobs import get_processing_jobs_for_user
+from .factories import UserFactory
 
 
 @ddt.ddt

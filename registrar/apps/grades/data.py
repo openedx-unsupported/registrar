@@ -13,8 +13,9 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.common.data import _get_all_paginated_responses
-from registrar.apps.grades.serializers import CourseGradeSerializer
+from registrar.apps.core.data import _get_all_paginated_responses
+
+from .serializers import CourseGradeSerializer
 
 
 LMS_PROGRAM_COURSE_GRADES_API_TPL = 'api/program_enrollments/v1/programs/{}/courses/{}/grades/'

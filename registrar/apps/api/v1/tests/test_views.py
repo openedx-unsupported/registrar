@@ -23,14 +23,9 @@ from user_tasks.tasks import UserTask
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
-from registrar.apps.api.v1.views import (
-    CourseRunEnrollmentUploadView,
-    ProgramEnrollmentUploadView,
-)
-from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
-from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
-from registrar.apps.common.tests.mixins import S3MockEnvVarsMixin
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core.data import DiscoveryCourseRun, DiscoveryProgram
 from registrar.apps.core.filestore import (
     get_enrollment_uploads_filestore,
     get_program_reports_filestore,
@@ -56,12 +51,15 @@ from registrar.apps.core.tests.factories import (
     UserFactory,
 )
 from registrar.apps.core.tests.freezegun_wrapper import freeze_time
+from registrar.apps.core.tests.mixins import S3MockEnvVarsMixin
 from registrar.apps.core.tests.utils import mock_oauth_login
 from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
 )
 from registrar.apps.grades.constants import GradeReadStatus
+
+from ..views import CourseRunEnrollmentUploadView, ProgramEnrollmentUploadView
 
 
 class RegistrarAPITestCase(TrackTestMixin, APITestCase):
@@ -1132,7 +1130,7 @@ class ProgramEnrollmentWriteMixin(object):
         mock_response = mock.Mock()
         mock_response.status_code = 404
         error = requests.exceptions.HTTPError(response=mock_response)
-        with mock.patch('registrar.apps.common.data._make_request', side_effect=error):
+        with mock.patch('registrar.apps.core.data._make_request', side_effect=error):
             response = self.request(
                 self.method,
                 'programs/masters-in-cs/enrollments/',

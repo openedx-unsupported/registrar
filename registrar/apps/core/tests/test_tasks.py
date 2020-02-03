@@ -5,14 +5,14 @@ import mock
 from django.test import TestCase
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
-from registrar.apps.common import tasks
-from registrar.apps.core.tests.factories import UserFactory
+from .. import tasks
+from .factories import UserFactory
 
 
 class DebugTaskTests(TestCase):
     """ Tests for validating that tasks are working properly. """
 
-    @mock.patch('registrar.apps.common.tasks.log', autospec=True)
+    @mock.patch.object(tasks, 'log', autospec=True)
     def test_debug_task_happy_path(self, mock_logger):
         task = tasks.debug_task.apply_async([1, 2], kwargs={'foo': 'bar'})
         task.wait()

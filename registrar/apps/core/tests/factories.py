@@ -9,17 +9,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from guardian.shortcuts import assign_perm
 
-from registrar.apps.core.models import (
+from ..models import (
     Organization,
     OrganizationGroup,
     PendingUserGroup,
     Program,
     ProgramOrganizationGroup,
 )
-from registrar.apps.core.permissions import (
-    OrganizationReadMetadataRole,
-    ProgramReadMetadataRole,
-)
+from ..permissions import OrganizationReadMetadataRole, ProgramReadMetadataRole
 
 
 # pylint: disable=missing-docstring

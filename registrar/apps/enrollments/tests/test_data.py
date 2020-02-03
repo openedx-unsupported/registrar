@@ -17,19 +17,17 @@ from django.test import TestCase
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.common.data import DiscoveryProgram
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.tests.utils import mock_oauth_login
-from registrar.apps.enrollments.data import (
+
+from ..data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
     LMS_PROGRAM_ENROLLMENTS_API_TPL,
     get_course_run_enrollments,
     get_program_enrollments,
 )
-from registrar.apps.enrollments.data import logger as data_logger
-from registrar.apps.enrollments.data import (
-    write_course_run_enrollments,
-    write_program_enrollments,
-)
+from ..data import logger as data_logger
+from ..data import write_course_run_enrollments, write_program_enrollments
 
 
 class GetEnrollmentsTestMixin(object):

@@ -2,12 +2,13 @@
 
 from django.conf.urls import url
 
-from registrar.apps.api.v1 import views
 from registrar.apps.core.constants import (
     COURSE_ID_PATTERN,
     JOB_ID_PATTERN,
     PROGRAM_KEY_PATTERN,
 )
+
+from . import views
 
 
 app_name = 'v1'

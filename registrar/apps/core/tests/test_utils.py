@@ -5,7 +5,7 @@ from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.permissions import (
+from ..permissions import (
     ORGANIZATION_READ_ENROLLMENTS,
     ORGANIZATION_READ_METADATA,
     ORGANIZATION_READ_REPORTS,
@@ -16,17 +16,17 @@ from registrar.apps.core.permissions import (
     APIWriteEnrollmentsPermission,
     OrganizationReadWriteEnrollmentsRole,
 )
-from registrar.apps.core.tests.factories import (
-    GroupFactory,
-    OrganizationFactory,
-    OrganizationGroupFactory,
-    UserFactory,
-)
-from registrar.apps.core.utils import (
+from ..utils import (
     get_user_api_permissions,
     get_user_organizations,
     load_records_from_csv,
     serialize_to_csv,
+)
+from .factories import (
+    GroupFactory,
+    OrganizationFactory,
+    OrganizationGroupFactory,
+    UserFactory,
 )
 
 

@@ -14,15 +14,16 @@ from django.test import TestCase
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.common.data import DiscoveryCourseRun, DiscoveryProgram
-from registrar.apps.common.tests.mixins import (
+from registrar.apps.core.data import DiscoveryCourseRun, DiscoveryProgram
+from registrar.apps.core.filestore import get_enrollment_uploads_filestore
+from registrar.apps.core.models import Program
+from registrar.apps.core.tests.mixins import (
     BaseTaskTestMixin,
     S3MockEnvVarsMixin,
 )
-from registrar.apps.core.filestore import get_enrollment_uploads_filestore
-from registrar.apps.core.models import Program
-from registrar.apps.enrollments import tasks
-from registrar.apps.enrollments.constants import (
+
+from .. import tasks
+from ..constants import (
     COURSE_ENROLLMENT_ACTIVE,
     COURSE_ENROLLMENT_INACTIVE,
     PROGRAM_ENROLLMENT_ENROLLED,

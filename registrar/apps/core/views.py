@@ -9,7 +9,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import View
 
-from registrar.apps.core.constants import Status
+from .constants import Status
 
 
 logger = logging.getLogger(__name__)

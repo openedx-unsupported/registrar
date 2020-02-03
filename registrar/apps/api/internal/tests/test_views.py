@@ -4,7 +4,7 @@ from django.core.cache import cache
 
 from registrar.apps.api.tests.mixins import AuthRequestMixin
 from registrar.apps.api.v1.tests.test_views import RegistrarAPITestCase
-from registrar.apps.common.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.core.tests.factories import UserFactory
 
 
