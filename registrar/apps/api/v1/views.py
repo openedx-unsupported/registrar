@@ -9,9 +9,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
-from edx_rest_framework_extensions.auth.jwt.authentication import (
-    JwtAuthentication,
-)
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -23,10 +21,7 @@ from rest_framework.views import APIView
 
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.filestore import get_program_reports_filestore
-from registrar.apps.core.jobs import (
-    get_job_status,
-    get_processing_jobs_for_user,
-)
+from registrar.apps.core.jobs import get_job_status, get_processing_jobs_for_user
 from registrar.apps.core.models import Organization, Program
 from registrar.apps.core.permissions import APIReadMetadataPermission
 from registrar.apps.core.utils import (
@@ -86,10 +81,10 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
 
     serializer_class = ProgramSerializer
-    event_method_map = {'GET': 'registrar.{api_version}.list_programs'}
+    event_method_map = {"GET": "registrar.{api_version}.list_programs"}
     event_parameter_map = {
-        'org': 'organization_filter',
-        'user_has_perm': 'permission_filter',
+        "org": "organization_filter",
+        "user_has_perm": "permission_filter",
     }
 
     def get_queryset(self):
@@ -97,9 +92,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         user = self.request.user
 
         if self.organization_filter:
-            programs = programs.filter(
-                managing_organization=self.organization_filter
-            )
+            programs = programs.filter(managing_organization=self.organization_filter)
 
         if self.permission_filter:
             required_permission = self.permission_filter
@@ -107,15 +100,19 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
             required_permission = APIReadMetadataPermission
 
         programs = (
-            program for program in programs
-            if required_permission in get_user_api_permissions(user, program).union(
+            program
+            for program in programs
+            if required_permission
+            in get_user_api_permissions(user, program).union(
                 get_user_api_permissions(user, program.managing_organization)
             )
         )
         # Filter out programs with enrollments disabled if the user requested
         # permission filter to operate on enrollments
         if self.permission_filter in ENROLLMENT_PERMISSIONS_LIST:
-            programs = [program for program in programs if program.is_enrollment_enabled]
+            programs = [
+                program for program in programs if program.is_enrollment_enabled
+            ]
         return programs
 
     def get_required_permissions(self, _request):
@@ -140,12 +137,12 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
 
         Raises 404 for non-existant organiation.
         """
-        org_key = self.request.GET.get('org')
+        org_key = self.request.GET.get("org")
         if org_key:
             try:
                 return Organization.objects.get(key=org_key)
             except Organization.DoesNotExist:
-                self.add_tracking_data(failure='org_not_found')
+                self.add_tracking_data(failure="org_not_found")
                 raise Http404()
         else:
             return None
@@ -158,7 +155,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
 
         Raises 404 for bad permission query param.
         """
-        perm_query_param = self.request.GET.get('user_has_perm', None)
+        perm_query_param = self.request.GET.get("user_has_perm", None)
         if not perm_query_param:
             return None
 
@@ -170,7 +167,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
             if perm_query_param in LEGACY_PERMISSION_QUERY_PARAMS:
                 return LEGACY_PERMISSION_QUERY_PARAMS[perm_query_param]
             else:
-                self.add_tracking_data(failure='no_such_perm')
+                self.add_tracking_data(failure="no_such_perm")
                 raise Http404()
 
 
@@ -185,10 +182,11 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 403: User lacks read access to the specified program.
      * 404: Program does not exist.
     """
+
     serializer_class = ProgramSerializer
     permission_required = [perms.APIReadMetadataPermission]
-    event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
-    event_parameter_map = {'program_key': 'program_key'}
+    event_method_map = {"GET": "registrar.{api_version}.get_program_detail"}
+    event_parameter_map = {"program_key": "program_key"}
 
     def get_object(self):
         return self.program
@@ -205,10 +203,11 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
      * 403: User lacks read access to the specified program.
      * 404: Program does not exist.
     """
+
     serializer_class = CourseRunSerializer
     permission_required = [perms.APIReadMetadataPermission]
-    event_method_map = {'GET': 'registrar.{api_version}.get_program_courses'}
-    event_parameter_map = {'program_key': 'program_key'}
+    event_method_map = {"GET": "registrar.{api_version}.get_program_courses"}
+    event_parameter_map = {"program_key": "program_key"}
 
     def get_queryset(self):
         uuid = self.program.discovery_uuid
@@ -259,15 +258,13 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
     """
+
     event_method_map = {
-        'GET': 'registrar.{api_version}.get_program_enrollment',
-        'POST': 'registrar.{api_version}.post_program_enrollment',
-        'PATCH': 'registrar.{api_version}.patch_program_enrollment',
+        "GET": "registrar.{api_version}.get_program_enrollment",
+        "POST": "registrar.{api_version}.post_program_enrollment",
+        "PATCH": "registrar.{api_version}.patch_program_enrollment",
     }
-    event_parameter_map = {
-        'program_key': 'program_key',
-        'fmt': 'result_format',
-    }
+    event_parameter_map = {"program_key": "program_key", "fmt": "result_format"}
 
     def get(self, request, *args, **kwargs):
         """
@@ -284,7 +281,9 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         return self.handle_enrollments()
 
 
-class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentMixin, APIView):
+class CourseEnrollmentView(
+    CourseSpecificViewMixin, JobInvokerMixin, EnrollmentMixin, APIView
+):
     """
     A view for enrolling students in a program course run.
 
@@ -327,15 +326,16 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
      * 413: Payload too large, over 25 students supplied.
      * 422: Invalid request, unable to enroll students.
     """
+
     event_method_map = {
-        'GET': 'registrar.{api_version}.get_course_enrollment',
-        'POST': 'registrar.{api_version}.post_course_enrollment',
-        'PATCH': 'registrar.{api_version}.patch_course_enrollment',
+        "GET": "registrar.{api_version}.get_course_enrollment",
+        "POST": "registrar.{api_version}.post_course_enrollment",
+        "PATCH": "registrar.{api_version}.patch_course_enrollment",
     }
     event_parameter_map = {
-        'program_key': 'program_key',
-        'course_id': 'course_id',
-        'fmt': 'result_format',
+        "program_key": "program_key",
+        "course_id": "course_id",
+        "fmt": "result_format",
     }
 
     def get(self, request, *args, **kwargs):
@@ -378,20 +378,21 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
             "http://localhost/files/3b985cec-dcf4-4d38-9498-8545ebcf5d0f.json"
     }
     """
+
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = JobStatusSerializer
-    event_method_map = {'GET': 'registrar.{api_version}.get_job_status'}
-    event_parameter_map = {'job_id': 'job_id'}
+    event_method_map = {"GET": "registrar.{api_version}.get_job_status"}
+    event_parameter_map = {"job_id": "job_id"}
 
     def get_object(self):
         try:
-            status = get_job_status(self.request.user, self.kwargs['job_id'])
+            status = get_job_status(self.request.user, self.kwargs["job_id"])
         except PermissionDenied:
             self.add_tracking_data(missing_permissions=[perms.JOB_GLOBAL_READ])
             raise
         except ObjectDoesNotExist:
-            self.add_tracking_data(failure='job_not_found')
+            self.add_tracking_data(failure="job_not_found")
             raise Http404()
         self.add_tracking_data(job_state=status.state)
         return status
@@ -411,7 +412,7 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = JobStatusSerializer
-    event_method_map = {'GET': 'registrar.{api_version}.list_job_statuses'}
+    event_method_map = {"GET": "registrar.{api_version}.list_job_statuses"}
 
     def get_queryset(self):
         return get_processing_jobs_for_user(self.request.user)
@@ -429,24 +430,27 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
      * 409: Job already processing for this program
      * 413: File too large
     """
+
     parser_classes = (MultiPartParser,)
     field_names = set()  # Override in subclass
     task_fn = None  # Override in subclass
 
     def post(self, request, *args, **kwargs):
         """ POST handler """
-        if 'file' not in request.data:
-            raise ParseError('No file content uploaded')
+        if "file" not in request.data:
+            raise ParseError("No file content uploaded")
 
-        csv_file = request.data['file']
+        csv_file = request.data["file"]
         if csv_file.size > UPLOAD_FILE_MAX_SIZE:
             raise FileTooLarge()
 
         if is_enrollment_write_blocked(self.program.key):
-            return Response('Job already in progress for program', HTTP_409_CONFLICT)
+            return Response("Job already in progress for program", HTTP_409_CONFLICT)
 
         enrollments = load_records_from_uploaded_csv(csv_file, self.field_names)
-        return self.invoke_upload_job(self.task_fn, json.dumps(enrollments), *args, **kwargs)
+        return self.invoke_upload_job(
+            self.task_fn, json.dumps(enrollments), *args, **kwargs
+        )
 
 
 class ProgramEnrollmentUploadView(EnrollmentMixin, EnrollmentUploadView):
@@ -455,22 +459,26 @@ class ProgramEnrollmentUploadView(EnrollmentMixin, EnrollmentUploadView):
 
     Path: /api/[version]/programs/{program_key}/enrollments
     """
-    field_names = {'student_key', 'status'}
+
+    field_names = {"student_key", "status"}
     task_fn = write_program_enrollments
-    event_method_map = {'POST': 'registrar.{api_version}.upload_program_enrollments'}
-    event_parameter_map = {'program_key': 'program_key'}
+    event_method_map = {"POST": "registrar.{api_version}.upload_program_enrollments"}
+    event_parameter_map = {"program_key": "program_key"}
 
 
-class CourseRunEnrollmentUploadView(EnrollmentMixin, CourseSpecificViewMixin, EnrollmentUploadView):
+class CourseRunEnrollmentUploadView(
+    EnrollmentMixin, CourseSpecificViewMixin, EnrollmentUploadView
+):
     """
     A view for uploading course enrollments via csv file
 
     Path: /api/[version]/programs/{program_key}/course_enrollments
     """
-    field_names = {'student_key', 'course_id', 'status'}
+
+    field_names = {"student_key", "course_id", "status"}
     task_fn = write_course_run_enrollments
-    event_method_map = {'POST': 'registrar.{api_version}.upload_course_enrollments'}
-    event_parameter_map = {'program_key': 'program_key'}
+    event_method_map = {"POST": "registrar.{api_version}.upload_course_enrollments"}
+    event_parameter_map = {"program_key": "program_key"}
 
 
 class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView):
@@ -492,21 +500,16 @@ class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView)
 
     Path: /api/[version]/programs/{program_key}/course_enrollments
     """
-    event_method_map = {
-        'GET': 'registrar.v1.download_course_enrollments',
-    }
-    event_parameter_map = {
-        'program_key': 'program_key',
-        'fmt': 'result_format',
-    }
+
+    event_method_map = {"GET": "registrar.v1.download_course_enrollments"}
+    event_parameter_map = {"program_key": "program_key", "fmt": "result_format"}
 
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves course run enrollment data for the given program.
         """
         return self.invoke_download_job(
-            list_all_course_run_enrollments,
-            self.program.key,
+            list_all_course_run_enrollments, self.program.key
         )
 
 
@@ -528,14 +531,13 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
 
     Path: /api/[version]/programs/{program_key}/courses/{course_id}/grades
     """
+
     permission_required = [perms.APIReadEnrollmentsPermission]
-    event_method_map = {
-        'GET': 'registrar.v1.get_course_grades',
-    }
+    event_method_map = {"GET": "registrar.v1.get_course_grades"}
     event_parameter_map = {
-        'program_key': 'program_key',
-        'course_id': 'course_id',
-        'fmt': 'result_format',
+        "program_key": "program_key",
+        "course_id": "course_id",
+        "fmt": "result_format",
     }
 
     def get(self, request, *args, **kwargs):
@@ -543,9 +545,7 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
         Submit a user task that retrieves course grade data for the given course
         """
         return self.invoke_download_job(
-            get_course_run_grades,
-            self.program.key,
-            self.internal_course_key,
+            get_course_run_grades, self.program.key, self.internal_course_key
         )
 
 
@@ -580,12 +580,11 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
      * 403: User is not authorized to view program reports.
      * 404: Program does not exist.
     """
-    event_method_map = {
-        'GET': 'registrar.v1.list_program_reports',
-    }
+
+    event_method_map = {"GET": "registrar.v1.list_program_reports"}
     event_parameter_map = {
-        'program_key': 'program_key',
-        'min_created_date': 'min_created_date',
+        "program_key": "program_key",
+        "min_created_date": "min_created_date",
     }
     permission_required = [perms.APIReadReportsPermission]
 
@@ -594,8 +593,10 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         Get a list of reports for a program.
         """
         filestore = get_program_reports_filestore()
-        file_prefix = '{}/{}'.format(self.program.managing_organization.key, self.program.discovery_uuid.hex)
-        date_format_string = '%Y-%m-%d'
+        file_prefix = "{}/{}".format(
+            self.program.managing_organization.key, self.program.discovery_uuid.hex
+        )
+        date_format_string = "%Y-%m-%d"
 
         reports_metadata = []
 
@@ -606,30 +607,32 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
 
         for report_name in reports:
             report_metadata = {
-                'name': report_name,
-                'created_date': self._get_file_created_date(
-                    report_name, date_format_string,
+                "name": report_name,
+                "created_date": self._get_file_created_date(
+                    report_name, date_format_string
                 ),
             }
             reports_metadata.append(report_metadata)
 
-        if 'min_created_date' in request.query_params:
+        if "min_created_date" in request.query_params:
             min_created_date = datetime.strptime(
-                request.query_params['min_created_date'],
-                date_format_string
+                request.query_params["min_created_date"], date_format_string
             )
 
             reports_metadata = [
-                r for r
-                in reports_metadata
-                if r['created_date'] is not None and
-                datetime.strptime(r['created_date'], date_format_string) >= min_created_date
+                r
+                for r in reports_metadata
+                if r["created_date"] is not None
+                and datetime.strptime(r["created_date"], date_format_string)
+                >= min_created_date
             ]
 
         # wait to generate the download url until after we've done any filtering
         # to avoid generating unnecessary urls
         for report in reports_metadata:
-            report['download_url'] = filestore.get_url('{}/{}'.format(file_prefix, report['name']))
+            report["download_url"] = filestore.get_url(
+                "{}/{}".format(file_prefix, report["name"])
+            )
 
         serializer = ProgramReportMetadataSerializer(reports_metadata, many=True)
         return Response(serializer.data)
@@ -647,7 +650,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
             - None: if the date is not in the filename or the date is misformatted
         """
         # pull out the date string from the filename
-        pattern = re.compile(r'.*__(\d*-\d*-\d*)[.]*\w*')
+        pattern = re.compile(r".*__(\d*-\d*-\d*)[.]*\w*")
         match = pattern.match(filename)
 
         if match is None:
@@ -667,4 +670,8 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         return datetime.strftime(date, date_format_string)
 
     def _log_invalid_filename(self, filename):
-        logger.warning('Filename {} is not in the expected format: report_name__YYYY-MM-DD.extension.'.format(filename))
+        logger.warning(
+            "Filename {} is not in the expected format: report_name__YYYY-MM-DD.extension.".format(
+                filename
+            )
+        )

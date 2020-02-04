@@ -15,16 +15,13 @@ class AbsoluteUrlTestCase(TestCase):
 
     @ddt.data(
         (
-            ('/api/v1', 'programs', 'abcd/enrollments/'),
-            'http://localhost/api/v1/programs/abcd/enrollments/',
+            ("/api/v1", "programs", "abcd/enrollments/"),
+            "http://localhost/api/v1/programs/abcd/enrollments/",
         ),
+        (("/api/", "/v1/programs/", "/123"), "http://localhost/api/v1/programs/123"),
         (
-            ('/api/', '/v1/programs/', '/123'),
-            'http://localhost/api/v1/programs/123',
-        ),
-        (
-            ('/api/v1/programs/', '/', '', '456', '', '/'),
-            'http://localhost/api/v1/programs/456/',
+            ("/api/v1/programs/", "/", "", "456", "", "/"),
+            "http://localhost/api/v1/programs/456/",
         ),
     )
     @ddt.unpack
@@ -33,11 +30,11 @@ class AbsoluteUrlTestCase(TestCase):
 
     def test_to_absolute_api_url_bad_input(self):
         with self.assertRaises(ValueError):
-            to_absolute_api_url('abc/def', 'g')
+            to_absolute_api_url("abc/def", "g")
 
     def test_build_absolute_api_url(self):
         job_id = uuid.uuid4()
         self.assertEqual(
-            build_absolute_api_url('api:v1:job-status', job_id=job_id),
-            'http://localhost/api/v1/jobs/{}'.format(job_id),
+            build_absolute_api_url("api:v1:job-status", job_id=job_id),
+            "http://localhost/api/v1/jobs/{}".format(job_id),
         )

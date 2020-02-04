@@ -16,7 +16,9 @@ from .serializers import serialize_course_run_grades_to_csv
 
 @shared_task(base=UserTask, bind=True)
 # pylint: disable=unused-argument
-def get_course_run_grades(self, job_id, user_id, file_format, program_key, internal_course_key):
+def get_course_run_grades(
+    self, job_id, user_id, file_format, program_key, internal_course_key
+):
     """
     A user task that reads course run grade data from the LMS, and writes it to
     a JSON- or CSV-formatted result file.
@@ -26,8 +28,7 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
         return
     try:
         any_successes, any_failures, grades = data.get_course_run_grades(
-            program.discovery_uuid,
-            internal_course_key,
+            program.discovery_uuid, internal_course_key
         )
     except HTTPError as err:
         post_job_failure(
@@ -38,10 +39,7 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
         )
         return
     except ValidationError as err:
-        post_job_failure(
-            job_id,
-            "Invalid grade data from LMS: {}".format(err),
-        )
+        post_job_failure(job_id, "Invalid grade data from LMS: {}".format(err))
         return
 
     if any_successes and any_failures:
@@ -53,10 +51,10 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
     else:
         code_str = str(GradeReadStatus.UNPROCESSABLE_ENTITY.value)
 
-    if file_format == 'json':
+    if file_format == "json":
         serialized = json.dumps(grades, indent=4)
-    elif file_format == 'csv':
+    elif file_format == "csv":
         serialized = serialize_course_run_grades_to_csv(grades)
     else:
-        raise ValueError('Invalid file_format: {}'.format(file_format))
+        raise ValueError("Invalid file_format: {}".format(file_format))
     post_job_success(job_id, serialized, file_format, text=code_str)

@@ -26,7 +26,8 @@ from .factories import (
 
 class UserTests(TestCase):
     """ User model tests. """
-    TEST_CONTEXT = {'foo': 'bar', 'baz': None}
+
+    TEST_CONTEXT = {"foo": "bar", "baz": None}
 
     def test_access_token(self):
         user = G(User)
@@ -35,21 +36,23 @@ class UserTests(TestCase):
         social_auth = G(UserSocialAuth, user=user)
         self.assertIsNone(user.access_token)
 
-        access_token = 'My voice is my passport. Verify me.'
-        social_auth.extra_data['access_token'] = access_token
+        access_token = "My voice is my passport. Verify me."
+        social_auth.extra_data["access_token"] = access_token
         social_auth.save()
         self.assertEqual(user.access_token, access_token)
 
     def test_get_full_name(self):
         """ Test that the user model concatenates first and last name if the full name is not set. """
-        full_name = 'George Costanza'
+        full_name = "George Costanza"
         user = G(User, full_name=full_name)
         self.assertEqual(user.get_full_name(), full_name)
 
-        first_name = 'Jerry'
-        last_name = 'Seinfeld'
+        first_name = "Jerry"
+        last_name = "Seinfeld"
         user = G(User, full_name=None, first_name=first_name, last_name=last_name)
-        expected = '{first_name} {last_name}'.format(first_name=first_name, last_name=last_name)
+        expected = "{first_name} {last_name}".format(
+            first_name=first_name, last_name=last_name
+        )
         self.assertEqual(user.get_full_name(), expected)
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
@@ -57,7 +60,7 @@ class UserTests(TestCase):
 
     def test_string(self):
         """Verify that the model's string method returns the user's username """
-        username = 'bob'
+        username = "bob"
         user = G(User, username=username)
         self.assertEqual(str(user), username)
 
@@ -78,8 +81,7 @@ class OrganizationGroupTests(TestCase):
     )
     def test_roles(self, role):
         org_group = OrganizationGroup.objects.create(
-            role=role.name,
-            organization=self.organization,
+            role=role.name, organization=self.organization
         )
         permissions = get_perms(self.user, self.organization)
         self.assertEqual([], permissions)
@@ -89,13 +91,12 @@ class OrganizationGroupTests(TestCase):
         for permission in Organization._meta.permissions:
             self.assertEqual(
                 permission in role.permissions,
-                self.user.has_perm(permission, self.organization)
+                self.user.has_perm(permission, self.organization),
             )
 
     def test_global_permission_not_granted(self):
         org_group = OrganizationGroup.objects.create(
-            role=perm.OrganizationReadMetadataRole.name,
-            organization=self.organization,
+            role=perm.OrganizationReadMetadataRole.name, organization=self.organization
         )
         self.user.groups.add(org_group)  # pylint: disable=no-member
         permission = perm.OrganizationReadMetadataRole.permissions[0]
@@ -108,8 +109,7 @@ class OrganizationGroupTests(TestCase):
         self.assertFalse(self.user.has_perm(permission, self.organization))
         self.assertFalse(self.user.has_perm(permission, organization2))
         org_group = OrganizationGroup.objects.create(
-            role=perm.OrganizationReadMetadataRole.name,
-            organization=self.organization,
+            role=perm.OrganizationReadMetadataRole.name, organization=self.organization
         )
         self.user.groups.add(org_group)  # pylint: disable=no-member
         self.assertTrue(self.user.has_perm(permission, self.organization))
@@ -123,8 +123,7 @@ class OrganizationGroupTests(TestCase):
 
         # Scenario 1: read/write on org1
         org_group = OrganizationGroup.objects.create(
-            role=perm.OrganizationReadWriteEnrollmentsRole.name,
-            organization=org1,
+            role=perm.OrganizationReadWriteEnrollmentsRole.name, organization=org1
         )
         self.user.groups.add(org_group)  # pylint: disable=no-member
         self.assertTrue(self.user.has_perm(metdata_permission, org1))
@@ -163,11 +162,10 @@ class OrganizationGroupTests(TestCase):
     )
     def test_string(self, role):
         org_group = OrganizationGroup.objects.create(
-            role=role.name,
-            organization=self.organization,
+            role=role.name, organization=self.organization
         )
         org_group_string = str(org_group)
-        self.assertIn('OrganizationGroup', org_group_string)
+        self.assertIn("OrganizationGroup", org_group_string)
         self.assertIn(self.organization.name, org_group_string)
         self.assertIn(role.name, org_group_string)
 
@@ -200,7 +198,7 @@ class ProgramOrganizationGroupTests(TestCase):
         for permission in Program._meta.permissions:
             self.assertEqual(
                 permission in role.permissions,
-                self.user.has_perm(permission, self.program)
+                self.user.has_perm(permission, self.program),
             )
 
     def test_global_permission_not_granted(self):
@@ -277,46 +275,47 @@ class PendingUserGroupTests(TestCase):
     def setUp(self):
         super(PendingUserGroupTests, self).setUp()
         self.organization = OrganizationFactory()
-        self.organization_group = OrganizationGroupFactory(organization=self.organization)
+        self.organization_group = OrganizationGroupFactory(
+            organization=self.organization
+        )
         self.program = ProgramFactory()
         self.program_group = ProgramOrganizationGroup.objects.create(
             program=self.program,
             granting_organization=self.program.managing_organization,
         )
-        self.generic_group = Group.objects.create(name='generic_group')
+        self.generic_group = Group.objects.create(name="generic_group")
 
     def test_pending_org_group_string(self):
-        user_email = 'test_pending_org_group@example.com'
+        user_email = "test_pending_org_group@example.com"
         pending_user_group = PendingUserGroup.objects.create(
-            user_email=user_email,
-            group=self.organization_group,
+            user_email=user_email, group=self.organization_group
         )
         pending_user_group_string = str(pending_user_group)
-        self.assertIn('PendingUserGroup', pending_user_group_string)
+        self.assertIn("PendingUserGroup", pending_user_group_string)
         self.assertIn(user_email, pending_user_group_string)
         self.assertIn(self.organization.name, pending_user_group_string)
         self.assertIn(self.organization_group.role, pending_user_group_string)
 
     def test_pending_program_group_string(self):
-        user_email = 'test_pending_program_group@example.com'
+        user_email = "test_pending_program_group@example.com"
         pending_user_group = PendingUserGroup.objects.create(
-            user_email=user_email,
-            group=self.program_group,
+            user_email=user_email, group=self.program_group
         )
         pending_user_group_string = str(pending_user_group)
-        self.assertIn('PendingUserGroup', pending_user_group_string)
+        self.assertIn("PendingUserGroup", pending_user_group_string)
         self.assertIn(user_email, pending_user_group_string)
-        self.assertIn(self.program.managing_organization.name, pending_user_group_string)
+        self.assertIn(
+            self.program.managing_organization.name, pending_user_group_string
+        )
         self.assertIn(self.program.key, pending_user_group_string)
         self.assertIn(self.program_group.role, pending_user_group_string)
 
     def test_pending_generic_group_string(self):
-        user_email = 'test_pending_generic_group@example.com'
+        user_email = "test_pending_generic_group@example.com"
         pending_user_group = PendingUserGroup.objects.create(
-            user_email=user_email,
-            group=self.generic_group,
+            user_email=user_email, group=self.generic_group
         )
         pending_user_group_string = str(pending_user_group)
-        self.assertIn('PendingUserGroup', pending_user_group_string)
+        self.assertIn("PendingUserGroup", pending_user_group_string)
         self.assertIn(user_email, pending_user_group_string)
         self.assertIn(self.generic_group.name, pending_user_group_string)

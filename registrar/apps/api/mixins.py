@@ -81,11 +81,11 @@ class TrackViewMixin(object):
         * HTTP response status code
         """
         event_name = self.event_method_map.get(self.request.method)
-        api_version = self.request.get_full_path().split('/')[2]
+        api_version = self.request.get_full_path().split("/")[2]
         if not event_name:  # pragma: no cover
             logger.error(
-                'Segment tracking event name not found for request method ' +
-                '%s on view %s',
+                "Segment tracking event name not found for request method "
+                + "%s on view %s",
                 self.request.method,
                 self.__class__.__name__,
             )
@@ -102,11 +102,11 @@ class TrackViewMixin(object):
         properties = segment.get_tracking_properties(self.request.user)
         properties.update(param_properties)
         properties.update(self._extra_tracking_data)
-        properties['status_code'] = status_code
+        properties["status_code"] = status_code
 
         segment.track(self.request.user.username, event_name, properties)
         logger.info(
-            '%s invoked on Registrar by user with ID=%s with properties %s',
+            "%s invoked on Registrar by user with ID=%s with properties %s",
             event_name,
             self.request.user.id,
             json.dumps(properties, skipkeys=True, sort_keys=True, cls=CustomEncoder),
@@ -121,6 +121,7 @@ class CustomEncoder(json.JSONEncoder):
     Now permission_required becomes a list of APIPermission classes and this CustomEncoder
     helps encode APIPermission class to JSON.
     """
+
     def default(self, o):  # pylint: disable=method-hidden
         if issubclass(o, APIPermissionBase):
             return o.permissions

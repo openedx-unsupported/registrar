@@ -12,6 +12,7 @@ from .factories import OrganizationFactory, ProgramFactory, UserFactory
 
 class BaseTaskTestMixin(object):
     """ Mixin for common task testing utility functions, and program_not_found """
+
     job_id = "6fee9384-f7f7-496f-a607-ee9f59201ee0"
     mock_base = None
     mock_function = None
@@ -20,7 +21,7 @@ class BaseTaskTestMixin(object):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.user = UserFactory()
-        org = OrganizationFactory(name='STEM Institute')
+        org = OrganizationFactory(name="STEM Institute")
         cls.program = ProgramFactory(managing_organization=org)
 
     def spawn_task(self, program_key=None, **kwargs):
@@ -54,7 +55,7 @@ class BaseTaskTestMixin(object):
         """
         task_status = UserTaskStatus.objects.get(task_id=(job_id or self.job_id))
         self.assertEqual(task_status.state, UserTaskStatus.FAILED)
-        error_artifact = task_status.artifacts.filter(name='Error').first()
+        error_artifact = task_status.artifacts.filter(name="Error").first()
         self.assertIn(sub_message, error_artifact.text)
 
     def test_program_not_found(self):
@@ -68,7 +69,7 @@ class S3MockEnvVarsMixin(object):
     def setUpClass(cls):
         super().setUpClass()
         # required to prevent moto from mutating real infrastructure
-        os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
-        os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
-        os.environ['AWS_SECURITY_TOKEN'] = 'testing'
-        os.environ['AWS_SESSION_TOKEN'] = 'testing'
+        os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+        os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+        os.environ["AWS_SECURITY_TOKEN"] = "testing"
+        os.environ["AWS_SESSION_TOKEN"] = "testing"

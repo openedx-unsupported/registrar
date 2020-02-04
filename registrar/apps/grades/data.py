@@ -18,7 +18,9 @@ from registrar.apps.core.data import _get_all_paginated_responses
 from .serializers import CourseGradeSerializer
 
 
-LMS_PROGRAM_COURSE_GRADES_API_TPL = 'api/program_enrollments/v1/programs/{}/courses/{}/grades/'
+LMS_PROGRAM_COURSE_GRADES_API_TPL = (
+    "api/program_enrollments/v1/programs/{}/courses/{}/grades/"
+)
 
 
 def get_course_run_grades(program_uuid, internal_course_key, client=None):
@@ -40,7 +42,9 @@ def get_course_run_grades(program_uuid, internal_course_key, client=None):
     """
     url = _lms_course_run_grades_url(program_uuid, internal_course_key)
     try:
-        responses = _get_all_paginated_responses(url, client, expected_error_codes={HTTP_422_UNPROCESSABLE_ENTITY})
+        responses = _get_all_paginated_responses(
+            url, client, expected_error_codes={HTTP_422_UNPROCESSABLE_ENTITY}
+        )
     except json.JSONDecodeError as e:
         raise ValidationError(e)
 
@@ -57,7 +61,7 @@ def get_course_run_grades(program_uuid, internal_course_key, client=None):
             any_failures = True
         else:
             any_failures = True
-        response_data = response.json().get('results')
+        response_data = response.json().get("results")
         results.extend(response_data)
     serializer = CourseGradeSerializer(data=results, many=True)
     serializer.is_valid(raise_exception=True)
@@ -69,7 +73,5 @@ def _lms_course_run_grades_url(program_uuid, course_id):
     Given a program UUID and an edX course ID,
     get the LMS URL for course run grades.
     """
-    endpoint_path = LMS_PROGRAM_COURSE_GRADES_API_TPL.format(
-        program_uuid, course_id
-    )
+    endpoint_path = LMS_PROGRAM_COURSE_GRADES_API_TPL.format(program_uuid, course_id)
     return urljoin(settings.LMS_BASE_URL, endpoint_path)

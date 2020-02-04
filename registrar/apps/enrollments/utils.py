@@ -3,8 +3,8 @@
 from registrar.apps.core.jobs import processing_job_with_prefix_exists
 
 
-SEPARATOR = ':'
-WRITE_PREFIX = 'write'
+SEPARATOR = ":"
+WRITE_PREFIX = "write"
 
 
 def build_enrollment_job_status_name(program_key, action, task_name):
@@ -30,8 +30,6 @@ def is_enrollment_write_blocked(program_key):
         program_key (str): program key for the program we're checking
     """
     prefix = "{key}{sep}{write}{sep}".format(
-        key=program_key,
-        sep=SEPARATOR,
-        write=WRITE_PREFIX,
+        key=program_key, sep=SEPARATOR, write=WRITE_PREFIX
     )
     return processing_job_with_prefix_exists(prefix)

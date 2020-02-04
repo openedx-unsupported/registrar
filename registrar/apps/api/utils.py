@@ -39,12 +39,12 @@ def to_absolute_api_url(path, *more_paths):
 
     Returns: str
     """
-    PREFIX = '/api/'
+    PREFIX = "/api/"
     if not path.startswith(PREFIX):
         raise ValueError(
-            'Cannot make API URL for raw URL that does not begin with ' + PREFIX
+            "Cannot make API URL for raw URL that does not begin with " + PREFIX
         )
-    path_parts = [settings.API_ROOT, path[len(PREFIX):]] + list(more_paths)
-    stripped_path_parts = [part.strip('/') for part in path_parts]
-    result = '/'.join(part for part in stripped_path_parts if part)
-    return result + ('/' if path_parts[-1].endswith('/') else '')
+    path_parts = [settings.API_ROOT, path[len(PREFIX) :]] + list(more_paths)
+    stripped_path_parts = [part.strip("/") for part in path_parts]
+    result = "/".join(part for part in stripped_path_parts if part)
+    return result + ("/" if path_parts[-1].endswith("/") else "")

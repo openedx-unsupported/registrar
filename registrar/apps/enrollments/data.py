@@ -30,8 +30,10 @@ from .serializers import CourseEnrollmentSerializer, ProgramEnrollmentSerializer
 
 logger = logging.getLogger(__name__)
 
-LMS_PROGRAM_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}/enrollments/'
-LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}/courses/{}/enrollments/'
+LMS_PROGRAM_ENROLLMENTS_API_TPL = "api/program_enrollments/v1/programs/{}/enrollments/"
+LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL = (
+    "api/program_enrollments/v1/programs/{}/courses/{}/enrollments/"
+)
 
 
 def get_program_enrollments(program_uuid, client=None):
@@ -56,7 +58,9 @@ def get_program_enrollments(program_uuid, client=None):
     return serializer.validated_data
 
 
-def get_course_run_enrollments(program_uuid, internal_course_key, external_course_key=None, client=None):
+def get_course_run_enrollments(
+    program_uuid, internal_course_key, external_course_key=None, client=None
+):
     """
     Fetches program course run enrollments from the LMS.
 
@@ -75,8 +79,10 @@ def get_course_run_enrollments(program_uuid, internal_course_key, external_cours
     """
     url = _lms_course_run_enrollment_url(program_uuid, internal_course_key)
     enrollments = _get_all_paginated_results(url, client)
-    context = {'course_id': external_course_key or internal_course_key}
-    serializer = CourseEnrollmentSerializer(data=enrollments, many=True, context=context)
+    context = {"course_id": external_course_key or internal_course_key}
+    serializer = CourseEnrollmentSerializer(
+        data=enrollments, many=True, context=context
+    )
     serializer.is_valid(raise_exception=True)
     return serializer.data
 
@@ -91,11 +97,13 @@ def write_program_enrollments(method, program_uuid, enrollments, client=None):
     curriculum_uuid = DiscoveryProgram.get(program_uuid).active_curriculum_uuid
     enrollments = enrollments.copy()
     for enrollment in enrollments:
-        enrollment['curriculum_uuid'] = curriculum_uuid
+        enrollment["curriculum_uuid"] = curriculum_uuid
     return _write_enrollments(method, url, enrollments, client)
 
 
-def write_course_run_enrollments(method, program_uuid, course_id, enrollments, client=None):
+def write_course_run_enrollments(
+    method, program_uuid, course_id, enrollments, client=None
+):
     """
     Create or update program course enrollments in the LMS.
 
@@ -125,14 +133,15 @@ def _write_enrollments(method, url, enrollments, client=None):
           * `results` is a dict that maps each student key to a status
             indicating the result of the enrollment operation.
     """
+
     def key_fn(e):
-        return e['student_key']
+        return e["student_key"]
+
     # groupby requires sorted input.
     sorted_enrollments = sorted(enrollments, key=key_fn)
     enrollments_by_student = {
         student_key: list(student_enrollments)
-        for student_key, student_enrollments
-        in groupby(sorted_enrollments, key=key_fn)
+        for student_key, student_enrollments in groupby(sorted_enrollments, key=key_fn)
     }
     duplicated_student_keys = {
         student_key
@@ -142,7 +151,7 @@ def _write_enrollments(method, url, enrollments, client=None):
     unique_enrollments = [
         enrollment
         for enrollment in enrollments
-        if enrollment['student_key'] not in duplicated_student_keys
+        if enrollment["student_key"] not in duplicated_student_keys
     ]
     responses = _do_batched_lms_write(
         method, url, unique_enrollments, LMS_ENROLLMENT_WRITE_MAX_SIZE, client
@@ -155,13 +164,14 @@ def _write_enrollments(method, url, enrollments, client=None):
     # with a status, so if there are any left over, there was indeed an
     # internal error.
     results = {
-        student_key: ENROLLMENT_ERROR_INTERNAL
-        for student_key in enrollments_by_student
+        student_key: ENROLLMENT_ERROR_INTERNAL for student_key in enrollments_by_student
     }
-    results.update({
-        student_key: ENROLLMENT_ERROR_DUPLICATED
-        for student_key in duplicated_student_keys
-    })
+    results.update(
+        {
+            student_key: ENROLLMENT_ERROR_DUPLICATED
+            for student_key in duplicated_student_keys
+        }
+    )
     expected_codes = {
         HTTP_200_OK,
         HTTP_201_CREATED,

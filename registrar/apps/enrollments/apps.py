@@ -5,4 +5,4 @@ from django.apps import AppConfig  # pragma: no cover
 
 
 class EnrollmentsConfig(AppConfig):  # pragma: no cover
-    name = 'enrollments'
+    name = "enrollments"

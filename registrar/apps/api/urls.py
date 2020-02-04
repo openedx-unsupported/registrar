@@ -11,9 +11,9 @@ from .v1 import urls as v1_urls
 from .v2 import urls as v2_urls
 
 
-app_name = 'api'
+app_name = "api"
 urlpatterns = [
-    url(r'^internal/', include(internal_urls)),
-    url(r'^v1/', include(v1_urls)),
-    url(r'^v2/', include(v2_urls)),
+    url(r"^internal/", include(internal_urls)),
+    url(r"^v1/", include(v1_urls)),
+    url(r"^v2/", include(v2_urls)),
 ]

@@ -12,14 +12,12 @@ from registrar.apps.core.permissions import (
     APIReadMetadataPermission,
     APIWriteEnrollmentsPermission,
 )
-from registrar.apps.core.tests.factories import (
-    OrganizationFactory,
-    ProgramFactory,
-)
+from registrar.apps.core.tests.factories import OrganizationFactory, ProgramFactory
 
 
 class ProgramSerializerTests(TestCase):
     """ Tests the ProgramSerializer """
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -27,7 +25,7 @@ class ProgramSerializerTests(TestCase):
         cls.org = OrganizationFactory()
         cls.program = ProgramFactory(managing_organization=cls.org)
 
-        cls.request = RequestFactory().get('/api/v1/programs')
+        cls.request = RequestFactory().get("/api/v1/programs")
         cls.request.user = AnonymousUser()
 
     def setUp(self):
@@ -37,15 +35,11 @@ class ProgramSerializerTests(TestCase):
             PROGRAM_CACHE_KEY_TPL.format(uuid=self.program.discovery_uuid),
             DiscoveryProgram.from_json(
                 self.program.discovery_uuid,
-                {
-                    'title': 'test-program',
-                    'type': 'masters',
-                    'curricula': [],
-                }
-            )
+                {"title": "test-program", "type": "masters", "curricula": []},
+            ),
         )
 
-    @mock.patch('registrar.apps.api.serializers.get_user_api_permissions')
+    @mock.patch("registrar.apps.api.serializers.get_user_api_permissions")
     def test_get_user_permissions(self, fake_get_perms):
         """
         Program permissions should be populated with the union of all
@@ -56,14 +50,11 @@ class ProgramSerializerTests(TestCase):
             set([APIReadMetadataPermission]),  # mocked permissions on org
         ]
         program = ProgramSerializer(
-            self.program,
-            context={
-                'request': self.request
-            }
+            self.program, context={"request": self.request}
         ).data
         self.assertListEqual(
-            program.get('permissions'),
-            [APIReadMetadataPermission.name, APIWriteEnrollmentsPermission.name]
+            program.get("permissions"),
+            [APIReadMetadataPermission.name, APIWriteEnrollmentsPermission.name],
         )
 
     def test_permissions_no_request_context(self):
@@ -72,4 +63,4 @@ class ProgramSerializerTests(TestCase):
         without a request context
         """
         program = ProgramSerializer(self.program).data
-        self.assertListEqual(program.get('permissions'), [])
+        self.assertListEqual(program.get("permissions"), [])

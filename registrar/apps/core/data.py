@@ -17,11 +17,10 @@ from .constants import PROGRAM_CACHE_KEY_TPL, PROGRAM_CACHE_TIMEOUT
 
 
 logger = logging.getLogger(__name__)
-DISCOVERY_PROGRAM_API_TPL = 'api/v1/programs/{}/'
+DISCOVERY_PROGRAM_API_TPL = "api/v1/programs/{}/"
 
 DiscoveryCourseRun = namedtuple(
-    'DiscoveryCourseRun',
-    ['key', 'external_key', 'title', 'marketing_url'],
+    "DiscoveryCourseRun", ["key", "external_key", "title", "marketing_url"]
 )
 
 
@@ -78,13 +77,11 @@ class DiscoveryProgram(object):
         Raises Http404 if program is not cached and Discovery returns 404
         Raises HTTPError if Discovery returns error.
         """
-        url = urljoin(
-            settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/'
-        ).format(
+        url = urljoin(settings.DISCOVERY_BASE_URL, "api/v1/programs/{}/").format(
             program_uuid
         )
         try:
-            program_data = _make_request('GET', url, client).json()
+            program_data = _make_request("GET", url, client).json()
         except HTTPError as e:
             if e.response.status_code == HTTP_404_NOT_FOUND:
                 raise Http404(e)
@@ -109,20 +106,19 @@ class DiscoveryProgram(object):
         Builds a DiscoveryProgram instance from JSON data that has been
         returned by the Course Discovery service.json
         """
-        program_title = program_data.get('title')
-        program_url = program_data.get('marketing_url')
-        program_type = program_data.get('type')
+        program_title = program_data.get("title")
+        program_url = program_data.get("marketing_url")
+        program_type = program_data.get("type")
         # this make two temporary assumptions (zwh 03/19)
         #  1. one *active* curriculum per program
         #  2. no programs are nested within a curriculum
         try:
             curriculum = next(
-                c for c in program_data.get('curricula', [])
-                if c.get('is_active')
+                c for c in program_data.get("curricula", []) if c.get("is_active")
             )
         except StopIteration:
             logger.exception(
-                'Discovery API returned no active curricula for program {}'.format(
+                "Discovery API returned no active curricula for program {}".format(
                     program_uuid
                 )
             )
@@ -138,10 +134,10 @@ class DiscoveryProgram(object):
         active_curriculum_uuid = curriculum.get("uuid")
         course_runs = [
             DiscoveryCourseRun(
-                key=course_run.get('key'),
-                external_key=course_run.get('external_key'),
-                title=course_run.get('title'),
-                marketing_url=course_run.get('marketing_url'),
+                key=course_run.get("key"),
+                external_key=course_run.get("external_key"),
+                title=course_run.get("title"),
+                marketing_url=course_run.get("marketing_url"),
             )
             for course in curriculum.get("courses", [])
             for course_run in course.get("course_runs", [])
@@ -210,18 +206,18 @@ def _get_all_paginated_responses(url, client=None, expected_error_codes=None):
     next_url = url
     while next_url:
         try:
-            response = _make_request('GET', next_url, client)
+            response = _make_request("GET", next_url, client)
         except HTTPError as e:
             if e.response.status_code in expected_error_codes:
                 response = e.response
             else:
                 raise e
         responses.append(response)
-        next_url = response.json().get('next')
+        next_url = response.json().get("next")
     return responses
 
 
-def _get_all_paginated_results(url, client=None, ):
+def _get_all_paginated_results(url, client=None):
     """
     Builds a list of all results from a cursor-paginated endpoint.
 
@@ -232,9 +228,9 @@ def _get_all_paginated_results(url, client=None, ):
     results = []
     next_url = url
     while next_url:
-        response_data = _make_request('GET', next_url, client).json()
-        results += response_data['results']
-        next_url = response_data.get('next')
+        response_data = _make_request("GET", next_url, client).json()
+        results += response_data["results"]
+        next_url = response_data.get("next")
     return results
 
 
@@ -249,7 +245,7 @@ def _do_batched_lms_write(method, url, items, items_per_batch, client=None):
     client = client or _get_client(settings.LMS_BASE_URL)
     responses = []
     for i in range(0, len(items), items_per_batch):
-        sub_items = items[i:(i + items_per_batch)]
+        sub_items = items[i : (i + items_per_batch)]
         try:
             response = _make_request(method, url, client, json=sub_items)
         except HTTPError as e:
@@ -263,8 +259,8 @@ def _make_request(method, url, client, **kwargs):
     Helper method to make an http request using
     an authN'd client.
     """
-    if method not in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:  # pragma: no cover
-        raise Exception('invalid http method: ' + method)
+    if method not in ["GET", "POST", "PUT", "PATCH", "DELETE"]:  # pragma: no cover
+        raise Exception("invalid http method: " + method)
 
     if not client:
         client = _get_client(settings.LMS_BASE_URL)
@@ -288,5 +284,5 @@ def _get_client(host_base_url):
     )
     client._check_auth()  # pylint: disable=protected-access
     if not client.auth.token:  # pragma: no cover
-        raise 'No Auth Token'
+        raise "No Auth Token"
     return client

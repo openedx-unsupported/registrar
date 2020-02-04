@@ -61,9 +61,7 @@ def serialize_to_csv(items, field_names, include_headers=False):
     Returns: str
     """
     outfile = StringIO()
-    writer = csv.DictWriter(
-        outfile, fieldnames=field_names, extrasaction="ignore"
-    )
+    writer = csv.DictWriter(outfile, fieldnames=field_names, extrasaction="ignore")
     if include_headers:
         writer.writeheader()
     for item in items:
@@ -82,6 +80,7 @@ class StrippedLowercaseFieldNamesDictReader(csv.DictReader):
 
     Note that this does not affect the values of the fields themselves.
     """
+
     @property
     def fieldnames(self):
         raw_field_names = super().fieldnames
@@ -96,7 +95,7 @@ def load_records_from_uploaded_csv(csv_file, field_names):
         csv_file (UploadedFile): CSV file uploaded in a POST call.
         field_names (set[str])
     """
-    contents = csv_file.read().decode('utf-8')
+    contents = csv_file.read().decode("utf-8")
     return load_records_from_csv(contents, field_names)
 
 

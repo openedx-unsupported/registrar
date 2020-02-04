@@ -29,11 +29,12 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
     """
     Tests for S3Filestore, which is the default Filestore under test settings.
     """
-    test_bucket_1 = 'test-bucket1'
-    test_bucket_2 = 'test-bucket2'
+
+    test_bucket_1 = "test-bucket1"
+    test_bucket_2 = "test-bucket2"
 
     bucket_variants = (test_bucket_1, test_bucket_2)
-    location_variants = ('', 'bucketprefix/')
+    location_variants = ("", "bucketprefix/")
     prefix_variants = ("", "prefix", "prefix/withslashes/")
     path_variants = ("file.txt", "folder/file.txt")
     contents_variants = ("filecontents!", "")
@@ -47,7 +48,7 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
         super().setUp()
         self._s3_mock = moto.mock_s3()
         self._s3_mock.start()
-        conn = boto3.resource('s3')
+        conn = boto3.resource("s3")
         conn.create_bucket(Bucket=self.test_bucket_1)
         conn.create_bucket(Bucket=self.test_bucket_2)
 
@@ -67,7 +68,7 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
     @ddt.unpack
     def test_s3_filestore(self, bucket, location, prefix, path, contents):
         filestore = get_filestore(bucket, prefix)
-        with mock.patch.object(filestore.backend, 'location', new=location):
+        with mock.patch.object(filestore.backend, "location", new=location):
             url = filestore.store(path, contents)
             self.assertTrue(filestore.exists(path))
             self.assertIn(location, url)
@@ -87,10 +88,10 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
             filestore.delete(path)
             self.assertFalse(filestore.exists(path))
 
-    @mock.patch.object(filestore_logger, 'exception', autospec=True)
+    @mock.patch.object(filestore_logger, "exception", autospec=True)
     def test_s3_filestore_not_found(self, mock_log_exception):
         filestore = get_filestore(self.test_bucket_1, "prefix")
-        with mock.patch.object(filestore.backend, 'location', new="bucketprefix/"):
+        with mock.patch.object(filestore.backend, "location", new="bucketprefix/"):
             retrieved = filestore.retrieve("file.txt")
             self.assertIsNone(retrieved)
             mock_log_exception.assert_called_once()
@@ -106,6 +107,7 @@ class FilestoreTests(TestCase):
     """
     Basic tests for Filestores in general.
     """
+
     @ddt.data(
         get_enrollment_uploads_filestore,
         get_job_results_filestore,
@@ -117,18 +119,21 @@ class FilestoreTests(TestCase):
 
     @ddt.data(FileSystemFilestore, S3Filestore)
     def test_initialize_filestore_classes(self, filestore_class):
-        filestore_class('test-bucket', 'test/path')
+        filestore_class("test-bucket", "test/path")
 
     def test_filestore_error_logging(self):
-        bucket = 'fake-bucket'
-        path_prefix = 'fake/prefix'
-        filepath = 'faker/file.csv'
-        contents = 'ThisIsPotentiallyPII'
+        bucket = "fake-bucket"
+        path_prefix = "fake/prefix"
+        filepath = "faker/file.csv"
+        contents = "ThisIsPotentiallyPII"
         filestore = FileSystemFilestore(bucket, path_prefix)
 
-        log_error_patcher = mock.patch.object(filestore_logger, 'error', autospec=True)
+        log_error_patcher = mock.patch.object(filestore_logger, "error", autospec=True)
         save_patcher = mock.patch.object(
-            filestore.backend, 'save', autospec=True, side_effect=ClientError({}, 'fake-error')
+            filestore.backend,
+            "save",
+            autospec=True,
+            side_effect=ClientError({}, "fake-error"),
         )
         with log_error_patcher as mock_log_error, save_patcher as _mock_save:
             with self.assertRaises(ClientError):

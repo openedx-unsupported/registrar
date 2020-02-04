@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from ..context_processors import core
 
 
-PLATFORM_NAME = 'Test Platform'
+PLATFORM_NAME = "Test Platform"
 
 
 class CoreContextProcessorTests(TestCase):
@@ -13,5 +13,5 @@ class CoreContextProcessorTests(TestCase):
 
     @override_settings(PLATFORM_NAME=PLATFORM_NAME)
     def test_core(self):
-        request = RequestFactory().get('/')
-        self.assertDictEqual(core(request), {'platform_name': PLATFORM_NAME})
+        request = RequestFactory().get("/")
+        self.assertDictEqual(core(request), {"platform_name": PLATFORM_NAME})

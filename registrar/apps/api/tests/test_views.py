@@ -16,7 +16,8 @@ from registrar.apps.core.tests.factories import (
 
 class APIDocViewTest(APITestCase):
     """ Tests for accessing api-docs """
-    path = '/api-docs/'
+
+    path = "/api-docs/"
 
     @classmethod
     def setUpClass(cls):
@@ -24,13 +25,10 @@ class APIDocViewTest(APITestCase):
         cls.admin_user = UserFactory()
         assign_perm(perms.ORGANIZATION_WRITE_ENROLLMENTS, cls.admin_user)
 
-        cls.org = OrganizationFactory(name='Test Organization')
-        cls.program = ProgramFactory(
-            managing_organization=cls.org,
-        )
+        cls.org = OrganizationFactory(name="Test Organization")
+        cls.program = ProgramFactory(managing_organization=cls.org)
         cls.org_admin_group = OrganizationGroupFactory(
-            organization=cls.org,
-            role=perms.OrganizationReadWriteEnrollmentsRole.name
+            organization=cls.org, role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
         cls.org_admin = UserFactory()
         cls.org_admin.groups.add(cls.org_admin_group)  # pylint: disable=no-member
@@ -63,11 +61,11 @@ class APIDocViewTest(APITestCase):
         """ Assert the presence of 'paths' in the response context """
         spec = None
         for context in response.context:  # pragma: no branch
-            if 'spec' in context:  # pragma: no branch
-                spec = context['spec']
+            if "spec" in context:  # pragma: no branch
+                spec = context["spec"]
                 break
         self.assertIsNotNone(spec)
         spec = json.loads(spec)
-        paths = spec.get('paths')
+        paths = spec.get("paths")
         self.assertIsNotNone(paths)
         self.assertEqual(expected_paths, bool(paths))

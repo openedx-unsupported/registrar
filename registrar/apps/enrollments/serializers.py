@@ -14,6 +14,7 @@ class ProgramEnrollmentSerializer(serializers.Serializer):
     """
     Serializer for program enrollment API response.
     """
+
     student_key = serializers.CharField()
     status = serializers.ChoiceField(choices=PROGRAM_ENROLLMENT_STATUSES)
     account_exists = serializers.BooleanField()
@@ -29,9 +30,7 @@ def serialize_program_enrollments_to_csv(enrollments):
     Returns: str
     """
     return serialize_to_csv(
-        enrollments,
-        ('student_key', 'status', 'account_exists'),
-        include_headers=True,
+        enrollments, ("student_key", "status", "account_exists"), include_headers=True
     )
 
 
@@ -39,6 +38,7 @@ class CourseEnrollmentSerializer(serializers.Serializer):
     """
     Serializer for program enrollment API response.
     """
+
     course_id = serializers.SerializerMethodField()
     student_key = serializers.CharField()
     status = serializers.ChoiceField(choices=COURSE_ENROLLMENT_STATUSES)
@@ -46,7 +46,7 @@ class CourseEnrollmentSerializer(serializers.Serializer):
 
     # pylint: disable=unused-argument
     def get_course_id(self, obj):
-        return self.context.get('course_id')
+        return self.context.get("course_id")
 
 
 def serialize_course_run_enrollments_to_csv(enrollments):
@@ -60,7 +60,7 @@ def serialize_course_run_enrollments_to_csv(enrollments):
     """
     return serialize_to_csv(
         enrollments,
-        ('course_id', 'student_key', 'status', 'account_exists'),
+        ("course_id", "student_key", "status", "account_exists"),
         include_headers=True,
     )
 
@@ -76,12 +76,9 @@ def serialize_enrollment_results_to_csv(enrollment_results):
     Returns: str
     """
     enrollment_results_list = [
-        {
-            "student_key": student_key,
-            "status": status,
-        }
+        {"student_key": student_key, "status": status}
         for student_key, status in enrollment_results.items()
     ]
     return serialize_to_csv(
-        enrollment_results_list, ('student_key', 'status'), include_headers=True
+        enrollment_results_list, ("student_key", "status"), include_headers=True
     )

@@ -7,9 +7,7 @@ from collections.abc import Iterable
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
-from edx_rest_framework_extensions.auth.jwt.authentication import (
-    JwtAuthentication,
-)
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.response import Response
@@ -48,6 +46,7 @@ class AuthMixin(TrackViewMixin):
     Django Guardian's `PermissionRequiredMixin`, which unfortunately doesn't
     play nicely with Django REST Framework.
     """
+
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_required = []
     raise_404_if_unauthorized = False
@@ -73,8 +72,8 @@ class AuthMixin(TrackViewMixin):
             return [p for p in self.permission_required]
         else:  # pragma: no cover
             raise ImproperlyConfigured(
-                'permission_required must be a string or iterable; ' +
-                'was {}'.format(self.permission_required)
+                "permission_required must be a string or iterable; "
+                + "was {}".format(self.permission_required)
             )
 
     def check_permissions(self, request):
@@ -92,12 +91,13 @@ class AuthMixin(TrackViewMixin):
             raise NotAuthenticated()
 
         if self.staff_only and not request.user.is_staff:
-            self.add_tracking_data(failure='user_is_not_staff')
+            self.add_tracking_data(failure="user_is_not_staff")
             self._unauthorized_response()
 
         required = self.get_required_permissions(request)
         missing_global_permissions = {
-            perm for perm in required
+            perm
+            for perm in required
             if not perm.global_check(request.user)  # pylint: disable=no-member
         }
         objects = self.get_permission_objects()
@@ -105,7 +105,8 @@ class AuthMixin(TrackViewMixin):
             missing_permissions = set()
         elif objects:
             missing_permissions = {
-                perm for perm in required
+                perm
+                for perm in required
                 if not AuthMixin._has_permission_on_any(request.user, perm, objects)
             }
         else:
@@ -142,11 +143,11 @@ class ProgramSpecificViewMixin(AuthMixin):
         """
         The program specified by the `program_key` URL parameter.
         """
-        program_key = self.kwargs['program_key']
+        program_key = self.kwargs["program_key"]
         try:
             return Program.objects.get(key=program_key)
         except Program.DoesNotExist:
-            self.add_tracking_data(failure='program_not_found')
+            self.add_tracking_data(failure="program_not_found")
             raise Http404()
 
     def get_permission_objects(self):
@@ -173,12 +174,12 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         Raises a 404 if the course run identified by the `course_id` path
         parameter is not part of self.program.
         """
-        provided_course_id = self.kwargs['course_id']
+        provided_course_id = self.kwargs["course_id"]
         real_course_run = self.program.discovery_program.find_course_run(
             provided_course_id
         )
         if not real_course_run:
-            self.add_tracking_data(failure='course_not_found')
+            self.add_tracking_data(failure="course_not_found")
             raise Http404()
         return real_course_run
 
@@ -195,6 +196,7 @@ class JobInvokerMixin(object):
     """
     A mixin for views that invoke jobs and return ID and status URL.
     """
+
     def invoke_upload_job(self, task_fn, upload_content, *args, **kwargs):
         """
         Invoke a data upload job with task_fn and the path to an input file.
@@ -204,7 +206,7 @@ class JobInvokerMixin(object):
         job_id, user_id, and file_format.
         """
         job_id = str(uuid.uuid4())
-        file_path = '{}.{}'.format(job_id, 'json')
+        file_path = "{}.{}".format(job_id, "json")
         upload_filestore.store(file_path, upload_content)
         return self._invoke_job(task_fn, file_path, job_id=job_id, *args, **kwargs)
 
@@ -216,9 +218,9 @@ class JobInvokerMixin(object):
         *args and **kwargs are passed to task_fn *in addition* to
         job_id, user_id, and file_format.
         """
-        file_format = self.request.query_params.get('fmt', 'json')
-        if file_format not in {'json', 'csv'}:
-            self.add_tracking_data(failure='result_format_not_supported')
+        file_format = self.request.query_params.get("fmt", "json")
+        if file_format not in {"json", "csv"}:
+            self.add_tracking_data(failure="result_format_not_supported")
             raise Http404()
 
         return self._invoke_job(task_fn, file_format, *args, **kwargs)
@@ -228,9 +230,11 @@ class JobInvokerMixin(object):
         Invoke a job with task_fn
         """
         job_id = start_job(self.request.user, task_fn, *args, **kwargs)
-        api_version = self.request.get_full_path().split('/')[2]
-        job_url = build_absolute_api_url('api:{}:job-status'.format(api_version), job_id=job_id)
-        data = {'job_id': job_id, 'job_url': job_url}
+        api_version = self.request.get_full_path().split("/")[2]
+        job_url = build_absolute_api_url(
+            "api:{}:job-status".format(api_version), job_id=job_id
+        )
+        data = {"job_id": job_id, "job_url": job_url}
         return Response(JobAcceptanceSerializer(data).data, HTTP_202_ACCEPTED)
 
 
@@ -240,10 +244,11 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
     for any views that read or write program/course enrollment data.
     Overrides AuthMixin.check_permissions.
     """
+
     def get_required_permissions(self, request):
-        if request.method == 'GET':
+        if request.method == "GET":
             return [perms.APIReadEnrollmentsPermission]
-        if request.method == 'POST' or self.request.method == 'PATCH':
+        if request.method == "POST" or self.request.method == "PATCH":
             return [perms.APIWriteEnrollmentsPermission]
         return []  # pragma: no cover
 
@@ -252,8 +257,8 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             # Raise exception if the program (MM at the moment) is not
             # available for enrollments related API endpoints
             raise PermissionDenied(
-                'Cannot access enrollment endpoints with program [%s] whose enrollments are disabled',
-                self.program.key
+                "Cannot access enrollment endpoints with program [%s] whose enrollments are disabled",
+                self.program.key,
             )
 
         super().check_permissions(request)
@@ -277,9 +282,7 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             )
         else:
             good, bad, results = write_program_enrollments(
-                self.request.method,
-                self.program.discovery_uuid,
-                self.request.data,
+                self.request.method, self.program.discovery_uuid, self.request.data
             )
         if good and bad:
             status = HTTP_207_MULTI_STATUS
@@ -287,7 +290,7 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             status = HTTP_200_OK
         else:
             status = HTTP_422_UNPROCESSABLE_ENTITY
-            self.add_tracking_data(failure='unprocessable_entity')
+            self.add_tracking_data(failure="unprocessable_entity")
         return Response(results, status=status)
 
     def validate_enrollment_data(self, enrollments):
@@ -295,26 +298,24 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         Validate enrollments request body
         """
         if not isinstance(enrollments, list):
-            self.add_tracking_data(failure='bad_request')
-            raise ValidationError('expected request body type: List')
+            self.add_tracking_data(failure="bad_request")
+            raise ValidationError("expected request body type: List")
 
         if len(enrollments) > ENROLLMENT_WRITE_MAX_SIZE:
-            self.add_tracking_data(failure='request_entity_too_large')
+            self.add_tracking_data(failure="request_entity_too_large")
             raise exceptions.EnrollmentPayloadTooLarge()
 
         for enrollment in enrollments:
             if not isinstance(enrollment, dict):
-                self.add_tracking_data(failure='bad_request')
-                raise ValidationError(
-                    'expected items in request to be of type Dict'
-                )
-            if not isinstance(enrollment.get('student_key'), str):
-                self.add_tracking_data(failure='bad_request')
+                self.add_tracking_data(failure="bad_request")
+                raise ValidationError("expected items in request to be of type Dict")
+            if not isinstance(enrollment.get("student_key"), str):
+                self.add_tracking_data(failure="bad_request")
                 raise ValidationError(
                     'expected request dicts to have string value for "student_key"'
                 )
-            if not isinstance(enrollment.get('status'), str):
-                self.add_tracking_data(failure='bad_request')
+            if not isinstance(enrollment.get("status"), str):
+                self.add_tracking_data(failure="bad_request")
                 raise ValidationError(
                     'expected request dicts to have string value for "status"'
                 )

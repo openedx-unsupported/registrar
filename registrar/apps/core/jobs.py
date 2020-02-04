@@ -24,14 +24,13 @@ from .permissions import JOB_GLOBAL_READ
 
 
 JobStatus = namedtuple(
-    'JobStatus',
-    ['job_id', 'name', 'created', 'state', 'result', 'text'],
+    "JobStatus", ["job_id", "name", "created", "state", "result", "text"]
 )
 
 logger = logging.getLogger(__name__)
 result_filestore = get_job_results_filestore()
 
-_RESULT_ARTIFACT_NAME = 'Job Result'
+_RESULT_ARTIFACT_NAME = "Job Result"
 
 USER_TASK_STATUS_PROCESSING_STATES = [
     UserTaskStatus.PENDING,
@@ -53,7 +52,7 @@ def start_job(user, task_fn, *args, **kwargs):
             additional parameters.
         *args/**kwargs: Additional arguments to pass to task_fn.
     """
-    job_id = kwargs.pop('job_id') if 'job_id' in kwargs else str(uuid.uuid4())
+    job_id = kwargs.pop("job_id") if "job_id" in kwargs else str(uuid.uuid4())
     task_fn.apply_async([job_id, user.id] + list(args), kwargs, task_id=job_id)
     return job_id
 
@@ -93,8 +92,7 @@ def get_processing_jobs_for_user(user):
     Returns: seq[JobStatus]
     """
     task_statuses = UserTaskStatus.objects.filter(
-        user=user,
-        state__in=USER_TASK_STATUS_PROCESSING_STATES
+        user=user, state__in=USER_TASK_STATUS_PROCESSING_STATES
     )
     return (_make_job_status(task_status) for task_status in task_statuses)
 
@@ -105,8 +103,7 @@ def processing_job_with_prefix_exists(prefix):
     that is currently processing (in progress, pending, or retrying).
     """
     return UserTaskStatus.objects.filter(
-        name__startswith=prefix,
-        state__in=USER_TASK_STATUS_PROCESSING_STATES,
+        name__startswith=prefix, state__in=USER_TASK_STATUS_PROCESSING_STATES
     ).exists()
 
 
@@ -145,11 +142,11 @@ def _get_result(task_status):
     if artifacts:
         if artifacts.count() > 1:  # pragma: no cover
             logger.error(
-                'Multiple UserTaskArtifacts for job ' +
-                '(job_id = {}, UserTaskStatus.uuid = {}). '.format(
+                "Multiple UserTaskArtifacts for job "
+                + "(job_id = {}, UserTaskStatus.uuid = {}). ".format(
                     task_status.task_id, task_status.uuid
-                ) +
-                'First artifact will be returned'
+                )
+                + "First artifact will be returned"
             )
         artifact = artifacts.first()
         return artifact.url or None, artifact.text or None
@@ -210,6 +207,6 @@ def _affirm_job_in_progress(job_id, task_status):
     """
     if task_status.state != UserTaskStatus.IN_PROGRESS:  # pragma: no cover
         raise ValueError(
-            'Job can only be marked as Succeeded from state In Progress' +
-            '(job_id = {})'.format(job_id)
+            "Job can only be marked as Succeeded from state In Progress"
+            + "(job_id = {})".format(job_id)
         )

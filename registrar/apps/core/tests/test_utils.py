@@ -37,27 +37,19 @@ class GetUserOrganizationsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        org1 = OrganizationFactory(key='org1')
-        OrganizationGroupFactory(
-            organization=org1, name='org1a'
-        )
-        OrganizationGroupFactory(
-            organization=org1, name='org1b'
-        )
-        org2 = OrganizationFactory(key='org2')
-        OrganizationGroupFactory(
-            organization=org2, name='org2a'
-        )
-        OrganizationGroupFactory(
-            organization=org2, name='org2b'
-        )
-        OrganizationFactory(key='org3')
-        GroupFactory(name='normal_group')
+        org1 = OrganizationFactory(key="org1")
+        OrganizationGroupFactory(organization=org1, name="org1a")
+        OrganizationGroupFactory(organization=org1, name="org1b")
+        org2 = OrganizationFactory(key="org2")
+        OrganizationGroupFactory(organization=org2, name="org2a")
+        OrganizationGroupFactory(organization=org2, name="org2b")
+        OrganizationFactory(key="org3")
+        GroupFactory(name="normal_group")
 
     @ddt.data(
-        ({'org1a', 'org1b', 'org2a'}, {'org1', 'org2'}),
-        ({'org2a', 'org2b', 'normal_group'}, {'org2'}),
-        ({'normal_group'}, set()),
+        ({"org1a", "org1b", "org2a"}, {"org1", "org2"}),
+        ({"org2a", "org2b", "normal_group"}, {"org2"}),
+        ({"normal_group"}, set()),
         (set(), set()),
     )
     @ddt.unpack
@@ -77,8 +69,7 @@ class GetUserAPIPermissionsTests(TestCase):
         super().setUpTestData()
         cls.org1 = OrganizationFactory()
         org1_readwrite = OrganizationGroupFactory(
-            organization=cls.org1,
-            role=OrganizationReadWriteEnrollmentsRole.name
+            organization=cls.org1, role=OrganizationReadWriteEnrollmentsRole.name
         )
 
         cls.global_readwrite_enrollments = GroupFactory(
@@ -95,11 +86,16 @@ class GetUserAPIPermissionsTests(TestCase):
     def test_get_api_permissions(self):
         # validate permissions assigned by a group
         perms = get_user_api_permissions(self.user, self.org1)
-        self.assertSetEqual(perms, set([
-            APIReadMetadataPermission,
-            APIReadEnrollmentsPermission,
-            APIWriteEnrollmentsPermission,
-        ]))
+        self.assertSetEqual(
+            perms,
+            set(
+                [
+                    APIReadMetadataPermission,
+                    APIReadEnrollmentsPermission,
+                    APIWriteEnrollmentsPermission,
+                ]
+            ),
+        )
 
         # validate permissions assigned globally
         perms = get_user_api_permissions(self.user, self.org2)
@@ -107,7 +103,9 @@ class GetUserAPIPermissionsTests(TestCase):
 
         # validate permissions assigned directly on the object
         perms = get_user_api_permissions(self.user, self.org3)
-        self.assertSetEqual(perms, set([APIReadReportsPermission, APIReadMetadataPermission]))
+        self.assertSetEqual(
+            perms, set([APIReadReportsPermission, APIReadMetadataPermission])
+        )
 
         # request only permissions assigned globally
         perms = get_user_api_permissions(self.user)
@@ -116,36 +114,28 @@ class GetUserAPIPermissionsTests(TestCase):
         # validate permissions assigned globally by a django group
         user = UserFactory(groups=[self.global_readwrite_enrollments])
         perms = get_user_api_permissions(user)
-        self.assertSetEqual(perms, set([
-            APIReadEnrollmentsPermission,
-            APIWriteEnrollmentsPermission,
-        ]))
+        self.assertSetEqual(
+            perms, set([APIReadEnrollmentsPermission, APIWriteEnrollmentsPermission])
+        )
 
 
 def _create_food(name, is_fruit, rating, color):
-    return {
-        'name': name,
-        'is_fruit': is_fruit,
-        'rating': rating,
-        'color': color,
-    }
+    return {"name": name, "is_fruit": is_fruit, "rating": rating, "color": color}
 
 
 @ddt.ddt
 class SerializeToCSVTests(TestCase):
     """ Tests for serialize_to_csv """
 
-    field_names = ('name', 'is_fruit', 'rating')
+    field_names = ("name", "is_fruit", "rating")
     test_data = [
-        _create_food('asparagus', False, 3, 'green'),
-        _create_food('avocado', True, 9, 'green'),
-        _create_food('purplejollyrancher', True, 6, 'purple'),
+        _create_food("asparagus", False, 3, "green"),
+        _create_food("avocado", True, 9, "green"),
+        _create_food("purplejollyrancher", True, 6, "purple"),
     ]
-    expected_headers = 'name,is_fruit,rating\r\n'
+    expected_headers = "name,is_fruit,rating\r\n"
     expected_csv = (
-        'asparagus,False,3\r\n'
-        'avocado,True,9\r\n'
-        'purplejollyrancher,True,6\r\n'
+        "asparagus,False,3\r\n" "avocado,True,9\r\n" "purplejollyrancher,True,6\r\n"
     )
 
     @ddt.data(True, False)
@@ -183,37 +173,37 @@ class LoadRecordsFromCSVStringTests(TestCase):
         " pineapple ,true, 17\n"
         "\r\n"
     )
-    csv = csv_fmt.format(pepper_is_vegetarian='true')
-    bad_csv = csv_fmt.format(pepper_is_vegetarian='')  # Empty value
+    csv = csv_fmt.format(pepper_is_vegetarian="true")
+    bad_csv = csv_fmt.format(pepper_is_vegetarian="")  # Empty value
 
     def test_with_all_field_names(self):
-        field_names = {'topping', 'is_vegetarian', 'rating'}
+        field_names = {"topping", "is_vegetarian", "rating"}
         actual = load_records_from_csv(self.csv, field_names)
         expected = [
-            {'topping': 'pepperoni', 'is_vegetarian': 'false', 'rating': '100'},
-            {'topping': 'peppers', 'is_vegetarian': 'true', 'rating': '100'},
-            {'topping': 'onions', 'is_vegetarian': 'true', 'rating': '100'},
-            {'topping': 'pineapple', 'is_vegetarian': 'true', 'rating': '17'},
+            {"topping": "pepperoni", "is_vegetarian": "false", "rating": "100"},
+            {"topping": "peppers", "is_vegetarian": "true", "rating": "100"},
+            {"topping": "onions", "is_vegetarian": "true", "rating": "100"},
+            {"topping": "pineapple", "is_vegetarian": "true", "rating": "17"},
         ]
         self.assertEqual(actual, expected)
 
     def test_with_field_names_subset(self):
-        field_names = {'topping', 'is_vegetarian'}
+        field_names = {"topping", "is_vegetarian"}
         actual = load_records_from_csv(self.csv, field_names)
         expected = [
-            {'topping': 'pepperoni', 'is_vegetarian': 'false'},
-            {'topping': 'peppers', 'is_vegetarian': 'true'},
-            {'topping': 'onions', 'is_vegetarian': 'true'},
-            {'topping': 'pineapple', 'is_vegetarian': 'true'},
+            {"topping": "pepperoni", "is_vegetarian": "false"},
+            {"topping": "peppers", "is_vegetarian": "true"},
+            {"topping": "onions", "is_vegetarian": "true"},
+            {"topping": "pineapple", "is_vegetarian": "true"},
         ]
         self.assertEqual(actual, expected)
 
     def test_missing_field_names_error(self):
-        field_names = {'topping', 'is_vegetarian', 'color'}
+        field_names = {"topping", "is_vegetarian", "color"}
         with self.assertRaises(ValidationError):
             load_records_from_csv(self.csv, field_names)
 
     def test_null_values_error(self):
-        field_names = {'topping', 'is_vegetarian', 'color'}
+        field_names = {"topping", "is_vegetarian", "color"}
         with self.assertRaises(ValidationError):
             load_records_from_csv(self.bad_csv, field_names)

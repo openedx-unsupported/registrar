@@ -12,9 +12,9 @@ from .factories import UserFactory
 class DebugTaskTests(TestCase):
     """ Tests for validating that tasks are working properly. """
 
-    @mock.patch.object(tasks, 'log', autospec=True)
+    @mock.patch.object(tasks, "log", autospec=True)
     def test_debug_task_happy_path(self, mock_logger):
-        task = tasks.debug_task.apply_async([1, 2], kwargs={'foo': 'bar'})
+        task = tasks.debug_task.apply_async([1, 2], kwargs={"foo": "bar"})
         task.wait()
 
         self.assertEqual(mock_logger.debug.call_count, 1)

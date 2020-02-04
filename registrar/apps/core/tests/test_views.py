@@ -23,28 +23,30 @@ class HealthTests(TestCase):
 
     def test_database_outage(self):
         """Test that the endpoint reports when the database is unavailable."""
-        with mock.patch('django.db.backends.base.base.BaseDatabaseWrapper.cursor', side_effect=DatabaseError):
+        with mock.patch(
+            "django.db.backends.base.base.BaseDatabaseWrapper.cursor",
+            side_effect=DatabaseError,
+        ):
             self._assert_health(503, Status.UNAVAILABLE, Status.UNAVAILABLE)
 
     def _assert_health(self, status_code, overall_status, database_status):
         """Verify that the response matches expectations."""
-        response = self.client.get(reverse('health'))
+        response = self.client.get(reverse("health"))
         self.assertEqual(response.status_code, status_code)
-        self.assertEqual(response['content-type'], 'application/json')
+        self.assertEqual(response["content-type"], "application/json")
 
         expected_data = {
-            'overall_status': overall_status,
-            'detailed_status': {
-                'database_status': database_status
-            }
+            "overall_status": overall_status,
+            "detailed_status": {"database_status": database_status},
         }
 
-        self.assertJSONEqual(response.content.decode('utf-8'), expected_data)
+        self.assertJSONEqual(response.content.decode("utf-8"), expected_data)
 
 
 class AutoAuthTests(TestCase):
     """ Auto Auth view tests. """
-    AUTO_AUTH_PATH = reverse('auto_auth')
+
+    AUTO_AUTH_PATH = reverse("auto_auth")
 
     @override_settings(ENABLE_AUTO_AUTH=False)
     def test_setting_disabled(self):
@@ -69,7 +71,7 @@ class AutoAuthTests(TestCase):
         user = User.objects.latest()
 
         # Verify that the user is logged in and that their username has the expected prefix
-        self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.pk)
         self.assertTrue(user.username.startswith(settings.AUTO_AUTH_USERNAME_PREFIX))
 
         # Verify that the user has superuser permissions

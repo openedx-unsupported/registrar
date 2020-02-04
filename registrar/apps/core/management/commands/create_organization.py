@@ -17,18 +17,20 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     # pylint: disable=missing-docstring
 
-    help = 'Creates an Organization with the given key, and any specified OrganizationGroups'
+    help = "Creates an Organization with the given key, and any specified OrganizationGroups"
     role_names = [role.name for role in ORGANIZATION_ROLES]
 
     def add_arguments(self, parser):
-        parser.add_argument('org_key')
+        parser.add_argument("org_key")
         parser.add_argument(
-            '--group',
-            nargs='+',
-            dest='groups',
-            action='append',
+            "--group",
+            nargs="+",
+            dest="groups",
+            action="append",
             default=[],
-            help='Create an OrganizationGroup. Args: role [name] \n acceptable roles: {}'.format(self.role_names)
+            help="Create an OrganizationGroup. Args: role [name] \n acceptable roles: {}".format(
+                self.role_names
+            ),
         )
 
     # pylint: disable=arguments-differ
@@ -43,10 +45,14 @@ class Command(BaseCommand):
         result = []
         for group in groups:
             if len(group) > 2:
-                raise CommandError('--group only accepts one or two arguments')
+                raise CommandError("--group only accepts one or two arguments")
             role = group[0]
             if group[0] not in self.role_names:
-                raise CommandError('first argument to --group must be one of {}'.format(self.role_names))
+                raise CommandError(
+                    "first argument to --group must be one of {}".format(
+                        self.role_names
+                    )
+                )
             group_name = None
             if len(group) == 2:
                 group_name = group[1]
@@ -55,16 +61,16 @@ class Command(BaseCommand):
 
     def create_organization(self, org_key):
         if not re.fullmatch(ORGANIZATION_KEY_PATTERN, org_key):
-            raise CommandError('org_key can only contain alphanumeric characters, dashes, and underscores')
+            raise CommandError(
+                "org_key can only contain alphanumeric characters, dashes, and underscores"
+            )
         try:
             org = Organization.objects.create(
-                key=org_key,
-                name=org_key,
-                discovery_uuid=uuid.uuid4(),
+                key=org_key, name=org_key, discovery_uuid=uuid.uuid4()
             )
         except Exception as e:
-            raise CommandError('Unable to create Organization. cause: {}'.format(e))
-        logger.info('Created Organization {}'.format(org.key))
+            raise CommandError("Unable to create Organization. cause: {}".format(e))
+        logger.info("Created Organization {}".format(org.key))
         return org
 
     def create_org_group(self, org, group_role, group_name):
@@ -72,10 +78,12 @@ class Command(BaseCommand):
             group_name = "{}_{}".format(org.name, group_role)
         try:
             OrganizationGroup.objects.create(
-                name=group_name,
-                organization=org,
-                role=group_role,
+                name=group_name, organization=org, role=group_role
             )
         except Exception as e:
-            raise CommandError('Unable to create OrganizationGroup {}. cause: {}'.format(group_name, e))
-        logger.info('Created OrganizationGroup {} with role {}'.format(group_name, group_role))
+            raise CommandError(
+                "Unable to create OrganizationGroup {}. cause: {}".format(group_name, e)
+            )
+        logger.info(
+            "Created OrganizationGroup {} with role {}".format(group_name, group_role)
+        )

@@ -24,9 +24,13 @@ def track(
     integrations=None,
 ):
     if settings.SEGMENT_KEY:
-        analytics.track(user_id, event, properties, context, timestamp, anonymous_id, integrations)
+        analytics.track(
+            user_id, event, properties, context, timestamp, anonymous_id, integrations
+        )
     else:
-        logger.debug("{{{}, {}}} not tracked because SEGMENT_KEY not set".format(user_id, event))
+        logger.debug(
+            "{{{}, {}}} not tracked because SEGMENT_KEY not set".format(user_id, event)
+        )
 
 
 def get_tracking_properties(user, **kwargs):
@@ -35,7 +39,7 @@ def get_tracking_properties(user, **kwargs):
     """
     user_orgs = get_user_organizations(user)
     property_dict = kwargs.copy()
-    property_dict['user_organizations'] = [org.name for org in user_orgs]
-    property_dict['category'] = TRACKING_CATEGORY
+    property_dict["user_organizations"] = [org.name for org in user_orgs]
+    property_dict["category"] = TRACKING_CATEGORY
 
     return property_dict
