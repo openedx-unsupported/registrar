@@ -74,7 +74,11 @@ coverage: clean
 test: clean ## run tests and generate coverage report
 	pytest
 
-quality: pylint yamllint isort_check ## run all code quality checks
+quality: black_check pylint yamllint isort_check ## run all code quality checks
+
+black_check:
+	pip install black
+	black --check
 
 pylint:  # run pylint
 	pylint --rcfile=pylintrc registrar
