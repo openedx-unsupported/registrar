@@ -56,7 +56,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
     A user task for retrieving program enrollments from LMS.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return None
 
@@ -99,7 +99,7 @@ def list_course_run_enrollments(
     """
     A user task for retrieving program course run enrollments from LMS.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return None
 
@@ -138,12 +138,12 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
     """
     A user task for retrieving all course enrollments within a given program from LMS.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return None
 
     results = []
-    for course_run in program.discovery_program.course_runs:
+    for course_run in program.course_runs:
         try:
             enrollments = data.get_course_run_enrollments(
                 program.discovery_uuid,
@@ -205,7 +205,7 @@ def write_program_enrollments(
     A user task that reads program enrollment requests from json_filepath,
     writes them to the LMS, and stores a CSV-formatted results file.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return
 
@@ -245,7 +245,7 @@ def write_course_run_enrollments(
     A user task that reads course run enrollment requests from json_filepath,
     writes them to the LMS, and stores a CSV-formatted results file.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return
 

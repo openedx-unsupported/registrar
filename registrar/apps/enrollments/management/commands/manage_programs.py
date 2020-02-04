@@ -1,4 +1,8 @@
-""" Management command to create or modify programs"""
+"""
+Management command to create or modify programs.
+
+@@TODO move to core
+"""
 import logging
 
 from django.core.management.base import BaseCommand, CommandError
@@ -6,8 +10,8 @@ from django.db import transaction
 from django.http import Http404
 from requests.exceptions import HTTPError
 
+from registrar.apps.core import discovery_cache
 from registrar.apps.core.models import Organization, Program
-from registrar.apps.enrollments.data import DiscoveryProgram
 
 
 logger = logging.getLogger(__name__)
@@ -44,16 +48,20 @@ class Command(BaseCommand):
             elif len(split_args) == 2:
                 result.append((split_args[0], split_args[1]))
             else:
-                message = ('incorrectly formatted argument {}, '
-                           'must be in form <program uuid>:<program key> or <program_uuid>').format(uuidkey)
+                message = (
+                    'incorrectly formatted argument {}, '
+                    'must be in form <program uuid>:<program key> or <program_uuid>'
+                ).format(uuidkey)
                 raise CommandError(message)
         return result
 
     def get_discovery_program_dict(self, program_uuid):
-        try:
-            return DiscoveryProgram.read_from_discovery(program_uuid)
-        except (HTTPError, Http404) as e:
-            raise CommandError('Could not read program from course-discovery: {}'.format(e))
+        program_data = discovery_cache.get_program_data
+        if not program_data:
+            raise CommandError(
+                'Could not read program from course-discovery: {}'.format(e)
+            )
+        return program_data
 
     def get_authoring_org_keys(self, program_dict):
         """
@@ -65,7 +73,9 @@ class Command(BaseCommand):
             if 'key' in authoring_org:
                 org_keys.append(authoring_org['key'])
         if not org_keys:
-            raise CommandError('No authoring org keys found for program {}'.format(program_dict.get('uuid')))
+            raise CommandError('No authoring org keys found for program {}'.format(
+                program_dict.get('uuid')
+            ))
         logger.info('Authoring Organizations are {}'.format(org_keys))
         return org_keys
 
@@ -81,12 +91,13 @@ class Command(BaseCommand):
                 return org
             except Organization.DoesNotExist:
                 logger.info('Org {} not found in registrar'.format(org_key))
-        raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
+        raise CommandError(
+            'None of the authoring organizations {} were found in Registrar'.format(org_keys)
+        )
 
     def create_or_modify_program(self, org, program_dict, program_uuid, program_key):
-        discovery_program = DiscoveryProgram.from_json(program_uuid, program_dict)
         program, created = Program.objects.get_or_create(
-            discovery_uuid=discovery_program.uuid,  # pylint: disable=no-member
+            discovery_uuid=program_uuid,
             defaults={
                 'managing_organization': org,
                 'key': program_key or program_dict.get('marketing_slug'),
@@ -96,4 +107,6 @@ class Command(BaseCommand):
             program.key = program_key
             program.save()
         verb = 'Created' if created else 'Modified existing'
-        logger.info('{} program (key={} uuid={} managing_org={})'.format(verb, program_key, program_uuid, org.key))
+        logger.info('{} program (key={} uuid={} managing_org={})'.format(
+            verb, program_key, program_uuid, org.key
+        ))

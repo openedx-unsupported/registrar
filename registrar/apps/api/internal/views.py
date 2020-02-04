@@ -1,5 +1,4 @@
 """ Internal utility API views """
-from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
@@ -9,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
-from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core import discovery_cache
 from registrar.apps.core.models import Program
 
 from ..v1.mixins import AuthMixin
@@ -44,11 +43,8 @@ class FlushProgramCacheView(AuthMixin, APIView):
         """
         if program_key:
             program = get_object_or_404(Program, key=program_key)
-            program_uuid = program.discovery_uuid
-            cache.delete(PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid))
+            program_uuids = [program.discovery_uuid]
         else:
-            cache.delete_many([
-                PROGRAM_CACHE_KEY_TPL.format(uuid=program.discovery_uuid)
-                for program in Program.objects.all()
-            ])
+            program_uuids = Program.objects.value_list('discovery_uuid')
+        discovery_cache.clear_program_data(program_uuids)
         return Response(status=HTTP_204_NO_CONTENT)

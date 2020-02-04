@@ -1,5 +1,7 @@
 """
 Module for syncing data with external services.
+
+@@TODO rename to lms_interop.py
 """
 import json
 import logging
@@ -14,7 +16,7 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.core.discovery_cache import DiscoveryProgram
+from registrar.apps.core.models import Program
 from registrar.apps.core.rest_utils import (
     do_batched_lms_write,
     get_all_paginated_results,
@@ -88,7 +90,12 @@ def write_program_enrollments(method, program_uuid, enrollments, client=None):
     Returns: See _write_enrollments.
     """
     url = _lms_program_enrollment_url(program_uuid)
-    curriculum_uuid = DiscoveryProgram.get(program_uuid).active_curriculum_uuid
+    curriculum_uuid = Program.objects.get(
+        discovery_uuid=program_uuid
+    ).active_curriculum_uuid
+    # @@TODO handle error here
+    if not curriculum_uuid:
+        raise Http404("Could not fin ")
     enrollments = enrollments.copy()
     for enrollment in enrollments:
         enrollment['curriculum_uuid'] = curriculum_uuid

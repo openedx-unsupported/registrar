@@ -33,7 +33,6 @@ from registrar.apps.core.utils import (
     get_user_api_permissions,
     load_records_from_uploaded_csv,
 )
-from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.tasks import (
     list_all_course_run_enrollments,
     list_course_run_enrollments,
@@ -211,9 +210,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     event_parameter_map = {'program_key': 'program_key'}
 
     def get_queryset(self):
-        uuid = self.program.discovery_uuid
-        discovery_program = DiscoveryProgram.get(uuid)
-        return discovery_program.course_runs
+        return self.program.course_runs
 
 
 class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):

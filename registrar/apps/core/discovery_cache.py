@@ -3,41 +3,66 @@
 """
 from django.core.cache import cache
 
-from registrar.apps.core.constants import (
-    PROGRAM_CACHE_KEY_TPL,
-    PROGRAM_CACHE_TIMEOUT,
-    PROGRAM_DATA_LOAD_FAILED,
-)
-
 
 DISCOVERY_PROGRAM_API_TPL = 'api/v1/programs/{}/'
+PROGRAM_CACHE_KEY_TPL = 'program-data:{uuid}'
+PROGRAM_CACHE_TIMEOUT = 120
 
 
-def get_program_discovery_data(program_uuid, client=None):
+def get_program_data(program_uuid, client=None):
     """
     Get a JSON representation of a program from the Discovery service.
 
-    Queries a cache with timeout of `PROGRAM_CACHE_TIMEOUT`
-    before hitting Discovery.
+    Returns None if not found.
 
-    Returns `PROGRAM_DATA_LOAD_FAILED` if program is not found in Discovery.
-    Note that the load-failed value will also be cached.
+    Queries a cache with timeout of `PROGRAM_CACHE_TIMEOUT`
+    before hitting Discovery to load the authoritative data.
+    Note that the "not-foundeness" of programs will also be cached.
+    For example:
+    * Program X is requested.
+    * It is not found in Discovery. This result is cached.
+    * Before PROGRAM_CACHE_TIMEOUT has passed, Program X is created
+      in Discovery.
+    * Program X will not be loaded from Discovery until PROGRAM_CACHE_TIMEOUT
+      has passed.
 
     Arguments:
         * program_uuid (UUID)
         * client (optional)
 
-    Returns: dict|str
+    Returns: dict|None
     """
+    # When caching, we need to translate `None` (i.e. not found in Discovery)
+    # to a sentinel string, otherwise we will not be able to tell
+    # "not in cache" apart from "cached as not in Discovery".
+    PROGRAM_DATA_LOAD_FAILED = 'PROGRAM-LOAD-FROM-DISCOVERY-FAILED'
+
     key = PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
     program_data = cache.get(key)
-    if not isinstance(program, dict):
-        program = _load_program_from_discovery(program_uuid, client)
-        cache.set(key, program, PROGRAM_CACHE_TIMEOUT)
-    return program_data
+    if isinstance(program_data, dict):
+        return program_data
+    elif program_data == PROGRAM_DATA_LOAD_FAILED:
+        return None
+
+    disco_program = _load_from_discovery(program_uuid, client)
+    cache_value = disco_program if disco_program else PROGRAM_DATA_LOAD_FAILED
+    cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
+    return disco_program
 
 
-def _load_program_from_discovery(program_uuid, client=None):
+def clear_program_data(program_uuids):
+    """
+    Manually clear data in Discovery cache for a set of programs.
+
+    Arguments:
+        program_uuids (list[UUID|str])
+    """
+    cache.delete_many([
+        PROGRAM_CACHE_KEY_TPL.format(uuid=uuid) for uuid in program_uuids
+    ])
+
+
+def _load_from_discovery(program_uuid, client=None):
     """
     Get a JSON representation of a program from the Discovery service.
 
@@ -52,16 +77,14 @@ def _load_program_from_discovery(program_uuid, client=None):
         * `PROGRAM_DATA_LOAD_FAILED` otherwise.
     """
     url = urljoin(
-        settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/'
-    ).format(
-        program_uuid
+        settings.DISCOVERY_BASE_URL,
+        DISCOVERY_PROGRAM_API_TPL.format(program_uuid)
     )
     try:
-        program_data = make_request('GET', url, client).json()
+        return make_request('GET', url, client).json()
     except HTTPError:
         logger.exception(
             "Failed to load program with uuid %s from Discovery service.",
             program_uuid,
         )
-        return PROGRAM_DATA_LOAD_FAILED
-    return program_data
+        return None

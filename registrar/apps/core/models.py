@@ -2,8 +2,12 @@
 Core models.
 """
 
+import logging
 from collections import namedtuple
+from datetime import datetime
+from posixpath import join as urljoin
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -12,11 +16,8 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
+from . import discovery_cache
 from . import permissions as perms
-from .discovery_cache import (
-    PROGRAM_DATA_LOAD_FAILED,
-    get_program_discovery_data,
-)
 
 
 ACCESS_ADMIN = ('admin', 2)
@@ -89,6 +90,12 @@ class Organization(TimeStampedModel):
         )
 
 
+CourseRun = namedtuple(
+    "CourseRun",
+    ("key", "external_key", "title", "marketing_url"),
+)
+
+
 class Program(TimeStampedModel):
     """
     Table that referrences a course-discovery Program entity.
@@ -122,23 +129,13 @@ class Program(TimeStampedModel):
         )
 
     @cached_property
-    def _discovery_data(self):
+    def discovery_data(self):
         """
         Get data about this program from Discovery cache.
 
         Returns an empty dict if program does not exist in Discovery.
         """
-        loaded = get_program_discovery_data(self.discovery_uuid)
-        if isinstance(loaded, dict):
-            return loaded
-        elif loaded == PROGRAM_DATA_LOAD_FAILED:
-            return {}
-        else:
-            raise Exception(
-                "Unexpected data returned from Discovery for program {}: {}".format(
-                    self.discovery_uuid, loaded
-                )
-            )
+        return discovery_cache.get_program_data(self.discovery_uuid) or {}
 
     @cached_property
     def title(self):
@@ -147,7 +144,7 @@ class Program(TimeStampedModel):
 
         Falls back to program key if not available.
         """
-        return self._discovery_data.get('title') or self.key
+        return self.discovery_data.get('title') or self.key
 
     @cached_property
     def url(self):
@@ -156,7 +153,7 @@ class Program(TimeStampedModel):
 
         Falls back to None if not available.
         """
-        return self._discovery_data.get('url')
+        return self.discovery_data.get('url')
 
     @cached_property
     def program_type(self):
@@ -165,7 +162,7 @@ class Program(TimeStampedModel):
 
         Falls back to None if not available.
         """
-        return self._discovery_data.get('program_type')
+        return self.discovery_data.get('program_type')
 
     @cached_property
     def is_enrollment_enabled(self):
@@ -177,7 +174,7 @@ class Program(TimeStampedModel):
         return self.program_type == 'Masters'
 
     @cached_property
-    def _active_curriculum(self):
+    def active_curriculum_data(self):
         """
         Dict containing data for active curriculum.
 
@@ -193,7 +190,7 @@ class Program(TimeStampedModel):
         """
         try:
             return next(
-                c for c in self._discovery_data.get('curricula', [])
+                c for c in self.discovery_data.get('curricula', [])
                 if c.get('is_active')
             )
         except StopIteration:
@@ -207,10 +204,14 @@ class Program(TimeStampedModel):
     @cached_property
     def active_curriculum_uuid(self):
         """
-        Get UUID string of active curriculum, or None if no active curriculum.
+        Get UUID of active curriculum, or None if no active curriculum.
 
-        See `_active_curriculum` docstring for more details.
+        See `active_curriculum_data` docstring for more details.
         """
+        try:
+            return UUID(self.active_curriculum_data['uuid'])
+        except (KeyError, ValueError):
+            return None
 
     @cached_property
     def course_runs(self):
@@ -223,7 +224,7 @@ class Program(TimeStampedModel):
         We expect that this will need revisiting eventually.
         We expect that future programs may have more than one curriculum
 
-        Also see `_active_curriculum` docstring details on how the 'active'
+        Also see `active_curriculum_data` docstring details on how the 'active'
         curriculum is determined.
 
         Falls back to empty list if no active curriculum or if data unavailable.
@@ -235,7 +236,7 @@ class Program(TimeStampedModel):
                 title=course_run.get("title"),
                 marketing_url=course_run.get("marketing_url"),
             )
-            for course in self._active_curriculum.get("courses", [])
+            for course in self.active_curriculum_data.get("courses", [])
             for course_run in course.get("course_runs", [])
         ]
 
@@ -276,12 +277,6 @@ class Program(TimeStampedModel):
         if course_run:
             return course_run.key
         return None
-
-
-CourseRun = namedtuple(
-    "CourseRun",
-    ("key", "external_key", "title", "marketing_url"),
-)
 
 
 class OrganizationGroup(Group):
