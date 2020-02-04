@@ -74,10 +74,7 @@ coverage: clean
 test: clean ## run tests and generate coverage report
 	pytest
 
-quality: pycodestyle pylint yamllint isort_check ## run all code quality checks
-
-pycodestyle:  # run pycodestyle
-	pycodestyle registrar scripts
+quality: pylint yamllint isort_check ## run all code quality checks
 
 pylint:  # run pylint
 	pylint --rcfile=pylintrc registrar
