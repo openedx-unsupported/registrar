@@ -69,16 +69,14 @@ class TestCreateOrganization(TestCase):
             [OrganizationReadMetadataRole.name, "g1", "test"],
             [OrganizationReadEnrollmentsRole.name, "g2"],
         ]
-        # pylint: disable=deprecated-method
-        with self.assertRaisesRegex(
+        with self.assertRaisesRegex(  # pylint: disable=deprecated-method
             CommandError, "--group only accepts one or two arguments"
         ):
             call_command(self.command, self.org_key, groups=groups)
 
     def test_group_parsing_invalid_role(self):
         groups = [["notarole", "g1"]]
-        # pylint: disable=deprecated-method
-        with self.assertRaisesRegex(
+        with self.assertRaisesRegex(  # pylint: disable=deprecated-method
             CommandError, r"first argument to --group must be one of .*"
         ):
             call_command(self.command, self.org_key, groups=groups)
@@ -86,8 +84,7 @@ class TestCreateOrganization(TestCase):
     @patch("registrar.apps.core.models.Organization.objects.create", autospec=True)
     def test_create_org_exception(self, mocked_create):
         mocked_create.side_effect = Exception("myexception")
-        # pylint: disable=deprecated-method
-        with self.assertRaisesRegex(
+        with self.assertRaisesRegex(  # pylint: disable=deprecated-method
             CommandError, "Unable to create Organization. cause: myexception"
         ):
             call_command(self.command, self.org_key)

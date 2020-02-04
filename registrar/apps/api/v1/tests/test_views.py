@@ -435,9 +435,9 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         )
         user = UserFactory(groups=org_or_program_groups)
         if global_perm:
-            user.groups.add(
+            user.groups.add(  # pylint: disable=no-member
                 self.global_read_and_write_group
-            )  # pylint: disable=no-member
+            )
 
         query = []
         tracking_kwargs = {}
@@ -525,9 +525,9 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         org_groups = [OrganizationGroup.objects.get(name=name) for name in groups]
         user = UserFactory(groups=org_groups)
         if global_perm:
-            user.groups.add(
+            user.groups.add(    # pylint: disable=no-member
                 self.global_read_and_write_group
-            )  # pylint: disable=no-member
+            )
 
         with self.assert_tracking(
             user=user, status_code=200, permission_filter=perm_filter
@@ -656,7 +656,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     @responses.activate
     def test_get_program_courses(self, is_staff):
         user = self.edx_admin if is_staff else self.hum_admin
-
+        # pylint: disable=line-too-long
         disco_program = self._discovery_program(
             self.program_uuid,
             self.program_title,

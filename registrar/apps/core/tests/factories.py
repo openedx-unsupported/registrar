@@ -95,9 +95,7 @@ class ProgramFactory(factory.DjangoModelFactory):
     class Meta:
         model = Program
 
-    key = factory.Sequence(
-        lambda n: "test-program-{}".format(n)
-    )  # pylint: disable=unnecessary-lambda
+    key = factory.Sequence("test-program-{}".format)
     discovery_uuid = factory.Faker("uuid4")
     managing_organization = factory.SubFactory(OrganizationFactory)
 

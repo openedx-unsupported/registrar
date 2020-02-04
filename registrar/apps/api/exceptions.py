@@ -14,6 +14,7 @@ class EnrollmentPayloadTooLarge(APIException):
 
 
 class FileTooLarge(APIException):
+	# pylint: disable=missing-docstring
     status_code = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
     default_detail = "Upload too large. Must be under {} bytes".format(
         UPLOAD_FILE_MAX_SIZE

@@ -76,7 +76,7 @@ class GetCourseRunGradesTest(BaseTaskTestMixin, TestCase):
     def test_invalid_format(self):
         with mock.patch(self.full_mock_path()) as mock_load_data:
             mock_load_data.return_value = (True, False, self.lms_data)
-            with self.assertRaisesRegex(
+            with self.assertRaisesRegex(  # pylint: disable=deprecated-method
                 ValueError, "Invalid file_format"
-            ):  # pylint: disable=deprecated-method
+            ):
                 self.spawn_task(file_format="invalid-format").wait()
