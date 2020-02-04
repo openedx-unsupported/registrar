@@ -2,7 +2,6 @@ import os
 
 from registrar.settings.base import *
 
-
 # IN-MEMORY TEST DATABASE
 DATABASES = {
     "default": {

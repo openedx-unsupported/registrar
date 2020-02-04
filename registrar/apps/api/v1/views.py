@@ -60,7 +60,6 @@ from .mixins import (
     ProgramSpecificViewMixin,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

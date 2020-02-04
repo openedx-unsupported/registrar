@@ -8,7 +8,6 @@ from registrar.apps.core.permissions import APIPermissionBase
 
 from . import segment
 
-
 logger = logging.getLogger(__name__)
 
 

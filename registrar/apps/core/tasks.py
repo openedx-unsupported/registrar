@@ -9,7 +9,6 @@ from user_tasks.tasks import UserTask
 from .jobs import post_job_failure
 from .models import Program
 
-
 log = get_task_logger(__name__)
 
 # pylint: disable=unused-argument

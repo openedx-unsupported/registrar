@@ -1,7 +1,6 @@
 """ Constants for enrollments app """
 from enum import Enum
 
-
 PROGRAM_ENROLLMENT_ENROLLED = "enrolled"
 PROGRAM_ENROLLMENT_PENDING = "pending"
 PROGRAM_ENROLLMENT_SUSPENDED = "suspended"

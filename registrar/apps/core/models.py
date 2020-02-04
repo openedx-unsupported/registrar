@@ -10,7 +10,6 @@ from model_utils.models import TimeStampedModel
 from . import permissions as perms
 from .data import DiscoveryProgram
 
-
 ACCESS_ADMIN = ("admin", 2)
 ACCESS_WRITE = ("write", 1)
 ACCESS_READ = ("read", 0)

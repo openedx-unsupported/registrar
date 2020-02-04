@@ -5,7 +5,6 @@ from logging import getLogger
 
 from .models import PendingUserGroup
 
-
 logger = getLogger(__name__)
 
 

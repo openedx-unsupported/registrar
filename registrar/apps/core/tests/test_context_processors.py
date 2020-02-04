@@ -4,7 +4,6 @@ from django.test import RequestFactory, TestCase, override_settings
 
 from ..context_processors import core
 
-
 PLATFORM_NAME = "Test Platform"
 
 

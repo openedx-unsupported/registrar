@@ -22,7 +22,6 @@ from user_tasks.models import UserTaskArtifact, UserTaskStatus
 from .filestore import get_job_results_filestore
 from .permissions import JOB_GLOBAL_READ
 
-
 JobStatus = namedtuple(
     "JobStatus", ["job_id", "name", "created", "state", "result", "text"]
 )

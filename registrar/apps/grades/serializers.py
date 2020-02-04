@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from registrar.apps.core.utils import serialize_to_csv
 
-
 # pylint: disable=abstract-method
 
 

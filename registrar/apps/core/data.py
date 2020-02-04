@@ -15,7 +15,6 @@ from rest_framework.status import HTTP_404_NOT_FOUND
 
 from .constants import PROGRAM_CACHE_KEY_TPL, PROGRAM_CACHE_TIMEOUT
 
-
 logger = logging.getLogger(__name__)
 DISCOVERY_PROGRAM_API_TPL = "api/v1/programs/{}/"
 

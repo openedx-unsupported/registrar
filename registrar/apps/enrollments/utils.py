@@ -2,7 +2,6 @@
 
 from registrar.apps.core.jobs import processing_job_with_prefix_exists
 
-
 SEPARATOR = ":"
 WRITE_PREFIX = "write"
 

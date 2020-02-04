@@ -9,7 +9,6 @@ import yaml
 from django.conf import settings
 from django.shortcuts import render
 
-
 module_dir = os.path.dirname(__file__)
 spec_file = open(os.path.join(module_dir, "../api.yaml"))
 API_SPEC = yaml.safe_load(spec_file.read())

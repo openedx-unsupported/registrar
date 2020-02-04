@@ -10,7 +10,6 @@ from django.urls import reverse
 
 from ..constants import Status
 
-
 User = get_user_model()
 
 

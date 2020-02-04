@@ -10,7 +10,6 @@ from .internal import urls as internal_urls
 from .v1 import urls as v1_urls
 from .v2 import urls as v2_urls
 
-
 app_name = "api"
 urlpatterns = [
     url(r"^internal/", include(internal_urls)),

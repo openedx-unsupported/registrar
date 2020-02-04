@@ -10,7 +10,6 @@ from registrar.apps.core.constants import (
 
 from . import views
 
-
 app_name = "v1"
 
 urlpatterns = [

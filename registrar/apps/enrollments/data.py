@@ -27,7 +27,6 @@ from .constants import (
 )
 from .serializers import CourseEnrollmentSerializer, ProgramEnrollmentSerializer
 
-
 logger = logging.getLogger(__name__)
 
 LMS_PROGRAM_ENROLLMENTS_API_TPL = "api/program_enrollments/v1/programs/{}/enrollments/"

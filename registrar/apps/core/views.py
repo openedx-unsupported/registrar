@@ -11,7 +11,6 @@ from django.views.generic import View
 
 from .constants import Status
 
-
 logger = logging.getLogger(__name__)
 User = get_user_model()
 

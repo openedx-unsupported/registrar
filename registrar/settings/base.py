@@ -1,5 +1,5 @@
 import os
-from os.path import join, abspath, dirname
+from os.path import abspath, dirname, join
 
 from corsheaders.defaults import default_headers as corsheaders_default_headers
 

@@ -18,7 +18,6 @@ from ..models import (
 )
 from ..permissions import OrganizationReadMetadataRole, ProgramReadMetadataRole
 
-
 # pylint: disable=missing-docstring
 
 

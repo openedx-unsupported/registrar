@@ -13,7 +13,6 @@ from registrar.apps.api.constants import TRACKING_CATEGORY
 from registrar.apps.api.mixins import CustomEncoder
 from registrar.apps.core.utils import get_user_organizations
 
-
 JWT_AUTH = "JWT_AUTH"
 
 

@@ -10,7 +10,6 @@ from registrar.apps.core.utils import get_user_organizations
 
 from .constants import TRACKING_CATEGORY
 
-
 logger = logging.getLogger(__name__)
 
 

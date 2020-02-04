@@ -14,7 +14,6 @@ import json
 import random
 import sys
 
-
 STATUS_CHOICES = ['enrolled', 'pending', 'suspended', 'canceled']
 STATUS_WEIGHTS = [0.5, 0.3, 0.1, 0.1]
 

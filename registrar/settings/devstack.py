@@ -1,7 +1,6 @@
 from registrar.settings.local import *
 from registrar.settings.utils import get_logger_config
 
-
 ALLOWED_HOSTS = ["*"]
 
 LOGGING = get_logger_config(debug=True, dev_env=True, local_loglevel="DEBUG")

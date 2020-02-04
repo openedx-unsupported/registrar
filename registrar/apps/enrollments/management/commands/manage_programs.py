@@ -9,7 +9,6 @@ from requests.exceptions import HTTPError
 from registrar.apps.core.models import Organization, Program
 from registrar.apps.enrollments.data import DiscoveryProgram
 
-
 logger = logging.getLogger(__name__)
 
 

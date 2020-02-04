@@ -6,7 +6,6 @@ import re
 
 from guardian.shortcuts import assign_perm
 
-
 APP_PREFIX = "core."
 
 # Non-prefixed names of permissions.

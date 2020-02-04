@@ -27,7 +27,6 @@ from ..constants import (
     PROGRAM_ENROLLMENT_PENDING,
 )
 
-
 FakeRequest = namedtuple("FakeRequest", ["url"])
 FakeResponse = namedtuple("FakeResponse", ["status_code"])
 

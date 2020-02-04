@@ -10,7 +10,6 @@ from registrar.apps.core.constants import ORGANIZATION_KEY_PATTERN
 from registrar.apps.core.models import Organization, OrganizationGroup
 from registrar.apps.core.permissions import ORGANIZATION_ROLES
 
-
 logger = logging.getLogger(__name__)
 
 

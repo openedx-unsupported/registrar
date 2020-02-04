@@ -7,7 +7,6 @@ from django.db import transaction
 
 from registrar.apps.core.models import User
 
-
 logger = logging.getLogger(__name__)
 
 

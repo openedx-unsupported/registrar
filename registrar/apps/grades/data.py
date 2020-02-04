@@ -17,7 +17,6 @@ from registrar.apps.core.data import _get_all_paginated_responses
 
 from .serializers import CourseGradeSerializer
 
-
 LMS_PROGRAM_COURSE_GRADES_API_TPL = (
     "api/program_enrollments/v1/programs/{}/courses/{}/grades/"
 )

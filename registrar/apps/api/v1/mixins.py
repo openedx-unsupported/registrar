@@ -33,7 +33,6 @@ from ..mixins import TrackViewMixin
 from ..serializers import JobAcceptanceSerializer
 from ..utils import build_absolute_api_url
 
-
 upload_filestore = get_enrollment_uploads_filestore()
 
 

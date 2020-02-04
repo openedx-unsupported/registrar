@@ -24,7 +24,6 @@ from .serializers import (
 )
 from .utils import build_enrollment_job_status_name
 
-
 log = get_task_logger(__name__)
 uploads_filestore = get_enrollment_uploads_filestore()
 

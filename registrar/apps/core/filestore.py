@@ -11,7 +11,6 @@ from django.core.files.storage import default_storage, get_storage_class
 
 from registrar.apps.api.utils import to_absolute_api_url
 
-
 logger = logging.getLogger(__name__)
 
 

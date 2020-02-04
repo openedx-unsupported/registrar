@@ -1,9 +1,9 @@
 from os import environ
+
 import yaml
 
 from registrar.settings.base import *
 from registrar.settings.utils import get_env_setting, get_logger_config
-
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
