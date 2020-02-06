@@ -97,8 +97,9 @@ class FilestoreBase(object):
         Returns:
             2-tuple of lists; the first item being directories, the second item being files
         """
-        full_path = self.get_full_path(path)
-        return self.backend.listdir(full_path)
+        return self._try_with_error_logging(
+            self.backend.listdir, "listing contents of", path
+        )
 
     def get_url(self, path):
         """
