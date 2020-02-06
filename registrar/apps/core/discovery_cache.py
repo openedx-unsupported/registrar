@@ -1,8 +1,18 @@
 """
-@@TODO docstring
+Interface for fetching catalog data from the Discovery service
+with a temporary cache.
 """
-from django.core.cache import cache
+import logging
+from posixpath import join as urljoin
 
+from django.conf import settings
+from django.core.cache import cache
+from requests.exceptions import HTTPError
+
+from .rest_utils import make_request
+
+
+logger = logging.getLogger(__name__)
 
 DISCOVERY_PROGRAM_API_TPL = 'api/v1/programs/{}/'
 PROGRAM_CACHE_KEY_TPL = 'program-data:{uuid}'

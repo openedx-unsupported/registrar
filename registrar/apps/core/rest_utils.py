@@ -1,17 +1,10 @@
 """
 Utils for reading and writing data to other services using REST.
 """
-import logging
-from collections import namedtuple
-from datetime import datetime
-from posixpath import join as urljoin
 
 from django.conf import settings
-from django.core.cache import cache
-from django.http import Http404
 from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
-from rest_framework.status import HTTP_404_NOT_FOUND
 
 
 def get_all_paginated_responses(url, client=None, expected_error_codes=None):

@@ -1,13 +1,10 @@
 """
 Core models.
 """
-
 import logging
 from collections import namedtuple
-from datetime import datetime
-from posixpath import join as urljoin
+from uuid import UUID
 
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -23,6 +20,8 @@ from . import permissions as perms
 ACCESS_ADMIN = ('admin', 2)
 ACCESS_WRITE = ('write', 1)
 ACCESS_READ = ('read', 0)
+
+logger = logging.getLogger(__name__)
 
 
 class User(AbstractUser):
@@ -196,7 +195,7 @@ class Program(TimeStampedModel):
         except StopIteration:
             logger.exception(
                 'Discovery API returned no active curricula for program {}'.format(
-                    program_uuid
+                    self.discovery_uuid
                 )
             )
             return {}
