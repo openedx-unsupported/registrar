@@ -2,17 +2,15 @@
 import ddt
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.http import Http404
 from django.test import TestCase
 from mock import patch
-from requests.exceptions import HTTPError
 
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.models import Program
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
     ProgramFactory,
 )
-from registrar.apps.enrollments.data import DiscoveryProgram
 
 
 @ddt.ddt
@@ -23,7 +21,7 @@ class TestManagePrograms(TestCase):
 
     def setUp(self):
         super().setUp()
-        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'read_from_discovery')
+        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'get_program_data')
         self.mock_get_discovery_program = discoveryprogram_patcher.start()
         self.addCleanup(discoveryprogram_patcher.stop)
 
@@ -175,14 +173,8 @@ class TestManagePrograms(TestCase):
         with self.assertRaisesRegex(CommandError, 'None of the authoring organizations (.*?) were found'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english_program')))
 
-    def test_load_from_disco_error(self):
-        self.mock_get_discovery_program.side_effect = HTTPError()
-        # pylint: disable=deprecated-method
-        with self.assertRaisesRegex(CommandError, 'Could not read program'):
-            call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
-
-    def test_load_from_disco_404(self):
-        self.mock_get_discovery_program.side_effect = Http404()
+    def test_load_from_disco_failed(self):
+        self.mock_get_discovery_program.return_value = {}
         # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Could not read program'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))

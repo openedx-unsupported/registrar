@@ -21,9 +21,9 @@ from rest_framework.status import (
 )
 
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import start_job
-from registrar.apps.core.models import Program
 from registrar.apps.enrollments.data import (
     write_course_run_enrollments,
     write_program_enrollments,
@@ -141,11 +141,14 @@ class ProgramSpecificViewMixin(AuthMixin):
     def program(self):
         """
         The program specified by the `program_key` URL parameter.
+
+        Loads a DiscoveryProgram, which gives access to fields from Discovery
+        such as title, program type, etc.
         """
         program_key = self.kwargs['program_key']
         try:
-            return Program.objects.get(key=program_key)
-        except Program.DoesNotExist:
+            return DiscoveryProgram.objects.get(key=program_key)
+        except DiscoveryProgram.DoesNotExist:
             self.add_tracking_data(failure='program_not_found')
             raise Http404()
 
@@ -174,7 +177,7 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         parameter is not part of self.program.
         """
         provided_course_id = self.kwargs['course_id']
-        real_course_run = self.program.discovery_program.find_course_run(
+        real_course_run = self.program.find_course_run(
             provided_course_id
         )
         if not real_course_run:

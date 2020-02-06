@@ -7,20 +7,20 @@ from uuid import UUID
 
 import boto3
 import ddt
-import mock
 import moto
 from django.conf import settings
 from django.test import TestCase
+from mock import patch
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.data import DiscoveryCourseRun, DiscoveryProgram
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
-from registrar.apps.core.models import Program
 from registrar.apps.core.tests.mixins import (
     BaseTaskTestMixin,
     S3MockEnvVarsMixin,
 )
+from registrar.apps.core.tests.utils import patch_discovery_data
 
 from .. import tasks
 from ..constants import (
@@ -38,12 +38,8 @@ FakeResponse = namedtuple('FakeResponse', ['status_code'])
 uploads_filestore = get_enrollment_uploads_filestore()
 
 
-class BaseEnrollmentTaskTestMixin(BaseTaskTestMixin):
-    mock_base = 'registrar.apps.enrollments.data.'
-
-
 @ddt.ddt
-class ListEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
+class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
     """ Tests for enrollment listing task error behavior. """
 
     # Override in subclass
@@ -71,7 +67,7 @@ class ListEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
 
     @ddt.data(500, 404)
     def test_http_error(self, status_code):
-        with mock.patch(self.mock_base + self.mocked_get_enrollments_method) as mock_get_enrollments:
+        with patch.object(tasks.data, self.mocked_get_enrollments_method) as mock_get_enrollments:
             error = HTTPError(request=FakeRequest('registrar.edx.org'), response=FakeResponse(status_code))
             mock_get_enrollments.side_effect = error
             task = self.spawn_task()
@@ -80,14 +76,14 @@ class ListEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
         self.assert_failed(expected_msg)
 
     def test_invalid_data(self):
-        with mock.patch(self.mock_base + self.mocked_get_enrollments_method) as mock_get_enrollments:
+        with patch.object(tasks.data, self.mocked_get_enrollments_method) as mock_get_enrollments:
             mock_get_enrollments.side_effect = ValidationError()
             task = self.spawn_task()
             task.wait()
         self.assert_failed("Invalid enrollment data from LMS")
 
     def test_invalid_format(self):
-        with mock.patch(self.mock_base + self.mocked_get_enrollments_method) as mock_get_enrollments:
+        with patch.object(tasks.data, self.mocked_get_enrollments_method) as mock_get_enrollments:
             mock_get_enrollments.return_value = self.enrollment_data
             exception_raised = False
             try:
@@ -99,6 +95,7 @@ class ListEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin):
         self.assertTrue(exception_raised)
 
 
+@patch_discovery_data({})
 class ListProgramEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
     """ Tests for task error behavior. """
     enrollment_statuses = (
@@ -119,6 +116,7 @@ class ListProgramEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
         )
 
 
+@patch_discovery_data({})
 class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
     """ Tests for task error behavior. """
     enrollment_statuses = (
@@ -149,6 +147,19 @@ class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
         )
 
 
+@patch_discovery_data({
+    'curricula': [{
+        'is_active': True,
+        'courses': [{
+            'course_runs': [{
+                'key': 'course-key',
+                'external_key': 'external-key',
+                'title': 'title',
+                'marketing_url': 'www',
+            }],
+        }],
+    }],
+})
 class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
     """ Tests for task error behavior. """
     enrollment_statuses = (
@@ -166,22 +177,6 @@ class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase)
         for enrollment in cls.enrollment_data:
             enrollment['course_id'] = cls.external_course_key
 
-    def setUp(self):
-        super().setUp()
-        program_patcher = mock.patch.object(DiscoveryProgram, 'get')
-        self.mocked_discovery_program = program_patcher.start()
-        self.mocked_discovery_program.return_value = DiscoveryProgram(
-            course_runs=[
-                DiscoveryCourseRun(
-                    key='course-key',
-                    external_key='external-key',
-                    title='title',
-                    marketing_url='www',
-                )
-            ]
-        )
-        self.addCleanup(program_patcher.stop)
-
     def spawn_task(self, program_key=None, **kwargs):
         return tasks.list_all_course_run_enrollments.apply_async(
             (
@@ -194,7 +189,7 @@ class ListAllCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase)
         )
 
 
-class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin, S3MockEnvVarsMixin):
+class WriteEnrollmentTaskTestMixin(BaseTaskTestMixin, S3MockEnvVarsMixin):
     """
     Tests common for both program and course-run enrollment writing tasks.
     """
@@ -233,8 +228,9 @@ class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin, S3MockEnvVarsMix
 
     def test_empty_list_file(self):
         uploads_filestore.store(self.json_filepath, "[]")
-        with mock.patch(
-                self.mock_base + self.mock_function,
+        with patch.object(
+                tasks.data,
+                self.mock_function,
                 new=self.mock_write_enrollments(False, False),
         ):
             self.spawn_task().wait()
@@ -259,6 +255,7 @@ class WriteEnrollmentTaskTestMixin(BaseEnrollmentTaskTestMixin, S3MockEnvVarsMix
 
 
 @ddt.ddt
+@patch_discovery_data({})
 class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     """
     Tests for write_program_enrollments task.
@@ -307,8 +304,9 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             {'student_key': 'serena', 'status': 'z'},
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
-        with mock.patch(
-                self.mock_base + self.mock_function,
+        with patch.object(
+                tasks.data,
+                self.mock_function,
                 new=self.mock_write_enrollments(any_successes, any_failures),
         ):
             self.spawn_task().wait()
@@ -322,18 +320,13 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
 
 
 @ddt.ddt
+@patch_discovery_data({})
 class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     """
     Tests for write_course_run_enrollments task.
     """
     mock_function = 'write_course_run_enrollments'
     expected_fieldnames = ('course_id', 'student_key', 'status')
-
-    def setUp(self):
-        super().setUp()
-        self.patcher = mock.patch.object(Program, 'discovery_program')
-        self.patcher.start()
-        self.addCleanup(self.patcher.stop)
 
     def spawn_task(self, program_key=None, **kwargs):
         return tasks.write_course_run_enrollments.apply_async(
@@ -370,16 +363,19 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         (False, True, "422"),
     )
     @ddt.unpack
+    @patch.object(
+        DiscoveryProgram, 'get_course_key', lambda _self, x: x + '-internal'
+    )
     def test_success_status(self, any_successes, any_failures, expected_code_str):
-        self.program.discovery_program.get_course_key.side_effect = lambda x: x + '-internal'
         enrolls = [
             {'student_key': 'john', 'status': 'x', 'course_id': 'course-1'},
             {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
             {'student_key': 'serena', 'status': 'z', 'course_id': 'course-2'},
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
-        with mock.patch(
-                self.mock_base + self.mock_function,
+        with patch.object(
+                tasks.data,
+                self.mock_function,
                 new=self.mock_write_enrollments(any_successes, any_failures),
         ):
             self.spawn_task().wait()
@@ -391,16 +387,20 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             expected_code_str,
         )
 
+    @patch.object(
+        DiscoveryProgram, 'get_course_key', {'course-1': 'course-1-internal'}.get
+    )
+    @patch_discovery_data({})
     def test_success_invalid_course_id(self):
-        self.program.discovery_program.get_course_key.side_effect = {'course-1': 'course-1-internal'}.get
         enrolls = [
             {'student_key': 'john', 'status': 'x', 'course_id': 'course-1'},
             {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
             {'student_key': 'serena', 'status': 'z', 'course_id': 'invalid-course'},
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
-        with mock.patch(
-                self.mock_base + self.mock_function,
+        with patch.object(
+                tasks.data,
+                self.mock_function,
                 new=self.mock_write_enrollments(True, False),
         ):
             self.spawn_task().wait()

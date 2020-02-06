@@ -7,11 +7,13 @@ from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.tests.mixins import BaseTaskTestMixin
+from registrar.apps.core.tests.utils import patch_discovery_data
 
 from ..tasks import get_course_run_grades
 
 
 @ddt.ddt
+@patch_discovery_data({})
 class GetCourseRunGradesTest(BaseTaskTestMixin, TestCase):
     """ Error behavior tests for get_course_run_grades"""
     mock_base = 'registrar.apps.grades.data.'

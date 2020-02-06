@@ -88,10 +88,11 @@ def write_program_enrollments(method, program_uuid, enrollments, client=None):
     Returns: See _write_enrollments.
     """
     url = _lms_program_enrollment_url(program_uuid)
-    curriculum_uuid = DiscoveryProgram.get(program_uuid).active_curriculum_uuid
+    program = DiscoveryProgram.objects.get(discovery_uuid=program_uuid)
+    curriculum_uuid_string = str(program.active_curriculum_uuid)
     enrollments = enrollments.copy()
     for enrollment in enrollments:
-        enrollment['curriculum_uuid'] = curriculum_uuid
+        enrollment['curriculum_uuid'] = curriculum_uuid_string
     return _write_enrollments(method, url, enrollments, client)
 
 

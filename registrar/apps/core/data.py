@@ -3,17 +3,16 @@ Module for syncing data with external services.
 """
 import logging
 from collections import namedtuple
-from datetime import datetime
 from posixpath import join as urljoin
+from uuid import UUID
 
 from django.conf import settings
 from django.core.cache import cache
-from django.http import Http404
 from edx_rest_api_client import client as rest_client
 from requests.exceptions import HTTPError
-from rest_framework.status import HTTP_404_NOT_FOUND
 
 from .constants import PROGRAM_CACHE_KEY_TPL, PROGRAM_CACHE_TIMEOUT
+from .models import Program
 
 
 logger = logging.getLogger(__name__)
@@ -25,136 +24,214 @@ DiscoveryCourseRun = namedtuple(
 )
 
 
-class DiscoveryProgram(object):
+class DiscoveryProgram(Program):
     """
-    Data about a program from Course Discovery service.
+    Proxy to Program model that is enriched with data available from Discovery service.
 
-    Is loaded from Discovery service and cached indefinitely until invalidated.
+    Data from Discovery is cached for `PROGRAM_CACHE_TIMEOUT` seconds.
+    If Discovery data cannot be loaded, we fall back to default values.
 
-    Attributes:
-        * version (int)
-        * loaded (datetime): When data was loaded from Course Discovery
-        * uuid (str): Program UUID-4
-        * title (str): Program title
-        * url (str): Program marketing-url
-        * active_curriculum_uuid (str): UUID-4 of active curriculum.
-        * course_runs (list[DiscoveryCourseRun]):
-            Flattened list of all course runs in program
-        * program_type (str): The type of the program (Masters, Micromasters, Professional Certificate...)
+    Get an instance of this class just like you would an instance of `Program`:
+        DiscoveryProgram.objects.get(discovery_uuid=YOUR_UUID)
+
+    Or, if you just want the raw JSON instead of a model instance:
+        DiscoveryProgram.get_program_data(YOUR_UUID)
+
+    To patch Discovery-data-loading in tests, patch `get_program_data`.
     """
-
-    # If we change the schema of this class, bump the `class_version`
-    # so that all old entries will be ignored.
-    class_version = 1
-
-    def __init__(self, **kwargs):
-        self.loaded = datetime.now()
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    class Meta(object):
+        # Guarantees that a table will not be created for this proxy model.
+        proxy = True
 
     @classmethod
-    def get(cls, program_uuid, client=None):
+    def from_db(cls, db, field_names, values):
         """
-        Get a DiscoveryProgram instance, either by loading it from the cache,
-        or query the Course Discovery service if it is not in the cache.
+        When DiscoveryProgram is loaded, warm the cache.
 
-        Raises Http404 if program is not cached and Discovery returns 404
-        Raises HTTPError if program is not cached and Discover returns error.
-        Raises ValidationError if program is not cached and Discovery returns
-            data in a format we don't like.
+        This way, errors are surfaced right upon `DiscoveryProgram.objects.get`
+        instead of during attribute access.
+
+        Overrides `Model.from_db`.
+        """
+        instance = super().from_db(db, field_names, values)
+        cls.get_program_data(instance.discovery_uuid)  # pylint: disable=no-member
+        return instance
+
+    @classmethod
+    def get_program_data(cls, program_uuid):
+        """
+        Get a JSON representation of a program from the Discovery service.
+
+        Returns an empty dict if not found or other HTTP error.
+
+        Queries a cache with timeout of `PROGRAM_CACHE_TIMEOUT`
+        before hitting Discovery to load the authoritative data.
+
+        Note that the "not-founded-ness" of programs will also be cached
+        using an empty dictionary (which is distinct from None).
+
+        For example:
+            * Program X is requested.
+            * It is not found in Discovery. This result is cached as `{}`
+            * Before PROGRAM_CACHE_TIMEOUT has passed, Program X is created
+              in Discovery.
+            * Program X will not be loaded from Discovery until PROGRAM_CACHE_TIMEOUT
+              has passed.
+
+        Arguments:
+            * program_uuid (UUID)
+
+        Returns: dict
         """
         key = PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
-        program = cache.get(key)
-        if not (program and program.version == cls.class_version):
-            program = cls.load_from_discovery(program_uuid, client)
-            cache.set(key, program, PROGRAM_CACHE_TIMEOUT)
-        return program
-
-    @classmethod
-    def read_from_discovery(cls, program_uuid, client=None):
-        """
-        Reads the json representation of a program from the Course Discovery service.
-
-        Raises Http404 if program is not cached and Discovery returns 404
-        Raises HTTPError if Discovery returns error.
-        """
-        url = urljoin(
-            settings.DISCOVERY_BASE_URL, 'api/v1/programs/{}/'
-        ).format(
-            program_uuid
-        )
-        try:
-            program_data = _make_request('GET', url, client).json()
-        except HTTPError as e:
-            if e.response.status_code == HTTP_404_NOT_FOUND:
-                raise Http404(e)
-            else:
-                raise e
+        # Note that "not-found-in-discovery" is purposefully cached as `{}`,
+        # whereas `cache.get(key)` will return `None` if the key is not in the
+        # cache.
+        program_data = cache.get(key)
+        if not isinstance(program_data, dict):
+            program_data = cls._fetch_discovery_program_data(program_uuid)
+            cache_value = program_data if isinstance(program_data, dict) else {}
+            cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
         return program_data
 
-    @classmethod
-    def load_from_discovery(cls, program_uuid, client=None):
+    @staticmethod
+    def _fetch_discovery_program_data(program_uuid):
         """
-        Load a DiscoveryProgram instance from the Course Discovery service.
+        Fetch a JSON representation of a program from the Discovery service.
 
-        Raises Http404 if program is not cached and Discovery returns 404
-        Raises HTTPError if program is not cached AND Discovery returns error.
-        """
-        program_data = cls.read_from_discovery(program_uuid, client)
-        return cls.from_json(program_uuid, program_data)
+        Returns None if not found or other HTTP error.
 
-    @classmethod
-    def from_json(cls, program_uuid, program_data):
+        Arguments:
+            * program_uuid (UUID)
+            * client (optional)
+
+        Returns: dict|None
         """
-        Builds a DiscoveryProgram instance from JSON data that has been
-        returned by the Course Discovery service.json
-        """
-        program_title = program_data.get('title')
-        program_url = program_data.get('marketing_url')
-        program_type = program_data.get('type')
-        # this make two temporary assumptions (zwh 03/19)
-        #  1. one *active* curriculum per program
-        #  2. no programs are nested within a curriculum
+        url = urljoin(
+            settings.DISCOVERY_BASE_URL,
+            DISCOVERY_PROGRAM_API_TPL.format(program_uuid)
+        )
         try:
-            curriculum = next(
-                c for c in program_data.get('curricula', [])
+            return _make_request('GET', url, client=None).json()
+        except HTTPError:
+            logger.exception(
+                "Failed to load program with uuid %s from Discovery service.",
+                program_uuid,
+            )
+            return None
+
+    @property
+    def discovery_data(self):
+        """
+        Get cached program data from Discovery.
+
+        Returns empty dict if data was not available in Discovery.
+
+        Returns: dict
+        """
+        return self.get_program_data(self.discovery_uuid)
+
+    @property
+    def title(self):
+        """
+        Return title of program.
+
+        Falls back to program key if unavailable.
+        """
+        return self.discovery_data.get('title', self.key)
+
+    @property
+    def url(self):
+        """
+        Return URL of program
+
+        Falls back to None if unavailable.
+        """
+        return self.discovery_data.get('marketing_url')
+
+    @property
+    def program_type(self):
+        """
+        Return type of the program ("Masters", "MicroMasters", etc.).
+
+        Falls back to None if unavailable.
+        """
+        return self.discovery_data.get('type')
+
+    @property
+    def is_enrollment_enabled(self):
+        """
+        Return whether enrollment is enabled for this program.
+
+        Falls back to False if required data unavailable.
+        """
+        return self.program_type == 'Masters'
+
+    @property
+    def active_curriculum_data(self):
+        """
+        Return dict containing data for active curriculum.
+
+        TODO:
+        We define 'active' curriculum as the first one in the list of
+        curricula where is_active is True.
+        This is a temporary assumption, originally made in March 2019.
+        We expect that future programs may have more than one curriculum
+        active simultaneously, which will require modifying the API.
+
+        Falls back to empty dict if no active curriculum or if data unavailable.
+        """
+        try:
+            return next(
+                c for c in self.discovery_data.get('curricula', [])
                 if c.get('is_active')
             )
         except StopIteration:
             logger.exception(
                 'Discovery API returned no active curricula for program {}'.format(
-                    program_uuid
+                    self.discovery_uuid
                 )
             )
-            return DiscoveryProgram(
-                version=cls.class_version,
-                uuid=program_uuid,
-                title=program_title,
-                url=program_url,
-                program_type=program_type,
-                active_curriculum_uuid=None,
-                course_runs=[],
-            )
-        active_curriculum_uuid = curriculum.get("uuid")
-        course_runs = [
+            return {}
+
+    @property
+    def active_curriculum_uuid(self):
+        """
+        Get UUID string of active curriculum, or None if no active curriculum.
+
+        See `active_curriculum_data` docstring for more details.
+        """
+        try:
+            return UUID(self.active_curriculum_data.get('uuid'))
+        except (TypeError, ValueError):
+            return None
+
+    @property
+    def course_runs(self):
+        """
+        Get list of DiscoveryCourseRuns defined in root of active curriculum.
+
+        TODO:
+        In March 2019 we made a temporary assumption that the curriculum
+        does not contain nested programs.
+        We expect that this will need revisiting eventually,
+        as future programs may have more than one curriculum.
+
+        Also see `active_curriculum_data` docstring details on how the 'active'
+        curriculum is determined.
+
+        Falls back to empty list if no active curriculum or if data unavailable.
+        """
+        return [
             DiscoveryCourseRun(
-                key=course_run.get('key'),
-                external_key=course_run.get('external_key'),
-                title=course_run.get('title'),
-                marketing_url=course_run.get('marketing_url'),
+                key=course_run.get("key"),
+                external_key=course_run.get("external_key"),
+                title=course_run.get("title"),
+                marketing_url=course_run.get("marketing_url"),
             )
-            for course in curriculum.get("courses", [])
+            for course in self.active_curriculum_data.get("courses", [])
             for course_run in course.get("course_runs", [])
         ]
-        return DiscoveryProgram(
-            version=cls.class_version,
-            uuid=program_uuid,
-            title=program_title,
-            url=program_url,
-            program_type=program_type,
-            active_curriculum_uuid=active_curriculum_uuid,
-            course_runs=course_runs,
-        )
 
     def find_course_run(self, course_id):
         """
@@ -162,16 +239,18 @@ class DiscoveryProgram(object):
 
         Returns None if course run is not found in the cached program.
         """
-        for course_run in self.course_runs:
-            if course_id == course_run.key or course_id == course_run.external_key:
-                return course_run
-        return None
+        try:
+            return next(
+                course_run for course_run in self.course_runs
+                if course_id in {course_run.key, course_run.external_key}
+            )
+        except StopIteration:
+            return None
 
     def get_external_course_key(self, course_id):
         """
         Given a course ID, return the external course key for that course_run.
         The course key passed in may be an external or internal course key.
-
 
         Returns None if course run is not found in the cached program.
         """
@@ -221,7 +300,7 @@ def _get_all_paginated_responses(url, client=None, expected_error_codes=None):
     return responses
 
 
-def _get_all_paginated_results(url, client=None, ):
+def _get_all_paginated_results(url, client=None):
     """
     Builds a list of all results from a cursor-paginated endpoint.
 

@@ -143,7 +143,7 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
         return None
 
     results = []
-    for course_run in program.discovery_program.course_runs:
+    for course_run in program.course_runs:
         try:
             enrollments = data.get_course_run_enrollments(
                 program.discovery_uuid,
@@ -267,7 +267,7 @@ def write_course_run_enrollments(
     for requested_course_key, course_requests in requests_by_course_key.items():
         # we don't know if the requested key was an external key or internal key,
         # so convert it before making requests to the LMS.
-        internal_course_key = program.discovery_program.get_course_key(requested_course_key)
+        internal_course_key = program.get_course_key(requested_course_key)
 
         if internal_course_key:
             successes_in_course, failures_in_course, status_by_student_key = data.write_course_run_enrollments(
