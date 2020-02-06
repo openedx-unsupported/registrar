@@ -1,13 +1,16 @@
 """ Tests for core models. """
 
+from uuid import UUID
 import ddt
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
+from mock import patch
 from social_django.models import UserSocialAuth
 
 from .. import permissions as perm
+from .. import models
 from ..models import (
     Organization,
     OrganizationGroup,
@@ -60,6 +63,107 @@ class UserTests(TestCase):
         username = 'bob'
         user = G(User, username=username)
         self.assertEqual(str(user), username)
+
+
+class ProgramTests(TestCase):
+    """
+    Tests for Program model.
+
+    Specifically, tests for its fields that rely on the Discovery cache.
+    """
+    get_program_fail_patch = patch.object(
+        models.discovery_cache, 'get_program_data', return_value=None
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+        program_uuid = UUID('88888888-4444-2222-1111-000000000001')
+        program = ProgramFactory(
+            discovery_uuid=program_uuid,
+            key="masters-in-mastery",
+        )
+
+    @get_program_fail_patch
+    def test_stringification(self):
+        """
+        Make sure strignifying a program isn't broken.
+        """
+        assert len(str(self.program))
+        assert self.program_uuid in repr(self.program)
+
+    @get_program_fail_patch
+    def test_default_data(self):
+        """
+        Test that a Program has sane default values when it cannot
+        be retrived from Discovery.
+        """
+        assert self.program.title == "masters-in-mastery"
+        assert self.program.url is None
+        assert self.program_type is None
+
+
+@ddt.ddt
+class DiscoveryProgramTests(TestCase):
+    """ Tests for DiscoveryProgram methods """
+
+    def setUp(self):
+        super().setUp()
+        program_uuid = str(uuid.uuid4())
+        curriculum_uuid = str(uuid.uuid4())
+        program_title = "Master's in CS"
+        program_url = 'https://stem-institute.edx.org/masters-in-cs'
+        program_type = 'Micromasters'
+        self.program = DiscoveryProgram(
+            version=0,
+            loaded=datetime.now(),
+            uuid=program_uuid,
+            title=program_title,
+            url=program_url,
+            program_type=program_type,
+            active_curriculum_uuid=curriculum_uuid,
+            course_runs=[
+                self.make_course_run(i) for i in range(4)
+            ],
+        )
+
+    def make_course_run(self, counter):
+        """
+        Helper for making DiscoveryCourseRuns
+        """
+        key = 'course-{}'.format(counter)
+        external_key = 'external-key-course-{}'.format(counter)
+        title = 'Course {} Title'.format(counter)
+        url = 'www.courserun.url/{}/'.format(counter)
+        return DiscoveryCourseRun(key, external_key, title, url)
+
+    @ddt.data('key', 'external_key')
+    def test_get_key(self, attr):
+        for course_run in self.program.course_runs:
+            test_key = getattr(course_run, attr)
+            self.assertEqual(
+                self.program.get_course_key(test_key),
+                course_run.key
+            )
+
+    def test_get_key_not_found(self):
+        for i in [10, 101, 111, 123]:
+            not_in_program_run = self.make_course_run(i)
+            self.assertIsNone(self.program.get_course_key(not_in_program_run.key))
+            self.assertIsNone(self.program.get_course_key(not_in_program_run.external_key))
+
+    @ddt.data('key', 'external_key')
+    def test_get_external_key(self, attr):
+        for course_run in self.program.course_runs:
+            test_key = getattr(course_run, attr)
+            self.assertEqual(
+                self.program.get_external_course_key(test_key),
+                course_run.external_key
+            )
+
+    def test_get_external_key_not_found(self):
+        for i in [10, 101, 111, 123]:
+            not_in_program_run = self.make_course_run(i)
+            self.assertIsNone(self.program.get_external_course_key(not_in_program_run.key))
 
 
 @ddt.ddt
