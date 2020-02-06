@@ -17,8 +17,11 @@ from django.test import TestCase
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.data import DiscoveryProgram
-from registrar.apps.core.tests.utils import mock_oauth_login
+from registrar.apps.core.tests.factories import ProgramFactory
+from registrar.apps.core.tests.utils import (
+    mock_oauth_login,
+    patch_discovery_data,
+)
 
 from ..data import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
@@ -233,6 +236,11 @@ class WriteEnrollmentsTestMixin(object):
         'robert': 'z',
     }
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        ProgramFactory(discovery_uuid=cls.program_uuid)
+
     def _add_echo_callback(self, status_code):
         """
         Returns mock handler for LMS enrollment write request
@@ -347,12 +355,15 @@ class WriteProgramEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
         )
 
     def write_enrollments(self, enrollments):
-        mock_disco_program = DiscoveryProgram(
-            active_curriculum_uuid=self.curriculum_uuid
-        )
-        with mock.patch.object(
-                DiscoveryProgram, 'get', return_value=mock_disco_program
-        ):
+        mock_disco_program_data = {
+            'curricula': [
+                {
+                    'is_active': True,
+                    'uuid': self.curriculum_uuid,
+                },
+            ],
+        }
+        with patch_discovery_data(mock_disco_program_data):
             return write_program_enrollments('POST', self.program_uuid, enrollments)
 
 

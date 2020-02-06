@@ -6,8 +6,8 @@ from celery.utils.log import get_task_logger
 from user_tasks.models import UserTaskArtifact
 from user_tasks.tasks import UserTask
 
+from .data import DiscoveryProgram
 from .jobs import post_job_failure
-from .models import Program
 
 
 log = get_task_logger(__name__)
@@ -36,7 +36,7 @@ def _get_program(job_id, program_key):
     Load a Program by key. Fails job and returns None if key invalid.
     """
     try:
-        return Program.objects.get(key=program_key)
-    except Program.DoesNotExist:
+        return DiscoveryProgram.objects.get(key=program_key)
+    except DiscoveryProgram.DoesNotExist:
         post_job_failure(job_id, "Bad program key: {}".format(program_key))
         return None

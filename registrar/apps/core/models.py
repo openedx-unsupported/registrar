@@ -7,7 +7,6 @@ from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
 from . import permissions as perms
-from .data import DiscoveryProgram
 
 
 ACCESS_ADMIN = ('admin', 2)
@@ -100,35 +99,6 @@ class Program(TimeStampedModel):
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     managing_organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-
-    @property
-    def discovery_program(self):
-        return DiscoveryProgram.get(self.discovery_uuid)
-
-    @property
-    def title(self):
-        return self._get_cached_field('title')
-
-    @property
-    def url(self):
-        return self._get_cached_field('url')
-
-    @property
-    def program_type(self):
-        return self._get_cached_field('program_type')
-
-    @property
-    def is_enrollment_enabled(self):
-        return self.program_type == 'Masters'
-
-    def _get_cached_field(self, field):
-        """
-        Returns the specified field from a cached Discovery program.
-        If the program is not found in the cache it is loaded from discovery
-        """
-        discovery_program = DiscoveryProgram.get(self.discovery_uuid)
-        val = getattr(discovery_program, field)
-        return val
 
     def __str__(self):
         """

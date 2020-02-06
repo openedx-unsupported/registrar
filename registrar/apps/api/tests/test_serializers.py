@@ -5,27 +5,26 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from registrar.apps.api.serializers import ProgramSerializer
+from registrar.apps.api.serializers import DiscoveryProgramSerializer
 from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
-from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.permissions import (
     APIReadMetadataPermission,
     APIWriteEnrollmentsPermission,
 )
 from registrar.apps.core.tests.factories import (
+    DiscoveryProgramFactory,
     OrganizationFactory,
-    ProgramFactory,
 )
 
 
-class ProgramSerializerTests(TestCase):
-    """ Tests the ProgramSerializer """
+class DiscoveryProgramSerializerTests(TestCase):
+    """ Tests the DiscoveryProgramSerializer """
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
 
         cls.org = OrganizationFactory()
-        cls.program = ProgramFactory(managing_organization=cls.org)
+        cls.program = DiscoveryProgramFactory(managing_organization=cls.org)
 
         cls.request = RequestFactory().get('/api/v1/programs')
         cls.request.user = AnonymousUser()
@@ -35,14 +34,11 @@ class ProgramSerializerTests(TestCase):
 
         cache.set(
             PROGRAM_CACHE_KEY_TPL.format(uuid=self.program.discovery_uuid),
-            DiscoveryProgram.from_json(
-                self.program.discovery_uuid,
-                {
-                    'title': 'test-program',
-                    'type': 'masters',
-                    'curricula': [],
-                }
-            )
+            {
+                'title': 'test-program',
+                'type': 'masters',
+                'curricula': [],
+            },
         )
 
     @mock.patch('registrar.apps.api.serializers.get_user_api_permissions')
@@ -55,7 +51,7 @@ class ProgramSerializerTests(TestCase):
             set([APIWriteEnrollmentsPermission]),  # mocked permissions on program
             set([APIReadMetadataPermission]),  # mocked permissions on org
         ]
-        program = ProgramSerializer(
+        program = DiscoveryProgramSerializer(
             self.program,
             context={
                 'request': self.request
@@ -71,5 +67,5 @@ class ProgramSerializerTests(TestCase):
         Serializer should return an empty list for permissions if invoked
         without a request context
         """
-        program = ProgramSerializer(self.program).data
+        program = DiscoveryProgramSerializer(self.program).data
         self.assertListEqual(program.get('permissions'), [])

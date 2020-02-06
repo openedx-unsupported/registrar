@@ -22,18 +22,18 @@ from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.filestore import get_program_reports_filestore
 from registrar.apps.core.jobs import (
     get_job_status,
     get_processing_jobs_for_user,
 )
-from registrar.apps.core.models import Organization, Program
+from registrar.apps.core.models import Organization
 from registrar.apps.core.permissions import APIReadMetadataPermission
 from registrar.apps.core.utils import (
     get_user_api_permissions,
     load_records_from_uploaded_csv,
 )
-from registrar.apps.enrollments.data import DiscoveryProgram
 from registrar.apps.enrollments.tasks import (
     list_all_course_run_enrollments,
     list_course_run_enrollments,
@@ -53,9 +53,9 @@ from ..exceptions import FileTooLarge
 from ..mixins import TrackViewMixin
 from ..serializers import (
     CourseRunSerializer,
+    DiscoveryProgramSerializer,
     JobStatusSerializer,
     ProgramReportMetadataSerializer,
-    ProgramSerializer,
 )
 from .mixins import (
     AuthMixin,
@@ -85,7 +85,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
      * 404: Organization does not exist.
     """
 
-    serializer_class = ProgramSerializer
+    serializer_class = DiscoveryProgramSerializer
     event_method_map = {'GET': 'registrar.{api_version}.list_programs'}
     event_parameter_map = {
         'org': 'organization_filter',
@@ -93,7 +93,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     }
 
     def get_queryset(self):
-        programs = Program.objects.all()
+        programs = DiscoveryProgram.objects.all()
         user = self.request.user
 
         if self.organization_filter:
@@ -185,7 +185,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 403: User lacks read access to the specified program.
      * 404: Program does not exist.
     """
-    serializer_class = ProgramSerializer
+    serializer_class = DiscoveryProgramSerializer
     permission_required = [perms.APIReadMetadataPermission]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
@@ -211,9 +211,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     event_parameter_map = {'program_key': 'program_key'}
 
     def get_queryset(self):
-        uuid = self.program.discovery_uuid
-        discovery_program = DiscoveryProgram.get(uuid)
-        return discovery_program.course_runs
+        return self.program.course_runs
 
 
 class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):

@@ -5,6 +5,9 @@ from functools import wraps
 
 import responses
 from django.conf import settings
+from mock import patch
+
+from ..data import DiscoveryProgram
 
 
 def mock_oauth_login(fn):
@@ -22,3 +25,14 @@ def mock_oauth_login(fn):
         )
         return fn(self, *args, **kwargs)
     return inner
+
+
+def patch_discovery_data(disco_program_data):
+    """
+    Return a decorator that mocks the return value of DiscoveryProgram.discovery_data.
+    """
+    return patch.object(
+        DiscoveryProgram,
+        'get_program_data',
+        lambda *_, **__: disco_program_data,
+    )

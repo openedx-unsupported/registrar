@@ -3,11 +3,9 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.http import Http404
-from requests.exceptions import HTTPError
 
+from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.models import Organization, Program
-from registrar.apps.enrollments.data import DiscoveryProgram
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +28,9 @@ class Command(BaseCommand):
     def handle(self, uuidkeys, *args, **options):
         uuidkeys = self.parse_uuidkeys(uuidkeys)
         for uuidkey in uuidkeys:
-            discovery_dict = self.get_discovery_program_dict(uuidkey[0])
+            discovery_dict = DiscoveryProgram.get_program_data(uuidkey[0])
+            if not discovery_dict:
+                raise CommandError('Could not read program from course-discovery; aborting')
             authoring_orgs = self.get_authoring_org_keys(discovery_dict)
             org = self.get_org(authoring_orgs)
             self.create_or_modify_program(org, discovery_dict, *uuidkey)
@@ -48,12 +48,6 @@ class Command(BaseCommand):
                            'must be in form <program uuid>:<program key> or <program_uuid>').format(uuidkey)
                 raise CommandError(message)
         return result
-
-    def get_discovery_program_dict(self, program_uuid):
-        try:
-            return DiscoveryProgram.read_from_discovery(program_uuid)
-        except (HTTPError, Http404) as e:
-            raise CommandError('Could not read program from course-discovery: {}'.format(e))
 
     def get_authoring_org_keys(self, program_dict):
         """
@@ -84,9 +78,8 @@ class Command(BaseCommand):
         raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
 
     def create_or_modify_program(self, org, program_dict, program_uuid, program_key):
-        discovery_program = DiscoveryProgram.from_json(program_uuid, program_dict)
         program, created = Program.objects.get_or_create(
-            discovery_uuid=discovery_program.uuid,  # pylint: disable=no-member
+            discovery_uuid=program_uuid,
             defaults={
                 'managing_organization': org,
                 'key': program_key or program_dict.get('marketing_slug'),

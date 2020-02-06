@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from guardian.shortcuts import assign_perm
 
+from ..data import DiscoveryProgram
 from ..models import (
     Organization,
     OrganizationGroup,
@@ -95,6 +96,11 @@ class ProgramFactory(factory.DjangoModelFactory):
     key = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     discovery_uuid = factory.Faker('uuid4')
     managing_organization = factory.SubFactory(OrganizationFactory)
+
+
+class DiscoveryProgramFactory(ProgramFactory):
+    class Meta:
+        model = DiscoveryProgram
 
 
 class OrganizationGroupFactory(factory.DjangoModelFactory):
