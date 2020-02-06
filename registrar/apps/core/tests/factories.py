@@ -134,3 +134,11 @@ class PendingUserProgramGroupFactory(factory.DjangoModelFactory):
 
     group = factory.SubFactory(ProgramOrganizationGroupFactory)
     user_email = factory.Faker('email')
+
+
+class PendingUserGenericGroupFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = PendingUserGroup
+
+    group = factory.SubFactory(GroupFactory)
+    user_email = factory.Faker('email')

@@ -2,7 +2,6 @@
 
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
@@ -28,7 +27,8 @@ class User(AbstractUser):
 
     @property
     def access_token(self):
-        """ Returns an OAuth2 access token for this user, if one exists; otherwise None.
+        """
+        Returns an OAuth2 access token for this user, if one exists; otherwise None.
 
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
@@ -43,8 +43,10 @@ class User(AbstractUser):
     def get_full_name(self):
         return self.full_name or super(User, self).get_full_name()
 
-    @python_2_unicode_compatible
     def __str__(self):
+        """
+        Human-friendly string representation of this User.
+        """
         return str(self.username)
 
 
@@ -67,7 +69,18 @@ class Organization(TimeStampedModel):
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name  # pragma: no cover
+        """
+        Human-friendly string representation of this Organization.
+        """
+        return self.name
+
+    def __repr__(self):
+        """
+        Developer-friendly string representation of this Organization.
+        """
+        return "<{}: key={} discovery_uuid={} name={!r}>".format(
+            type(self).__name__, self.key, self.discovery_uuid, self.name
+        )
 
 
 class Program(TimeStampedModel):
@@ -118,7 +131,18 @@ class Program(TimeStampedModel):
         return val
 
     def __str__(self):
-        return self.key  # pragma: no cover
+        """
+        Human-friendly string representation of this Program.
+        """
+        return self.key
+
+    def __repr__(self):
+        """
+        Developer-friendly string representation of this Program.
+        """
+        return "<{}: key={} discovery_uuid={} managing_organization={}>".format(
+            type(self).__name__, self.key, self.discovery_uuid, self.managing_organization.key
+        )
 
 
 class OrganizationGroup(Group):
@@ -174,7 +198,18 @@ class OrganizationGroup(Group):
         self._initial_organization = self.organization
 
     def __str__(self):
-        return 'OrganizationGroup: {} role={}'.format(self.organization.name, self.role)
+        """
+        Human-friendly representation of this OrganizationGroup.
+        """
+        return self.name
+
+    def __repr__(self):
+        """
+        Developer-friendly representation of this OrganizationGroup.
+        """
+        return '<{}: name={!r} organization={} role={}>'.format(
+            type(self).__name__, self.name, self.organization.key, self.role
+        )
 
 
 class ProgramOrganizationGroup(Group):
@@ -230,7 +265,24 @@ class ProgramOrganizationGroup(Group):
         self._initial_program = self.program
 
     def __str__(self):
-        return 'ProgramOrganizationGroup: {} role={}'.format(self.program.title, self.role)  # pragma: no cover
+        """
+        Human-friendly representation of this ProgramOrganizationGroup.
+        """
+        return self.name
+
+    def __repr__(self):
+        """
+        Developer-friendly representation of this ProgramOrganizationGroup.
+        """
+        return (
+            "<{}: name={!r} program={} granting_organization={} role={}>".format(
+                type(self).__name__,
+                self.name,
+                self.program.key,
+                self.granting_organization.key,
+                self.role,
+            )
+        )
 
 
 class PendingUserGroup(TimeStampedModel):
@@ -249,38 +301,19 @@ class PendingUserGroup(TimeStampedModel):
     user_email = models.EmailField()
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
 
-    def __str__(self):
-        """
-        Return human-readable string representation
-        """
-        if isinstance(self.group, OrganizationGroup):
-            return "<PendingUserGroup {ID}>: {organization_name} - {user_email} - {role}".format(
-                ID=self.id,
-                organization_name=self.group.organization.name,
-                user_email=self.user_email,
-                role=self.group.role,
-            )
-
-        if isinstance(self.group, ProgramOrganizationGroup):  # pragma: no branch
-            return "<PendingUserGroup {ID}>: {organization_name} - {program_name} - {user_email} - {role}".format(
-                ID=self.id,
-                organization_name=self.group.granting_organization.name,
-                program_name=self.group.program.key,
-                user_email=self.user_email,
-                role=self.group.role,
-            )
-
-        return "<PendingUserGroup {ID}>: {group_name} - {user_email}".format(
-            ID=self.id,
-            group_name=self.group.name,
-            user_email=self.user_email,
-        )
-
     def __repr__(self):
         """
-        Return uniquely identifying string representation.
+        Return human-readable string representation of this PendingUserGroup.
         """
-        return self.__str__()  # pragma: no cover
+        return "<{}: user_email={!r} group={!r}>".format(
+            type(self).__name__, self.user_email, self.group
+        )
+
+    def __str__(self):
+        """
+        Return human-readable string representation of this PendingUserGroup.
+        """
+        return "pending membership of {} in {}".format(self.user_email, self.group)
 
 
 class JobPermissionSupport(models.Model):
