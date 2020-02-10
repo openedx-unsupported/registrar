@@ -94,6 +94,20 @@ class DiscoveryProgram(Program):
             cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
         return program_data
 
+    @classmethod
+    def clear_cached_program_data(cls, program_uuids):
+        """
+        Clear any data from Discovery that we have cached for the given programs.
+
+        Arguments:
+            program_uuids (Iterable[str|UUID])
+        """
+        cache_keys_to_delete = [
+            PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
+            for program_uuid in program_uuids
+        ]
+        cache.delete_many(cache_keys_to_delete)
+
     @staticmethod
     def _fetch_discovery_program_data(program_uuid):
         """
