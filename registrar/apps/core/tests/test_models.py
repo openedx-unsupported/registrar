@@ -1,7 +1,6 @@
 """ Tests for core models. """
 
 import ddt
-from django.contrib.auth.models import Group
 from django.test import TestCase
 from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
@@ -11,7 +10,6 @@ from .. import permissions as perm
 from ..models import (
     Organization,
     OrganizationGroup,
-    PendingUserGroup,
     Program,
     ProgramOrganizationGroup,
     User,
@@ -19,7 +17,11 @@ from ..models import (
 from .factories import (
     OrganizationFactory,
     OrganizationGroupFactory,
+    PendingUserGenericGroupFactory,
+    PendingUserOrganizationGroupFactory,
+    PendingUserProgramGroupFactory,
     ProgramFactory,
+    ProgramOrganizationGroupFactory,
     UserFactory,
 )
 
@@ -54,12 +56,6 @@ class UserTests(TestCase):
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
         self.assertEqual(user.get_full_name(), full_name)
-
-    def test_string(self):
-        """Verify that the model's string method returns the user's username """
-        username = 'bob'
-        user = G(User, username=username)
-        self.assertEqual(str(user), username)
 
 
 @ddt.ddt
@@ -155,21 +151,6 @@ class OrganizationGroupTests(TestCase):
         self.assertFalse(self.user.has_perm(write_permission, org1))
         self.assertTrue(self.user.has_perm(metdata_permission, org2))
         self.assertTrue(self.user.has_perm(write_permission, org2))
-
-    @ddt.data(
-        perm.OrganizationReadMetadataRole,
-        perm.OrganizationReadEnrollmentsRole,
-        perm.OrganizationReadWriteEnrollmentsRole,
-    )
-    def test_string(self, role):
-        org_group = OrganizationGroup.objects.create(
-            role=role.name,
-            organization=self.organization,
-        )
-        org_group_string = str(org_group)
-        self.assertIn('OrganizationGroup', org_group_string)
-        self.assertIn(self.organization.name, org_group_string)
-        self.assertIn(role.name, org_group_string)
 
 
 @ddt.ddt
@@ -271,52 +252,38 @@ class ProgramOrganizationGroupTests(TestCase):
         self.assertTrue(self.user.has_perm(write_permission, program2))
 
 
-class PendingUserGroupTests(TestCase):
-    """ Tests for PendingUserGroup model """
+@ddt.ddt
+class StringificationTests(TestCase):
+    """
+    Tests for str() and repr() functions of all models.
+    """
 
-    def setUp(self):
-        super(PendingUserGroupTests, self).setUp()
-        self.organization = OrganizationFactory()
-        self.organization_group = OrganizationGroupFactory(organization=self.organization)
-        self.program = ProgramFactory()
-        self.program_group = ProgramOrganizationGroup.objects.create(
-            program=self.program,
-            granting_organization=self.program.managing_organization,
-        )
-        self.generic_group = Group.objects.create(name='generic_group')
+    @ddt.data(
+        (lambda: OrganizationFactory(key="hi", name="HELLO"), "hi", "HELLO"),
+        (lambda: OrganizationGroupFactory(name="ya"), "ya", "ya"),
+        (lambda: PendingUserGenericGroupFactory(user_email="a@b.c"), "a@b.c", "a@b.c"),
+        (lambda: PendingUserOrganizationGroupFactory(user_email="a@b.c"), "a@b.c", "a@b.c"),
+        (lambda: PendingUserProgramGroupFactory(user_email="a@b.c"), "a@b.c", "a@b.c"),
+        (lambda: ProgramFactory(key="dude"), "dude", "dude"),
+        (lambda: ProgramOrganizationGroupFactory(name="woah"), "woah", "woah"),
+        (lambda: UserFactory(username="socrates"), "socrates", "socrates"),
+    )
+    @ddt.unpack
+    def test_repr_and_str_sanity(self, instance_fn, expected_repr_snippet, expected_str_snippet):
+        """
+        Tests that __repr__ and __str__ of the given object have at least minimally-
+        sane implementations and that __repr__() contains that class name.
 
-    def test_pending_org_group_string(self):
-        user_email = 'test_pending_org_group@example.com'
-        pending_user_group = PendingUserGroup.objects.create(
-            user_email=user_email,
-            group=self.organization_group,
+        We pass in `instance_fn` as a lambda because pytest cannot create the instance
+        during test collection.
+        """
+        instance = instance_fn()
+        actual_repr = repr(instance)
+        actual_str = str(instance)
+        assert actual_repr != actual_str, (
+            "repr() and str() should have different implementations. "
+            "The former is for developers, and the latter is for end-users."
         )
-        pending_user_group_string = str(pending_user_group)
-        self.assertIn('PendingUserGroup', pending_user_group_string)
-        self.assertIn(user_email, pending_user_group_string)
-        self.assertIn(self.organization.name, pending_user_group_string)
-        self.assertIn(self.organization_group.role, pending_user_group_string)
-
-    def test_pending_program_group_string(self):
-        user_email = 'test_pending_program_group@example.com'
-        pending_user_group = PendingUserGroup.objects.create(
-            user_email=user_email,
-            group=self.program_group,
-        )
-        pending_user_group_string = str(pending_user_group)
-        self.assertIn('PendingUserGroup', pending_user_group_string)
-        self.assertIn(user_email, pending_user_group_string)
-        self.assertIn(self.program.managing_organization.name, pending_user_group_string)
-        self.assertIn(self.program.key, pending_user_group_string)
-        self.assertIn(self.program_group.role, pending_user_group_string)
-
-    def test_pending_generic_group_string(self):
-        user_email = 'test_pending_generic_group@example.com'
-        pending_user_group = PendingUserGroup.objects.create(
-            user_email=user_email,
-            group=self.generic_group,
-        )
-        pending_user_group_string = str(pending_user_group)
-        self.assertIn('PendingUserGroup', pending_user_group_string)
-        self.assertIn(user_email, pending_user_group_string)
-        self.assertIn(self.generic_group.name, pending_user_group_string)
+        assert instance.__class__.__name__ in actual_repr
+        assert expected_repr_snippet in actual_repr
+        assert expected_str_snippet in actual_str
