@@ -1,5 +1,5 @@
 """
-Test for common data functions
+Tests for core proxy models.
 """
 
 from posixpath import join as urljoin

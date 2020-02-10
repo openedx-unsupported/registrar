@@ -1113,22 +1113,20 @@ class ProgramEnrollmentWriteMixin(object):
         self.assertEqual(response.status_code, 413)
 
     @mock_oauth_login
-    @responses.activate
-    def test_discovery_404(self):
+    @patch_discovery_data({})
+    def test_discovery_data_fetch_failed(self):
         req_data = [
             self.student_enrollment('enrolled', '001'),
         ]
-        mock_response = mock.Mock()
-        mock_response.status_code = 404
-        error = requests.exceptions.HTTPError(response=mock_response)
-        with mock.patch('registrar.apps.core.data._make_request', side_effect=error):
-            response = self.request(
-                self.method,
-                'programs/masters-in-cs/enrollments/',
-                self.stem_admin,
-                req_data,
-            )
-        self.assertEqual(422, response.status_code)
+        response = self.request(
+            self.method,
+            'programs/masters-in-cs/enrollments/',
+            self.stem_admin,
+            req_data,
+        )
+        # We expect a 403 because enrollments are disabled by default if we can't
+        # reach Discovery to check.
+        self.assertEqual(403, response.status_code)
 
 
 class ProgramEnrollmentPostTests(ProgramEnrollmentWriteMixin, RegistrarAPITestCase, AuthRequestMixin):

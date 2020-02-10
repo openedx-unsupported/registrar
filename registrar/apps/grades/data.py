@@ -13,7 +13,7 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.core.data import _get_all_paginated_responses
+from registrar.apps.core.rest_utils import get_all_paginated_responses
 
 from .serializers import CourseGradeSerializer
 
@@ -40,7 +40,7 @@ def get_course_run_grades(program_uuid, internal_course_key, client=None):
     """
     url = _lms_course_run_grades_url(program_uuid, internal_course_key)
     try:
-        responses = _get_all_paginated_responses(url, client, expected_error_codes={HTTP_422_UNPROCESSABLE_ENTITY})
+        responses = get_all_paginated_responses(url, client, expected_error_codes={HTTP_422_UNPROCESSABLE_ENTITY})
     except json.JSONDecodeError as e:
         raise ValidationError(e)
 
