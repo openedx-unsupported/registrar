@@ -4,8 +4,8 @@ import logging
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.models import Organization, Program
+from registrar.apps.core.proxies import DiscoveryProgram
 
 
 logger = logging.getLogger(__name__)

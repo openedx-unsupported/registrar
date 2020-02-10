@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 
-from ..data import DISCOVERY_PROGRAM_API_TPL, DiscoveryProgram
+from ..proxies import DISCOVERY_PROGRAM_API_TPL, DiscoveryProgram
 from .factories import DiscoveryProgramFactory
 from .utils import mock_oauth_login, patch_discovery_data
 

@@ -5,8 +5,8 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from mock import patch
 
-from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.models import Program
+from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
     ProgramFactory,

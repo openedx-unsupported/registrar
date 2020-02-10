@@ -7,7 +7,7 @@ in question should be moved to versioned sub-package.
 from rest_framework import serializers
 from user_tasks.models import UserTaskStatus
 
-from registrar.apps.core.data import DiscoveryProgram
+from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.utils import get_user_api_permissions
 from registrar.apps.enrollments.constants import (
     COURSE_ENROLLMENT_STATUSES,

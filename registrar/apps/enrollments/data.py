@@ -14,7 +14,7 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.core.data import DiscoveryProgram
+from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.rest_utils import (
     do_batched_lms_write,
     get_all_paginated_results,

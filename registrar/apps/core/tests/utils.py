@@ -7,7 +7,7 @@ import responses
 from django.conf import settings
 from mock import patch
 
-from ..data import DiscoveryProgram
+from ..proxies import DiscoveryProgram
 
 
 def mock_oauth_login(fn):
