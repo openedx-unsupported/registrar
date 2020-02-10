@@ -14,8 +14,8 @@ from mock import patch
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
+from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.tests.mixins import (
     BaseTaskTestMixin,
     S3MockEnvVarsMixin,

@@ -22,7 +22,6 @@ from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
 from registrar.apps.core import permissions as perms
-from registrar.apps.core.data import DiscoveryProgram
 from registrar.apps.core.filestore import get_program_reports_filestore
 from registrar.apps.core.jobs import (
     get_job_status,
@@ -30,6 +29,7 @@ from registrar.apps.core.jobs import (
 )
 from registrar.apps.core.models import Organization
 from registrar.apps.core.permissions import APIReadMetadataPermission
+from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.utils import (
     get_user_api_permissions,
     load_records_from_uploaded_csv,

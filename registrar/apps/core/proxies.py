@@ -1,5 +1,5 @@
 """
-Module for syncing data with external services.
+Proxies that wrap Django models and enrich their functionality.
 """
 import logging
 from collections import namedtuple
