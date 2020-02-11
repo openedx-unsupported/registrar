@@ -178,6 +178,9 @@ class DiscoveryProgram(Program):
         Return whether enrollment is enabled for this program.
 
         Falls back to False if required data unavailable.
+
+        Currently, enrollment is enabled if and only if the program is a Master's
+        degree. This may change in the future.
         """
         return self.program_type == 'Masters'
 
