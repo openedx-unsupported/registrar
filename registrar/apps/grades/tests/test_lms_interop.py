@@ -11,7 +11,10 @@ from rest_framework.exceptions import ValidationError
 
 from registrar.apps.core.tests.utils import mock_oauth_login
 
-from ..data import LMS_PROGRAM_COURSE_GRADES_API_TPL, get_course_run_grades
+from ..lms_interop import (
+    LMS_PROGRAM_COURSE_GRADES_API_TPL,
+    get_course_run_grades,
+)
 
 
 @ddt.ddt

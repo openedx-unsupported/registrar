@@ -1,7 +1,7 @@
 """
-Tests for enrollments/data.py
+Tests for enrollments/lms_interop.py
 
-Much of data.py is not tested in this file because it is already implicitly
+Much of lms_interop.py is not tested in this file because it is already implicitly
 tested by our view tests.
 """
 
@@ -23,14 +23,17 @@ from registrar.apps.core.tests.utils import (
     patch_discovery_data,
 )
 
-from ..data import (
+from ..lms_interop import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
     LMS_PROGRAM_ENROLLMENTS_API_TPL,
     get_course_run_enrollments,
     get_program_enrollments,
 )
-from ..data import logger as data_logger
-from ..data import write_course_run_enrollments, write_program_enrollments
+from ..lms_interop import logger as data_logger
+from ..lms_interop import (
+    write_course_run_enrollments,
+    write_program_enrollments,
+)
 
 
 class GetEnrollmentsTestMixin(object):
@@ -200,7 +203,7 @@ class WriteEnrollmentsTestMixin(object):
     curriculum_uuid = None
     course_key = None
 
-    max_write_const = 'registrar.apps.enrollments.data.LMS_ENROLLMENT_WRITE_MAX_SIZE'
+    max_write_const = 'registrar.apps.enrollments.lms_interop.LMS_ENROLLMENT_WRITE_MAX_SIZE'
 
     # The stautses here are purposely nonsensical
     # because the write_enrollment functions don't do any

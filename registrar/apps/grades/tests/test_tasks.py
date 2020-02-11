@@ -16,7 +16,7 @@ from ..tasks import get_course_run_grades
 @patch_discovery_data({})
 class GetCourseRunGradesTest(BaseTaskTestMixin, TestCase):
     """ Error behavior tests for get_course_run_grades"""
-    mock_base = 'registrar.apps.grades.data.'
+    mock_base = 'registrar.apps.grades.lms_interop.'
     mock_function = 'get_course_run_grades'
     internal_course_key = 'course-v1:edX+Test101+F19'
 
