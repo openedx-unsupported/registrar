@@ -15,7 +15,7 @@ from registrar.apps.core.jobs import post_job_failure, post_job_success
 from registrar.apps.core.tasks import get_program
 from registrar.apps.core.utils import serialize_to_csv
 
-from . import data
+from . import lms_interop as lms
 from .constants import ENROLLMENT_ERROR_COURSE_NOT_FOUND, EnrollmentWriteStatus
 from .serializers import (
     serialize_course_run_enrollments_to_csv,
@@ -61,7 +61,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
         return None
 
     try:
-        enrollments = data.get_program_enrollments(program.discovery_uuid)
+        enrollments = lms.get_program_enrollments(program.discovery_uuid)
     except HTTPError as err:
         post_job_failure(
             job_id,
@@ -104,7 +104,7 @@ def list_course_run_enrollments(
         return None
 
     try:
-        enrollments = data.get_course_run_enrollments(
+        enrollments = lms.get_course_run_enrollments(
             program.discovery_uuid,
             internal_course_key,
             external_course_key,
@@ -145,7 +145,7 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
     results = []
     for course_run in program.course_runs:
         try:
-            enrollments = data.get_course_run_enrollments(
+            enrollments = lms.get_course_run_enrollments(
                 program.discovery_uuid,
                 course_run.key,
                 course_run.external_key,
@@ -213,7 +213,7 @@ def write_program_enrollments(
     if requests is None:
         return
 
-    any_successes, any_failures, response_json = data.write_program_enrollments(
+    any_successes, any_failures, response_json = lms.write_program_enrollments(
         'PUT', program.discovery_uuid, requests
     )
 
@@ -270,7 +270,7 @@ def write_course_run_enrollments(
         internal_course_key = program.get_course_key(requested_course_key)
 
         if internal_course_key:
-            successes_in_course, failures_in_course, status_by_student_key = data.write_course_run_enrollments(
+            successes_in_course, failures_in_course, status_by_student_key = lms.write_course_run_enrollments(
                 'PUT', program.discovery_uuid, internal_course_key, course_requests
             )
             course_responses.extend([

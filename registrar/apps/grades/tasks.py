@@ -9,7 +9,7 @@ from user_tasks.tasks import UserTask
 from registrar.apps.core.jobs import post_job_failure, post_job_success
 from registrar.apps.core.tasks import get_program
 
-from . import data
+from . import lms_interop as lms
 from .constants import GradeReadStatus
 from .serializers import serialize_course_run_grades_to_csv
 
@@ -25,7 +25,7 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
     if not program:
         return
     try:
-        any_successes, any_failures, grades = data.get_course_run_grades(
+        any_successes, any_failures, grades = lms.get_course_run_grades(
             program.discovery_uuid,
             internal_course_key,
         )

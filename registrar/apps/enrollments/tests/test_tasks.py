@@ -67,7 +67,7 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
 
     @ddt.data(500, 404)
     def test_http_error(self, status_code):
-        with patch.object(tasks.data, self.mocked_get_enrollments_method) as mock_get_enrollments:
+        with patch.object(tasks.lms, self.mocked_get_enrollments_method) as mock_get_enrollments:
             error = HTTPError(request=FakeRequest('registrar.edx.org'), response=FakeResponse(status_code))
             mock_get_enrollments.side_effect = error
             task = self.spawn_task()
@@ -76,14 +76,14 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
         self.assert_failed(expected_msg)
 
     def test_invalid_data(self):
-        with patch.object(tasks.data, self.mocked_get_enrollments_method) as mock_get_enrollments:
+        with patch.object(tasks.lms, self.mocked_get_enrollments_method) as mock_get_enrollments:
             mock_get_enrollments.side_effect = ValidationError()
             task = self.spawn_task()
             task.wait()
         self.assert_failed("Invalid enrollment data from LMS")
 
     def test_invalid_format(self):
-        with patch.object(tasks.data, self.mocked_get_enrollments_method) as mock_get_enrollments:
+        with patch.object(tasks.lms, self.mocked_get_enrollments_method) as mock_get_enrollments:
             mock_get_enrollments.return_value = self.enrollment_data
             exception_raised = False
             try:
@@ -229,7 +229,7 @@ class WriteEnrollmentTaskTestMixin(BaseTaskTestMixin, S3MockEnvVarsMixin):
     def test_empty_list_file(self):
         uploads_filestore.store(self.json_filepath, "[]")
         with patch.object(
-                tasks.data,
+                tasks.lms,
                 self.mock_function,
                 new=self.mock_write_enrollments(False, False),
         ):
@@ -305,7 +305,7 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with patch.object(
-                tasks.data,
+                tasks.lms,
                 self.mock_function,
                 new=self.mock_write_enrollments(any_successes, any_failures),
         ):
@@ -374,7 +374,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with patch.object(
-                tasks.data,
+                tasks.lms,
                 self.mock_function,
                 new=self.mock_write_enrollments(any_successes, any_failures),
         ):
@@ -399,7 +399,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         ]
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with patch.object(
-                tasks.data,
+                tasks.lms,
                 self.mock_function,
                 new=self.mock_write_enrollments(True, False),
         ):

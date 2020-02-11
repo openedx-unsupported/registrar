@@ -24,7 +24,7 @@ from registrar.apps.core import permissions as perms
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import start_job
 from registrar.apps.core.proxies import DiscoveryProgram
-from registrar.apps.enrollments.data import (
+from registrar.apps.enrollments.lms_interop import (
     write_course_run_enrollments,
     write_program_enrollments,
 )

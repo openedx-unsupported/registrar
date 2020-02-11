@@ -56,9 +56,10 @@ from registrar.apps.core.tests.utils import (
     patch_discovery_data,
 )
 from registrar.apps.core.utils import serialize_to_csv
-from registrar.apps.enrollments.data import (
+from registrar.apps.enrollments.lms_interop import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
 )
+from registrar.apps.enrollments.tasks import lms
 from registrar.apps.grades.constants import GradeReadStatus
 
 from ..views import CourseRunEnrollmentUploadView, ProgramEnrollmentUploadView
@@ -1165,10 +1166,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         "efgh,pending,False\r\n"
     )
 
-    @mock.patch(
-        'registrar.apps.enrollments.tasks.data.get_program_enrollments',
-        return_value=enrollments,
-    )
+    @mock.patch.object(lms, 'get_program_enrollments', return_value=enrollments)
     @ddt.data(
         (None, 'json', enrollments_json),
         ('json', 'json', enrollments_json),
@@ -1282,10 +1280,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
     )
 
     @patch_discovery_data(disco_program_data)
-    @mock.patch(
-        'registrar.apps.enrollments.tasks.data.get_course_run_enrollments',
-        return_value=enrollments,
-    )
+    @mock.patch.object(lms, 'get_course_run_enrollments', return_value=enrollments)
     @ddt.data(
         (None, 'json', enrollments_json),
         ('json', 'json', enrollments_json),
@@ -2220,9 +2215,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
         return self.enrollments_by_key.get(internal_course_key)
 
     @patch_discovery_data(disco_program_data)
-    @mock.patch(
-        'registrar.apps.enrollments.tasks.data.get_course_run_enrollments',
-    )
+    @mock.patch.object(lms, 'get_course_run_enrollments')
     @ddt.data(
         (None, 'json', enrollments_json),
         ('json', 'json', enrollments_json),
@@ -2337,7 +2330,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
 
     @patch_discovery_data(disco_program_data)
     @mock.patch(
-        'registrar.apps.grades.data.get_course_run_grades',
+        'registrar.apps.grades.lms_interop.get_course_run_grades',
         return_value=(True, False, grades),
     )
     @ddt.data(
@@ -2375,7 +2368,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(file_response.text, expected_contents)
 
     @patch_discovery_data(disco_program_data)
-    @mock.patch('registrar.apps.grades.data.get_course_run_grades')
+    @mock.patch('registrar.apps.grades.lms_interop.get_course_run_grades')
     @ddt.data(
         (True, True, GradeReadStatus.MULTI_STATUS.value),
         (True, False, GradeReadStatus.OK.value),

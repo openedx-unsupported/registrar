@@ -1,5 +1,5 @@
 """
-Module for syncing data with external services.
+Module for reading and writing data from LMS.
 """
 import json
 from posixpath import join as urljoin
