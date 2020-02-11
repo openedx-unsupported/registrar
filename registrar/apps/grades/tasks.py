@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from user_tasks.tasks import UserTask
 
 from registrar.apps.core.jobs import post_job_failure, post_job_success
-from registrar.apps.core.tasks import _get_program
+from registrar.apps.core.tasks import get_program
 
 from . import data
 from .constants import GradeReadStatus
@@ -21,7 +21,7 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
     A user task that reads course run grade data from the LMS, and writes it to
     a JSON- or CSV-formatted result file.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return
     try:
