@@ -1,5 +1,6 @@
 """
 This module contains common celery task definitions
+as well as shared utility functions to be used in tasks.
 """
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -31,7 +32,7 @@ def debug_user_task(self, user_id, text):
     UserTaskArtifact.objects.create(status=self.status, text=text)
 
 
-def _get_program(job_id, program_key):
+def get_program(job_id, program_key):
     """
     Load a Program by key. Fails job and returns None if key invalid.
     """

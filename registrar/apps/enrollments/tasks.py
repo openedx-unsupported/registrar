@@ -12,7 +12,7 @@ from user_tasks.tasks import UserTask
 
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import post_job_failure, post_job_success
-from registrar.apps.core.tasks import _get_program
+from registrar.apps.core.tasks import get_program
 from registrar.apps.core.utils import serialize_to_csv
 
 from . import data
@@ -56,7 +56,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
     A user task for retrieving program enrollments from LMS.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return None
 
@@ -99,7 +99,7 @@ def list_course_run_enrollments(
     """
     A user task for retrieving program course run enrollments from LMS.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return None
 
@@ -138,7 +138,7 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
     """
     A user task for retrieving all course enrollments within a given program from LMS.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return None
 
@@ -205,7 +205,7 @@ def write_program_enrollments(
     A user task that reads program enrollment requests from json_filepath,
     writes them to the LMS, and stores a CSV-formatted results file.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return
 
@@ -245,7 +245,7 @@ def write_course_run_enrollments(
     A user task that reads course run enrollment requests from json_filepath,
     writes them to the LMS, and stores a CSV-formatted results file.
     """
-    program = _get_program(job_id, program_key)
+    program = get_program(job_id, program_key)
     if not program:
         return
 
