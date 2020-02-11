@@ -13,7 +13,7 @@ from django.test import TestCase
 
 from ..proxies import DISCOVERY_PROGRAM_API_TPL, DiscoveryProgram
 from .factories import DiscoveryProgramFactory
-from .utils import mock_oauth_login, patch_discovery_data
+from .utils import mock_oauth_login, patch_discovery_program_details
 
 
 def make_course_run(n, with_external_key=False):
@@ -52,7 +52,7 @@ class DiscoveryProgramTestCase(TestCase):
 
     make_course_run = make_course_run
 
-    program_data = {
+    program_details = {
         'title': "Master's in CS",
         'marketing_url': "https://stem.edx.org/masters-in-cs",
         'type': "Masters",
@@ -103,34 +103,34 @@ class DiscoveryProgramTestCase(TestCase):
     @mock_oauth_login
     @responses.activate
     @ddt.data(
-        (200, program_data, program_data),
+        (200, program_details, program_details),
         (200, {}, {}),
         (200, 'this is a string, but it should be a dict', {}),
         (404, {'message': 'program not found'}, {}),
         (500, {'message': 'everything is broken'}, {}),
     )
     @ddt.unpack
-    def test_discovery_program_get(self, disco_status, disco_data, expected_data):
+    def test_discovery_program_get(self, disco_status, disco_json, expected_details):
         responses.add(
             responses.GET,
             self.discovery_url,
             status=disco_status,
-            json=disco_data,
+            json=disco_json,
         )
         loaded_program = self.get_program()
         assert isinstance(loaded_program, DiscoveryProgram)
         assert loaded_program.discovery_uuid == self.program_uuid
-        assert loaded_program.discovery_data == expected_data
+        assert loaded_program.discovery_details == expected_details
         self.assertEqual(len(responses.calls), 2)
 
         # This should used the cached Discovery response.
         reloaded_program = self.get_program()
         assert isinstance(reloaded_program, DiscoveryProgram)
         assert reloaded_program.discovery_uuid == self.program_uuid
-        assert reloaded_program.discovery_data == expected_data
+        assert reloaded_program.discovery_details == expected_details
         self.assertEqual(len(responses.calls), 2)
 
-    @patch_discovery_data(program_data)
+    @patch_discovery_program_details(program_details)
     def test_active_curriculum(self):
         program = self.get_program()
         assert program.active_curriculum_uuid == self.active_curriculum_uuid
@@ -138,13 +138,13 @@ class DiscoveryProgramTestCase(TestCase):
         assert program.course_runs[0].title == "Test Course 1"
         assert program.course_runs[-1].title is None
 
-    @patch_discovery_data({})
+    @patch_discovery_program_details({})
     def test_no_active_curriculum(self):
         program = self.get_program()
         assert program.active_curriculum_uuid is None
         assert not program.course_runs
 
-    @patch_discovery_data(program_data)
+    @patch_discovery_program_details(program_details)
     @ddt.data(
         # Non-existent course run.
         ('non-existent', None, None),

@@ -26,7 +26,7 @@ DiscoveryCourseRun = namedtuple(
 
 class DiscoveryProgram(Program):
     """
-    Proxy to Program model that is enriched with data available from Discovery service.
+    Proxy to Program model that is enriched with details available from Discovery service.
 
     Data from Discovery is cached for `PROGRAM_CACHE_TIMEOUT` seconds.
     If Discovery data cannot be loaded, we fall back to default values.
@@ -35,9 +35,9 @@ class DiscoveryProgram(Program):
         DiscoveryProgram.objects.get(discovery_uuid=YOUR_UUID)
 
     Or, if you just want the raw JSON instead of a model instance:
-        DiscoveryProgram.get_program_data(YOUR_UUID)
+        DiscoveryProgram.get_program_details(YOUR_UUID)
 
-    To patch Discovery-data-loading in tests, patch `get_program_data`.
+    To patch Discovery-data-loading in tests, patch `get_program_details`.
     """
     class Meta(object):
         # Guarantees that a table will not be created for this proxy model.
@@ -54,11 +54,11 @@ class DiscoveryProgram(Program):
         Overrides `Model.from_db`.
         """
         instance = super().from_db(db, field_names, values)
-        cls.get_program_data(instance.discovery_uuid)  # pylint: disable=no-member
+        cls.get_program_details(instance.discovery_uuid)  # pylint: disable=no-member
         return instance
 
     @classmethod
-    def get_program_data(cls, program_uuid):
+    def get_program_details(cls, program_uuid):
         """
         Get a JSON representation of a program from the Discovery service.
 
@@ -87,17 +87,17 @@ class DiscoveryProgram(Program):
         # Note that "not-found-in-discovery" is purposefully cached as `{}`,
         # whereas `cache.get(key)` will return `None` if the key is not in the
         # cache.
-        program_data = cache.get(key)
-        if not isinstance(program_data, dict):
-            program_data = cls._fetch_discovery_program_data(program_uuid)
-            cache_value = program_data if isinstance(program_data, dict) else {}
+        program_details = cache.get(key)
+        if not isinstance(program_details, dict):
+            program_details = cls._fetch_discovery_program_details(program_uuid)
+            cache_value = program_details if isinstance(program_details, dict) else {}
             cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
-        return program_data
+        return program_details
 
     @classmethod
-    def clear_cached_program_data(cls, program_uuids):
+    def clear_cached_program_details(cls, program_uuids):
         """
-        Clear any data from Discovery that we have cached for the given programs.
+        Clear any details from Discovery that we have cached for the given programs.
 
         Arguments:
             program_uuids (Iterable[str|UUID])
@@ -109,7 +109,7 @@ class DiscoveryProgram(Program):
         cache.delete_many(cache_keys_to_delete)
 
     @staticmethod
-    def _fetch_discovery_program_data(program_uuid):
+    def _fetch_discovery_program_details(program_uuid):
         """
         Fetch a JSON representation of a program from the Discovery service.
 
@@ -135,15 +135,16 @@ class DiscoveryProgram(Program):
             return None
 
     @property
-    def discovery_data(self):
+    def discovery_details(self):
         """
-        Get cached program data from Discovery.
+        Get cached program details from Discovery.
 
-        Returns empty dict if data was not available in Discovery.
+        Returns empty dict if details could not be loaded from Discovery
+        due to a 404 response or some other issue.
 
-        Returns: dict
+        Returns: JSON dict
         """
-        return self.get_program_data(self.discovery_uuid)
+        return self.get_program_details(self.discovery_uuid)
 
     @property
     def title(self):
@@ -152,7 +153,7 @@ class DiscoveryProgram(Program):
 
         Falls back to program key if unavailable.
         """
-        return self.discovery_data.get('title', self.key)
+        return self.discovery_details.get('title', self.key)
 
     @property
     def url(self):
@@ -161,7 +162,7 @@ class DiscoveryProgram(Program):
 
         Falls back to None if unavailable.
         """
-        return self.discovery_data.get('marketing_url')
+        return self.discovery_details.get('marketing_url')
 
     @property
     def program_type(self):
@@ -170,7 +171,7 @@ class DiscoveryProgram(Program):
 
         Falls back to None if unavailable.
         """
-        return self.discovery_data.get('type')
+        return self.discovery_details.get('type')
 
     @property
     def is_enrollment_enabled(self):
@@ -185,9 +186,9 @@ class DiscoveryProgram(Program):
         return self.program_type == 'Masters'
 
     @property
-    def active_curriculum_data(self):
+    def active_curriculum_details(self):
         """
-        Return dict containing data for active curriculum.
+        Return dict containing details for active curriculum.
 
         TODO:
         We define 'active' curriculum as the first one in the list of
@@ -200,7 +201,7 @@ class DiscoveryProgram(Program):
         """
         try:
             return next(
-                c for c in self.discovery_data.get('curricula', [])
+                c for c in self.discovery_details.get('curricula', [])
                 if c.get('is_active')
             )
         except StopIteration:
@@ -216,10 +217,10 @@ class DiscoveryProgram(Program):
         """
         Get UUID string of active curriculum, or None if no active curriculum.
 
-        See `active_curriculum_data` docstring for more details.
+        See `active_curriculum_details` docstring for more details.
         """
         try:
-            return UUID(self.active_curriculum_data.get('uuid'))
+            return UUID(self.active_curriculum_details.get('uuid'))
         except (TypeError, ValueError):
             return None
 
@@ -234,7 +235,7 @@ class DiscoveryProgram(Program):
         We expect that this will need revisiting eventually,
         as future programs may have more than one curriculum.
 
-        Also see `active_curriculum_data` docstring details on how the 'active'
+        Also see `active_curriculum_details` docstring details on how the 'active'
         curriculum is determined.
 
         Falls back to empty list if no active curriculum or if data unavailable.
@@ -246,7 +247,7 @@ class DiscoveryProgram(Program):
                 title=course_run.get("title"),
                 marketing_url=course_run.get("marketing_url"),
             )
-            for course in self.active_curriculum_data.get("courses", [])
+            for course in self.active_curriculum_details.get("courses", [])
             for course_run in course.get("course_runs", [])
         ]
 

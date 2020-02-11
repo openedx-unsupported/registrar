@@ -28,12 +28,12 @@ class Command(BaseCommand):
     def handle(self, uuidkeys, *args, **options):
         uuidkeys = self.parse_uuidkeys(uuidkeys)
         for uuidkey in uuidkeys:
-            discovery_dict = DiscoveryProgram.get_program_data(uuidkey[0])
-            if not discovery_dict:
+            discovery_details = DiscoveryProgram.get_program_details(uuidkey[0])
+            if not discovery_details:
                 raise CommandError('Could not read program from course-discovery; aborting')
-            authoring_orgs = self.get_authoring_org_keys(discovery_dict)
+            authoring_orgs = self.get_authoring_org_keys(discovery_details)
             org = self.get_org(authoring_orgs)
-            self.create_or_modify_program(org, discovery_dict, *uuidkey)
+            self.create_or_modify_program(org, discovery_details, *uuidkey)
 
     def parse_uuidkeys(self, uuidkeys):
         result = []
@@ -49,17 +49,19 @@ class Command(BaseCommand):
                 raise CommandError(message)
         return result
 
-    def get_authoring_org_keys(self, program_dict):
+    def get_authoring_org_keys(self, program_details):
         """
         Return a list of authoring_organization keys
         """
         org_keys = []
-        authoring_orgs = program_dict.get('authoring_organizations', [])
+        authoring_orgs = program_details.get('authoring_organizations', [])
         for authoring_org in authoring_orgs:
             if 'key' in authoring_org:
                 org_keys.append(authoring_org['key'])
         if not org_keys:
-            raise CommandError('No authoring org keys found for program {}'.format(program_dict.get('uuid')))
+            raise CommandError('No authoring org keys found for program {}'.format(
+                program_details.get('uuid'))
+            )
         logger.info('Authoring Organizations are {}'.format(org_keys))
         return org_keys
 
@@ -77,12 +79,12 @@ class Command(BaseCommand):
                 logger.info('Org {} not found in registrar'.format(org_key))
         raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
 
-    def create_or_modify_program(self, org, program_dict, program_uuid, program_key):
+    def create_or_modify_program(self, org, program_details, program_uuid, program_key):
         program, created = Program.objects.get_or_create(
             discovery_uuid=program_uuid,
             defaults={
                 'managing_organization': org,
-                'key': program_key or program_dict.get('marketing_slug'),
+                'key': program_key or program_details.get('marketing_slug'),
             },
         )
         if (not created) and program_key and (program.key != program_key):

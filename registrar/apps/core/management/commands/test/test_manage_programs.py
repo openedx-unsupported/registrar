@@ -21,7 +21,7 @@ class TestManagePrograms(TestCase):
 
     def setUp(self):
         super().setUp()
-        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'get_program_data')
+        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'get_program_details')
         self.mock_get_discovery_program = discoveryprogram_patcher.start()
         self.addCleanup(discoveryprogram_patcher.stop)
 
