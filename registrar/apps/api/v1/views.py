@@ -31,7 +31,7 @@ from registrar.apps.core.models import Organization
 from registrar.apps.core.permissions import APIReadMetadataPermission
 from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.utils import (
-    get_user_api_permissions,
+    get_user_api_permissions_for_program,
     load_records_from_uploaded_csv,
 )
 from registrar.apps.enrollments.tasks import (
@@ -44,11 +44,7 @@ from registrar.apps.enrollments.tasks import (
 from registrar.apps.enrollments.utils import is_enrollment_write_blocked
 from registrar.apps.grades.tasks import get_course_run_grades
 
-from ..constants import (
-    ENROLLMENT_PERMISSIONS_LIST,
-    LEGACY_PERMISSION_QUERY_PARAMS,
-    UPLOAD_FILE_MAX_SIZE,
-)
+from ..constants import LEGACY_PERMISSION_QUERY_PARAMS, UPLOAD_FILE_MAX_SIZE
 from ..exceptions import FileTooLarge
 from ..mixins import TrackViewMixin
 from ..serializers import (
@@ -95,27 +91,18 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     def get_queryset(self):
         programs = DiscoveryProgram.objects.all()
         user = self.request.user
-
         if self.organization_filter:
             programs = programs.filter(
                 managing_organization=self.organization_filter
             )
-
         if self.permission_filter:
             required_permission = self.permission_filter
         else:
             required_permission = APIReadMetadataPermission
-
         programs = (
             program for program in programs
-            if required_permission in get_user_api_permissions(user, program).union(
-                get_user_api_permissions(user, program.managing_organization)
-            )
+            if required_permission in get_user_api_permissions_for_program(user, program)
         )
-        # Filter out programs with enrollments disabled if the user requested
-        # permission filter to operate on enrollments
-        if self.permission_filter in ENROLLMENT_PERMISSIONS_LIST:
-            programs = [program for program in programs if program.is_enrollment_enabled]
         return programs
 
     def get_required_permissions(self, _request):

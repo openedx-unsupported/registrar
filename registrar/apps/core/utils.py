@@ -6,7 +6,7 @@ from guardian.shortcuts import get_perms
 from rest_framework.exceptions import ValidationError
 
 from .models import OrganizationGroup
-from .permissions import DB_TO_API_PERMISSION_MAPPING
+from .permissions import DB_TO_API_PERMISSION_MAPPING, ENROLLMENT_PERMISSIONS
 
 
 def get_user_organizations(user):
@@ -26,12 +26,36 @@ def get_user_organizations(user):
     return user_organizations
 
 
+def get_user_api_permissions_for_program(user, program):
+    """
+    Returns a set of all APIPermissions granted to the user on a
+    Program @@TODO
+
+    Arguments:
+        program (Program)
+
+    Returns: set[APIPermission]
+    """
+    perms_on_program = get_user_api_permissions(user, program)
+    perms_on_org = get_user_api_permissions(user, program.managing_organization)
+    perms_to_remove = (
+        set() if program.is_enrollment_enabled
+        else ENROLLMENT_PERMISSIONS
+    )
+    return perms_on_program & perms_on_org - perms_to_remove
+
+
 def get_user_api_permissions(user, obj=None):
     """
     Returns a set of all APIPermissions granted to the user on a
     provided object instance. This includes permissions granted though a
     global permission or role. If no object is passed only global permissions
     will be returned.
+
+    Arguments:
+        organization (Organization)
+
+    Returns: set[APIPermission]
     """
     user_object_permissions = get_perms(user, obj) if obj is not None else []
     user_global_permissions = list(user.get_all_permissions())

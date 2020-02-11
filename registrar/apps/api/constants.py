@@ -15,8 +15,3 @@ LEGACY_PERMISSION_QUERY_PARAMS = {
     'read': perms.APIReadEnrollmentsPermission,
     'write': perms.APIWriteEnrollmentsPermission,
 }
-
-ENROLLMENT_PERMISSIONS_LIST = [
-    perms.APIReadEnrollmentsPermission,
-    perms.APIWriteEnrollmentsPermission,
-]

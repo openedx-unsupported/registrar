@@ -282,3 +282,8 @@ def _build_db_to_api_permissions():
 
 
 DB_TO_API_PERMISSION_MAPPING = _build_db_to_api_permissions()
+
+ENROLLMENT_PERMISSIONS = {
+    APIReadEnrollmentsPermission,
+    APIWriteEnrollmentsPermission,
+}
