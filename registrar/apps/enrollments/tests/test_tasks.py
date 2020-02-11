@@ -20,7 +20,7 @@ from registrar.apps.core.tests.mixins import (
     BaseTaskTestMixin,
     S3MockEnvVarsMixin,
 )
-from registrar.apps.core.tests.utils import patch_discovery_data
+from registrar.apps.core.tests.utils import patch_discovery_program_details
 
 from .. import tasks
 from ..constants import (
@@ -95,7 +95,7 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
         self.assertTrue(exception_raised)
 
 
-@patch_discovery_data({})
+@patch_discovery_program_details({})
 class ListProgramEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
     """ Tests for task error behavior. """
     enrollment_statuses = (
@@ -116,7 +116,7 @@ class ListProgramEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
         )
 
 
-@patch_discovery_data({})
+@patch_discovery_program_details({})
 class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
     """ Tests for task error behavior. """
     enrollment_statuses = (
@@ -147,7 +147,7 @@ class ListCourseRunEnrollmentTaskTests(ListEnrollmentTaskTestMixin, TestCase):
         )
 
 
-@patch_discovery_data({
+@patch_discovery_program_details({
     'curricula': [{
         'is_active': True,
         'courses': [{
@@ -255,7 +255,7 @@ class WriteEnrollmentTaskTestMixin(BaseTaskTestMixin, S3MockEnvVarsMixin):
 
 
 @ddt.ddt
-@patch_discovery_data({})
+@patch_discovery_program_details({})
 class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     """
     Tests for write_program_enrollments task.
@@ -320,7 +320,7 @@ class WriteProgramEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
 
 
 @ddt.ddt
-@patch_discovery_data({})
+@patch_discovery_program_details({})
 class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     """
     Tests for write_course_run_enrollments task.
@@ -390,7 +390,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     @patch.object(
         DiscoveryProgram, 'get_course_key', {'course-1': 'course-1-internal'}.get
     )
-    @patch_discovery_data({})
+    @patch_discovery_program_details({})
     def test_success_invalid_course_id(self):
         enrolls = [
             {'student_key': 'john', 'status': 'x', 'course_id': 'course-1'},

@@ -48,5 +48,5 @@ class FlushProgramCacheView(AuthMixin, APIView):
             program_uuids = list(
                 Program.objects.values_list('discovery_uuid', flat=True)
             )
-        DiscoveryProgram.clear_cached_program_data(program_uuids)
+        DiscoveryProgram.clear_cached_program_details(program_uuids)
         return Response(status=HTTP_204_NO_CONTENT)

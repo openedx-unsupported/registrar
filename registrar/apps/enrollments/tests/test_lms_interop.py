@@ -20,7 +20,7 @@ from rest_framework.exceptions import ValidationError
 from registrar.apps.core.tests.factories import ProgramFactory
 from registrar.apps.core.tests.utils import (
     mock_oauth_login,
-    patch_discovery_data,
+    patch_discovery_program_details,
 )
 
 from ..lms_interop import (
@@ -358,7 +358,7 @@ class WriteProgramEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
         )
 
     def write_enrollments(self, enrollments):
-        mock_disco_program_data = {
+        mock_program_details = {
             'curricula': [
                 {
                     'is_active': True,
@@ -366,7 +366,7 @@ class WriteProgramEnrollmentsTests(WriteEnrollmentsTestMixin, TestCase):
                 },
             ],
         }
-        with patch_discovery_data(mock_disco_program_data):
+        with patch_discovery_program_details(mock_program_details):
             return write_program_enrollments('POST', self.program_uuid, enrollments)
 
 

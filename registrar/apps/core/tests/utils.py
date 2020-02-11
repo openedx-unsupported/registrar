@@ -27,12 +27,13 @@ def mock_oauth_login(fn):
     return inner
 
 
-def patch_discovery_data(disco_program_data):
+def patch_discovery_program_details(mock_program_details):
     """
-    Return a decorator that mocks the return value of DiscoveryProgram.discovery_data.
+    Return a decorator that mocks `DiscoveryProgram.get_program_details` to ignore its
+    arguments and always return `mock_program_details`.
     """
     return patch.object(
         DiscoveryProgram,
-        'get_program_data',
-        lambda *_, **__: disco_program_data,
+        'get_program_details',
+        lambda *_args, **_kwargs: mock_program_details,
     )

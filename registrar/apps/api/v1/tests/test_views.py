@@ -53,7 +53,7 @@ from registrar.apps.core.tests.freezegun_wrapper import freeze_time
 from registrar.apps.core.tests.mixins import S3MockEnvVarsMixin
 from registrar.apps.core.tests.utils import (
     mock_oauth_login,
-    patch_discovery_data,
+    patch_discovery_program_details,
 )
 from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.lms_interop import (
@@ -193,13 +193,13 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
         url = url or cls.TEST_PROGRAM_URL_TPL.format(key=program.key)
         curricula = curricula or []
         cache_key = PROGRAM_CACHE_KEY_TPL.format(uuid=program.discovery_uuid)
-        disco_program_data = {
+        mock_program_details = {
             "title": title,
             "marketing_url": url,
             "type": program_type,
             "curricula": curricula,
         }
-        cache.set(cache_key, disco_program_data)
+        cache.set(cache_key, mock_program_details)
 
 
 class S3MockMixin(S3MockEnvVarsMixin):
@@ -678,7 +678,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_courses(self, is_staff):
         user = self.edx_admin if is_staff else self.hum_admin
 
-        disco_program_data = {
+        mock_program_details = {
             "title": self.program_title,
             "marketing_url": self.program_url,
             "type": self.program_type,
@@ -705,7 +705,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         }
 
         with self.assert_tracking(user=user, program_key='masters-in-english'):
-            with patch_discovery_data(disco_program_data):
+            with patch_discovery_program_details(mock_program_details):
                 response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -733,7 +733,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_with_no_course_runs(self):
         user = self.hum_admin
 
-        disco_program_data = {
+        mock_program_details = {
             "title": self.program_title,
             "marketing_url": self.program_url,
             "type": self.program_type,
@@ -746,7 +746,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         }
 
         with self.assert_tracking(user=user, program_key='masters-in-english'):
-            with patch_discovery_data(disco_program_data):
+            with patch_discovery_program_details(mock_program_details):
                 response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -757,7 +757,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_with_no_active_curriculum(self):
         user = self.hum_admin
 
-        disco_program_data = {
+        mock_program_details = {
             "title": self.program_title,
             "marketing_url": self.program_url,
             "type": self.program_type,
@@ -770,7 +770,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         }
 
         with self.assert_tracking(user=user, program_key='masters-in-english'):
-            with patch_discovery_data(disco_program_data):
+            with patch_discovery_program_details(mock_program_details):
                 response = self.get('programs/masters-in-english/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -781,7 +781,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
     def test_get_program_with_multiple_courses(self):
         user = self.stem_admin
 
-        disco_program_data = {
+        mock_program_details = {
             "title": self.program_title,
             "marketing_url": self.program_url,
             "type": self.program_type,
@@ -822,7 +822,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         }
 
         with self.assert_tracking(user=user, program_key='masters-in-cs'):
-            with patch_discovery_data(disco_program_data):
+            with patch_discovery_program_details(mock_program_details):
                 response = self.get('programs/masters-in-cs/courses', user)
 
         self.assertEqual(response.status_code, 200)
@@ -869,7 +869,7 @@ class ProgramEnrollmentWriteMixin(object):
     def setUpTestData(cls):  # pylint: disable=missing-docstring
         super().setUpTestData()
         program_uuid = cls.cs_program.discovery_uuid
-        cls.disco_program_data = {
+        cls.mock_program_details = {
             'curricula': [
                 {'uuid': INACTIVE_CURRICULUM_UUID, 'is_active': False},
                 {'uuid': ACTIVE_CURRICULUM_UUID, 'is_active': True}
@@ -975,7 +975,7 @@ class ProgramEnrollmentWriteMixin(object):
         ]
 
         with self.assert_tracking(user=self.stem_admin, program_key='masters-in-cs'):
-            with patch_discovery_data(self.disco_program_data):
+            with patch_discovery_program_details(self.mock_program_details):
                 response = self.request(
                     self.method,
                     'programs/masters-in-cs/enrollments/',
@@ -1025,7 +1025,7 @@ class ProgramEnrollmentWriteMixin(object):
                 program_key='masters-in-cs',
                 failure='unprocessable_entity',
         ):
-            with patch_discovery_data(self.disco_program_data):
+            with patch_discovery_program_details(self.mock_program_details):
                 response = self.request(
                     self.method,
                     'programs/masters-in-cs/enrollments/',
@@ -1055,7 +1055,7 @@ class ProgramEnrollmentWriteMixin(object):
                 program_key='masters-in-cs',
                 status_code=207,
         ):
-            with patch_discovery_data(self.disco_program_data):
+            with patch_discovery_program_details(self.mock_program_details):
                 response = self.request(
                     self.method,
                     'programs/masters-in-cs/enrollments/',
@@ -1092,7 +1092,7 @@ class ProgramEnrollmentWriteMixin(object):
                 program_key='masters-in-cs',
                 failure='unprocessable_entity',
         ):
-            with patch_discovery_data(self.disco_program_data):
+            with patch_discovery_program_details(self.mock_program_details):
                 response = self.request(
                     self.method,
                     'programs/masters-in-cs/enrollments/',
@@ -1114,7 +1114,7 @@ class ProgramEnrollmentWriteMixin(object):
         self.assertEqual(response.status_code, 413)
 
     @mock_oauth_login
-    @patch_discovery_data({})
+    @patch_discovery_program_details({})
     def test_discovery_data_fetch_failed(self):
         req_data = [
             self.student_enrollment('enrolled', '001'),
@@ -1243,7 +1243,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
     event = 'registrar.v1.get_course_enrollment'
 
     program_uuid = str(uuid.uuid4())
-    disco_program_data = {
+    mock_program_details = {
         'curricula': [{
             'is_active': True,
             'courses': [{
@@ -1279,7 +1279,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         "ENG55-S19,efgh,pending,False\r\n"
     )
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     @mock.patch.object(lms, 'get_course_run_enrollments', return_value=enrollments)
     @ddt.data(
         (None, 'json', enrollments_json),
@@ -1315,7 +1315,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     def test_permission_denied(self):
         with self.assert_tracking(
                 user=self.stem_admin,
@@ -1331,7 +1331,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     @ddt.data(
         # Bad program
         ('masters-in-polysci', 'course-v1:HUMx+English-550+Spring', 'program_not_found'),
@@ -1903,7 +1903,7 @@ class EnrollmentUploadMixin(object):
         super().setUpTestData()
 
         program_uuid = cls.cs_program.discovery_uuid
-        cls.disco_program_data = {
+        cls.mock_program_details = {
             'curricula': [
                 {'uuid': INACTIVE_CURRICULUM_UUID, 'is_active': False},
                 {'uuid': ACTIVE_CURRICULUM_UUID, 'is_active': True}
@@ -1921,7 +1921,7 @@ class EnrollmentUploadMixin(object):
         if not user:
             user = self.stem_admin
 
-        with patch_discovery_data(self.disco_program_data):
+        with patch_discovery_program_details(self.mock_program_details):
             return self.request(
                 self.method,
                 self.path,
@@ -1955,7 +1955,7 @@ class EnrollmentUploadMixin(object):
         self.assertEqual(response.status_code, 403)
 
     def test_enrollment_upload_mm_program(self):
-        self.disco_program_data = {
+        self.mock_program_details = {
             'curricula': [{'uuid': ACTIVE_CURRICULUM_UUID, 'is_active': True}],
             'type': 'MicroMasters',
         }
@@ -2031,7 +2031,7 @@ class EnrollmentUploadMixin(object):
         writer.writerow(['001', 'enrolled', 'foo', 'bar'])
         upload_file.seek(0)
 
-        with patch_discovery_data(self.disco_program_data):
+        with patch_discovery_program_details(self.mock_program_details):
             upload_response = self.request(
                 self.method,
                 self.path,
@@ -2051,7 +2051,7 @@ class EnrollmentUploadMixin(object):
         self.assertEqual(upload_response.status_code, 413)
 
     def test_no_file(self):
-        with patch_discovery_data(self.disco_program_data):
+        with patch_discovery_program_details(self.mock_program_details):
             upload_response = self.request(
                 self.method,
                 self.path,
@@ -2065,7 +2065,7 @@ class EnrollmentUploadMixin(object):
         enrollment['blood_type'] = 'AB-'
         enrollments = [enrollment]
         self.csv_headers = self.csv_headers + ('blood_type',)
-        with patch_discovery_data(self.disco_program_data):
+        with patch_discovery_program_details(self.mock_program_details):
             upload_response = self._upload_enrollments(enrollments)
 
         self.assertEqual(202, upload_response.status_code)
@@ -2138,7 +2138,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
             "marketing_url": "https://example.com/french-9910",
         },
     ]
-    disco_program_data = {
+    mock_program_details = {
         'curricula': [{
             'is_active': True,
             'courses': [{'course_runs': course_runs}],
@@ -2214,7 +2214,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
     ):
         return self.enrollments_by_key.get(internal_course_key)
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     @mock.patch.object(lms, 'get_course_run_enrollments')
     @ddt.data(
         (None, 'json', enrollments_json),
@@ -2268,7 +2268,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
             response = self.get('programs/masters-in-polysci/course_enrollments', self.hum_admin)
         self.assertEqual(response.status_code, 404)
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     def test_invalid_format_404(self):
         with self.assert_tracking(
                 user=self.hum_admin,
@@ -2288,7 +2288,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     path = 'programs/masters-in-english/courses/HUMx+English-550+Spring/grades'
     event = 'registrar.v1.get_course_grades'
 
-    disco_program_data = {
+    mock_program_details = {
         'curricula': [{
             'is_active': True,
             'courses': [{
@@ -2328,7 +2328,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         "learner-03,,,,error loading grades\r\n"
     )
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     @mock.patch(
         'registrar.apps.grades.lms_interop.get_course_run_grades',
         return_value=(True, False, grades),
@@ -2367,7 +2367,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     @mock.patch('registrar.apps.grades.lms_interop.get_course_run_grades')
     @ddt.data(
         (True, True, GradeReadStatus.MULTI_STATUS.value),
@@ -2385,7 +2385,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(job_response.data['state'], 'Succeeded')
         self.assertEqual(job_response.data['text'], str(expected_text))
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     def test_permission_denied(self):
         with self.assert_tracking(
                 user=self.stem_admin,
@@ -2396,7 +2396,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
 
-    @patch_discovery_data(disco_program_data)
+    @patch_discovery_program_details(mock_program_details)
     @ddt.data(
         # Bad program
         ('masters-in-polysci', 'course-v1:HUMx+English-550+Spring', 'program_not_found'),
