@@ -4,7 +4,7 @@ import logging
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 
-from registrar.consumer import run_consumer_worker
+from registrar.apps.core.consumer import run_consumer_worker
 
 logger = logging.getLogger(__name__)
 
