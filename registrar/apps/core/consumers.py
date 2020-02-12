@@ -27,7 +27,14 @@ class ProgramConsumer(ConsumerMixin):
         ]
 
     def on_message(self, body, message):
-        print(Program.objects.first())
-        print('RECEIVED MESSAGE: {0!r}'.format(body))
-
+        payload = message.payload
+        if message.delivery_info['routing_key'] == 'catalog.program.create':
+            print('CREATED!')
+            print(payload)
+        elif message.delivery_info['routing_key'] == 'catalog.program.update':
+            print('UPDATED!')
+            print(payload)
+        elif message.delivery_info['routing_key'] == 'catalog.program.delete':
+            print('DELETED!')
+            print(payload)
         message.ack()
