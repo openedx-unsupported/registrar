@@ -10,13 +10,12 @@ from registrar.apps.core.models import Program
 
 
 class ProgramConsumer(ConsumerMixin):
-    """
-    Class to define Kombu consumer behavior.
-    Consumer Queue binds to an exchange and handles messages from corresponding Producers.
-    """
-    exchange = Exchange('course_discovery', type='direct')
+
+    exchange = Exchange('catalog', type='direct')
     queues = [
-        Queue('task_queue', exchange, routing_key='task_queue'),
+        Queue('program_create_queue', exchange, routing_key='catalog.program.create'),
+        Queue('program_update_queue', exchange, routing_key='catalog.program.update'),
+        Queue('program_delete_queue', exchange, routing_key='catalog.program.delete'),
     ]
 
     def __init__(self, connection):
