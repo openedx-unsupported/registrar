@@ -1,5 +1,6 @@
 # Packages required for standalone local development
 -c constraints.txt
+-r github.in              # Forks and other dependencies not yet on PyPI
 
 -r test.in
 -r docs.in
