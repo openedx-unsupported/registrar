@@ -46,6 +46,11 @@ upgrade: piptools  ## re-compile requirements .txt files from .in files
 	pip-compile --upgrade -o requirements/test.txt requirements/test.in
 	pip-compile --upgrade -o requirements/monitoring/requirements.txt requirements/monitoring/requirements.in
 
+	# Let tox control the Django version for tests
+	grep -e "^django==" requirements/production.txt > requirements/django.txt
+	sed '/^[dD]jango==/d' requirements/test.txt > requirements/test.tmp
+	mv requirements/test.tmp requirements/test.txt
+
 piptools:
 	pip install -r requirements/pip-tools.txt
 
