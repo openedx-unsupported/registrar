@@ -37,7 +37,6 @@ django-simple-history==2.8.0
 django-storages==1.8
 django-user-tasks==0.3.0
 django-waffle==0.20.0
-django==1.11.28
 djangorestframework-jwt==1.11.0  # via edx-drf-extensions
 djangorestframework==3.11.0
 docker==4.2.0             # via moto
