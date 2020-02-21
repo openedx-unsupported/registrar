@@ -19,3 +19,4 @@ pytest-django
 responses
 yamllint
 isort[requirements]
+tox

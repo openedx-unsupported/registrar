@@ -8,15 +8,16 @@ alabaster==0.7.12         # via sphinx
 amqp==1.4.9               # via kombu
 analytics-python==1.2.9   # via -r requirements/base.in (line 4)
 anyjson==0.3.3            # via kombu
+appdirs==1.4.3            # via virtualenv
 astroid==2.3.3            # via pylint, pylint-celery
 attrs==19.3.0             # via jsonschema, pytest
 aws-sam-translator==1.21.0  # via cfn-lint
 aws-xray-sdk==2.4.3       # via moto
 babel==2.8.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.12.5             # via aws-sam-translator, moto
+boto3==1.12.8             # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.15.5          # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.15.8          # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in (line 5)
 certifi==2019.11.28       # via requests
 cffi==1.14.0              # via cryptography
@@ -30,6 +31,7 @@ coverage==5.0.3           # via -r requirements/test.in (line 6), pytest-cov
 cryptography==2.8         # via moto
 ddt==1.2.2                # via -r requirements/test.in (line 14)
 defusedxml==0.6.0         # via python3-openid, social-auth-core
+distlib==0.3.0            # via virtualenv
 django-cors-headers==3.2.1  # via -r requirements/base.in (line 8)
 django-debug-toolbar==2.2  # via -r requirements/local.in (line 8)
 django-dynamic-fixture==3.0.2  # via -r requirements/test.in (line 7)
@@ -51,7 +53,7 @@ ecdsa==0.15               # via python-jose
 edx-auth-backends==3.0.2  # via -r requirements/base.in (line 17)
 edx-django-release-util==0.3.6  # via -r requirements/base.in (line 18)
 edx-django-utils==3.0     # via edx-drf-extensions
-edx-drf-extensions==2.4.6  # via -r requirements/base.in (line 19)
+edx-drf-extensions==3.0.0  # via -r requirements/base.in (line 19)
 edx-i18n-tools==0.5.0     # via -r requirements/local.in (line 9)
 edx-lint==1.4.1           # via -r requirements/test.in (line 9)
 edx-opaque-keys==2.0.1    # via edx-drf-extensions
@@ -59,15 +61,16 @@ edx-rest-api-client==1.9.2  # via -r requirements/base.in (line 20)
 edx-sphinx-theme==1.5.0   # via -r requirements/docs.in (line 2)
 factory-boy==2.12.0       # via -r requirements/test.in (line 10)
 faker==4.0.1              # via -r requirements/test.in (line 11), factory-boy
+filelock==3.0.12          # via tox, virtualenv
 freezegun==0.3.15         # via -r requirements/test.in (line 12)
 future==0.18.2            # via aws-xray-sdk, pyjwkest
 idna==2.8                 # via moto, requests
 imagesize==1.2.0          # via sphinx
-importlib-metadata==1.5.0  # via jsonschema, path, pluggy, pytest
-importlib-resources==1.0.2  # via cfn-lint
+importlib-metadata==1.5.0  # via jsonschema, path, pluggy, pytest, tox, virtualenv
+importlib-resources==1.0.2  # via cfn-lint, virtualenv
 isort[requirements]==4.3.21  # via -r requirements/test.in (line 21), pylint
 jinja2==2.11.1            # via code-annotations, moto, sphinx
-jmespath==0.9.4           # via boto3, botocore
+jmespath==0.9.5           # via boto3, botocore
 jsondiff==1.1.2           # via moto
 jsonpatch==1.25           # via cfn-lint
 jsonpickle==1.3           # via aws-xray-sdk
@@ -80,9 +83,9 @@ mccabe==0.6.1             # via pylint
 mock==3.0.5               # via -c requirements/constraints.txt (line 21), moto
 more-itertools==8.2.0     # via pytest
 moto==1.3.8               # via -r requirements/test.in (line 13)
-newrelic==5.6.0.135       # via edx-django-utils
+newrelic==5.8.0.136       # via edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
-packaging==20.1           # via pytest
+packaging==20.1           # via pytest, tox
 path.py==12.4.0           # via edx-i18n-tools
 path==13.1.0              # via path.py
 pathlib2==2.3.5           # via pytest
@@ -90,10 +93,10 @@ pathspec==0.7.0           # via yamllint
 pbr==5.4.4                # via stevedore
 pip-api==0.0.13           # via isort
 pipreqs==0.4.10           # via isort
-pluggy==0.13.1            # via pytest
+pluggy==0.13.1            # via pytest, tox
 polib==1.1.0              # via edx-i18n-tools
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
-py==1.8.1                 # via pytest
+py==1.8.1                 # via pytest, tox
 pyasn1==0.4.8             # via python-jose, rsa
 pycodestyle==2.5.0        # via -r requirements/test.in (line 15)
 pycparser==2.19           # via cffi
@@ -121,7 +124,7 @@ pyyaml==5.3               # via cfn-lint, code-annotations, edx-django-release-u
 redis==2.8                # via -r requirements/base.in (line 22)
 requests-oauthlib==1.3.0  # via social-auth-core
 requests==2.23.0          # via analytics-python, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, sphinx, transifex-client, yarg
-responses==0.10.9         # via -r requirements/test.in (line 19), moto
+responses==0.10.11        # via -r requirements/test.in (line 19), moto
 rest-condition==1.0.3     # via edx-drf-extensions
 rsa==4.0                  # via python-jose
 ruamel.std.argparse==0.8.1  # via ruamel.yaml.cmd
@@ -131,7 +134,7 @@ ruamel.yaml.convert==0.3.2  # via ruamel.yaml.cmd
 ruamel.yaml==0.16.10      # via ruamel.yaml.cmd, ruamel.yaml.convert
 s3transfer==0.3.3         # via boto3
 semantic-version==2.8.4   # via edx-drf-extensions
-six==1.14.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, django-waffle, docker, ecdsa, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, mock, moto, packaging, pathlib2, pyjwkest, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, transifex-client, websocket-client
+six==1.14.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, django-waffle, docker, ecdsa, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, mock, moto, packaging, pathlib2, pyjwkest, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, tox, transifex-client, virtualenv, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in (line 5), edx-auth-backends
@@ -141,10 +144,13 @@ sphinxcontrib-websupport==1.2.0  # via sphinx
 sqlparse==0.3.0           # via django-debug-toolbar
 stevedore==1.32.0         # via code-annotations, edx-opaque-keys
 text-unidecode==1.3       # via faker
+toml==0.10.0              # via tox
+tox==3.14.5               # via -r requirements/test.in (line 22)
 transifex-client==0.13.7  # via -r requirements/local.in (line 12)
 typed-ast==1.4.1          # via astroid
 unidecode==1.1.1          # via python-slugify
 urllib3==1.25.8           # via botocore, requests, transifex-client
+virtualenv==20.0.7        # via tox
 wcwidth==0.1.8            # via pytest
 websocket-client==0.57.0  # via docker
 werkzeug==1.0.0           # via moto

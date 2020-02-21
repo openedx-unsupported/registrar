@@ -1,6 +1,12 @@
 language: python
 python:
     - 3.5.2
+env:
+- TOXENV=django111
+- TOXENV=django20
+- TOXENV=django21
+- TOXENV=django22
+
 sudo: false
 
 services:
@@ -10,6 +16,8 @@ cache: pip
 before_install:
     - "export DISPLAY=:99.0"
     - "sudo rm -f /etc/boto.cfg"  # See https://github.com/travis-ci/travis-ci/issues/7940
+    - export DJANGO_SETTINGS_MODULE=registrar.settings.test
+
 install:
     - pip install -U pip wheel
     - make requirements
