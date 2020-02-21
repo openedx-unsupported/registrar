@@ -35,7 +35,6 @@ class FlushProgramCacheView(AuthMixin, APIView):
     raise_404_if_unauthorized = True
     staff_only = True
 
-    # pylint: disable=unused-argument
     def delete(self, request, program_key=None):
         """
         Clears a specific program from the cache, if specified.

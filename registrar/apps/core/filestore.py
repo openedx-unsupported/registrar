@@ -15,7 +15,7 @@ from registrar.apps.api.utils import to_absolute_api_url
 logger = logging.getLogger(__name__)
 
 
-class FilestoreBase(object):
+class FilestoreBase:
     """
     Abstract base class for file stores.
     """

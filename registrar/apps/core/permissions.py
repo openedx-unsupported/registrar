@@ -79,7 +79,7 @@ JOB_GLOBAL_READ_KEY = 'job_global_read'
 JOB_GLOBAL_READ = APP_PREFIX + JOB_GLOBAL_READ_KEY
 
 
-class RoleBase(object):
+class RoleBase:
     """
     A collection of access permissions that can be assigned
     to a group in an organization or program.
@@ -197,7 +197,8 @@ class ProgramReadReportRole(RoleBase):
     )
 
 
-class APIPermissionBase(object):
+class APIPermissionBase:
+    # pylint: disable=missing-function-docstring
     """
     If user has any permission in the permissions list, he will pass permission check.
     """

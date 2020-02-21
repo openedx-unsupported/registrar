@@ -17,7 +17,7 @@ from registrar.apps.core.utils import get_user_organizations
 JWT_AUTH = 'JWT_AUTH'
 
 
-class TrackTestMixin(object):
+class TrackTestMixin:
     """
     Mixin enabling testing of tracking.
 
@@ -89,7 +89,7 @@ class TrackTestMixin(object):
         )
 
 
-class JwtMixin(object):
+class JwtMixin:
     """ Mixin with JWT-related helper functions. """
 
     JWT_ISSUER_OBJ = getattr(settings, JWT_AUTH)['JWT_ISSUERS'][0]

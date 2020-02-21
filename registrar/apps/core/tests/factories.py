@@ -19,10 +19,6 @@ from ..models import (
 from ..permissions import OrganizationReadMetadataRole, ProgramReadMetadataRole
 from ..proxies import DiscoveryProgram
 
-
-# pylint: disable=missing-docstring
-
-
 User = get_user_model()
 
 
@@ -30,7 +26,7 @@ USER_PASSWORD = 'password'
 
 
 class GroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Group
         django_get_or_create = ('name',)
 
@@ -46,7 +42,7 @@ class GroupFactory(factory.DjangoModelFactory):
 
 
 class UserFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = User
 
     username = factory.Sequence(lambda n: 'user_%d' % n)
@@ -81,7 +77,7 @@ def name_to_key(name):
 
 
 class OrganizationFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Organization
 
     key = factory.LazyAttribute(lambda org: name_to_key(org.name))
@@ -104,7 +100,7 @@ class DiscoveryProgramFactory(ProgramFactory):
 
 
 class OrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = OrganizationGroup
 
     name = factory.LazyAttribute(
@@ -115,7 +111,7 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
 
 
 class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = ProgramOrganizationGroup
 
     name = factory.LazyAttribute(  # pragma: no cover
@@ -127,7 +123,7 @@ class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
 
 
 class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = PendingUserGroup
 
     group = factory.SubFactory(OrganizationGroupFactory)
@@ -135,7 +131,7 @@ class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
 
 
 class PendingUserProgramGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = PendingUserGroup
 
     group = factory.SubFactory(ProgramOrganizationGroupFactory)
@@ -143,7 +139,7 @@ class PendingUserProgramGroupFactory(factory.DjangoModelFactory):
 
 
 class PendingUserGenericGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = PendingUserGroup
 
     group = factory.SubFactory(GroupFactory)

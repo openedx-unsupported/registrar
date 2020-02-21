@@ -23,6 +23,9 @@ def track(
     anonymous_id=None,
     integrations=None,
 ):
+    """
+    Function to track events
+    """
     if settings.SEGMENT_KEY:
         analytics.track(user_id, event, properties, context, timestamp, anonymous_id, integrations)
     else:

@@ -70,7 +70,7 @@ class AuthMixin(TrackViewMixin):
         if isinstance(self.permission_required, str):  # pragma: no branch
             return [self.permission_required]  # pragma: no cover
         elif isinstance(self.permission_required, Iterable):
-            return [p for p in self.permission_required]
+            return self.permission_required
         else:  # pragma: no cover
             raise ImproperlyConfigured(
                 'permission_required must be a string or iterable; ' +
@@ -115,6 +115,7 @@ class AuthMixin(TrackViewMixin):
             self.add_tracking_data(missing_permissions=list(missing_permissions))
             self._unauthorized_response()
 
+    # pylint: disable=missing-docstring
     @staticmethod
     def _has_permission_on_any(user, perm, objects):
         for obj in objects:
@@ -128,8 +129,8 @@ class AuthMixin(TrackViewMixin):
         """
         if self.raise_404_if_unauthorized:
             raise Http404()
-        else:
-            raise PermissionDenied()
+
+        raise PermissionDenied()
 
 
 class ProgramSpecificViewMixin(AuthMixin):
@@ -194,7 +195,7 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         return self.course_run.external_key
 
 
-class JobInvokerMixin(object):
+class JobInvokerMixin:
     """
     A mixin for views that invoke jobs and return ID and status URL.
     """
@@ -255,8 +256,9 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             # Raise exception if the program (MM at the moment) is not
             # available for enrollments related API endpoints
             raise PermissionDenied(
-                'Cannot access enrollment endpoints with program [%s] whose enrollments are disabled',
-                self.program.key
+                'Cannot access enrollment endpoints with program [{}] whose enrollments are disabled'.format(
+                    self.program.key
+                )
             )
 
         super().check_permissions(request)

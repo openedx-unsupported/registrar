@@ -36,7 +36,7 @@ from ..lms_interop import (
 )
 
 
-class GetEnrollmentsTestMixin(object):
+class GetEnrollmentsTestMixin:
     """ Common tests for enrollment-getting functions """
 
     lms_url = None  # Override in subclass
@@ -190,7 +190,7 @@ class GetCourseRunEnrollmentsTestCase(GetEnrollmentsTestMixin, TestCase):
 
 
 @ddt.ddt
-class WriteEnrollmentsTestMixin(object):
+class WriteEnrollmentsTestMixin:
     """
     Common tests for program and course enrollment writing functionality
     """

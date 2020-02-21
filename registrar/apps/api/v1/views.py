@@ -277,7 +277,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         """ POST handler """
         return self.handle_enrollments()
 
-    def patch(self, request, program_key):  # pylint: disable=unused-argument
+    def patch(self, request, program_key):
         """ PATCH handler """
         return self.handle_enrollments()
 
@@ -351,7 +351,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         """ POST handler """
         return self.handle_enrollments(self.internal_course_key)
 
-    def patch(self, request, program_key, course_id):  # pylint: disable=unused-argument
+    def patch(self, request, program_key, course_id):
         """ PATCH handler """
         return self.handle_enrollments(self.internal_course_key)
 
@@ -416,6 +416,7 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
 
 
 class EnrollmentUploadView(JobInvokerMixin, APIView):
+    # pylint: disable=no-member
     """
     Base view for uploading enrollments via csv file
 

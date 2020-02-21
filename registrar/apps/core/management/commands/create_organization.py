@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    # pylint: disable=missing-docstring
 
     help = 'Creates an Organization with the given key, and any specified OrganizationGroups'
     role_names = [role.name for role in ORGANIZATION_ROLES]

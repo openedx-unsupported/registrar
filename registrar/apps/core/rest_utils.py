@@ -71,6 +71,7 @@ def do_batched_lms_write(method, url, items, items_per_batch, client=None):
     return responses
 
 
+# pylint: disable=inconsistent-return-statements
 def make_request(method, url, client, **kwargs):
     """
     Helper method to make an http request using

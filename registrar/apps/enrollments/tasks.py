@@ -50,7 +50,7 @@ class EnrollmentReadTask(UserTask):
         )
 
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, inconsistent-return-statements
 @shared_task(base=EnrollmentReadTask, bind=True)
 def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
@@ -86,6 +86,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     post_job_success(job_id, serialized, file_format)
 
 
+# pylint: disable=inconsistent-return-statements
 @shared_task(base=EnrollmentReadTask, bind=True)
 def list_course_run_enrollments(
         self,
@@ -132,7 +133,7 @@ def list_course_run_enrollments(
         raise ValueError('Invalid file_format: {}'.format(file_format))
     post_job_success(job_id, serialized, file_format)
 
-
+# pylint: disable=inconsistent-return-statements
 @shared_task(base=EnrollmentReadTask, bind=True)
 def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_key):
     """

@@ -12,7 +12,7 @@ from . import segment
 logger = logging.getLogger(__name__)
 
 
-class TrackViewMixin(object):
+class TrackViewMixin:
     """
     A mixin to provide tracking utility for all the views
 

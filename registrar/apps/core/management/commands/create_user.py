@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    # pylint: disable=missing-docstring
 
     help = 'Creates the specified user, if it does not exist, and sets its groups.'
 

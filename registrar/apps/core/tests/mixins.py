@@ -10,14 +10,14 @@ from ..jobs import get_job_status
 from .factories import DiscoveryProgramFactory, OrganizationFactory, UserFactory
 
 
-class BaseTaskTestMixin(object):
+class BaseTaskTestMixin:
     """ Mixin for common task testing utility functions, and program_not_found """
     job_id = "6fee9384-f7f7-496f-a607-ee9f59201ee0"
     mock_base = None
     mock_function = None
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls):  # pylint: disable=missing-function-docstring
         super().setUpTestData()
         cls.user = UserFactory()
         org = OrganizationFactory(name='STEM Institute')
@@ -27,7 +27,6 @@ class BaseTaskTestMixin(object):
         """
         Overridden in children.
         """
-        pass  # pragma: no cover
 
     def full_mock_path(self):
         return self.mock_base + self.mock_function
@@ -57,13 +56,13 @@ class BaseTaskTestMixin(object):
         error_artifact = task_status.artifacts.filter(name='Error').first()
         self.assertIn(sub_message, error_artifact.text)
 
-    def test_program_not_found(self):
+    def test_program_not_found(self):  # pylint: disable=assignment-from-no-return
         task = self.spawn_task(program_key="program-nonexistant")
         task.wait()
         self.assert_failed("Bad program key")
 
 
-class S3MockEnvVarsMixin(object):
+class S3MockEnvVarsMixin:  # pylint: disable=missing-class-docstring
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
