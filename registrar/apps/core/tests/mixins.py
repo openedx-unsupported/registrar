@@ -57,7 +57,7 @@ class BaseTaskTestMixin:
         self.assertIn(sub_message, error_artifact.text)
 
     def test_program_not_found(self):
-        task = self.spawn_task(program_key="program-nonexistant")
+        task = self.spawn_task(program_key="program-nonexistant")  # pylint: disable=assignment-from-no-return
         task.wait()
         self.assert_failed("Bad program key")
 
