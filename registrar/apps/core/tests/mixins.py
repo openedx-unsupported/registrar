@@ -62,7 +62,10 @@ class BaseTaskTestMixin:
         self.assert_failed("Bad program key")
 
 
-class S3MockEnvVarsMixin:  # pylint: disable=missing-class-docstring
+class S3MockEnvVarsMixin:
+    """
+    USed to mock s3 env variables to prevent moto from mutating real infrastructure
+    """
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
