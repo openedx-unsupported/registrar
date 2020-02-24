@@ -78,7 +78,8 @@ class Command(BaseCommand):
                 logger.info('Org {} not found in registrar'.format(org_key))
         raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
 
-    def create_or_modify_program(self, org, program_details, program_uuid, program_key):  # pylint: disable=missing-function-docstring
+    # pylint: disable=missing-function-docstring
+    def create_or_modify_program(self, org, program_details, program_uuid, program_key):
         program, created = Program.objects.get_or_create(
             discovery_uuid=program_uuid,
             defaults={
