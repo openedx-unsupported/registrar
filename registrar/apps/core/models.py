@@ -15,7 +15,6 @@ ACCESS_READ = ('read', 0)
 
 
 class User(AbstractUser):
-    # pylint: disable:no-member
     """
     Custom user model for use with OpenID Connect.
 

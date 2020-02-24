@@ -146,7 +146,7 @@ def _get_result(task_status):
         if artifacts.count() > 1:  # pragma: no cover
             logger.error(
                 'Multiple UserTaskArtifacts for job ' +
-                '(job_id = {}, UserTaskStatus.uuid = {}). First artifact will be returned',
+                '(job_id = %s, UserTaskStatus.uuid = %s). First artifact will be returned',
                 task_status.task_id,
                 task_status.uuid
             )

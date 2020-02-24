@@ -50,7 +50,7 @@ class EnrollmentReadTask(UserTask):
         )
 
 
-# pylint: disable=unused-argument, inconsistent-return-statements
+# pylint: disable=unused-argument
 @shared_task(base=EnrollmentReadTask, bind=True)
 def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
@@ -69,13 +69,13 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
                 err.response.status_code, err.request.url
             ),
         )
-        return
+        return None
     except ValidationError as err:
         post_job_failure(
             job_id,
             "Invalid enrollment data from LMS: {}".format(err),
         )
-        return
+        return None
 
     if file_format == 'json':
         serialized = json.dumps(enrollments, indent=4)

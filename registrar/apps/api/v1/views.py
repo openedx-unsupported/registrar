@@ -416,7 +416,6 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
 
 
 class EnrollmentUploadView(JobInvokerMixin, APIView):
-    # pylint: disable=no-member
     """
     Base view for uploading enrollments via csv file
 
@@ -441,7 +440,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         if csv_file.size > UPLOAD_FILE_MAX_SIZE:
             raise FileTooLarge()
 
-        if is_enrollment_write_blocked(self.program.key):
+        if is_enrollment_write_blocked(self.program.key):  # pylint: disable=no-member
             return Response('Job already in progress for program', HTTP_409_CONFLICT)
 
         enrollments = load_records_from_uploaded_csv(csv_file, self.field_names)

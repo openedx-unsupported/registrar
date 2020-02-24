@@ -40,7 +40,6 @@ uploads_filestore = get_enrollment_uploads_filestore()
 
 @ddt.ddt
 class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
-    # pylint: disable=assignment-from-no-return
     """ Tests for enrollment listing task error behavior. """
 
     # Override in subclass
