@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
+    """class for command that creates an organization"""
     help = 'Creates an Organization with the given key, and any specified OrganizationGroups'
     role_names = [role.name for role in ORGANIZATION_ROLES]
 
@@ -38,7 +38,7 @@ class Command(BaseCommand):
         for group in groups:
             self.create_org_group(org, group[0], group[1])
 
-    def parse_groups(self, groups):
+    def parse_groups(self, groups):  # pylint: disable=missing-function-docstring
         result = []
         for group in groups:
             if len(group) > 2:
@@ -52,7 +52,7 @@ class Command(BaseCommand):
             result.append((role, group_name))
         return result
 
-    def create_organization(self, org_key):
+    def create_organization(self, org_key):  # pylint: disable=missing-function-docstring
         if not re.fullmatch(ORGANIZATION_KEY_PATTERN, org_key):
             raise CommandError('org_key can only contain alphanumeric characters, dashes, and underscores')
         try:
@@ -66,7 +66,7 @@ class Command(BaseCommand):
         logger.info('Created Organization {}'.format(org.key))
         return org
 
-    def create_org_group(self, org, group_role, group_name):
+    def create_org_group(self, org, group_role, group_name):  # pylint: disable=missing-function-docstring
         if not group_name:
             group_name = "{}_{}".format(org.name, group_role)
         try:

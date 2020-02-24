@@ -19,6 +19,10 @@ from ..models import (
 from ..permissions import OrganizationReadMetadataRole, ProgramReadMetadataRole
 from ..proxies import DiscoveryProgram
 
+
+# pylint: disable=missing-class-docstring, missing-function-docstring
+
+
 User = get_user_model()
 
 

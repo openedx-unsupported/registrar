@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
+    """class for management command to create or modify programs"""
     help = 'Creates or modifies Programs'
 
     def add_arguments(self, parser):
@@ -34,7 +34,7 @@ class Command(BaseCommand):
             org = self.get_org(authoring_orgs)
             self.create_or_modify_program(org, discovery_details, *uuidkey)
 
-    def parse_uuidkeys(self, uuidkeys):
+    def parse_uuidkeys(self, uuidkeys):  # pylint: disable=missing-function-docstring
         result = []
         for uuidkey in uuidkeys.split(','):
             split_args = uuidkey.split(':')
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                 logger.info('Org {} not found in registrar'.format(org_key))
         raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
 
-    def create_or_modify_program(self, org, program_details, program_uuid, program_key):
+    def create_or_modify_program(self, org, program_details, program_uuid, program_key):  # pylint: disable=missing-function-docstring
         program, created = Program.objects.get_or_create(
             discovery_uuid=program_uuid,
             defaults={

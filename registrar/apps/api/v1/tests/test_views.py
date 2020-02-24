@@ -866,7 +866,7 @@ class ProgramEnrollmentWriteMixin:
     path = 'programs/masters-in-english/enrollments'
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls):   # pylint: disable=missing-function-docstring
         super().setUpTestData()
         program_uuid = cls.cs_program.discovery_uuid
         cls.mock_program_details = {
@@ -1455,7 +1455,7 @@ class ProgramCourseEnrollmentWriteMixin:
     """ Test write requests to the /api/v1/programs/{program_key}/courses/{course_id}/enrollments/ endpoint """
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls):   # pylint: disable=missing-function-docstring
         super().setUpTestData()
         cls.course_run_keys = [
             ('course-v1:STEMx+CS111+F19', 'CompSci1_Fall'),
@@ -1899,7 +1899,7 @@ class EnrollmentUploadMixin:
     method = 'POST'
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls):   # pylint: disable=missing-function-docstring
         super().setUpTestData()
 
         program_uuid = cls.cs_program.discovery_uuid
@@ -1914,7 +1914,7 @@ class EnrollmentUploadMixin:
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
-    def _upload_enrollments(self, enrollments, user=None):
+    def _upload_enrollments(self, enrollments, user=None):   # pylint: disable=missing-function-docstring
         upload_file = StringIO(
             serialize_to_csv(enrollments, self.csv_headers, include_headers=True)
         )

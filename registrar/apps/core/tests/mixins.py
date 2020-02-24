@@ -56,7 +56,7 @@ class BaseTaskTestMixin:
         error_artifact = task_status.artifacts.filter(name='Error').first()
         self.assertIn(sub_message, error_artifact.text)
 
-    def test_program_not_found(self):  # pylint: disable=assignment-from-no-return
+    def test_program_not_found(self):
         task = self.spawn_task(program_key="program-nonexistant")
         task.wait()
         self.assert_failed("Bad program key")
@@ -64,7 +64,7 @@ class BaseTaskTestMixin:
 
 class S3MockEnvVarsMixin:
     """
-    USed to mock s3 env variables to prevent moto from mutating real infrastructure
+    Used to mock s3 env variables to prevent moto from mutating real infrastructure
     """
     @classmethod
     def setUpClass(cls):

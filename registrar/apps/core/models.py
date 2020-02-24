@@ -32,7 +32,7 @@ class User(AbstractUser):
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
         try:
-            return self.social_auth.first().extra_data[u'access_token']
+            return self.social_auth.first().extra_data[u'access_token']  # pylint: disable=no-member
         except Exception:  # pylint: disable=broad-except
             return None
 

@@ -98,7 +98,7 @@ class AuthMixin(TrackViewMixin):
         required = self.get_required_permissions(request)
         missing_global_permissions = {
             perm for perm in required
-            if not perm.global_check(request.user)  # pylint: disable=no-member
+            if not perm.global_check(request.user)
         }
         objects = self.get_permission_objects()
         if not missing_global_permissions:
@@ -115,7 +115,7 @@ class AuthMixin(TrackViewMixin):
             self.add_tracking_data(missing_permissions=list(missing_permissions))
             self._unauthorized_response()
 
-    # pylint: disable=missing-docstring
+    # pylint: disable=missing-function-docstring
     @staticmethod
     def _has_permission_on_any(user, perm, objects):
         for obj in objects:
