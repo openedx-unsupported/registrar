@@ -84,8 +84,7 @@ class TrackViewMixin:
         api_version = self.request.get_full_path().split('/')[2]
         if not event_name:  # pragma: no cover
             logger.error(
-                'Segment tracking event name not found for request method ' +
-                '%s on view %s',
+                'Segment tracking event name not found for request method %s on view %s',
                 self.request.method,
                 self.__class__.__name__,
             )

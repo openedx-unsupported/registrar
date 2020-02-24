@@ -58,7 +58,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
     program = get_program(job_id, program_key)
     if not program:
-        return None
+        return
 
     try:
         enrollments = lms.get_program_enrollments(program.discovery_uuid)
@@ -69,13 +69,13 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
                 err.response.status_code, err.request.url
             ),
         )
-        return None
+        return
     except ValidationError as err:
         post_job_failure(
             job_id,
             "Invalid enrollment data from LMS: {}".format(err),
         )
-        return None
+        return
 
     if file_format == 'json':
         serialized = json.dumps(enrollments, indent=4)
