@@ -115,9 +115,9 @@ class AuthMixin(TrackViewMixin):
             self.add_tracking_data(missing_permissions=list(missing_permissions))
             self._unauthorized_response()
 
-    # pylint: disable=missing-function-docstring
     @staticmethod
     def _has_permission_on_any(user, perm, objects):
+        # pylint: disable=missing-function-docstring
         for obj in objects:
             if perm.check(user, obj):
                 return True
