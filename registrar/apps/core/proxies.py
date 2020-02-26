@@ -39,7 +39,7 @@ class DiscoveryProgram(Program):
 
     To patch Discovery-data-loading in tests, patch `get_program_details`.
     """
-    class Meta(object):
+    class Meta:
         # Guarantees that a table will not be created for this proxy model.
         proxy = True
 

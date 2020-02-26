@@ -36,6 +36,9 @@ class DiscoveryProgramSerializer(serializers.ModelSerializer):
         )
 
     def get_permissions(self, program):
+        """
+        Get list of permissions granted to user making the request from the context
+        """
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
             user = request.user

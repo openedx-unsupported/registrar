@@ -47,4 +47,4 @@ def to_absolute_api_url(path, *more_paths):
     path_parts = [settings.API_ROOT, path[len(PREFIX):]] + list(more_paths)
     stripped_path_parts = [part.strip('/') for part in path_parts]
     result = '/'.join(part for part in stripped_path_parts if part)
-    return result + ('/' if path_parts[-1].endswith('/') else '')
+    return result + ('/' if str(path_parts[-1]).endswith('/') else '')

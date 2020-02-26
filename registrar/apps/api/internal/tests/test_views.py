@@ -47,6 +47,9 @@ class FlushCacheTests(RegistrarAPITestCase, AuthRequestMixin):
         self.assert_program_in_cache(self.english_program, english)
 
     def assert_program_in_cache(self, program, expected):
+        """
+        Method to assert if a program exists inside cache or not
+        """
         cache_result = cache.get(PROGRAM_CACHE_KEY_TPL.format(uuid=program.discovery_uuid))
         if expected:
             self.assertIsNotNone(cache_result)

@@ -861,12 +861,12 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
 
 
 @ddt.ddt
-class ProgramEnrollmentWriteMixin(object):
+class ProgramEnrollmentWriteMixin:
     """ Test write requests to the /api/v1/programs/{program_key}/enrollments endpoint """
     path = 'programs/masters-in-english/enrollments'
 
     @classmethod
-    def setUpTestData(cls):  # pylint: disable=missing-docstring
+    def setUpTestData(cls):   # pylint: disable=missing-function-docstring
         super().setUpTestData()
         program_uuid = cls.cs_program.discovery_uuid
         cls.mock_program_details = {
@@ -1451,11 +1451,11 @@ def _failing_job(self, job_id, user_id, fail_message, *args, **kwargs):  # pylin
 
 
 @ddt.ddt
-class ProgramCourseEnrollmentWriteMixin(object):
+class ProgramCourseEnrollmentWriteMixin:
     """ Test write requests to the /api/v1/programs/{program_key}/courses/{course_id}/enrollments/ endpoint """
 
     @classmethod
-    def setUpTestData(cls):  # pylint: disable=missing-docstring
+    def setUpTestData(cls):   # pylint: disable=missing-function-docstring
         super().setUpTestData()
         cls.course_run_keys = [
             ('course-v1:STEMx+CS111+F19', 'CompSci1_Fall'),
@@ -1894,12 +1894,12 @@ class JobStatusListView(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertCountEqual(response.data, expected_response)
 
 
-class EnrollmentUploadMixin(object):
+class EnrollmentUploadMixin:
     """ Test CSV upload endpoints """
     method = 'POST'
 
     @classmethod
-    def setUpTestData(cls):   # pylint: disable=missing-docstring
+    def setUpTestData(cls):   # pylint: disable=missing-function-docstring
         super().setUpTestData()
 
         program_uuid = cls.cs_program.discovery_uuid
@@ -1914,7 +1914,7 @@ class EnrollmentUploadMixin(object):
             settings.LMS_BASE_URL, 'api/program_enrollments/v1/programs/{}/enrollments/'
         ).format(program_uuid)
 
-    def _upload_enrollments(self, enrollments, user=None):   # pylint: disable=missing-docstring
+    def _upload_enrollments(self, enrollments, user=None):   # pylint: disable=missing-function-docstring
         upload_file = StringIO(
             serialize_to_csv(enrollments, self.csv_headers, include_headers=True)
         )

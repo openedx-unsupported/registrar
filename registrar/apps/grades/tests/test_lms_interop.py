@@ -123,7 +123,7 @@ class GetCourseGradesTest(TestCase):
     @responses.activate
     def test_get_enrollments_404(self):
         responses.add(responses.GET, self.lms_url, status=404)
-        with self.assertRaisesRegex(HTTPError, '404 Client Error: Not Found'):  # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(HTTPError, '404 Client Error: Not Found'):
             get_course_run_grades(self.program_uuid, self.course_id)
 
     @mock_oauth_login

@@ -32,11 +32,11 @@ class User(AbstractUser):
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
         try:
-            return self.social_auth.first().extra_data[u'access_token']
+            return self.social_auth.first().extra_data[u'access_token']  # pylint: disable=no-member
         except Exception:  # pylint: disable=broad-except
             return None
 
-    class Meta(object):
+    class Meta:
         get_latest_by = 'date_joined'
 
     def get_full_name(self):
@@ -55,7 +55,7 @@ class Organization(TimeStampedModel):
 
     .. no_pii::
     """
-    class Meta(object):
+    class Meta:
         app_label = 'core'
         permissions = (
             (perms.ORGANIZATION_READ_METADATA_KEY, 'View Metadata'),
@@ -88,7 +88,7 @@ class Program(TimeStampedModel):
 
     .. no_pii::
     """
-    class Meta(object):
+    class Meta:
         app_label = 'core'
         permissions = (
             (perms.PROGRAM_READ_METADATA_KEY, 'View program metadata'),
@@ -123,7 +123,7 @@ class OrganizationGroup(Group):
     """
     objects = models.Manager()
 
-    class Meta(object):
+    class Meta:
         app_label = 'core'
         verbose_name = 'Organization Group'
 
@@ -191,7 +191,7 @@ class ProgramOrganizationGroup(Group):
 
     objects = models.Manager()
 
-    class Meta(object):
+    class Meta:
         app_label = 'core'
         verbose_name = 'Program Group'
 
@@ -264,7 +264,7 @@ class PendingUserGroup(TimeStampedModel):
     .. pii_types:: email_address
     .. pii_retirement:: local_api
     """
-    class Meta(object):
+    class Meta:
         ordering = ['created']
         unique_together = ('user_email', 'group')
 

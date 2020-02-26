@@ -58,7 +58,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
     """
     program = get_program(job_id, program_key)
     if not program:
-        return None
+        return
 
     try:
         enrollments = lms.get_program_enrollments(program.discovery_uuid)
@@ -101,7 +101,7 @@ def list_course_run_enrollments(
     """
     program = get_program(job_id, program_key)
     if not program:
-        return None
+        return
 
     try:
         enrollments = lms.get_course_run_enrollments(
@@ -140,7 +140,7 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
     """
     program = get_program(job_id, program_key)
     if not program:
-        return None
+        return
 
     results = []
     for course_run in program.course_runs:

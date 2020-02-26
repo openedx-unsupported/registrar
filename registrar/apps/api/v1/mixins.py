@@ -70,7 +70,7 @@ class AuthMixin(TrackViewMixin):
         if isinstance(self.permission_required, str):  # pragma: no branch
             return [self.permission_required]  # pragma: no cover
         elif isinstance(self.permission_required, Iterable):
-            return [p for p in self.permission_required]
+            return self.permission_required
         else:  # pragma: no cover
             raise ImproperlyConfigured(
                 'permission_required must be a string or iterable; ' +
@@ -98,7 +98,7 @@ class AuthMixin(TrackViewMixin):
         required = self.get_required_permissions(request)
         missing_global_permissions = {
             perm for perm in required
-            if not perm.global_check(request.user)  # pylint: disable=no-member
+            if not perm.global_check(request.user)
         }
         objects = self.get_permission_objects()
         if not missing_global_permissions:
@@ -117,6 +117,7 @@ class AuthMixin(TrackViewMixin):
 
     @staticmethod
     def _has_permission_on_any(user, perm, objects):
+        # pylint: disable=missing-function-docstring
         for obj in objects:
             if perm.check(user, obj):
                 return True
@@ -128,8 +129,8 @@ class AuthMixin(TrackViewMixin):
         """
         if self.raise_404_if_unauthorized:
             raise Http404()
-        else:
-            raise PermissionDenied()
+
+        raise PermissionDenied()
 
 
 class ProgramSpecificViewMixin(AuthMixin):
@@ -194,7 +195,7 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         return self.course_run.external_key
 
 
-class JobInvokerMixin(object):
+class JobInvokerMixin:
     """
     A mixin for views that invoke jobs and return ID and status URL.
     """
@@ -255,8 +256,9 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             # Raise exception if the program (MM at the moment) is not
             # available for enrollments related API endpoints
             raise PermissionDenied(
-                'Cannot access enrollment endpoints with program [%s] whose enrollments are disabled',
-                self.program.key
+                'Cannot access enrollment endpoints with program [{}] whose enrollments are disabled'.format(
+                    self.program.key
+                )
             )
 
         super().check_permissions(request)

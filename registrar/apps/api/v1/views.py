@@ -277,7 +277,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         """ POST handler """
         return self.handle_enrollments()
 
-    def patch(self, request, program_key):  # pylint: disable=unused-argument
+    def patch(self, request, program_key):
         """ PATCH handler """
         return self.handle_enrollments()
 
@@ -351,7 +351,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         """ POST handler """
         return self.handle_enrollments(self.internal_course_key)
 
-    def patch(self, request, program_key, course_id):  # pylint: disable=unused-argument
+    def patch(self, request, program_key, course_id):
         """ PATCH handler """
         return self.handle_enrollments(self.internal_course_key)
 
@@ -440,7 +440,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         if csv_file.size > UPLOAD_FILE_MAX_SIZE:
             raise FileTooLarge()
 
-        if is_enrollment_write_blocked(self.program.key):
+        if is_enrollment_write_blocked(self.program.key):  # pylint: disable=no-member
             return Response('Job already in progress for program', HTTP_409_CONFLICT)
 
         enrollments = load_records_from_uploaded_csv(csv_file, self.field_names)

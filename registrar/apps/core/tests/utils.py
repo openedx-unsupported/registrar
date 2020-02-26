@@ -14,7 +14,6 @@ def mock_oauth_login(fn):
     """
     Mock request to authenticate registrar as a backend client
     """
-    # pylint: disable=missing-docstring
     @wraps(fn)
     def inner(self, *args, **kwargs):
         responses.add(

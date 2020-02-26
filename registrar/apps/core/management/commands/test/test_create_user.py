@@ -81,26 +81,22 @@ class TestCreateUser(TestCase):
 
     def test_user_already_exists_username(self):
         UserFactory.create(username=self.username)
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'User {} already exists'.format(self.username)):
             call_command(self.command, self.username, email=self.email)
 
     def test_duplicate_groups(self):
         groups = self.all_groups + [self.org1group_1]
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Duplicate groups not allowed'):
             call_command(self.command, self.username, email=self.email, groups=groups)
 
     def test_nonexistant_groups(self):
         groups = [self.org2group, self.org3group, 'idontexist']
         expected_msg = r"Group idontexist does not exist"
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, expected_msg):
             call_command(self.command, self.username, email=self.email, groups=groups)
 
     @patch('registrar.apps.core.models.User.objects.get_or_create', autospec=True)
     def test_create_user_exception(self, mocked_create):
         mocked_create.side_effect = Exception('myexception')
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Unable to create User {}. Cause: myexception'.format(self.username)):
             call_command(self.command, self.username, email=self.email)

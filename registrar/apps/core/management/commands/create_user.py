@@ -12,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    # pylint: disable=missing-docstring
-
+    """
+    class for command that creates a specified user
+    """
     help = 'Creates the specified user, if it does not exist, and sets its groups.'
 
     def add_arguments(self, parser):
@@ -31,7 +32,7 @@ class Command(BaseCommand):
         if groups:
             self.add_user_to_groups(user, groups)
 
-    def make_user(self, username, email, is_superuser, is_staff):
+    def make_user(self, username, email, is_superuser, is_staff):  # pylint: disable=missing-function-docstring
         try:
             user, created = User.objects.get_or_create(
                 username=username,
@@ -48,7 +49,7 @@ class Command(BaseCommand):
         logger.info("Created user: {}".format(user))
         return user
 
-    def get_groups(self, group_names):
+    def get_groups(self, group_names):  # pylint: disable=missing-function-docstring
         if not group_names:
             return []
         group_set = set(group_names)
@@ -63,7 +64,7 @@ class Command(BaseCommand):
                 raise CommandError('Group {} does not exist'.format(group_name))
         return groups
 
-    def add_user_to_groups(self, user, groups):
+    def add_user_to_groups(self, user, groups):  # pylint: disable=missing-function-docstring
         try:
             user.groups.add(*groups)
         except Exception as ex:  # pragma: no cover

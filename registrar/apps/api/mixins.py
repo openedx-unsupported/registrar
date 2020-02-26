@@ -12,7 +12,7 @@ from . import segment
 logger = logging.getLogger(__name__)
 
 
-class TrackViewMixin(object):
+class TrackViewMixin:
     """
     A mixin to provide tracking utility for all the views
 
@@ -84,8 +84,7 @@ class TrackViewMixin(object):
         api_version = self.request.get_full_path().split('/')[2]
         if not event_name:  # pragma: no cover
             logger.error(
-                'Segment tracking event name not found for request method ' +
-                '%s on view %s',
+                'Segment tracking event name not found for request method %s on view %s',
                 self.request.method,
                 self.__class__.__name__,
             )

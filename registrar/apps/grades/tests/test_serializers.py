@@ -16,7 +16,7 @@ class CourseGradeSerializerTest(TestCase):
 
     def test_student_key_only(self):
         input_data = {'student_key': 'learner-01'}
-        with self.assertRaisesRegex(ValidationError, self.expected_error):  # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(ValidationError, self.expected_error):
             CourseGradeSerializer(data=input_data).is_valid(raise_exception=True)
 
     def test_all_fields(self):
@@ -27,7 +27,7 @@ class CourseGradeSerializerTest(TestCase):
             'passed': True,
             'error': 'There was a problem I think',
         }
-        with self.assertRaisesRegex(ValidationError, self.expected_error):  # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(ValidationError, self.expected_error):
             CourseGradeSerializer(data=input_data).is_valid(raise_exception=True)
 
     @ddt.data(
@@ -41,7 +41,7 @@ class CourseGradeSerializerTest(TestCase):
     def test_error_and_some_other_fields(self, input_data):
         input_data['student_key'] = 'learner-01'
         input_data['error'] = 'some problem idk'
-        with self.assertRaisesRegex(ValidationError, self.expected_error):  # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(ValidationError, self.expected_error):
             CourseGradeSerializer(data=input_data).is_valid(raise_exception=True)
 
     @ddt.data('letter_grade', 'percent', 'passed')
@@ -53,5 +53,5 @@ class CourseGradeSerializerTest(TestCase):
             'passed': True,
         }
         input_data.pop(dropped_key)
-        with self.assertRaisesRegex(ValidationError, self.expected_error):  # pylint: disable=deprecated-method
+        with self.assertRaisesRegex(ValidationError, self.expected_error):
             CourseGradeSerializer(data=input_data).is_valid(raise_exception=True)

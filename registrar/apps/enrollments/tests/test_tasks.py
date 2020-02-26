@@ -70,7 +70,7 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
         with patch.object(tasks.lms, self.mocked_get_enrollments_method) as mock_get_enrollments:
             error = HTTPError(request=FakeRequest('registrar.edx.org'), response=FakeResponse(status_code))
             mock_get_enrollments.side_effect = error
-            task = self.spawn_task()
+            task = self.spawn_task()  # pylint: disable=assignment-from-no-return
             task.wait()
         expected_msg = "HTTP error {} when getting enrollments at registrar.edx.org".format(status_code)
         self.assert_failed(expected_msg)
@@ -78,7 +78,7 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
     def test_invalid_data(self):
         with patch.object(tasks.lms, self.mocked_get_enrollments_method) as mock_get_enrollments:
             mock_get_enrollments.side_effect = ValidationError()
-            task = self.spawn_task()
+            task = self.spawn_task()  # pylint: disable=assignment-from-no-return
             task.wait()
         self.assert_failed("Invalid enrollment data from LMS")
 
@@ -87,7 +87,7 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
             mock_get_enrollments.return_value = self.enrollment_data
             exception_raised = False
             try:
-                task = self.spawn_task(file_format='invalid-format')
+                task = self.spawn_task(file_format='invalid-format')  # pylint: disable=assignment-from-no-return
                 task.wait()
             except ValueError as e:
                 self.assertIn('Invalid file_format', str(e))

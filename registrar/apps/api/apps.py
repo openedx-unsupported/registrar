@@ -7,6 +7,9 @@ from django.conf import settings
 
 
 class ApiConfig(AppConfig):
+    """
+    Wrapper for AppConfig class
+    """
     name = 'registrar.apps.api'
     verbose_name = 'API'
 

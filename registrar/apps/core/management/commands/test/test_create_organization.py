@@ -66,32 +66,27 @@ class TestCreateOrganization(TestCase):
 
     def test_group_parsing_too_many_args(self):
         groups = [[OrganizationReadMetadataRole.name, 'g1', 'test'], [OrganizationReadEnrollmentsRole.name, 'g2']]
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, '--group only accepts one or two arguments'):
             call_command(self.command, self.org_key, groups=groups)
 
     def test_group_parsing_invalid_role(self):
         groups = [['notarole', 'g1']]
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, r'first argument to --group must be one of .*'):
             call_command(self.command, self.org_key, groups=groups)
 
     @patch('registrar.apps.core.models.Organization.objects.create', autospec=True)
     def test_create_org_exception(self, mocked_create):
         mocked_create.side_effect = Exception('myexception')
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Unable to create Organization. cause: myexception'):
             call_command(self.command, self.org_key)
 
     @patch('registrar.apps.core.models.OrganizationGroup.objects.create', autospec=True)
     def test_create_org_group_exception(self, mocked_create):
         mocked_create.side_effect = Exception('myexception')
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Unable to create OrganizationGroup g1. cause: myexception'):
             call_command(self.command, self.org_key, groups=[[OrganizationReadMetadataRole.name, 'g1']])
 
     def test_invalid_group_name(self):
         msg = 'org_key can only contain alphanumeric characters, dashes, and underscores'
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, msg):
             call_command(self.command, "RobertU'); DROP TABLE organizations;--")

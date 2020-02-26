@@ -149,7 +149,6 @@ class TestManagePrograms(TestCase):
         self.assert_program(self.english_uuid, 'masters-in-english', self.org)
 
     def test_incorrect_format(self):
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'incorrectly formatted argument'):
             call_command(self.command, 'youyoueyedee:mastersporgoramme:somethingelse')
 
@@ -159,7 +158,6 @@ class TestManagePrograms(TestCase):
             'authoring_organizations': authoring_organizations,
             'uuid': self.english_uuid
         }
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'No authoring org keys found for program'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
 
@@ -169,12 +167,10 @@ class TestManagePrograms(TestCase):
             self.english_uuid,
             'english-slug'
         )
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'None of the authoring organizations (.*?) were found'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english_program')))
 
     def test_load_from_disco_failed(self):
         self.mock_get_discovery_program.return_value = {}
-        # pylint: disable=deprecated-method
         with self.assertRaisesRegex(CommandError, 'Could not read program'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
