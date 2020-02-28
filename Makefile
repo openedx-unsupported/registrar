@@ -1,4 +1,5 @@
 .DEFAULT_GOAL := test
+TOX=''
 
 .PHONY: help clean static upgrade piptools requirements production-requirements \
         prod-requirements devstack-requirements local-requirements run-local \
@@ -20,6 +21,11 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
+ifdef TOXENV
+TOX := tox -- #to isolate each tox environment if TOXENV is defined
+endif
+
+
 # Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
 help: ## display this help message
 	@echo "Please use \`make <target>\` where <target> is one of"
@@ -36,7 +42,7 @@ full_clean: clean ## clean byte code, reports, and uploaded media
 	rm -rf registrar/media
 
 static: ## generate static files
-	python manage.py collectstatic --noinput
+	$(TOX)python manage.py collectstatic --noinput
 
 upgrade: piptools  ## re-compile requirements .txt files from .in files
 	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
@@ -77,32 +83,32 @@ shell: ## Run Python shell with devstack settings
 	python manage.py shell
 
 coverage: clean
-	pytest --cov-report html
+	$(TOX)pytest --cov-report html
 	$(BROWSER) htmlcov/index.html
 
 test: clean ## run tests and generate coverage report
-	pytest
+	$(TOX)pytest
 
 quality: pycodestyle pylint yamllint isort_check ## run all code quality checks
 
 pycodestyle:  # run pycodestyle
-	pycodestyle registrar scripts
+	$(TOX)pycodestyle registrar/ scripts/
 
 pylint:  # run pylint
-	pylint --rcfile=pylintrc registrar
+	$(TOX)pylint --rcfile=pylintrc registrar
 
 yamllint:  # run yamlint
-	yamllint *.yaml
+	$(TOX)yamllint *.yaml
 
 isort_check: ## check that isort has been run
-	isort --check-only -rc registrar/ scripts/
+	$(TOX)isort --check-only -rc registrar/ scripts/
 
 isort: ## run isort to sort imports in all Python files
-	isort --recursive --atomic registrar scripts
+	$(TOX)isort --recursive --atomic registrar scripts
 
 pii_check: ## check for PII annotations on all Django models
 	DJANGO_SETTINGS_MODULE=registrar.settings.test \
-	code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
+	$(TOX)code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
 
 validate: coverage quality pii_check validate_api_committed  ## run all tests and quality checks
 
@@ -113,17 +119,17 @@ createsuperuser:  ## create a super user with username and password 'edx'
 	echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"edx\", \"edx@example.com\",\"edx\") if not User.objects.filter(username=\"edx\").exists() else None" | python manage.py shell
 
 html_coverage: ## generate and view HTML coverage report
-	coverage html && open htmlcov/index.html
+	$(TOX)coverage html && open htmlcov/index.html
 
 extract_translations: ## extract strings to be translated, outputting .mo files
-	python manage.py makemessages -l en -v1 -d django
-	python manage.py makemessages -l en -v1 -d djangojs
+	$(TOX)python manage.py makemessages -l en -v1 -d django
+	$(TOX)python manage.py makemessages -l en -v1 -d djangojs
 
 dummy_translations: ## generate dummy translation (.po) files
 	cd registrar && i18n_tool dummy
 
 compile_translations:
-	python manage.py compilemessages
+	$(TOX)python manage.py compilemessages
 
 fake_translations: extract_translations dummy_translations compile_translations ## generate and compile dummy translation files
 
@@ -142,4 +148,4 @@ api_generated: ## generates an expanded verison of api.yaml for consuming tools 
 	python scripts/yaml_merge.py api.yaml .api-generated.yaml
 
 validate_api_committed: ## check to make sure any api.yaml changes have been committed to the expanded document
-	bash -c "diff .api-generated.yaml <(python scripts/yaml_merge.py api.yaml -)"
+	$(TOX)bash -c "diff .api-generated.yaml <(python scripts/yaml_merge.py api.yaml -)"
