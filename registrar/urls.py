@@ -21,8 +21,8 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+from edx_api_doc_tools import make_api_info, make_docs_urls
 
-from . import api_renderer
 from .apps.api import urls as api_urls
 from .apps.core import views as core_views
 
@@ -43,10 +43,6 @@ urlpatterns = oauth2_urlpatterns + [
     # including those originating from the browseable API.
     url(r'^api-auth/', include(oauth2_urlpatterns)),
 
-    # Swagger documentation UI.
-    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
-    url(r'^api-docs/$', api_renderer.render_yaml_spec, name='api-docs'),
-
     # Django admin panel.
     url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
     url(r'^admin/', admin.site.urls),
@@ -65,6 +61,9 @@ urlpatterns = oauth2_urlpatterns + [
 urlpatterns += [
     url(r'', include('csrf.urls')),
 ]
+
+api_info = make_api_info(title="Registrar API", version="v2")
+urlpatterns += make_docs_urls(api_info)
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
     import debug_toolbar  # pylint: disable=import-error
