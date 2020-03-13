@@ -43,7 +43,7 @@ djangorestframework==3.11.0  # via -r requirements/base.in, django-user-tasks, d
 docker==4.2.0             # via moto
 docopt==0.6.2             # via pipreqs
 docutils==0.15.2          # via botocore
-drf-jwt==1.15.1           # via edx-drf-extensions
+drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensions
 ecdsa==0.15               # via python-jose
 edx-auth-backends==3.0.2  # via -r requirements/base.in
 edx-django-release-util==0.3.6  # via -r requirements/base.in
