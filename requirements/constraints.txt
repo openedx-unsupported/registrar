@@ -20,3 +20,6 @@ django-storages<1.9
 # Requires: Python >=3.6
 mock<4.0.0
 zipp<2.0.0
+
+# Pinned until edx-drf-extension > 4.0.2 is released
+drf-jwt==1.14.0
