@@ -29,30 +29,37 @@ class CustomUserAdmin(UserAdmin):
 
 class OrganizationAdmin(GuardedModelAdmin):
     list_display = ('key', 'name', 'discovery_uuid')
-    search_fields = ('key', 'name')
+    search_fields = ('key', 'name', 'discovery_uuid')
     ordering = ('key',)
     date_hierarchy = 'modified'
 
 
 class OrganizationGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'organization', 'role')
+    search_fields = ('name', 'organization__key', 'organization__name', 'role')
+    ordering = ('name',)
     exclude = ('permissions',)
 
 
 class PendingUserGroupAdmin(admin.ModelAdmin):
-    list_display = ('user_email', 'group')
-    search_fields = ('user_email', )
+    list_display = ("group", "user_email")
+    search_fields = ("group__name", "user_email")
+    ordering = ("group", "user_email")
 
 
 class ProgramAdmin(admin.ModelAdmin):
     """
     Admin tool for the ProgramEnrollment model
     """
-    list_display = ("key", "discovery_uuid", "managing_organization")
+    list_display = ("managing_organization", "key", "discovery_uuid")
+    search_fields = ("managing_organization__name", "key", "discovery_uuid")
+    ordering = ("managing_organization", "key")
 
 
 class ProgramGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'program', 'granting_organization', 'role')
+    search_fields = ('name', 'program__key', 'granting_organization__name', 'role')
+    ordering = ('name',)
     exclude = ('permissions', )
 
 
