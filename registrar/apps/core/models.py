@@ -66,6 +66,7 @@ class Organization(TimeStampedModel):
     key = models.CharField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
+    enable_course_role_management = models.BooleanField(default=False)
 
     def __str__(self):
         """
