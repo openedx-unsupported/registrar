@@ -39,11 +39,7 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^/?$', RedirectView.as_view(url=settings.LOGIN_URL)),
     url(r'^login$', RedirectView.as_view(url=settings.LOGIN_URL)),
 
-    # Use the same auth views for all logins,
-    # including those originating from the browseable API.
-    url(r'^api-auth/', include(oauth2_urlpatterns)),
-
-    # Django admin panel.
+    # Django admin panel.http://localhost:18734/api-docs/
     url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
     url(r'^admin/', admin.site.urls),
 
