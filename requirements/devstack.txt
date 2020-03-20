@@ -15,9 +15,9 @@ aws-sam-translator==1.22.0  # via cfn-lint
 aws-xray-sdk==2.4.3       # via moto
 babel==2.8.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.12.25            # via aws-sam-translator, moto
+boto3==1.12.26            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.15.25         # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.15.26         # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2019.11.28       # via requests
 cffi==1.14.0              # via cryptography
@@ -52,7 +52,7 @@ docutils==0.15.2          # via botocore, sphinx
 drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensions
 ecdsa==0.15               # via python-jose
 edx-auth-backends==3.0.2  # via -r requirements/base.in
-edx-django-release-util==0.3.6  # via -r requirements/base.in
+edx-django-release-util==0.4.0  # via -r requirements/base.in
 edx-django-utils==3.0     # via edx-drf-extensions
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-i18n-tools==0.5.0     # via -r requirements/local.in
