@@ -9,6 +9,12 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
+from edx_api_doc_tools import (
+    path_parameter,
+    query_parameter,
+    schema,
+    schema_for,
+)
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -54,6 +60,7 @@ from ..mixins import TrackViewMixin
 from ..serializers import (
     CourseRunSerializer,
     DiscoveryProgramSerializer,
+    JobAcceptanceSerializer,
     JobStatusSerializer,
     ProgramReportMetadataSerializer,
 )
@@ -68,21 +75,29 @@ from .mixins import (
 
 logger = logging.getLogger(__name__)
 
+SCHEMA_COMMON_RESPONSES = {
+    401: 'User is not authenticated.',
+    405: 'HTTP method not support on this path.'
+}
 
+
+@schema_for(
+    'get',
+    parameters=[
+        query_parameter('org_key', str, 'Organization filter'),
+        query_parameter('user_has_perm', str, 'Permission filter'),
+    ],
+    responses={
+        403: 'User lacks access to organization.',
+        404: 'Organization does not exist.',
+        **SCHEMA_COMMON_RESPONSES,
+    },
+)
 class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
     Path: /api/[version]/programs?org={org_key}
-
-    All programs within organization specified by `org_key` are returned.
-    For users will global organization access, `org_key` can be omitted in order
-    to return all programs.
-
-    Returns:
-     * 200: OK
-     * 403: User lacks read access to specified organization.
-     * 404: Organization does not exist.
     """
 
     serializer_class = DiscoveryProgramSerializer
@@ -226,20 +241,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     GET
     ------------------------------------------------------------------------------------
 
-    Invokes a Django User Task that retrieves student enrollment
-    data for a given program.
-
-    Returns:
-     * 202: Accepted, an asynchronous job was successfully started.
-     * 401: User is not authenticated
-     * 403: User lacks enrollment read access to the specified program.
-     * 404: Program does not exist.
-
-    Example Response:
-    {
-        "job_id": "3b985cec-dcf4-4d38-9498-8545ebcf5d0f",
-        "job_url": "http://localhost/api/[version]/jobs/3b985cec-dcf4-4d38-9498-8545ebcf5d0f"
-    }
+    See @schema decorator on `get` method.
 
     ------------------------------------------------------------------------------------
     POST / PATCH
@@ -267,6 +269,18 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         'fmt': 'result_format',
     }
 
+    @schema(
+        parameters=[
+            path_parameter('program_key', str, 'edX human-readable program key'),
+            query_parameter('fmt', str, 'Response format: "json" or "csv"'),
+        ],
+        responses={
+            202: JobAcceptanceSerializer,
+            403: "No program access.",
+            404: "Invalid program key.",
+            **SCHEMA_COMMON_RESPONSES,
+        },
+    )
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves program enrollment data.

@@ -1,6 +1,9 @@
-""" Tests for non-api views """
+"""
+Tests for non-api views.
+"""
 import json
 
+from django.test import override_settings
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 
@@ -14,7 +17,9 @@ from registrar.apps.core.tests.factories import (
 )
 
 
-class APIDocViewTest(APITestCase):
+# TODO MST-107: Remove this once new API docs are enabled by default.
+@override_settings(ENABLE_NEW_API_DOCS=False)
+class ManualAPIDocViewTest(APITestCase):
     """ Tests for accessing api-docs """
     path = '/api-docs/'
 
@@ -71,3 +76,22 @@ class APIDocViewTest(APITestCase):
         paths = spec.get('paths')
         self.assertIsNotNone(paths)
         self.assertEqual(expected_paths, bool(paths))
+
+
+# TODO MST-107: Remove this once new API docs are enabled by default.
+@override_settings(ENABLE_NEW_API_DOCS=True)
+class APIDocViewTest(APITestCase):
+    """ Tests for accessing api-docs """
+    path = '/api-docs/'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory()
+
+    def test_docs_access_logged_out(self):
+        return self.client.get('/api-docs').status_code == 200
+
+    def test_docs_access_logged_in(self):
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        return self.client.get('/api-docs').status_code == 200

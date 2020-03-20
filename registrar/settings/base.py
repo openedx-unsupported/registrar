@@ -34,6 +34,8 @@ THIRD_PARTY_APPS = (
     'analytics',
     'corsheaders',
     'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens
+    'edx_api_doc_tools',
+    'drf_yasg',
     'guardian',
     'release_util',
     'rest_framework',
@@ -317,3 +319,8 @@ EDX_DRF_EXTENSIONS = {
     "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
 }
 
+# Feature flag for improved browsable API documentation generated
+# by edx-api-doc-tools.
+# If False, use existing swagger UI loaded from manually-written api.yml file.
+# TODO MST-107: Remove this flag and fully switch to new API docs.
+ENABLE_NEW_API_DOCS = False

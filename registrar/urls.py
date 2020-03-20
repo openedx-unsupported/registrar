@@ -21,6 +21,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+from edx_api_doc_tools import make_api_info, make_docs_urls
 
 from . import api_renderer
 from .apps.api import urls as api_urls
@@ -39,14 +40,6 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^/?$', RedirectView.as_view(url=settings.LOGIN_URL)),
     url(r'^login$', RedirectView.as_view(url=settings.LOGIN_URL)),
 
-    # Use the same auth views for all logins,
-    # including those originating from the browseable API.
-    url(r'^api-auth/', include(oauth2_urlpatterns)),
-
-    # Swagger documentation UI.
-    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
-    url(r'^api-docs/$', api_renderer.render_yaml_spec, name='api-docs'),
-
     # Django admin panel.
     url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
     url(r'^admin/', admin.site.urls),
@@ -60,6 +53,20 @@ urlpatterns = oauth2_urlpatterns + [
     # The API itself!
     url(r'^api/', include(api_urls)),
 ]
+
+if settings.ENABLE_NEW_API_DOCS:
+    # New API documentation system!
+    api_info = make_api_info(title="Registrar API", version="v2")
+    urlpatterns += make_docs_urls(api_info)
+else:
+    urlpatterns += [
+        # Use the same auth views for all logins,
+        # including those originating from the browseable API.
+        url(r'^api-auth/', include(oauth2_urlpatterns)),
+        # Swagger documentation UI.
+        url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
+        url(r'^api-docs/$', api_renderer.render_yaml_spec, name='api-docs'),
+    ]
 
 # edx-drf-extensions csrf app
 urlpatterns += [
