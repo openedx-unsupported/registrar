@@ -603,12 +603,18 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         reports = filestore.list(file_prefix)[1]
 
         for report_name in reports:
-            report_metadata = {
-                'name': report_name,
-                'created_date': self._get_file_created_date(
-                    report_name, date_format_string,
-                ),
-            }
+            created_date = self._get_file_created_date(report_name, date_format_string)
+            if not created_date:
+                # If the file name is not in the expected format,
+                # log a warning and skip the file.
+                logger.warning(
+                    "Under path '%s', filename '%s' is not in the expected format: "
+                    "report_name__YYYY-MM-DD.extension.",
+                    file_prefix,
+                    report_name,
+                )
+                continue
+            report_metadata = {'name': report_name, 'created_date': created_date}
             reports_metadata.append(report_metadata)
 
         if 'min_created_date' in request.query_params:
@@ -650,7 +656,6 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
 
         if match is None:
             # if the filename is not as expected, return None
-            self._log_invalid_filename(filename)
             return None
 
         date_string = match.group(1)
@@ -660,9 +665,5 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
             # return None
             date = datetime.strptime(date_string, date_format_string)
         except ValueError:
-            self._log_invalid_filename(filename)
             return None
         return datetime.strftime(date, date_format_string)
-
-    def _log_invalid_filename(self, filename):
-        logger.warning('Filename {} is not in the expected format: report_name__YYYY-MM-DD.extension.'.format(filename))

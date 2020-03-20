@@ -1,6 +1,7 @@
 """ Tests for API views. """
 import csv
 import json
+import logging
 import uuid
 from io import StringIO
 from posixpath import join as urljoin
@@ -217,6 +218,9 @@ class S3MockMixin(S3MockEnvVarsMixin):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Suppress egregious boto/moto DEBUG logging.
+        for logger_name in ['boto3', 'botocore', 's3transfer']:
+            logging.getLogger(logger_name).setLevel(logging.INFO)
         cls._s3_mock = moto.mock_s3()
         cls._s3_mock.start()
         conn = boto3.resource('s3', region_name='us-west-1')
@@ -2534,11 +2538,15 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(response.data, [])
 
     def test_filename_misformatted(self):
+        """
+        Test that reports with malformed names and/or invalid dates are ignored,
+        but reports with well-formed names with valid dates are still returned.
+        """
         files = [
-            'aggregate_report_1',
-            'aggregate_report_2',
-            'individual_report_1',
-            'individual_report_2',
+            'aggregate_report_1',  # Malformed
+            'aggregate_report__2019-25-25',  # Invalid date
+            'individual_report_1',  # Malformed
+            'individual_report__2019-12-18',  # Well-formed
         ]
         file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
         filestore = get_program_reports_filestore()
@@ -2547,37 +2555,16 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 '{}/{}'.format(file_prefix, file),
                 'data',
             )
-
         expected_data = [
             {
-                'name': file,
-                'created_date': None,
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file)),
-            } for file in files
-        ]
-
-        response = self.get(self.path, self.hum_admin)
-        self.assertEqual(response.data, expected_data)
-
-    def test_invalid_date_in_filename(self):
-        files = [
-            'aggregate_report__2019-25-25',
-            'individual_report__2019-25-25',
-        ]
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
-        filestore = get_program_reports_filestore()
-        for file in files:
-            filestore.store(
-                '{}/{}'.format(file_prefix, file),
-                'data',
-            )
-
-        expected_data = [
-            {
-                'name': file,
-                'created_date': None,
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file))
-            } for file in files
+                'name': 'individual_report__2019-12-18',
+                'created_date': '2019-12-18',
+                'download_url': filestore.get_url(
+                    '{file_prefix}/individual_report__2019-12-18'.format(
+                        file_prefix=file_prefix
+                    ),
+                ),
+            }
         ]
         response = self.get(self.path, self.hum_admin)
         self.assertEqual(response.data, expected_data)
