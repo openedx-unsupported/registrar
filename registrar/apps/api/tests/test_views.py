@@ -1,4 +1,6 @@
-""" Tests for non-api views """
+"""
+Tests for non-versioned views.
+"""
 import json
 
 from guardian.shortcuts import assign_perm
@@ -14,8 +16,11 @@ from registrar.apps.core.tests.factories import (
 )
 
 
-class APIDocViewTest(APITestCase):
-    """ Tests for accessing api-docs """
+class OldAPIDocViewTest(APITestCase):
+    """
+    Tests for accessing API docs hand-written in api.yaml file and
+    served up by Swagger.
+    """
     path = '/api-docs/'
 
     @classmethod
@@ -71,3 +76,38 @@ class APIDocViewTest(APITestCase):
         paths = spec.get('paths')
         self.assertIsNotNone(paths)
         self.assertEqual(expected_paths, bool(paths))
+
+
+class NewAPIDocViewTest(APITestCase):
+    """
+    Tests for accessing API docs generated using edx-api-doc-tools.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory()
+
+    def assert_can_load_docs_page(self):
+        """
+        Assert that we can load /api-docs/new as expected.
+
+        Because most of the docs page is loaded via AJAX, we can't make many assertions
+        about the api-docs page. The best we can do is:
+        * Assert that the response was 200 OK.
+        * Assert that a statically-rendered string, such as the API title,
+          is in the page. We choose the API title because the specific title we are
+          checking for is *not* in the old API docs, so we are sure that we aren't
+          just loading the old API docs when tests pass.
+        """
+        docs_response = self.client.get('/api-docs/new', follow=True)
+        assert docs_response.status_code == 200
+        docs_response_text = docs_response.content.decode('utf-8')
+        assert "Registrar API - New Documentation" in docs_response_text
+
+    def test_docs_access_logged_out(self):
+        self.assert_can_load_docs_page()
+
+    def test_docs_access_logged_in(self):
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.assert_can_load_docs_page()

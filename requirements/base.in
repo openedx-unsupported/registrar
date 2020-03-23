@@ -14,6 +14,7 @@ django-simple-history
 django-storages
 django-user-tasks>=0.1.7
 django-waffle
+edx-api-doc-tools
 edx-auth-backends
 edx-django-release-util
 edx-drf-extensions

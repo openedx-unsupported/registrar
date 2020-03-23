@@ -21,6 +21,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+from edx_api_doc_tools import make_api_info, make_docs_ui_view
 
 from . import api_renderer
 from .apps.api import urls as api_urls
@@ -33,6 +34,19 @@ admin.autodiscover()
 
 app_name = 'registrar'
 
+new_api_ui_view = make_docs_ui_view(
+    make_api_info(
+        title="Registrar API - New Documentation",
+        version="v2",
+        email="masters-dev@edx.org",
+        description=(
+            "Administer student enrollments in degree-bearing edX programs. "
+            "Please note that this documentation is a work-in-progress "
+            "and should not be considered authoritative."
+        ),
+    )
+)
+
 urlpatterns = oauth2_urlpatterns + [
     # '/' and '/login' redirect to '/login/',
     # which attempts LMS OAuth and then redirects to api-docs.
@@ -43,7 +57,13 @@ urlpatterns = oauth2_urlpatterns + [
     # including those originating from the browseable API.
     url(r'^api-auth/', include(oauth2_urlpatterns)),
 
+    # NEW Swagger documentation UI, generated using edx-api-doc-tools.
+    # TODO: Make this the default as part of MST-195.
+    url(r'^api-docs/new$', RedirectView.as_view(pattern_name='api-docs-new')),
+    url(r'^api-docs/new/$', new_api_ui_view, name='api-docs-new'),
+
     # Swagger documentation UI.
+    # TODO: Remove as part of MST-195.
     url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
     url(r'^api-docs/$', api_renderer.render_yaml_spec, name='api-docs'),
 
