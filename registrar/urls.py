@@ -56,7 +56,12 @@ urlpatterns = oauth2_urlpatterns + [
 
 if settings.ENABLE_NEW_API_DOCS:
     # New API documentation system!
-    api_info = make_api_info(title="Registrar API", version="v2")
+    api_info = make_api_info(
+        title="Registrar API",
+        version="v2",
+        email="masters-dev@edx.org",
+        description="Administer students enrollments for degree-bearing edX programs.",
+    )
     urlpatterns += make_docs_urls(api_info)
 else:
     urlpatterns += [
