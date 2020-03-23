@@ -34,6 +34,8 @@ THIRD_PARTY_APPS = (
     'analytics',
     'corsheaders',
     'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens
+    'edx_api_doc_tools',
+    'drf_yasg',
     'guardian',
     'release_util',
     'rest_framework',
