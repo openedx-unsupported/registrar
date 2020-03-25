@@ -39,6 +39,8 @@ def get_all_paginated_results(url, client=None):
     Builds a list of all results from a cursor-paginated endpoint.
 
     Repeatedly performs request on 'next' URL until 'next' is null.
+
+    Returns: list
     """
     if not client:  # pragma: no branch
         client = get_client(settings.LMS_BASE_URL)

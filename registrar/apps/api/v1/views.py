@@ -108,6 +108,11 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     }
 
     def get_queryset(self):
+        """
+        Get list of programs to be serialized and returned as response to GET request.
+
+        Returns: list[DiscoveryProgram]
+        """
         programs = DiscoveryProgram.objects.all()
         user = self.request.user
 

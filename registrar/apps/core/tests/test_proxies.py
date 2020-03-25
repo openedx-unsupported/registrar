@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 
-from ..proxies import DISCOVERY_PROGRAM_API_TPL, DiscoveryProgram
+from ..proxies import DISCOVERY_SINGLE_PROGRAM_API_TPL, DiscoveryProgram
 from .factories import DiscoveryProgramFactory
 from .utils import mock_oauth_login, patch_discovery_program_details
 
@@ -43,7 +43,7 @@ class DiscoveryProgramTestCase(TestCase):
     program_uuid = UUID("88888888-4444-2222-1111-000000000000")
     discovery_url = urljoin(
         settings.DISCOVERY_BASE_URL,
-        DISCOVERY_PROGRAM_API_TPL.format(program_uuid)
+        DISCOVERY_SINGLE_PROGRAM_API_TPL.format(program_uuid)
     )
 
     inactive_curriculum_uuid = UUID("77777777-4444-2222-1111-000000000000")

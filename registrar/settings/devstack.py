@@ -81,3 +81,5 @@ if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
 
 API_ROOT = 'http://localhost:18734/api'
+
+BULK_FETCH_DISCOVERY_PROGRAMS = True

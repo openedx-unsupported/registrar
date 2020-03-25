@@ -12,11 +12,13 @@ from requests.exceptions import HTTPError
 
 from .constants import PROGRAM_CACHE_KEY_TPL, PROGRAM_CACHE_TIMEOUT
 from .models import Program
-from .rest_utils import make_request
+from .rest_utils import get_all_paginated_results, make_request
 
 
 logger = logging.getLogger(__name__)
-DISCOVERY_PROGRAM_API_TPL = 'api/v1/programs/{}/'
+DISCOVERY_SINGLE_PROGRAM_API_TPL = 'api/v1/programs/{}/'
+DISCOVERY_MULTI_PROGRAM_API_TPL = 'api/v1/programs/?uuids={}'
+
 
 DiscoveryCourseRun = namedtuple(
     'DiscoveryCourseRun',
@@ -83,15 +85,19 @@ class DiscoveryProgram(Program):
 
         Returns: dict
         """
-        key = PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
+        key = cls._get_cache_key(program_uuid)
         # Note that "not-found-in-discovery" is purposefully cached as `{}`,
         # whereas `cache.get(key)` will return `None` if the key is not in the
         # cache.
         program_details = cache.get(key)
         if not isinstance(program_details, dict):
-            program_details = cls._fetch_discovery_program_details(program_uuid)
-            cache_value = program_details if isinstance(program_details, dict) else {}
-            cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
+            if settings.BULK_FETCH_DISCOVERY_PROGRAMS:
+                cls._bulk_load_program_details()
+                program_details = cache.get(key)
+            else:
+                program_details = cls._fetch_discovery_program_details(program_uuid)
+                cache_value = program_details if isinstance(program_details, dict) else {}
+                cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
         return program_details
 
     @classmethod
@@ -103,7 +109,7 @@ class DiscoveryProgram(Program):
             program_uuids (Iterable[str|UUID])
         """
         cache_keys_to_delete = [
-            PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
+            cls._get_cache_key(program_uuid)
             for program_uuid in program_uuids
         ]
         cache.delete_many(cache_keys_to_delete)
@@ -123,7 +129,7 @@ class DiscoveryProgram(Program):
         """
         url = urljoin(
             settings.DISCOVERY_BASE_URL,
-            DISCOVERY_PROGRAM_API_TPL.format(program_uuid)
+            DISCOVERY_SINGLE_PROGRAM_API_TPL.format(program_uuid)
         )
         try:
             return make_request('GET', url, client=None).json()
@@ -133,6 +139,38 @@ class DiscoveryProgram(Program):
                 program_uuid,
             )
             return None
+
+    @classmethod
+    def _bulk_load_program_details(cls):
+        """
+        For all programs in database, make sure their details from Discovery are cached.
+        """
+        uuids = Program.objects.values_list('discovery_uuid', flat=True)
+        uuids_to_fetch = [
+            uuid for uuid in uuids if cls._get_cache_key(uuid) not in cache
+        ]
+        uuids_string = ",".join(str(uuid) for uuid in uuids_to_fetch)
+        url = urljoin(
+            settings.DISCOVERY_BASE_URL,
+            DISCOVERY_MULTI_PROGRAM_API_TPL.format(uuids_string)
+        )
+        try:
+            program_details_list = get_all_paginated_results(url)
+        except HTTPError:
+            logger.exception(
+                "Failed to bulk-fetch programs from Discovery service;\nUUIDs: %s.",
+                uuids_string,
+            )
+            return
+        for program_details in program_details_list:
+            uuid = program_details.get('uuid')
+            if not uuid:
+                continue
+            cache.set(cls._get_cache_key(uuid), program_details, PROGRAM_CACHE_TIMEOUT)
+
+    @staticmethod
+    def _get_cache_key(program_uuid):
+        return PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
 
     @property
     def discovery_details(self):

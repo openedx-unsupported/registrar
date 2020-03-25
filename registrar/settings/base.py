@@ -319,3 +319,9 @@ EDX_DRF_EXTENSIONS = {
     "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
 }
 
+# Potential fix for MST-191.
+# If enabled, we bulk-fetch and cache program details from Discovery service
+# when handling `GET /api/vX/programs/` in order to avoid repeated calls
+# to Discovery service.
+# Defaults to disabled.
+BULK_FETCH_DISCOVERY_PROGRAMS = False
