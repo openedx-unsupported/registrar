@@ -47,3 +47,5 @@ PROGRAM_REPORTS_BUCKET = 'program-reports-test'
 
 # Publicly-exposed base URLs for service and API, respectively
 API_ROOT = 'http://localhost/api'
+
+BULK_FETCH_DISCOVERY_PROGRAMS = True

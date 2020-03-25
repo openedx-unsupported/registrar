@@ -93,7 +93,7 @@ class DiscoveryProgram(Program):
         if not isinstance(program_details, dict):
             if settings.BULK_FETCH_DISCOVERY_PROGRAMS:
                 cls._bulk_load_program_details()
-                program_details = cache.get(key)
+                program_details = cache.get(key) or {}
             else:
                 program_details = cls._fetch_discovery_program_details(program_uuid)
                 cache_value = program_details if isinstance(program_details, dict) else {}
