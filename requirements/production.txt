@@ -8,8 +8,8 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9   # via -r requirements/base.in
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.12.26            # via -r requirements/production.in
-botocore==1.15.26         # via boto3, s3transfer
+boto3==1.12.28            # via -r requirements/production.in
+botocore==1.15.28         # via boto3, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2019.11.28       # via requests
 cffi==1.14.0              # via cryptography
@@ -34,8 +34,8 @@ drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensi
 drf-yasg==1.17.1          # via edx-api-doc-tools
 edx-api-doc-tools==1.1.0  # via -r requirements/base.in
 edx-auth-backends==3.0.2  # via -r requirements/base.in
-edx-django-release-util==0.4.0  # via -r requirements/base.in
-edx-django-utils==3.0     # via edx-drf-extensions
+edx-django-release-util==0.4.1  # via -r requirements/base.in
+edx-django-utils==3.1     # via edx-drf-extensions
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-opaque-keys==2.0.1    # via edx-drf-extensions
 edx-rest-api-client==1.9.2  # via -r requirements/base.in
