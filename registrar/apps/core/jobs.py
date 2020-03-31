@@ -16,6 +16,7 @@ import logging
 import uuid
 from collections import namedtuple
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from user_tasks.models import UserTaskArtifact, UserTaskStatus
 
@@ -54,7 +55,12 @@ def start_job(user, task_fn, *args, **kwargs):
         *args/**kwargs: Additional arguments to pass to task_fn.
     """
     job_id = kwargs.pop('job_id') if 'job_id' in kwargs else str(uuid.uuid4())
-    task_fn.apply_async([job_id, user.id] + list(args), kwargs, task_id=job_id)
+    task_fn.apply_async(
+        [job_id, user.id] + list(args),
+        kwargs,
+        task_id=job_id,
+        queue=settings.CELERY_DEFAULT_QUEUE,
+    )
     return job_id
 
 
