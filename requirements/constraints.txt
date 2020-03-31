@@ -26,3 +26,6 @@ drf-jwt<1.15.0
 
 # Stay on latest LTS release
 Django>=2.2,<3.0
+
+# This package is pinned due to openedx.atlassian.net/browse/ARCHBOM-1078
+social-auth-core<3.3.0

@@ -151,7 +151,7 @@ six==1.14.0               # via analytics-python, astroid, aws-sam-translator, c
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/monitoring/../github.in, edx-auth-backends
-social-auth-core==3.3.0   # via edx-auth-backends, social-auth-app-django
+social-auth-core==3.2.0   # via -c requirements/monitoring/../constraints.txt, edx-auth-backends, social-auth-app-django
 sphinx==1.6.7             # via -r requirements/monitoring/../docs.in, edx-sphinx-theme
 sphinxcontrib-websupport==1.2.0  # via sphinx
 sqlparse==0.3.1           # via django, django-debug-toolbar
