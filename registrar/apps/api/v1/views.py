@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
 from edx_api_doc_tools import (
+    exclude_schema_for_all,
     path_parameter,
     query_parameter,
     schema,
@@ -429,6 +430,7 @@ class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
         return get_processing_jobs_for_user(self.request.user)
 
 
+@exclude_schema_for_all
 class EnrollmentUploadView(JobInvokerMixin, APIView):
     """
     Base view for uploading enrollments via csv file
@@ -465,7 +467,7 @@ class ProgramEnrollmentUploadView(EnrollmentMixin, EnrollmentUploadView):
     """
     A view for uploading program enrollments via csv file
 
-    Path: /api/[version]/programs/{program_key}/enrollments
+    Path: /api/[version]/programs/{program_key}/enrollments/upload
     """
     field_names = {'student_key', 'status'}
     task_fn = write_program_enrollments
@@ -477,7 +479,7 @@ class CourseRunEnrollmentUploadView(EnrollmentMixin, CourseSpecificViewMixin, En
     """
     A view for uploading course enrollments via csv file
 
-    Path: /api/[version]/programs/{program_key}/course_enrollments
+    Path: /api/[version]/programs/{program_key}/course_enrollments/upload
     """
     field_names = {'student_key', 'course_id', 'status'}
     task_fn = write_course_run_enrollments
