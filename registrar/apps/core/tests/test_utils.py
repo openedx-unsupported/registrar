@@ -1,15 +1,20 @@
 """ Tests for Core utils.py """
 import ddt
 from django.contrib.auth.models import Group
+from django.core.cache import cache
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from rest_framework.exceptions import ValidationError
 
+from ..constants import PROGRAM_CACHE_KEY_TPL
 from ..permissions import (
     ORGANIZATION_READ_ENROLLMENTS,
     ORGANIZATION_READ_METADATA,
     ORGANIZATION_READ_REPORTS,
     ORGANIZATION_WRITE_ENROLLMENTS,
+    PROGRAM_READ_ENROLLMENTS,
+    PROGRAM_READ_METADATA,
+    PROGRAM_WRITE_ENROLLMENTS,
     APIReadEnrollmentsPermission,
     APIReadMetadataPermission,
     APIReadReportsPermission,
@@ -17,12 +22,14 @@ from ..permissions import (
     OrganizationReadWriteEnrollmentsRole,
 )
 from ..utils import (
+    get_effective_user_program_api_permissions,
     get_user_api_permissions,
     get_user_organizations,
     load_records_from_csv,
     serialize_to_csv,
 )
 from .factories import (
+    DiscoveryProgramFactory,
     GroupFactory,
     OrganizationFactory,
     OrganizationGroupFactory,
@@ -120,6 +127,105 @@ class GetUserAPIPermissionsTests(TestCase):
             APIReadEnrollmentsPermission,
             APIWriteEnrollmentsPermission,
         ]))
+
+
+class GetEffectiveUserProgramAPIPermissionsTests(TestCase):
+    """ Tests for get_effective_user_program_api_permissions """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.org1 = OrganizationFactory()
+        org1_readwrite = OrganizationGroupFactory(
+            organization=cls.org1,
+            role=OrganizationReadWriteEnrollmentsRole.name
+        )
+
+        cls.masters_program = DiscoveryProgramFactory(
+            managing_organization=cls.org1
+        )
+        cls.non_masters_program = DiscoveryProgramFactory(
+            managing_organization=cls.org1
+        )
+
+        cache.set(
+            PROGRAM_CACHE_KEY_TPL.format(uuid=cls.masters_program.discovery_uuid),
+            {
+                'title': 'test-masters-program',
+                'type': 'Masters',
+                'curricula': [],
+            }
+        )
+        cache.set(
+            PROGRAM_CACHE_KEY_TPL.format(uuid=cls.non_masters_program.discovery_uuid),
+            {
+                'title': 'test-non-masters-program',
+                'type': 'MicroMasters',
+                'curricula': [],
+            }
+        )
+
+        cls.global_readwrite_enrollments = GroupFactory(
+            permissions=[ORGANIZATION_READ_ENROLLMENTS, ORGANIZATION_WRITE_ENROLLMENTS]
+        )
+
+        # assign permissions on a per organization and global basis
+        cls.user1 = UserFactory(groups=[org1_readwrite])
+        assign_perm(ORGANIZATION_READ_METADATA, cls.user1)
+
+        cls.user2 = UserFactory()
+        # assign permissions on a per program basis
+        assign_perm(PROGRAM_READ_METADATA, cls.user2, cls.masters_program)
+        assign_perm(PROGRAM_READ_ENROLLMENTS, cls.user2, cls.masters_program)
+        assign_perm(PROGRAM_WRITE_ENROLLMENTS, cls.user2, cls.masters_program)
+
+        assign_perm(PROGRAM_READ_METADATA, cls.user2, cls.non_masters_program)
+        assign_perm(PROGRAM_READ_ENROLLMENTS, cls.user2, cls.non_masters_program)
+        assign_perm(PROGRAM_READ_ENROLLMENTS, cls.user2, cls.non_masters_program)
+
+    def test_masters_perms_via_org_and_global_perms(self):
+        """
+        Check the effective permissions of a user on a Master's program via the
+        user's organization-scoped and global permissions.
+        """
+        perms = get_effective_user_program_api_permissions(self.user1, self.masters_program)
+        assert perms == {
+            APIReadMetadataPermission,
+            APIReadEnrollmentsPermission,
+            APIWriteEnrollmentsPermission,
+        }
+
+    def test_non_masters_perms_via_org_and_global_perms(self):
+        """
+        Check the effective permissions of a user on a non-Master's program via the
+        user's organization-scoped and global permissions. The read and write enrollments
+        permissions for the program should be filtered out, as non-Master's programs do not have
+        enrollments enabled.
+        """
+        perms = get_effective_user_program_api_permissions(self.user1, self.non_masters_program)
+        assert perms == {APIReadMetadataPermission}
+
+    def test_masters_perms_via_program_perms(self):
+        """
+        Check the effective permissions of a user on a Master's program via the
+        user's program-scoped permissions.
+        """
+        perms = get_effective_user_program_api_permissions(self.user2, self.masters_program)
+        assert perms == {
+            APIReadMetadataPermission,
+            APIReadEnrollmentsPermission,
+            APIWriteEnrollmentsPermission,
+        }
+
+    def test_non_masters_perms_via_program_perms(self):
+        """
+        Check the effective permissions of a user on a non-Master's program via the
+        user's program-scoped permissions. The read and write enrollments permissions for
+        the program should be filtered out, as non-Master's programs do not have
+        enrollments enabled.
+        """
+        perms = get_effective_user_program_api_permissions(self.user2, self.non_masters_program)
+        assert perms == {APIReadMetadataPermission}
 
 
 def _create_food(name, is_fruit, rating, color):

@@ -8,7 +8,7 @@ from rest_framework import serializers
 from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.proxies import DiscoveryProgram
-from registrar.apps.core.utils import get_user_api_permissions
+from registrar.apps.core.utils import get_effective_user_program_api_permissions
 from registrar.apps.enrollments.constants import (
     COURSE_ENROLLMENT_STATUSES,
     PROGRAM_ENROLLMENT_STATUSES,
@@ -41,12 +41,8 @@ class DiscoveryProgramSerializer(serializers.ModelSerializer):
         """
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
-            user = request.user
-            user_permissions = get_user_api_permissions(
-                user, program
-            ).union(
-                get_user_api_permissions(user, program.managing_organization)
-            )
+            user_permissions = get_effective_user_program_api_permissions(request.user, program)
+
             return sorted(permission.name for permission in user_permissions)
         else:
             return []
