@@ -11,7 +11,7 @@ billiard==3.3.0.23        # via celery
 boto3==1.12.36            # via -r requirements/production.in
 botocore==1.15.36         # via boto3, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
-certifi==2019.11.28       # via requests
+certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
@@ -58,7 +58,7 @@ pycryptodomex==3.9.7      # via pyjwkest
 pyjwkest==1.4.2           # via edx-drf-extensions
 pyjwt==1.7.1              # via drf-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
 pymongo==3.10.1           # via edx-opaque-keys
-pyparsing==2.4.6          # via packaging
+pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via analytics-python, botocore, edx-drf-extensions
 python-memcached==1.59    # via -r requirements/nonlocal.in
 python3-openid==3.1.0     # via social-auth-core
