@@ -69,6 +69,7 @@ API_ROOT = 'http://localhost:8000/api'
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:1976',
+    'http://localhost:19000',
 )
 CORS_ALLOW_HEADERS = corsheaders_default_headers + (
     'use-jwt-cookie',
