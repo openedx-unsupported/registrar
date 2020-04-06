@@ -3,6 +3,7 @@ import csv
 import json
 import logging
 import uuid
+from contextlib import contextmanager
 from io import StringIO
 from posixpath import join as urljoin
 
@@ -21,6 +22,8 @@ from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
 from user_tasks.tasks import UserTask
+from waffle import get_waffle_flag_model
+from waffle.testutils import override_flag
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
@@ -69,6 +72,15 @@ from ..views import CourseRunEnrollmentUploadView, ProgramEnrollmentUploadView
 ACTIVE_CURRICULUM_UUID = '77777777-4444-2222-1111-000000000000'
 INACTIVE_CURRICULUM_UUID = '66666666-4444-2222-1111-000000000000'
 
+@contextmanager
+def activate_waffle_flag(flag_name, group):
+    waffle_model = get_waffle_flag_model()
+    waffle_flag = waffle_model.objects.create(name=flag_name)
+    waffle_flag.groups.add(group)
+    waffle_flag.save()
+    waffle_flag.flush()
+    yield waffle_flag
+    waffle_flag.delete()
 
 class RegistrarAPITestCase(TrackTestMixin, APITestCase):
     """ Base for tests of the Registrar API """
@@ -163,6 +175,14 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             role=perms.ProgramReadMetadataRole.name
         )
         cls.program_user.groups.add(cls.program_group)  # pylint: disable=no-member
+
+        cls.cs_program_admin = UserFactory(username='cs-program-admin')
+        cls.cs_program_admin_group = ProgramOrganizationGroupFactory(
+            name='cs-program-admins',
+            program=cls.cs_program,
+            role=perms.ProgramReadWriteEnrollmentsRole.name
+        )
+        cls.cs_program_admin.groups.add(cls.cs_program_admin_group)  # pylint: disable=no-member
 
     def setUp(self):
         super().setUp()
@@ -1497,10 +1517,11 @@ class ProgramCourseEnrollmentWriteMixin:
     def mock_course_enrollments_response(self, method, expected_response, response_code=200):
         self.mock_api_response(self.lms_request_url, expected_response, method=method, response_code=response_code)
 
-    def student_course_enrollment(self, status, student_key=None):
+    def student_course_enrollment(self, status, student_key=None, course_staff=None):
         return {
             'status': status,
-            'student_key': student_key or uuid.uuid4().hex[0:10]
+            'student_key': student_key or uuid.uuid4().hex[0:10],
+            'course_staff': course_staff
         }
 
     def test_program_unauthorized_at_organization(self):
@@ -1618,18 +1639,144 @@ class ProgramCourseEnrollmentWriteMixin:
             {
                 'status': 'active',
                 'student_key': '001',
+                'course_staff': None,
             },
             {
                 'status': 'active',
                 'student_key': '002',
+                'course_staff': None,
             },
             {
                 'status': 'inactive',
                 'student_key': '003',
+                'course_staff': None,
             }
         ])
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.data, expected_lms_response)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(False, True)
+    def test_successful_update_course_staff_with_organization_group_waffle(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_id
+        expected_lms_response = {
+            '001': 'active',
+            '002': 'active',
+            '003': 'inactive'
+        }
+        self.mock_course_enrollments_response(self.method, expected_lms_response)
+
+        req_data = [
+            self.student_course_enrollment('active', '001', True),
+            self.student_course_enrollment('active', '002', False),
+            self.student_course_enrollment('inactive', '003', True),
+        ]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_id=course_id,
+        ):
+            with activate_waffle_flag('enable_course_role_management', self.stem_admin_group):
+                response = self.request(
+                    self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
+                )
+
+        lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
+        self.assertCountEqual(lms_request_body, [
+            {
+                'status': 'active',
+                'student_key': '001',
+                'course_staff': True,
+            },
+            {
+                'status': 'active',
+                'student_key': '002',
+                'course_staff': False,
+            },
+            {
+                'status': 'inactive',
+                'student_key': '003',
+                'course_staff': True,
+            }
+        ])
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.data, expected_lms_response)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(False, True)
+    def test_successful_update_course_staff_with_program_group_waffle(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_id
+        expected_lms_response = {
+            '001': 'active',
+            '002': 'active',
+            '003': 'inactive'
+        }
+        self.mock_course_enrollments_response(self.method, expected_lms_response)
+
+        req_data = [
+            self.student_course_enrollment('active', '001', True),
+            self.student_course_enrollment('active', '002', False),
+            self.student_course_enrollment('inactive', '003', True),
+        ]
+
+        with self.assert_tracking(
+                user=self.cs_program_admin,
+                program_key=self.cs_program.key,
+                course_id=course_id,
+        ):
+            with activate_waffle_flag('enable_course_role_management', self.cs_program_admin_group):
+                response = self.request(
+                    self.method, self.get_url(course_id=course_id), self.cs_program_admin, req_data
+                )
+
+        lms_request_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
+        self.assertCountEqual(lms_request_body, [
+            {
+                'status': 'active',
+                'student_key': '001',
+                'course_staff': True,
+            },
+            {
+                'status': 'active',
+                'student_key': '002',
+                'course_staff': False,
+            },
+            {
+                'status': 'inactive',
+                'student_key': '003',
+                'course_staff': True,
+            }
+        ])
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.data, expected_lms_response)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(False, True)
+    def test_failed_program_course_enrollment_write_with_course_staff(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_id
+
+        req_data = [
+            self.student_course_enrollment('active', '001', True),
+            self.student_course_enrollment('active', '002', False),
+            self.student_course_enrollment('inactive', '003', True),
+        ]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_id=course_id,
+                status_code=403,
+        ):
+            with override_flag('enable_course_role_management', active=False):
+                response = self.request(
+                    self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
+                )
+
+        self.assertEqual(response.status_code, 403)
 
     @mock_oauth_login
     @responses.activate
