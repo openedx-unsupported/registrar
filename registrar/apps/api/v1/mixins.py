@@ -4,6 +4,7 @@ Mixins for the public V1 REST API.
 import uuid
 from collections.abc import Iterable
 
+import waffle
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
@@ -272,7 +273,7 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         Does program enrollments if `course_id` is None.
         Does course run enrollments otherwise.
         """
-        self.validate_enrollment_data(self.request.data)
+        self.validate_enrollment_data(self.request, course_id)
         if course_id:
             good, bad, results = write_course_run_enrollments(
                 self.request.method,
@@ -295,10 +296,11 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
             self.add_tracking_data(failure='unprocessable_entity')
         return Response(results, status=status)
 
-    def validate_enrollment_data(self, enrollments):
+    def validate_enrollment_data(self, request, course_id=None):
         """
         Validate enrollments request body
         """
+        enrollments = request.data
         if not isinstance(enrollments, list):
             self.add_tracking_data(failure='bad_request')
             raise ValidationError('expected request body type: List')
@@ -323,3 +325,14 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
                 raise ValidationError(
                     'expected request dicts to have string value for "status"'
                 )
+            if enrollment.get('course_staff') is not None:
+                if not isinstance(enrollment.get('course_staff'), bool):
+                    self.add_tracking_data(failure='bad_request')
+                    raise ValidationError(
+                        'expected request dicts to have boolean value for "course_staff"'
+                    )
+                if course_id:
+                    if not waffle.flag_is_active(request, 'enable_course_role_management'):
+                        raise PermissionDenied('"course_staff" not accepted since role assignment is not enabled')
+                else:
+                    raise PermissionDenied('"course_staff" field is for course only')
