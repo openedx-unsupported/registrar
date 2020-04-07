@@ -2,9 +2,6 @@ language: python
 python:
     - 3.5.2
 env:
-- TOXENV=django111
-- TOXENV=django20
-- TOXENV=django21
 - TOXENV=django22
 
 sudo: false

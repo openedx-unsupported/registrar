@@ -13,9 +13,9 @@ attrs==19.3.0             # via jsonschema, pytest
 aws-sam-translator==1.22.0  # via cfn-lint
 aws-xray-sdk==2.4.3       # via moto
 billiard==3.3.0.23        # via celery
-boto3==1.12.36            # via aws-sam-translator, moto
+boto3==1.12.37            # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.15.36         # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.15.37         # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2020.4.5.1       # via requests
 cffi==1.14.0              # via cryptography
@@ -35,8 +35,8 @@ distlib==0.3.0            # via virtualenv
 django-cors-headers==3.2.1  # via -r requirements/base.in
 django-dynamic-fixture==3.1.0  # via -r requirements/test.in
 django-extensions==2.2.9  # via -r requirements/base.in
-django-guardian==2.0.0    # via -c requirements/constraints.txt, -r requirements/base.in
-django-model-utils==3.2.0  # via -c requirements/constraints.txt, -r requirements/base.in, django-user-tasks
+django-guardian==2.2.0    # via -r requirements/base.in
+django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
 django-mysql==3.3.0       # via -r requirements/base.in
 django-simple-history==2.8.0  # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
@@ -65,7 +65,7 @@ future==0.18.2            # via aws-xray-sdk, pyjwkest
 idna==2.8                 # via moto, requests
 importlib-metadata==1.6.0  # via jsonschema, pluggy, pytest, tox, virtualenv
 importlib-resources==1.0.2  # via cfn-lint, virtualenv
-inflection==0.3.1         # via drf-yasg
+inflection==0.4.0         # via drf-yasg
 isort[requirements]==4.3.21  # via -r requirements/test.in, pylint
 itypes==1.1.0             # via coreapi
 jinja2==2.11.1            # via code-annotations, coreschema, moto

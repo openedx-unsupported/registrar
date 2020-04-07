@@ -8,8 +8,8 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9   # via -r requirements/base.in
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.12.36            # via -r requirements/production.in
-botocore==1.15.36         # via boto3, s3transfer
+boto3==1.12.37            # via -r requirements/production.in
+botocore==1.15.37         # via boto3, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
@@ -18,14 +18,14 @@ coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via python3-openid, social-auth-core
 django-cors-headers==3.2.1  # via -r requirements/base.in
 django-extensions==2.2.9  # via -r requirements/base.in
-django-guardian==2.0.0    # via -c requirements/constraints.txt, -r requirements/base.in
-django-model-utils==3.2.0  # via -c requirements/constraints.txt, -r requirements/base.in, django-user-tasks
+django-guardian==2.2.0    # via -r requirements/base.in
+django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
 django-mysql==3.3.0       # via -r requirements/base.in
 django-simple-history==2.8.0  # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
 django-user-tasks==1.0.0  # via -r requirements/base.in
 django-waffle==0.20.0     # via -r requirements/base.in, edx-django-utils, edx-drf-extensions
-django==2.2.12            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
+django==2.2.12            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
 djangorestframework==3.11.0  # via -r requirements/base.in, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
 docutils==0.15.2          # via botocore
 drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensions
@@ -42,7 +42,7 @@ gevent==1.4.0             # via -r requirements/production.in
 greenlet==0.4.15          # via gevent
 gunicorn==20.0.4          # via -r requirements/production.in
 idna==2.9                 # via requests
-inflection==0.3.1         # via drf-yasg
+inflection==0.4.0         # via drf-yasg
 itypes==1.1.0             # via coreapi
 jinja2==2.11.1            # via coreschema
 jmespath==0.9.5           # via boto3, botocore
