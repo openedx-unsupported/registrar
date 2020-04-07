@@ -8,11 +8,6 @@
 # pin when possible.  Writing an issue against the offending project and
 # linking to it here is good.
 
-# These packages are pinned because their next version would require django 2.0.0
-django-guardian==2.0.0
-django-model-utils<4.0.0
-
-
 # django-storages version 1.9 drops support for boto storage backend.
 django-storages<1.9
 
