@@ -36,21 +36,21 @@ class DiscoveryProgramSerializerTests(TestCase):
             PROGRAM_CACHE_KEY_TPL.format(uuid=self.program.discovery_uuid),
             {
                 'title': 'test-program',
-                'type': 'masters',
+                'type': 'Masters',
                 'curricula': [],
-            },
+            }
         )
 
-    @mock.patch('registrar.apps.api.serializers.get_user_api_permissions')
-    def test_get_user_permissions(self, fake_get_perms):
+    @mock.patch('registrar.apps.api.serializers.get_effective_user_program_api_permissions')
+    def test_serializer(self, fake_get_perms):
         """
-        Program permissions should be populated with the union of all
-        permissions assigned at that program and its managing organization
+        Test that the serializer should return output of get_effective_user_program_api_permissions
+        for permissions.
         """
-        fake_get_perms.side_effect = [
-            set([APIWriteEnrollmentsPermission]),  # mocked permissions on program
-            set([APIReadMetadataPermission]),  # mocked permissions on org
-        ]
+        fake_get_perms.return_value = {
+            APIWriteEnrollmentsPermission,
+            APIReadMetadataPermission,
+        }
         program = DiscoveryProgramSerializer(
             self.program,
             context={

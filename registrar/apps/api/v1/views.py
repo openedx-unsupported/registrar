@@ -38,7 +38,7 @@ from registrar.apps.core.models import Organization
 from registrar.apps.core.permissions import APIReadMetadataPermission
 from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.utils import (
-    get_user_api_permissions,
+    get_effective_user_program_api_permissions,
     load_records_from_uploaded_csv,
 )
 from registrar.apps.enrollments.tasks import (
@@ -124,9 +124,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
 
         programs = (
             program for program in programs
-            if required_permission in get_user_api_permissions(user, program).union(
-                get_user_api_permissions(user, program.managing_organization)
-            )
+            if required_permission in get_effective_user_program_api_permissions(user, program)
         )
         # Filter out programs with enrollments disabled if the user requested
         # permission filter to operate on enrollments
