@@ -325,8 +325,9 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
                 raise ValidationError(
                     'expected request dicts to have string value for "status"'
                 )
-            if course_id and enrollment.get('course_staff') is not None:
-                if not isinstance(enrollment.get('course_staff'), bool):
+            course_staff_flag = enrollment.get('course_staff')
+            if course_id and course_staff_flag is not None:
+                if not isinstance(course_staff_flag, bool):
                     self.add_tracking_data(failure='bad_request')
                     raise ValidationError(
                         'expected request dicts to have boolean value for "course_staff"'
