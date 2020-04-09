@@ -72,6 +72,7 @@ from ..views import CourseRunEnrollmentUploadView, ProgramEnrollmentUploadView
 ACTIVE_CURRICULUM_UUID = '77777777-4444-2222-1111-000000000000'
 INACTIVE_CURRICULUM_UUID = '66666666-4444-2222-1111-000000000000'
 
+
 @contextmanager
 def activate_waffle_flag(flag_name, group):
     """
@@ -84,6 +85,7 @@ def activate_waffle_flag(flag_name, group):
     waffle_flag.flush()
     yield waffle_flag
     waffle_flag.delete()
+
 
 class RegistrarAPITestCase(TrackTestMixin, APITestCase):
     """ Base for tests of the Registrar API """
