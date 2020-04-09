@@ -325,14 +325,11 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
                 raise ValidationError(
                     'expected request dicts to have string value for "status"'
                 )
-            if enrollment.get('course_staff') is not None:
+            if course_id and enrollment.get('course_staff') is not None:
                 if not isinstance(enrollment.get('course_staff'), bool):
                     self.add_tracking_data(failure='bad_request')
                     raise ValidationError(
                         'expected request dicts to have boolean value for "course_staff"'
                     )
-                if course_id:
-                    if not waffle.flag_is_active(request, 'enable_course_role_management'):
-                        raise PermissionDenied('"course_staff" not accepted since role assignment is not enabled')
-                else:
-                    raise PermissionDenied('"course_staff" field is for course only')
+                if not waffle.flag_is_active(request, 'enable_course_role_management'):
+                    raise PermissionDenied('"course_staff" not accepted since role assignment is not enabled')
