@@ -1786,6 +1786,31 @@ class ProgramCourseEnrollmentWriteMixin:
     @mock_oauth_login
     @responses.activate
     @ddt.data(False, True)
+    def test_failed_update_course_staff_with_waffle_enabled_for_another_group(self, use_external_course_key):
+        course_id = self.external_course_key if use_external_course_key else self.course_id
+
+        req_data = [
+            self.student_course_enrollment('active', '001', True),
+            self.student_course_enrollment('active', '002', False),
+            self.student_course_enrollment('inactive', '003', True),
+        ]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                course_id=course_id,
+                status_code=403,
+        ):
+            with activate_waffle_flag('enable_course_role_management', self.hum_admin_group):
+                response = self.request(
+                    self.method, self.get_url(course_id=course_id), self.stem_admin, req_data
+                )
+
+        self.assertEqual(response.status_code, 403)
+
+    @mock_oauth_login
+    @responses.activate
+    @ddt.data(False, True)
     @override_flag('enable_course_role_management', active=True)
     def test_failed_program_course_enrollment_write_with_bad_course_staff_value(self, use_external_course_key):
         course_id = self.external_course_key if use_external_course_key else self.course_id
