@@ -1368,7 +1368,6 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(file_response.text, expected_contents)
 
     @patch_discovery_program_details(mock_program_details)
-    @override_flag('enable_course_role_management', active=True)
     @mock.patch.object(lms, 'get_course_run_enrollments', return_value=enrollments_with_course_staff)
     @ddt.data(
         (None, 'json', enrollments_with_course_staff_json),
@@ -1386,7 +1385,8 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
                 status_code=202,
                 **kwargs
         ):
-            response = self.get(self.path + format_suffix, self.hum_admin)
+            with activate_waffle_flag('enable_course_role_management', self.hum_admin_group):
+                response = self.get(self.path + format_suffix, self.hum_admin)
         self.assertEqual(response.status_code, 202)
         with self.assert_tracking(
                 event='registrar.v1.get_job_status',
@@ -1394,7 +1394,8 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
                 job_id=response.data['job_id'],
                 job_state='Succeeded',
         ):
-            job_response = self.get(response.data['job_url'], self.hum_admin)
+            with activate_waffle_flag('enable_course_role_management', self.hum_admin_group):
+                job_response = self.get(response.data['job_url'], self.hum_admin)
         self.assertEqual(job_response.status_code, 200)
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
