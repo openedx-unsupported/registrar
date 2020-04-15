@@ -1368,6 +1368,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(file_response.text, expected_contents)
 
     @patch_discovery_program_details(mock_program_details)
+    @override_flag('enable_course_role_management', active=True)
     @mock.patch.object(lms, 'get_course_run_enrollments', return_value=enrollments_with_course_staff)
     @ddt.data(
         (None, 'json', enrollments_with_course_staff_json),
