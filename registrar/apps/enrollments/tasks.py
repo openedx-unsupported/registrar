@@ -19,9 +19,9 @@ from . import lms_interop as lms
 from .constants import ENROLLMENT_ERROR_COURSE_NOT_FOUND, EnrollmentWriteStatus
 from .serializers import (
     serialize_course_run_enrollments_to_csv,
+    serialize_course_run_enrollments_with_course_staff_to_csv,
     serialize_enrollment_results_to_csv,
     serialize_program_enrollments_to_csv,
-    serialize_course_run_enrollments_with_course_staff_to_csv,
 )
 from .utils import build_enrollment_job_status_name
 
@@ -96,12 +96,11 @@ def list_course_run_enrollments(
         program_key,
         internal_course_key,
         external_course_key,
-        course_role_management_enabled,
+        course_role_management_enabled=False,
 ):
     """
     A user task for retrieving program course run enrollments from LMS.
     """
-
     program = get_program(job_id, program_key)
     if not program:
         return

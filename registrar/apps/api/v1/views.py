@@ -3,10 +3,10 @@ The public-facing REST API.
 """
 import json
 import logging
-import waffle
 import re
 from datetime import datetime
 
+import waffle
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
