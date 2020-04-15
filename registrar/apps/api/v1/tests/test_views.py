@@ -1308,6 +1308,29 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         "ENG55-S19,efgh,pending,False\r\n"
     )
 
+    enrollments_with_course_staff = [
+        {
+            'course_id': 'ENG55-S19',
+            'student_key': 'hijk',
+            'status': 'enrolled',
+            'account_exists': True,
+            'course_staff': True,
+        },
+        {
+            'course_id': 'ENG55-S19',
+            'student_key': 'lmno',
+            'status': 'pending',
+            'account_exists': False,
+            'course_staff': False,
+        },
+    ]
+    enrollments_with_course_staff_json = json.dumps(enrollments_with_course_staff, indent=4)
+    enrollments_with_course_staff_csv = (
+        "course_id,student_key,status,account_exists,course_staff\r\n"
+        "ENG55-S19,hijk,enrolled,True,True\r\n"
+        "ENG55-S19,lmno,pending,False,False\r\n"
+    )
+
     @patch_discovery_program_details(mock_program_details)
     @mock.patch.object(lms, 'get_course_run_enrollments', return_value=enrollments)
     @ddt.data(
@@ -1317,6 +1340,42 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
     )
     @ddt.unpack
     def test_ok(self, format_param, expected_format, expected_contents, _enrollments_mock):
+        format_suffix = "?fmt=" + format_param if format_param else ""
+        kwargs = {'result_format': format_param} if format_param else {}
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                course_id='HUMx+English-550+Spring',
+                status_code=202,
+                **kwargs
+        ):
+            response = self.get(self.path + format_suffix, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        with self.assert_tracking(
+                event='registrar.v1.get_job_status',
+                user=self.hum_admin,
+                job_id=response.data['job_id'],
+                job_state='Succeeded',
+        ):
+            job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        result_url = job_response.data['result']
+        self.assertIn(".{}?".format(expected_format), result_url)
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response.text, expected_contents)
+
+    @patch_discovery_program_details(mock_program_details)
+    @mock.patch.object(lms, 'get_course_run_enrollments', return_value=enrollments_with_course_staff)
+    @ddt.data(
+        (None, 'json', enrollments_with_course_staff_json),
+        ('json', 'json', enrollments_with_course_staff_json),
+        ('csv', 'csv', enrollments_with_course_staff_csv),
+    )
+    @ddt.unpack
+    def test_ok_with_course_staff(self, format_param, expected_format, expected_contents, _enrollments_mock):
         format_suffix = "?fmt=" + format_param if format_param else ""
         kwargs = {'result_format': format_param} if format_param else {}
         with self.assert_tracking(
