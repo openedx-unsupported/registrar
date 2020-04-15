@@ -48,6 +48,7 @@ class CourseEnrollmentSerializer(serializers.Serializer):
     def get_course_id(self, obj):
         return self.context.get('course_id')
 
+
 class CourseEnrollmentWithCourseStaffSerializer(CourseEnrollmentSerializer):
     """
     Serializer for program course enrollment API response which includes course_staff.
@@ -69,6 +70,7 @@ def serialize_course_run_enrollments_to_csv(enrollments):
         ('course_id', 'student_key', 'status', 'account_exists'),
         include_headers=True,
     )
+
 
 def serialize_course_run_enrollments_with_course_staff_to_csv(enrollments):
     """

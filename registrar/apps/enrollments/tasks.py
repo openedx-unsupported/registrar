@@ -131,8 +131,8 @@ def list_course_run_enrollments(
         serialized = json.dumps(enrollments, indent=4)
     elif file_format == 'csv':
         serialized = (serialize_course_run_enrollments_with_course_staff_to_csv(enrollments)
-                     if course_role_management_enabled
-                     else serialize_course_run_enrollments_to_csv(enrollments))
+                      if course_role_management_enabled
+                      else serialize_course_run_enrollments_to_csv(enrollments))
     else:
         raise ValueError('Invalid file_format: {}'.format(file_format))
     post_job_success(job_id, serialized, file_format)
