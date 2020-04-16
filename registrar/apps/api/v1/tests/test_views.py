@@ -1413,7 +1413,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         ('csv', 'csv', enrollments_csv),
     )
     @ddt.unpack
-    def test_ok_course_staff_waffle_enabled_on_other_group(
+    def test_ok_course_staff_waffle_enabled_on_unrelated_group(
             self, format_param, expected_format, expected_contents, _enrollments_mock):
         format_suffix = "?fmt=" + format_param if format_param else ""
         kwargs = {'result_format': format_param} if format_param else {}
