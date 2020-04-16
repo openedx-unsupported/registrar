@@ -19,6 +19,7 @@ from . import lms_interop as lms
 from .constants import ENROLLMENT_ERROR_COURSE_NOT_FOUND, EnrollmentWriteStatus
 from .serializers import (
     serialize_course_run_enrollments_to_csv,
+    serialize_course_run_enrollments_with_course_staff_to_csv,
     serialize_enrollment_results_to_csv,
     serialize_program_enrollments_to_csv,
 )
@@ -95,6 +96,7 @@ def list_course_run_enrollments(
         program_key,
         internal_course_key,
         external_course_key,
+        course_role_management_enabled=False,
 ):
     """
     A user task for retrieving program course run enrollments from LMS.
@@ -108,6 +110,7 @@ def list_course_run_enrollments(
             program.discovery_uuid,
             internal_course_key,
             external_course_key,
+            course_role_management_enabled,
         )
     except HTTPError as err:
         post_job_failure(
@@ -127,7 +130,9 @@ def list_course_run_enrollments(
     if file_format == 'json':
         serialized = json.dumps(enrollments, indent=4)
     elif file_format == 'csv':
-        serialized = serialize_course_run_enrollments_to_csv(enrollments)
+        serialized = (serialize_course_run_enrollments_with_course_staff_to_csv(enrollments)
+                      if course_role_management_enabled
+                      else serialize_course_run_enrollments_to_csv(enrollments))
     else:
         raise ValueError('Invalid file_format: {}'.format(file_format))
     post_job_success(job_id, serialized, file_format)

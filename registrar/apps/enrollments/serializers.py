@@ -49,6 +49,13 @@ class CourseEnrollmentSerializer(serializers.Serializer):
         return self.context.get('course_id')
 
 
+class CourseEnrollmentWithCourseStaffSerializer(CourseEnrollmentSerializer):
+    """
+    Serializer for program course enrollment API response which includes course_staff.
+    """
+    course_staff = serializers.BooleanField()
+
+
 def serialize_course_run_enrollments_to_csv(enrollments):
     """
     Serialize course run enrollments into a CSV-formatted string.
@@ -61,6 +68,22 @@ def serialize_course_run_enrollments_to_csv(enrollments):
     return serialize_to_csv(
         enrollments,
         ('course_id', 'student_key', 'status', 'account_exists'),
+        include_headers=True,
+    )
+
+
+def serialize_course_run_enrollments_with_course_staff_to_csv(enrollments):
+    """
+    Serialize course run enrollments (course_staff field included) into a CSV-formatted string.
+
+    Arguments:
+        enrollments: list[dict]
+
+    Returns: str
+    """
+    return serialize_to_csv(
+        enrollments,
+        ('course_id', 'student_key', 'status', 'account_exists', 'course_staff'),
         include_headers=True,
     )
 

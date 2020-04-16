@@ -25,7 +25,11 @@ from .constants import (
     ENROLLMENT_ERROR_INTERNAL,
     LMS_ENROLLMENT_WRITE_MAX_SIZE,
 )
-from .serializers import CourseEnrollmentSerializer, ProgramEnrollmentSerializer
+from .serializers import (
+    CourseEnrollmentSerializer,
+    CourseEnrollmentWithCourseStaffSerializer,
+    ProgramEnrollmentSerializer,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -56,7 +60,8 @@ def get_program_enrollments(program_uuid, client=None):
     return serializer.validated_data
 
 
-def get_course_run_enrollments(program_uuid, internal_course_key, external_course_key=None, client=None):
+def get_course_run_enrollments(
+        program_uuid, internal_course_key, external_course_key=None, course_role_management_enabled=False, client=None):
     """
     Fetches program course run enrollments from the LMS.
 
@@ -76,7 +81,9 @@ def get_course_run_enrollments(program_uuid, internal_course_key, external_cours
     url = _lms_course_run_enrollment_url(program_uuid, internal_course_key)
     enrollments = get_all_paginated_results(url, client)
     context = {'course_id': external_course_key or internal_course_key}
-    serializer = CourseEnrollmentSerializer(data=enrollments, many=True, context=context)
+    serializer = (CourseEnrollmentWithCourseStaffSerializer(data=enrollments, many=True, context=context)
+                  if course_role_management_enabled
+                  else CourseEnrollmentSerializer(data=enrollments, many=True, context=context))
     serializer.is_valid(raise_exception=True)
     return serializer.data
 

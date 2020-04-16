@@ -6,6 +6,7 @@ import logging
 import re
 from datetime import datetime
 
+import waffle
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
@@ -353,11 +354,13 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         """
         Submit a user task that retrieves course run enrollment data.
         """
+        course_role_management_enabled = waffle.flag_is_active(request, 'enable_course_role_management')
         return self.invoke_download_job(
             list_course_run_enrollments,
             self.program.key,
             self.internal_course_key,
             self.external_course_key,
+            course_role_management_enabled,
         )
 
     def post(self, request, program_key, course_id):
