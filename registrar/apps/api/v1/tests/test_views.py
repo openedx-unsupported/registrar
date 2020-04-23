@@ -2436,12 +2436,107 @@ class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAP
     event = 'registrar.v1.upload_course_enrollments'
     csv_headers = ('student_key', 'course_id', 'status')
 
-    def build_enrollment(self, status, student_key=None, course_id=None):
-        return {
+    # pylint: disable=missing-function-docstring
+    def build_enrollment(self, status, student_key=None, course_id=None, course_staff=None):
+        enrollment = {
             'status': status,
             'student_key': student_key or uuid.uuid4().hex[0:10],
             'course_id': course_id or uuid.uuid4().hex[0:10],
         }
+        if course_staff is not None:
+            enrollment['course_staff'] = course_staff
+
+        return enrollment
+
+    @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
+    def test_enrollment_upload_success_with_course_staff(self):
+        self.csv_headers = self.csv_headers + ('course_staff',)
+        enrollments = [
+            self.build_enrollment('enrolled', '001', None, 'True'),
+            self.build_enrollment('pending', '002', None, 'False'),
+            self.build_enrollment('enrolled', '003', None, ''),
+        ]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                status_code=202
+        ):
+            with activate_waffle_flag('enable_course_role_management', self.stem_admin_group):
+                upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 202)
+
+        job_response = self.get(upload_response.data['job_url'], self.stem_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        filestore = get_enrollment_uploads_filestore()
+        retrieved = filestore.retrieve('/{}/{}.json'.format(
+            'uploads',
+            upload_response.data['job_id'],
+        ))
+        self.assertEqual(json.loads(retrieved), enrollments)
+
+    @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
+    @override_flag('enable_course_role_management', active=False)
+    def test_enrollment_upload_success_waffle_off_course_staff_included(self):
+        enrollments = [{'course_id': 'ac2102fb65', 'status': 'enrolled', 'student_key': '001', 'course_staff': 'True'},
+                       {'course_id': '12a8bf290c', 'status': 'pending', 'student_key': '002', 'course_staff': 'False'},
+                       {'course_id': 'e7826f975e', 'status': 'enrolled', 'student_key': '003', 'course_staff': ''}]
+
+        expected_enrollments = [{'course_id': 'ac2102fb65', 'status': 'enrolled', 'student_key': '001'},
+                                {'course_id': '12a8bf290c', 'status': 'pending', 'student_key': '002'},
+                                {'course_id': 'e7826f975e', 'status': 'enrolled', 'student_key': '003'}]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                status_code=202
+        ):
+            upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 202)
+
+        job_response = self.get(upload_response.data['job_url'], self.stem_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        filestore = get_enrollment_uploads_filestore()
+        retrieved = filestore.retrieve('/{}/{}.json'.format(
+            'uploads',
+            upload_response.data['job_id'],
+        ))
+        self.assertEqual(json.loads(retrieved), expected_enrollments)
+
+    @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
+    def test_enrollment_upload_success_waffle_on_no_course_staff(self):
+        enrollments = [
+            self.build_enrollment('enrolled', '001'),
+            self.build_enrollment('pending', '002'),
+            self.build_enrollment('enrolled', '003'),
+        ]
+
+        with self.assert_tracking(
+                user=self.stem_admin,
+                program_key=self.cs_program.key,
+                status_code=202
+        ):
+            with activate_waffle_flag('enable_course_role_management', self.stem_admin_group):
+                upload_response = self._upload_enrollments(enrollments)
+
+        self.assertEqual(upload_response.status_code, 202)
+
+        job_response = self.get(upload_response.data['job_url'], self.stem_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        filestore = get_enrollment_uploads_filestore()
+        retrieved = filestore.retrieve('/{}/{}.json'.format(
+            'uploads',
+            upload_response.data['job_id'],
+        ))
+        self.assertEqual(json.loads(retrieved), enrollments)
 
 
 @ddt.ddt

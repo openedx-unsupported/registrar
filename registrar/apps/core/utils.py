@@ -124,7 +124,7 @@ class StrippedLowercaseFieldNamesDictReader(csv.DictReader):
         return [field_name.strip().lower() for field_name in raw_field_names]
 
 
-def load_records_from_uploaded_csv(csv_file, field_names):
+def load_records_from_uploaded_csv(csv_file, field_names, optional_fields=frozenset()):
     """
     Loads a CSV file. See `load_records_from_csv` for details.
 
@@ -133,10 +133,10 @@ def load_records_from_uploaded_csv(csv_file, field_names):
         field_names (set[str])
     """
     contents = csv_file.read().decode('utf-8')
-    return load_records_from_csv(contents, field_names)
+    return load_records_from_csv(contents, field_names, optional_fields)
 
 
-def load_records_from_csv(csv_string, field_names):
+def load_records_from_csv(csv_string, field_names, optional_fields=frozenset()):
     """
     Loads a CSV string into a list of dicts, with `field_names` as keys.
 
@@ -153,14 +153,16 @@ def load_records_from_csv(csv_string, field_names):
     """
     row_iter = csv_string.splitlines()
     reader = StrippedLowercaseFieldNamesDictReader(row_iter)
-    missing_fields = field_names - set(reader.fieldnames)
+    required_fields = field_names - set(optional_fields)
+    missing_fields = required_fields - set(reader.fieldnames)
+
     if missing_fields:
         raise ValidationError(
             "CSV is missing headers [{}]".format(", ".join(missing_fields))
         )
     records = []
     for n, row in enumerate(reader, 1):
-        if None in row or not all(row[field] for field in field_names):
+        if None in row or not all(row[field] for field in required_fields):
             raise ValidationError(
                 "CSV is missing data at row #{}. Required fields are [{}].".format(
                     n, ", ".join(field_names)

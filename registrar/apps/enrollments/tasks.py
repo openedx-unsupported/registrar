@@ -238,7 +238,7 @@ def write_program_enrollments(
 
 CourseEnrollmentResponseItem = namedtuple(
     'CourseEnrollmentResponseItem',
-    ['course_id', 'student_key', 'status'],
+    ['course_id', 'student_key', 'status', 'course_staff'],
 )
 
 
@@ -259,11 +259,19 @@ def write_course_run_enrollments(
         return
 
     requests_by_course_key = OrderedDict()
+    student_to_course_staff = OrderedDict()
+    include_course_staff = False
     for request in requests:
+        if 'course_staff' in request:
+            include_course_staff = True
         requested_course_key = request.pop('course_id')
         if requested_course_key not in requests_by_course_key:
             requests_by_course_key[requested_course_key] = []
         requests_by_course_key[requested_course_key].append(request)
+
+        requested_student_key = request.get('student_key')
+        requested_course_staff = request.get('course_staff')
+        student_to_course_staff[requested_student_key] = requested_course_staff
 
     successes = []
     failures = []
@@ -279,7 +287,8 @@ def write_course_run_enrollments(
                 'PUT', program.discovery_uuid, internal_course_key, course_requests
             )
             course_responses.extend([
-                CourseEnrollmentResponseItem(requested_course_key, student_key, status)._asdict()
+                CourseEnrollmentResponseItem(
+                    requested_course_key, student_key, status, student_to_course_staff[student_key])._asdict()
                 for student_key, status in status_by_student_key.items()
             ])
             successes.append(successes_in_course)
@@ -290,6 +299,7 @@ def write_course_run_enrollments(
                     requested_course_key,
                     request.get('student_key'),
                     ENROLLMENT_ERROR_COURSE_NOT_FOUND,
+                    student_to_course_staff[request.get('student_key')]
                 )._asdict()
                 for request in course_requests
             ])
@@ -305,7 +315,11 @@ def write_course_run_enrollments(
         # This only happens if no enrollments are given.
         code_str = str(EnrollmentWriteStatus.NO_CONTENT.value)
 
-    results_str = serialize_to_csv(course_responses, CourseEnrollmentResponseItem._fields, include_headers=True)
+    course_enrollment_response_format = list(CourseEnrollmentResponseItem._fields)
+    if not include_course_staff:
+        course_enrollment_response_format.remove('course_staff')
+
+    results_str = serialize_to_csv(course_responses, course_enrollment_response_format, include_headers=True)
     post_job_success(job_id, results_str, "csv", text=code_str)
 
 

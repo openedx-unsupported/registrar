@@ -446,7 +446,11 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
     """
     parser_classes = (MultiPartParser,)
     field_names = set()  # Override in subclass
+    optional_fields = set()
     task_fn = None  # Override in subclass
+
+    def get_field_names(self, request):
+        return self.field_names
 
     def post(self, request, *args, **kwargs):
         """ POST handler """
@@ -460,7 +464,7 @@ class EnrollmentUploadView(JobInvokerMixin, APIView):
         if is_enrollment_write_blocked(self.program.key):  # pylint: disable=no-member
             return Response('Job already in progress for program', HTTP_409_CONFLICT)
 
-        enrollments = load_records_from_uploaded_csv(csv_file, self.field_names)
+        enrollments = load_records_from_uploaded_csv(csv_file, self.get_field_names(request), self.optional_fields)
         return self.invoke_upload_job(self.task_fn, json.dumps(enrollments), *args, **kwargs)
 
 
@@ -482,10 +486,20 @@ class CourseRunEnrollmentUploadView(EnrollmentMixin, CourseSpecificViewMixin, En
 
     Path: /api/[version]/programs/{program_key}/course_enrollments/upload
     """
-    field_names = {'student_key', 'course_id', 'status'}
     task_fn = write_course_run_enrollments
     event_method_map = {'POST': 'registrar.{api_version}.upload_course_enrollments'}
     event_parameter_map = {'program_key': 'program_key'}
+    optional_fields = ('course_staff',)
+
+    def get_field_names(self, request):
+        """
+        Get field names based on waffle flag
+        """
+        # MST-190 will remove the waffle and roll out the feature to all partners.
+        if waffle.flag_is_active(request, 'enable_course_role_management'):
+            return {'student_key', 'course_id', 'status', 'course_staff'}
+        else:
+            return {'student_key', 'course_id', 'status'}
 
 
 class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView):
