@@ -7,6 +7,6 @@
 
 django-debug-toolbar
 edx-i18n-tools
-pyinotify
+pywatchman                # More efficient checking for runserver reload trigger events
 ruamel.yaml.cmd
 transifex-client
