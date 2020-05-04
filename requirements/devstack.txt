@@ -15,16 +15,16 @@ aws-sam-translator==1.22.0  # via cfn-lint
 aws-xray-sdk==2.5.0       # via moto
 babel==2.8.0              # via sphinx
 billiard==3.3.0.23        # via celery
-boto3==1.12.46            # via aws-sam-translator, moto
+boto3==1.13.1             # via aws-sam-translator, moto
 boto==2.49.0              # via moto
-botocore==1.15.46         # via aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.16.1          # via aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2020.4.5.1       # via requests
 cffi==1.14.0              # via cryptography
-cfn-lint==0.29.6          # via moto
+cfn-lint==0.30.1          # via moto
 chardet==3.0.4            # via requests
 click-log==0.3.2          # via edx-lint
-click==7.1.1              # via click-log, code-annotations, edx-lint
+click==7.1.2              # via click-log, code-annotations, edx-lint
 code-annotations==0.3.3   # via -r requirements/test.in
 configobj==5.0.6          # via ruamel.yaml.cmd
 coreapi==2.3.3            # via drf-yasg
@@ -56,12 +56,12 @@ drf-yasg==1.17.1          # via edx-api-doc-tools
 ecdsa==0.15               # via python-jose
 edx-api-doc-tools==1.2.0  # via -r requirements/base.in
 edx-auth-backends==3.0.2  # via -r requirements/base.in
-edx-django-release-util==0.4.2  # via -r requirements/base.in
+edx-django-release-util==0.4.4  # via -r requirements/base.in
 edx-django-utils==3.2.1   # via edx-drf-extensions
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-i18n-tools==0.5.0     # via -r requirements/local.in
 edx-lint==1.4.1           # via -r requirements/test.in
-edx-opaque-keys==2.0.2    # via edx-drf-extensions
+edx-opaque-keys==2.1.0    # via edx-drf-extensions
 edx-rest-api-client==1.9.2  # via -r requirements/base.in
 edx-sphinx-theme==1.5.0   # via -r requirements/docs.in
 factory-boy==2.12.0       # via -r requirements/test.in
@@ -128,7 +128,7 @@ python-jose==3.1.0        # via moto
 python-memcached==1.59    # via -r requirements/nonlocal.in
 python-slugify==1.2.6     # via code-annotations, transifex-client
 python3-openid==3.1.0     # via social-auth-core
-pytz==2019.3              # via -r requirements/base.in, babel, celery, django, moto
+pytz==2020.1              # via -r requirements/base.in, babel, celery, django, moto
 pywatchman==1.4.1         # via -r requirements/local.in
 pyyaml==5.3.1             # via cfn-lint, code-annotations, edx-django-release-util, edx-i18n-tools, moto, yamllint
 redis==2.8                # via -r requirements/base.in
@@ -143,25 +143,25 @@ ruamel.yaml.cmd==0.5.5    # via -r requirements/local.in
 ruamel.yaml.convert==0.3.2  # via ruamel.yaml.cmd
 ruamel.yaml==0.16.10      # via drf-yasg, ruamel.yaml.cmd, ruamel.yaml.convert
 s3transfer==0.3.3         # via boto3
-semantic-version==2.8.4   # via edx-drf-extensions
+semantic-version==2.8.5   # via edx-drf-extensions
 six==1.14.0               # via analytics-python, astroid, aws-sam-translator, cfn-lint, configobj, cryptography, django-dynamic-fixture, django-extensions, django-simple-history, django-waffle, docker, drf-yasg, ecdsa, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, mock, moto, packaging, pathlib2, pyjwkest, python-dateutil, python-jose, python-memcached, responses, social-auth-app-django, social-auth-core, sphinx, stevedore, tox, transifex-client, virtualenv, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
 social-auth-core==3.2.0   # via -c requirements/constraints.txt, edx-auth-backends, social-auth-app-django
 sphinx==1.6.7             # via -r requirements/docs.in, edx-sphinx-theme
-sphinxcontrib-websupport==1.2.1  # via sphinx
+sphinxcontrib-websupport==1.2.2  # via sphinx
 sqlparse==0.3.1           # via django, django-debug-toolbar
 stevedore==1.32.0         # via code-annotations, edx-opaque-keys
 text-unidecode==1.3       # via faker
 toml==0.10.0              # via tox
-tox==3.14.6               # via -r requirements/test.in
+tox==3.15.0               # via -r requirements/test.in
 transifex-client==0.13.9  # via -r requirements/local.in
 typed-ast==1.4.1          # via astroid
 unidecode==1.1.1          # via python-slugify
 uritemplate==3.0.1        # via coreapi, drf-yasg
 urllib3==1.25.9           # via botocore, requests, transifex-client
-virtualenv==20.0.18       # via tox
+virtualenv==20.0.20       # via tox
 wcwidth==0.1.9            # via pytest
 websocket-client==0.57.0  # via docker
 werkzeug==1.0.1           # via moto
