@@ -91,7 +91,7 @@ new_api_ui_view = make_docs_ui_view(
             "&nbsp;&nbsp;client_id=my-client-id&"
             "<br/>"
             "&nbsp;&nbsp;client_secret=my-client-secret&"
-            "<br/>"    
+            "<br/>"
             "&nbsp;&nbsp;grant_type=client_credentials&"
             "<br/>"
             "&nbsp;&nbsp;token_type=jwt"
