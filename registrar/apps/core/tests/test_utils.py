@@ -290,7 +290,7 @@ class LoadRecordsFromCSVStringTests(TestCase):
         "\r\n"
     )
     csv = csv_fmt.format(pepper_is_vegetarian='true')
-    bad_csv = csv_fmt.format(pepper_is_vegetarian='')  # Empty value
+    csv_with_empty = csv_fmt.format(pepper_is_vegetarian='')  # Empty value
 
     def test_with_all_field_names(self):
         field_names = {'topping', 'is_vegetarian', 'rating'}
@@ -314,6 +314,30 @@ class LoadRecordsFromCSVStringTests(TestCase):
         ]
         self.assertEqual(actual, expected)
 
+    def test_optional_field_name_null_value(self):
+        field_names = {'topping', 'is_vegetarian', 'rating'}
+        optional_field_names = {'is_vegetarian'}
+        actual = load_records_from_csv(self.csv_with_empty, field_names, optional_field_names)
+        expected = [
+            {'topping': 'pepperoni', 'is_vegetarian': 'false', 'rating': '100'},
+            {'topping': 'peppers', 'is_vegetarian': '', 'rating': '100'},
+            {'topping': 'onions', 'is_vegetarian': 'true', 'rating': '100'},
+            {'topping': 'pineapple', 'is_vegetarian': 'true', 'rating': '17'},
+        ]
+        self.assertEqual(actual, expected)
+
+    def test_optional_field_name_header(self):
+        field_names = {'topping', 'is_vegetarian', 'rating', 'cost'}
+        optional_field_names = {'cost'}
+        actual = load_records_from_csv(self.csv, field_names, optional_field_names)
+        expected = [
+            {'topping': 'pepperoni', 'is_vegetarian': 'false', 'rating': '100'},
+            {'topping': 'peppers', 'is_vegetarian': 'true', 'rating': '100'},
+            {'topping': 'onions', 'is_vegetarian': 'true', 'rating': '100'},
+            {'topping': 'pineapple', 'is_vegetarian': 'true', 'rating': '17'},
+        ]
+        self.assertEqual(actual, expected)
+
     def test_missing_field_names_error(self):
         field_names = {'topping', 'is_vegetarian', 'color'}
         with self.assertRaises(ValidationError):
@@ -322,4 +346,4 @@ class LoadRecordsFromCSVStringTests(TestCase):
     def test_null_values_error(self):
         field_names = {'topping', 'is_vegetarian', 'color'}
         with self.assertRaises(ValidationError):
-            load_records_from_csv(self.bad_csv, field_names)
+            load_records_from_csv(self.csv_with_empty, field_names)

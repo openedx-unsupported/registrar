@@ -339,17 +339,21 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             task_id=self.job_id
         )
 
-    def mock_write_enrollments(self, any_successes, any_failures):
+    # pylint: disable=arguments-differ
+    def mock_write_enrollments(self, any_successes, any_failures, expected_enrolls_by_course_key=None):
         """
         Create mock for data.write_course_run_enrollments.
 
         Mock will return `any_successes`, `any_failures`, and `enrollments`
         echoed back as a dictionary.
         """
-        # pylint: disable=unused-argument
+
         def inner(_method, program_uuid, course_key, enrollments):
             """ Mock for data.write_course_run_enrollments. """
             self.assertIsInstance(program_uuid, UUID)
+            if expected_enrolls_by_course_key is not None:  # pragma: no branch
+                self.assertListEqual(enrollments, expected_enrolls_by_course_key.get(course_key))
+
             results = OrderedDict([
                 (enrollment['student_key'], enrollment['status'])
                 for enrollment in enrollments
@@ -372,18 +376,65 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
             {'student_key': 'serena', 'status': 'z', 'course_id': 'course-2'},
         ]
+        expected_enrolls_by_course_key = {
+            "course-1-internal": [
+                {'status': 'x', 'student_key': 'john'},
+                {'status': 'y', 'student_key': 'bob'},
+            ],
+            "course-2-internal": [
+                {'status': 'z', 'student_key': 'serena'},
+            ]
+        }
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with patch.object(
                 tasks.lms,
                 self.mock_function,
-                new=self.mock_write_enrollments(any_successes, any_failures),
+                new=self.mock_write_enrollments(any_successes, any_failures, expected_enrolls_by_course_key),
         ):
             self.spawn_task().wait()
+
         self.assert_succeeded(
             "course_id,student_key,status\r\n"
             "course-1,john,x\r\n"
             "course-1,bob,y\r\n"
             "course-2,serena,z\r\n",
+            expected_code_str,
+        )
+
+    @patch.object(
+        DiscoveryProgram, 'get_course_key', lambda _self, x: x + '-internal'
+    )
+    def test_success_status_course_staff_included(self):
+        enrolls = [
+            {'student_key': 'john', 'status': 'x', 'course_id': 'course-1', 'course_staff': 'TRUE'},
+            {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1', 'course_staff': 'FALSE'},
+            {'student_key': 'serena', 'status': 'z', 'course_id': 'course-2'},
+        ]
+
+        expected_enrolls_by_course_key = {
+            "course-1-internal": [
+                {'status': 'x', 'course_staff': 'TRUE', 'student_key': 'john'},
+                {'status': 'y', 'course_staff': 'FALSE', 'student_key': 'bob'},
+            ],
+            "course-2-internal": [
+                {'status': 'z', 'student_key': 'serena'},
+            ]
+        }
+
+        uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
+        with patch.object(
+                tasks.lms,
+                self.mock_function,
+                new=self.mock_write_enrollments(True, False, expected_enrolls_by_course_key),
+        ):
+            self.spawn_task().wait()
+
+        expected_code_str = '200'
+        self.assert_succeeded(
+            "course_id,student_key,status,course_staff\r\n"
+            "course-1,john,x,TRUE\r\n"
+            "course-1,bob,y,FALSE\r\n"
+            "course-2,serena,z,\r\n",
             expected_code_str,
         )
 
@@ -397,11 +448,20 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             {'student_key': 'bob', 'status': 'y', 'course_id': 'course-1'},
             {'student_key': 'serena', 'status': 'z', 'course_id': 'invalid-course'},
         ]
+        expected_enrolls_by_course_key = {
+            "course-1-internal": [
+                {'status': 'x', 'student_key': 'john'},
+                {'status': 'y', 'student_key': 'bob'},
+            ],
+            "invalid-course-internal": [
+                {'status': 'z', 'student_key': 'serena'},
+            ]
+        }
         uploads_filestore.store(self.json_filepath, json.dumps(enrolls))
         with patch.object(
                 tasks.lms,
                 self.mock_function,
-                new=self.mock_write_enrollments(True, False),
+                new=self.mock_write_enrollments(True, False, expected_enrolls_by_course_key),
         ):
             self.spawn_task().wait()
         self.assert_succeeded(
