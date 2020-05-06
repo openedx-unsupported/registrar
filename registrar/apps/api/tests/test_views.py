@@ -103,7 +103,7 @@ class NewAPIDocViewTest(APITestCase):
         docs_response = self.client.get('/api-docs/new', follow=True)
         assert docs_response.status_code == 200
         docs_response_text = docs_response.content.decode('utf-8')
-        assert "Registrar API - New Documentation" in docs_response_text
+        assert "Registrar API - Online Documentation" in docs_response_text
 
     def test_docs_access_logged_out(self):
         self.assert_can_load_docs_page()
