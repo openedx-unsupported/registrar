@@ -1,7 +1,7 @@
 FROM ubuntu:xenial
 
-RUN apt update && \
-  apt install -qy git-core language-pack-en libmysqlclient-dev libssl-dev python3.5 python3-pip python3.5-dev && \
+RUN apt-get update && \
+  apt-get install -qy git-core language-pack-en libmysqlclient-dev libssl-dev python3.5 python3-pip python3.5-dev && \
   pip3 install --upgrade pip setuptools && \
   rm -rf /var/lib/apt/lists/*
 
