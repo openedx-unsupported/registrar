@@ -1,0 +1,28 @@
+<b>Administer student enrollments in degree-bearing edX programs. </b>
+
+<b>A Note on Student Keys</b>
+The Program and Course Enrollment creation/modification endpoints all require partners to provide student_keys in order to identify students being enrolled. For data privacy reasons, the student_key attribute cannot be, or include, sensitive personal information like a student’s official university ID number, social security number or some other government-issued ID number. It is the responsibility of the partner to determine a system for associating their students enrolled in edX-hosted programs with unique identification strings without sensitive personal information. 
+
+<b>Authentication</b>
+Authentication for the edX Registrar Service REST API is handled via JWT Tokens issued by the edX LMS. In order to request a JWT token, you must first have an edX LMS account that has been granted API access. 
+
+<b>API Access Request</b>
+To create an API Access Request, first log in to the edX LMS. Make sure you are logged into the LMS with the account you are planning to use for integration with the API. For example, if you are planning to have a peoplesoft instance communicate with the edX Registrar API, we recommend creating a new LMS account called something like 'peoplesoft_worker@school.edu' on the edX LMS, and then logging in as that worker. Next, navigate to <a href="https://courses.edx.org/api-admin/" target="_blank">https://courses.edx.org/api-admin/</a>. Submitting the form will create a request which will be reviewed and approved by an edX administrator. 
+Once the request has been approved, you can navigate to <a href="https://courses.edx.org/api-admin/status" target="_blank">https://courses.edx.org/api-admin/status</a> which will display your client_id and client_secret. 
+
+<b>JWT Token Request</b>
+Once you have your client_id and client_secret, you can make a POST request to <a href="https://api.edx.org/oauth2/access_token/" target="_blank">https://api.edx.org/oauth2/access_token/</a> which will return a JSON dictionary containing the token.
+
+<b>Sample Request & Response</b>
+<pre>
+POST <a href="https://api.edx.org/oauth2/access_token/" target="_blank">https://api.edx.org/oauth2/access_token/</a> 
+&nbsp;Content-Type: application/x-www-form-urlencoded
+&nbsp;client_id=my-client-id&client_secret=my-client-secret&grant_type=client_credentials&token_type=jwt
+<br/>
+200 OK
+{
+&nbsp;&nbsp;"token_type": "JWT",
+&nbsp;&nbsp;"access_token": "really-long-generated-jwt",
+&nbsp;&nbsp;"scope": "read write profile email",
+&nbsp;&nbsp;"expires_in": 3600
+}</pre>
