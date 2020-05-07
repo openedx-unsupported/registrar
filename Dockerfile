@@ -13,7 +13,6 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# Create python venv
 RUN mkdir -p /edx/app/registrar
 
 WORKDIR /edx/app/registrar
