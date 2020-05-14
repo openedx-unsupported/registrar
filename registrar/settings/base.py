@@ -319,3 +319,6 @@ EDX_DRF_EXTENSIONS = {
     "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
 }
 
+# How long (in seconds) we keep program details from Discovery in the cache.
+# Defaults to 24 hours.
+PROGRAM_CACHE_TIMEOUT = 60 * 60 * 24

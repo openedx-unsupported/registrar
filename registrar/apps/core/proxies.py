@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.cache import cache
 from requests.exceptions import HTTPError
 
-from .constants import PROGRAM_CACHE_KEY_TPL, PROGRAM_CACHE_TIMEOUT
+from .constants import PROGRAM_CACHE_KEY_TPL
 from .models import Program
 from .rest_utils import make_request
 
@@ -28,7 +28,7 @@ class DiscoveryProgram(Program):
     """
     Proxy to Program model that is enriched with details available from Discovery service.
 
-    Data from Discovery is cached for `PROGRAM_CACHE_TIMEOUT` seconds.
+    Data from Discovery is cached for `settings.PROGRAM_CACHE_TIMEOUT` seconds.
     If Discovery data cannot be loaded, we fall back to default values.
 
     Get an instance of this class just like you would an instance of `Program`:
@@ -64,7 +64,7 @@ class DiscoveryProgram(Program):
 
         Returns an empty dict if not found or other HTTP error.
 
-        Queries a cache with timeout of `PROGRAM_CACHE_TIMEOUT`
+        Queries a cache with timeout of `settings.PROGRAM_CACHE_TIMEOUT`
         before hitting Discovery to load the authoritative data.
 
         Note that the "not-founded-ness" of programs will also be cached
@@ -91,7 +91,7 @@ class DiscoveryProgram(Program):
         if not isinstance(program_details, dict):
             program_details = cls._fetch_discovery_program_details(program_uuid)
             cache_value = program_details if isinstance(program_details, dict) else {}
-            cache.set(key, cache_value, PROGRAM_CACHE_TIMEOUT)
+            cache.set(key, cache_value, settings.PROGRAM_CACHE_TIMEOUT)
         return program_details
 
     @classmethod
