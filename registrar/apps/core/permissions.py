@@ -265,9 +265,10 @@ PROGRAM_ROLES = [
 
 def _build_db_to_api_permissions():
     """
-    Return a dict mappping a each permission string to a corresponding
-    APIPermission. Two versions of each string are mapped, one with the app
-    prefix (used by django functions) and another without (used by guardian)
+    Return a dict mappping each permission string to a corresponding
+    APIPermission. Two versions of each string are mapped, one with
+    the app prefix (used by django functions) and another without
+    (used by guardian)
     """
     permission_map = {}
     for api_permission in API_PERMISSIONS:

@@ -8,8 +8,8 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9   # via -r requirements/base.in
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.12.46            # via -r requirements/production.in
-botocore==1.15.46         # via boto3, s3transfer
+boto3==1.13.6             # via -r requirements/production.in
+botocore==1.16.6          # via boto3, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
@@ -20,36 +20,36 @@ django-cors-headers==3.2.1  # via -r requirements/base.in
 django-extensions==2.2.9  # via -r requirements/base.in
 django-guardian==2.2.0    # via -r requirements/base.in
 django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
-django-mysql==3.4.0       # via -r requirements/base.in
+django-mysql==3.5.0       # via -r requirements/base.in
 django-simple-history==2.10.0  # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
-django-user-tasks==1.0.0  # via -r requirements/base.in
+django-user-tasks==1.1.0  # via -r requirements/base.in
 django-waffle==0.20.0     # via -r requirements/base.in, edx-django-utils, edx-drf-extensions
 django==2.2.12            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
 djangorestframework==3.11.0  # via -r requirements/base.in, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
 docutils==0.15.2          # via botocore
 drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensions
 drf-yasg==1.17.1          # via edx-api-doc-tools
-edx-api-doc-tools==1.2.0  # via -r requirements/base.in
-edx-auth-backends==3.0.2  # via -r requirements/base.in
-edx-django-release-util==0.4.2  # via -r requirements/base.in
-edx-django-utils==3.2.1   # via edx-drf-extensions
-edx-drf-extensions==5.0.2  # via -r requirements/base.in
-edx-opaque-keys==2.0.2    # via edx-drf-extensions
+edx-api-doc-tools==1.3.0  # via -r requirements/base.in
+edx-auth-backends==3.1.0  # via -r requirements/base.in
+edx-django-release-util==0.4.4  # via -r requirements/base.in
+edx-django-utils==3.2.2   # via edx-drf-extensions
+edx-drf-extensions==6.0.0  # via -r requirements/base.in
+edx-opaque-keys==2.1.0    # via edx-drf-extensions
 edx-rest-api-client==1.9.2  # via -r requirements/base.in
 future==0.18.2            # via pyjwkest
-gevent==20.4.0            # via -r requirements/production.in
+gevent==20.5.0            # via -r requirements/production.in
 greenlet==0.4.15          # via gevent
 gunicorn==20.0.4          # via -r requirements/production.in
 idna==2.9                 # via requests
 inflection==0.4.0         # via drf-yasg
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
-jmespath==0.9.5           # via boto3, botocore
+jmespath==0.10.0          # via boto3, botocore
 kombu==3.0.37             # via celery
 markupsafe==1.1.1         # via jinja2
 mysqlclient==1.3.14       # via -r requirements/nonlocal.in, -r requirements/production.in
-newrelic==5.12.0.140      # via edx-django-utils
+newrelic==5.12.1.141      # via edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 packaging==20.3           # via drf-yasg
 pbr==5.4.5                # via stevedore
@@ -62,7 +62,7 @@ pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via analytics-python, botocore, edx-drf-extensions
 python-memcached==1.59    # via -r requirements/nonlocal.in
 python3-openid==3.1.0     # via social-auth-core
-pytz==2019.3              # via -r requirements/base.in, celery, django
+pytz==2020.1              # via -r requirements/base.in, celery, django
 pyyaml==5.1               # via -r requirements/production.in, edx-django-release-util
 redis==2.8                # via -r requirements/base.in
 requests-oauthlib==1.3.0  # via social-auth-core
@@ -71,7 +71,7 @@ rest-condition==1.0.3     # via edx-drf-extensions
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.10      # via drf-yasg
 s3transfer==0.3.3         # via boto3
-semantic-version==2.8.4   # via edx-drf-extensions
+semantic-version==2.8.5   # via edx-drf-extensions
 six==1.14.0               # via analytics-python, django-extensions, django-simple-history, django-waffle, drf-yasg, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, packaging, pyjwkest, python-dateutil, python-memcached, social-auth-app-django, social-auth-core, stevedore
 slumber==0.7.1            # via edx-rest-api-client
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
