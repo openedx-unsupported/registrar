@@ -13,6 +13,7 @@ from .proxies import DiscoveryProgram
 
 log = get_task_logger(__name__)
 
+
 # pylint: disable=unused-argument
 @shared_task(bind=True)
 def debug_task(self, *args, **kwargs):
