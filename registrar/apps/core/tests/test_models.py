@@ -1,6 +1,7 @@
 """ Tests for core models. """
 
 import ddt
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dynamic_fixture import G
 from guardian.shortcuts import get_perms
@@ -56,6 +57,34 @@ class UserTests(TestCase):
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
         self.assertEqual(user.get_full_name(), full_name)
+
+
+class OrganizationTests(TestCase):
+    """ Tests for Program model """
+
+    def test_bad_key_raises_validation_error(self):
+        """
+        Test that cleaning an Organization with a non-slug key raise a ValidationError.
+
+        A "slug" can include ASCII-valid alphanumeric characters, underscores, and hyphens.
+        """
+        org = OrganizationFactory.build(key="AmericanDodgeballAssociationOfAmericá")
+        with self.assertRaisesRegex(ValidationError, "Enter a valid 'slug'"):
+            org.full_clean()
+
+
+class ProgramTests(TestCase):
+    """ Tests for Program model """
+
+    def test_bad_key_raises_validation_error(self):
+        """
+        Test that cleaning a Program with a non-slug key raise a ValidationError.
+
+        A "slug" can include ASCII-valid alphanumeric characters, underscores, and hyphens.
+        """
+        program = ProgramFactory.build(key="Master's_Degree")
+        with self.assertRaisesRegex(ValidationError, "Enter a valid 'slug'"):
+            program.full_clean()
 
 
 @ddt.ddt

@@ -63,7 +63,7 @@ class Organization(TimeStampedModel):
             (perms.ORGANIZATION_WRITE_ENROLLMENTS_KEY, 'Write enrollment data'),
             (perms.ORGANIZATION_READ_REPORTS_KEY, 'Read reports data'),
         )
-    key = models.CharField(unique=True, max_length=255)
+    key = models.SlugField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     name = models.CharField(max_length=255)
 
@@ -96,7 +96,7 @@ class Program(TimeStampedModel):
             (perms.PROGRAM_WRITE_ENROLLMENTS_KEY, 'Write program enrollment data'),
             (perms.PROGRAM_READ_REPORTS_KEY, 'Read program reports data'),
         )
-    key = models.CharField(unique=True, max_length=255)
+    key = models.SlugField(unique=True, max_length=255)
     discovery_uuid = models.UUIDField(db_index=True, null=True)
     managing_organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
