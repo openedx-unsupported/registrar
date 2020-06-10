@@ -19,7 +19,15 @@ class ProgramEnrollmentSerializer(serializers.Serializer):
     account_exists = serializers.BooleanField()
 
 
-def serialize_program_enrollments_to_csv(enrollments):
+class ProgramEnrollmentWithUsernameEmailSerializer(ProgramEnrollmentSerializer):
+    """
+    Serializer for program enrollment API response that includes username and email.
+    """
+    username = serializers.CharField(allow_blank=True)
+    email = serializers.CharField(allow_blank=True)
+
+
+def serialize_program_enrollments_to_csv(enrollments, include_username_email=False):
     """
     Serialize program enrollments into a CSV-formatted string.
 
@@ -28,9 +36,14 @@ def serialize_program_enrollments_to_csv(enrollments):
 
     Returns: str
     """
+    if include_username_email:
+        field_names = ('student_key', 'status', 'account_exists', 'username', 'email')
+    else:
+        field_names = ('student_key', 'status', 'account_exists')
+
     return serialize_to_csv(
         enrollments,
-        ('student_key', 'status', 'account_exists'),
+        field_names,
         include_headers=True,
     )
 

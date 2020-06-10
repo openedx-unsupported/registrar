@@ -29,6 +29,7 @@ from .serializers import (
     CourseEnrollmentSerializer,
     CourseEnrollmentWithCourseStaffSerializer,
     ProgramEnrollmentSerializer,
+    ProgramEnrollmentWithUsernameEmailSerializer,
 )
 
 
@@ -38,7 +39,7 @@ LMS_PROGRAM_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}/enroll
 LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL = 'api/program_enrollments/v1/programs/{}/courses/{}/enrollments/'
 
 
-def get_program_enrollments(program_uuid, client=None):
+def get_program_enrollments(program_uuid, client=None, include_username_email=False):
     """
     Fetches program enrollments from the LMS.
 
@@ -55,7 +56,10 @@ def get_program_enrollments(program_uuid, client=None):
     """
     url = _lms_program_enrollment_url(program_uuid)
     enrollments = get_all_paginated_results(url, client)
-    serializer = ProgramEnrollmentSerializer(data=enrollments, many=True)
+    if include_username_email:
+        serializer = ProgramEnrollmentWithUsernameEmailSerializer(data=enrollments, many=True)
+    else:
+        serializer = ProgramEnrollmentSerializer(data=enrollments, many=True)
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
 
