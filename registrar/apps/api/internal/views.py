@@ -1,9 +1,11 @@
 """ Internal utility API views """
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
@@ -11,29 +13,40 @@ from rest_framework.views import APIView
 from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.models import Program
 
-from ..v1.mixins import AuthMixin
+from ..mixins import TrackViewMixin
 
 
-class FlushProgramCacheView(AuthMixin, APIView):
+class FlushProgramCacheView(TrackViewMixin, APIView):
     """
     A view for clearing the programs cache.
     Is only accessable to staff users.
 
-    Path: /api/internal/cache/{program_key}/
+    Paths:
+        All programs:      /api/internal/cache/
+        Specific program:  /api/internal/cache/{program_key}/
 
     Accepts: [DELETE]
 
     Returns:
-     * 200: Program cache successfully cleared
+     * 204: Program cache successfully cleared
      * 401: User not authenticated
-     * 403: User not staff
-     * 404: Program not found (only returned if user is staff)
+     * 404: User not staff or program not found.
     """
     event_method_map = {'DELETE': 'registrar.internal.flush_program_cache'}
     event_parameter_map = {'program_key': 'program_key'}
     authentication_classes = (JwtAuthentication, SessionAuthentication)
-    raise_404_if_unauthorized = True
-    staff_only = True
+    permission_classes = (IsAuthenticated,)
+
+    def check_permissions(self, request):
+        """
+        Check that the authenticated user can access this view.
+
+        Overrides APIView.check_permissions.
+        """
+        super().check_permissions(request)
+        if not request.user.is_staff:
+            self.add_tracking_data(failure='user_is_not_staff')
+            raise Http404()
 
     def delete(self, request, program_key=None):
         """

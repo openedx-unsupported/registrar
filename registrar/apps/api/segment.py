@@ -6,7 +6,7 @@ import logging
 import analytics
 from django.conf import settings
 
-from registrar.apps.core.utils import get_user_organizations
+from registrar.apps.core.auth_checks import get_user_organizations
 
 from .constants import TRACKING_CATEGORY
 

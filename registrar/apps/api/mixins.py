@@ -58,7 +58,27 @@ class TrackViewMixin:
         """
         Add fields to the tracking event.
         """
-        self._extra_tracking_data.update(kwargs)
+        data = kwargs.copy()
+        missing_perms = data.get('missing_permissions')
+        if missing_perms:
+            data['missing_permissions'] = list(
+                self._ensure_permissions_are_valid_json(missing_perms)
+            )
+        self._extra_tracking_data.update(data)
+
+    @staticmethod
+    def _ensure_permissions_are_valid_json(permissions):
+        """
+        Given a list of 'permission' objects, make sure they can all be
+        represented in JSON without special handling. Yields one validated element
+        at a time.
+        """
+        for perm in permissions:
+            if isinstance(perm, APIPermission):
+                # For APIPermission objects, use their name.
+                yield perm.name
+            else:
+                yield perm
 
     def dispatch(self, *args, **kwargs):
         """
@@ -108,19 +128,5 @@ class TrackViewMixin:
             '%s invoked on Registrar by user with ID=%s with properties %s',
             event_name,
             self.request.user.id,
-            json.dumps(properties, skipkeys=True, sort_keys=True, cls=CustomEncoder),
+            json.dumps(properties, skipkeys=True, sort_keys=True),
         )
-
-
-class CustomEncoder(json.JSONEncoder):
-    """
-    We log information like user, permission_required, status_code, etc.
-    Previously permission_required was a list of strings which works well with JSON's
-    default encoder.
-    Now permission_required becomes a list of APIPermission classes and this CustomEncoder
-    helps encode APIPermission class to JSON.
-    """
-    def default(self, o):  # pylint: disable=method-hidden
-        if isinstance(o, APIPermission):
-            return o.permissions
-        return json.JSONEncoder.default(self, o)  # pragma: no cover

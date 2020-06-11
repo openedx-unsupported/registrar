@@ -12,7 +12,8 @@ from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import NotAuthenticated, ValidationError
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -22,6 +23,7 @@ from rest_framework.status import (
 )
 
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.auth_checks import get_api_permissions_by_program
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import start_job
 from registrar.apps.core.models import Program
@@ -40,41 +42,35 @@ from ..utils import build_absolute_api_url
 upload_filestore = get_enrollment_uploads_filestore()
 
 
-class AuthMixin(TrackViewMixin):
+class ProgramSpecificViewMixin(TrackViewMixin):
     """
-    Mixin providing AuthN/AuthZ functionality for all our views to use.
+    A mixin for views that operate on or within a specific program.
 
-    This mixin overrides `APIView.check_permissions` to use Django Guardian.
-    It replicates, to the extent that we require, the functionality of
-    Django Guardian's `PermissionRequiredMixin`, which unfortunately doesn't
-    play nicely with Django REST Framework.
+    Provides program-specific AuthN/AuthZ functionality.
     """
     authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
     permission_required = []
-    raise_404_if_unauthorized = False
-    staff_only = False
-
-    def get_permission_objects(self):
-        """
-        Returns a list of objects for which permission on at least one is required.
-
-        If None, permissions will be checked globally.
-        """
-        return []  # pragma: no cover
 
     def get_required_permissions(self, _request):
         """
-        Returns list of permissions in format <app_label>.<codename> that
-        should be checked against request.user and object. By default, it
-        returns list from `permission_required` attribute.
+        Get the APIPermissions required on the program to use this view.
+
+        Simply looks at `permission_required` and fails if it isn't an APIPermission
+        or an Iterable.
+
+        This method may be overriden in order to cofiy dynamic permission requirements.
+
+        Returns:
+            set[APIPermission]
         """
-        if isinstance(self.permission_required, str):  # pragma: no branch
+        if isinstance(self.permission_required, perms.APIPermission):  # pragma: no branch
             return [self.permission_required]  # pragma: no cover
         elif isinstance(self.permission_required, Iterable):
             return self.permission_required
         else:  # pragma: no cover
             raise ImproperlyConfigured(
-                'permission_required must be a string or iterable; ' +
+                'permission_required must be an APIPermission or iterable; ' +
                 'was {}'.format(self.permission_required)
             )
 
@@ -83,61 +79,21 @@ class AuthMixin(TrackViewMixin):
         Check that the authenticated user can access this view.
 
         Ensure that the user has all of the permissions specified in
-        `permission_required` granted on the object returned by
-        `get_permission_objects`. If not, an HTTP 403 (or, HTTP 404 if
-        `raise_404_if_unauthorized` is True) is raised.
+        `self.get_required_permissions()` granted on the `self.program`.
+
+        If not, an HTTP 403 is raised.
 
         Overrides APIView.check_permissions.
         """
-        if not request.user.is_authenticated:
-            raise NotAuthenticated()
-
-        if self.staff_only and not request.user.is_staff:
-            self.add_tracking_data(failure='user_is_not_staff')
-            self._unauthorized_response()
-
-        required = self.get_required_permissions(request)
-        missing_global_permissions = {
-            perm for perm in required
-            if not perm.global_check(request.user)
-        }
-        objects = self.get_permission_objects()
-        if not missing_global_permissions:
-            missing_permissions = set()
-        elif objects:
-            missing_permissions = {
-                perm for perm in required
-                if not AuthMixin._has_permission_on_any(request.user, perm, objects)
-            }
-        else:
-            missing_permissions = missing_global_permissions  # pragma: no cover
-
+        super().check_permissions(request)
+        required_permissions = set(self.get_required_permissions(request))
+        possessed_permissions = set(
+            get_api_permissions_by_program(request.user, self.program)
+        )
+        missing_permissions = required_permissions - possessed_permissions
         if missing_permissions:
             self.add_tracking_data(missing_permissions=list(missing_permissions))
-            self._unauthorized_response()
-
-    @staticmethod
-    def _has_permission_on_any(user, perm, objects):
-        # pylint: disable=missing-function-docstring
-        for obj in objects:
-            if perm.check(user, obj):
-                return True
-        return False
-
-    def _unauthorized_response(self):
-        """
-        Raise 403 or 404, depending on `self.raise_404_if_unauthorized`.
-        """
-        if self.raise_404_if_unauthorized:
-            raise Http404()
-
-        raise PermissionDenied()
-
-
-class ProgramSpecificViewMixin(AuthMixin):
-    """
-    A mixin for views that operate on or within a specific program.
-    """
+            raise PermissionDenied()
 
     @cached_property
     def program(self):
@@ -150,12 +106,6 @@ class ProgramSpecificViewMixin(AuthMixin):
         except Program.DoesNotExist:
             self.add_tracking_data(failure='program_not_found')
             raise Http404()
-
-    def get_permission_objects(self):
-        """
-        Returns an organization object against which permissions should be checked.
-        """
-        return [self.program.managing_organization, self.program]
 
 
 class CourseSpecificViewMixin(ProgramSpecificViewMixin):
@@ -248,18 +198,6 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         if request.method == 'POST' or self.request.method == 'PATCH':
             return [perms.API_WRITE_ENROLLMENTS]
         return []  # pragma: no cover
-
-    def check_permissions(self, request):
-        if not self.program.details.is_enrollment_enabled:
-            # Raise exception if the program (MM at the moment) is not
-            # available for enrollments related API endpoints
-            raise PermissionDenied(
-                'Cannot access enrollment endpoints with program [{}] whose enrollments are disabled'.format(
-                    self.program.key
-                )
-            )
-
-        super().check_permissions(request)
 
     def handle_enrollments(self, course_id=None):
         """

@@ -233,7 +233,7 @@ class ProgramOrganizationGroup(Group):
         Converts self.role (which is a role name) to its matching Role instance.
         """
         for role in perms.PROGRAM_ROLES:
-            if self.role == role.name:  # pragma: no branch
+            if self.role == role.name:
                 return role
         return None  # pragma: no cover
 

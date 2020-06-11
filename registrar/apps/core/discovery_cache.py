@@ -118,6 +118,25 @@ class ProgramDetails:
             )
             return None
 
+    @classmethod
+    def load_many(cls, uuids):
+        """
+        Given program UUIDs, load a dict of ProgramDetail instances, keyed by UUID.
+
+        TODO MST-266:
+        This is currently no more efficient than loading the details one-by-one.
+        For programs that aren't in the cache, we ought to load them in a single
+        API call to Course Disocovery.
+
+        Arguments:
+            uuids (Iterable[str|UUID]): Program UUIDs.
+
+        Returns: dict[(str|UUID): Program]
+        """
+        return {
+            uuid: ProgramDetails(uuid) for uuid in uuids
+        }
+
     @property
     def title(self):
         """

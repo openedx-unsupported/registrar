@@ -1,7 +1,7 @@
 """ Serializers for the grades app """
 from rest_framework import serializers
 
-from registrar.apps.core.utils import serialize_to_csv
+from registrar.apps.core.csv_utils import serialize_to_csv
 
 
 # pylint: disable=abstract-method

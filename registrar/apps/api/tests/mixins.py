@@ -10,8 +10,7 @@ import mock
 from django.conf import settings
 
 from registrar.apps.api.constants import TRACKING_CATEGORY
-from registrar.apps.api.mixins import CustomEncoder
-from registrar.apps.core.utils import get_user_organizations
+from registrar.apps.core.auth_checks import get_user_organizations
 
 
 JWT_AUTH = 'JWT_AUTH'
@@ -85,7 +84,7 @@ class TrackTestMixin:
             '%s invoked on Registrar by user with ID=%s with properties %s',
             event,
             user.id,
-            json.dumps(properties, skipkeys=True, sort_keys=True, cls=CustomEncoder),
+            json.dumps(properties, skipkeys=True, sort_keys=True),
         )
 
 
@@ -158,31 +157,31 @@ class AuthRequestMixin(JwtMixin):
 
     def get(self, path, user):
         """
-        Perform a GET on the given path, optionally with a user.
+        Perform a GET on the given path with the given user.
         """
         return self.request('get', path, user)
 
     def post(self, path, data, user):
         """
-        Perform a POST on the given path, optionally with a user.
+        Perform a POST on the given path with the given user.
         """
         return self.request('post', path, user, data)  # pragma: no cover
 
     def put(self, path, data, user):
         """
-        Perform a PUT on the given path, optionally with a user.
+        Perform a PUT on the given path with the given user.
         """
         return self.request('put', path, user, data)  # pragma: no cover
 
     def patch(self, path, data, user):
         """
-        Perform a PATCH on the given path, optionally with a user.
+        Perform a PATCH on the given path with the given user.
         """
         return self.request('patch', path, user, data)  # pragma: no cover
 
     def delete(self, path, user):
         """
-        Perform a DELETE on the given, optionally with a user.
+        Perform a DELETE on the given with the given user.
         """
         return self.request('delete', path, user)
 

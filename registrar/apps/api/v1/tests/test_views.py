@@ -29,6 +29,7 @@ from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core.csv_utils import serialize_to_csv
 from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.filestore import (
     get_enrollment_uploads_filestore,
@@ -60,7 +61,6 @@ from registrar.apps.core.tests.utils import (
     mock_oauth_login,
     patch_discovery_program_details,
 )
-from registrar.apps.core.utils import serialize_to_csv
 from registrar.apps.enrollments.lms_interop import (
     LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL,
 )
@@ -688,7 +688,7 @@ class ProgramRetrieveViewTests(RegistrarAPITestCase, AuthRequestMixin):
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                missing_permissions=[perms.API_READ_METADATA],
+                missing_permissions=[perms.API_READ_METADATA.name],
         ):
             response = self.get('programs/masters-in-english', self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -767,7 +767,7 @@ class ProgramCourseListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.API_READ_METADATA],
+                missing_permissions=[perms.API_READ_METADATA.name],
         ):
             response = self.get('programs/masters-in-cs/courses', self.hum_admin)
         self.assertEqual(response.status_code, 403)
@@ -945,7 +945,7 @@ class ProgramEnrollmentWriteMixin:
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.API_WRITE_ENROLLMENTS],
+                missing_permissions=[perms.API_WRITE_ENROLLMENTS.name],
         ):
             response = self.request(
                 self.method,
@@ -962,7 +962,7 @@ class ProgramEnrollmentWriteMixin:
         with self.assert_tracking(
                 user=self.stem_user,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.API_WRITE_ENROLLMENTS],
+                missing_permissions=[perms.API_WRITE_ENROLLMENTS.name],
         ):
             response = self.request(
                 self.method,
@@ -1306,7 +1306,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                missing_permissions=[perms.API_READ_ENROLLMENTS],
+                missing_permissions=[perms.API_READ_ENROLLMENTS.name],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -1560,7 +1560,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
                 user=self.stem_admin,
                 program_key='masters-in-english',
                 course_id='HUMx+English-550+Spring',
-                missing_permissions=[perms.API_READ_ENROLLMENTS],
+                missing_permissions=[perms.API_READ_ENROLLMENTS.name],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -1749,7 +1749,7 @@ class ProgramCourseEnrollmentWriteMixin:
                 user=self.hum_admin,
                 program_key=self.cs_program.key,
                 course_id=self.course_id,
-                missing_permissions=[perms.API_WRITE_ENROLLMENTS],
+                missing_permissions=[perms.API_WRITE_ENROLLMENTS.name],
         ):
             response = self.request(
                 self.method, self.get_url(), self.hum_admin, req_data
@@ -1765,7 +1765,7 @@ class ProgramCourseEnrollmentWriteMixin:
                 user=self.stem_user,
                 program_key=self.cs_program.key,
                 course_id=self.course_id,
-                missing_permissions=[perms.API_WRITE_ENROLLMENTS],
+                missing_permissions=[perms.API_WRITE_ENROLLMENTS.name],
         ):
             response = self.request(
                 self.method, self.get_url(), self.stem_user, req_data
@@ -2354,7 +2354,7 @@ class EnrollmentUploadMixin:
         with self.assert_tracking(
                 user=self.hum_admin,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.API_WRITE_ENROLLMENTS],
+                missing_permissions=[perms.API_WRITE_ENROLLMENTS.name],
         ):
             response = self._upload_enrollments(enrollments, user=self.hum_admin)
         self.assertEqual(response.status_code, 403)
@@ -2366,7 +2366,7 @@ class EnrollmentUploadMixin:
         with self.assert_tracking(
                 user=self.stem_user,
                 program_key='masters-in-cs',
-                missing_permissions=[perms.API_WRITE_ENROLLMENTS],
+                missing_permissions=[perms.API_WRITE_ENROLLMENTS.name],
         ):
             response = self._upload_enrollments(enrollments, user=self.stem_user)
         self.assertEqual(response.status_code, 403)
@@ -2766,7 +2766,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
         with self.assert_tracking(
                 user=self.stem_admin,
                 program_key='masters-in-english',
-                missing_permissions=[perms.API_READ_ENROLLMENTS],
+                missing_permissions=[perms.API_READ_ENROLLMENTS.name],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
@@ -2801,6 +2801,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     event = 'registrar.v1.get_course_grades'
 
     mock_program_details = {
+        'type': 'Masters',
         'curricula': [{
             'is_active': True,
             'courses': [{
@@ -2903,7 +2904,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
                 user=self.stem_admin,
                 program_key='masters-in-english',
                 course_id='HUMx+English-550+Spring',
-                missing_permissions=[perms.API_READ_ENROLLMENTS],
+                missing_permissions=[perms.API_READ_ENROLLMENTS.name],
         ):
             response = self.get(self.path, self.stem_admin)
         self.assertEqual(response.status_code, 403)
