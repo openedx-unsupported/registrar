@@ -8,7 +8,6 @@ from rest_framework import serializers
 from user_tasks.models import UserTaskStatus
 
 from registrar.apps.core.models import Program
-from registrar.apps.core.utils import get_effective_user_program_api_permissions
 from registrar.apps.enrollments.constants import (
     COURSE_ENROLLMENT_STATUSES,
     PROGRAM_ENROLLMENT_STATUSES,
@@ -43,13 +42,11 @@ class DetailedProgramSerializer(serializers.ModelSerializer):
         """
         Get list of permissions granted to user making the request from the context
         """
-        request = self.context.get('request')
-        if request and hasattr(request, 'user'):
-            user_permissions = get_effective_user_program_api_permissions(request.user, program)
-
-            return sorted(permission.name for permission in user_permissions)
-        else:
-            return []
+        user_api_permissions_by_program = self.context.get(
+            'user_api_permissions_by_program', {}
+        )
+        api_permissions = user_api_permissions_by_program.get(program, [])
+        return sorted(api_permission.name for api_permission in api_permissions)
 
 
 class ProgramEnrollmentRequestSerializer(serializers.Serializer):

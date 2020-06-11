@@ -4,6 +4,7 @@ The public-facing REST API.
 import json
 import logging
 import re
+from collections import defaultdict
 from datetime import datetime
 
 import waffle
@@ -30,20 +31,17 @@ from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
 from registrar.apps.core import permissions as perms
+from registrar.apps.core.auth_checks import (
+    get_api_permissions_by_program,
+    get_programs_by_api_permission,
+)
+from registrar.apps.core.csv_utils import load_records_from_uploaded_csv
 from registrar.apps.core.filestore import get_program_reports_filestore
 from registrar.apps.core.jobs import (
     get_job_status,
     get_processing_jobs_for_user,
 )
-from registrar.apps.core.models import Organization, Program
-from registrar.apps.core.permissions import (
-    API_ENROLLMENT_PERMISSIONS,
-    API_READ_METADATA,
-)
-from registrar.apps.core.utils import (
-    get_effective_user_program_api_permissions,
-    load_records_from_uploaded_csv,
-)
+from registrar.apps.core.models import Organization
 from registrar.apps.enrollments.tasks import (
     list_all_course_run_enrollments,
     list_course_run_enrollments,
@@ -65,7 +63,6 @@ from ..serializers import (
     ProgramReportMetadataSerializer,
 )
 from .mixins import (
-    AuthMixin,
     CourseSpecificViewMixin,
     EnrollmentMixin,
     JobInvokerMixin,
@@ -93,12 +90,14 @@ SCHEMA_COMMON_RESPONSES = {
         **SCHEMA_COMMON_RESPONSES,
     },
 )
-class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
+class ProgramListView(TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
     Path: /api/[version]/programs?org={org_key}
     """
+    authentication_classes = (JwtAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
 
     serializer_class = DetailedProgramSerializer
     event_method_map = {'GET': 'registrar.{api_version}.list_programs'}
@@ -108,48 +107,66 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     }
 
     def get_queryset(self):
-        programs = Program.objects.all()
-        user = self.request.user
+        """
+        Get the Programs to be serialized and returned.
 
-        if self.organization_filter:
-            programs = programs.filter(
-                managing_organization=self.organization_filter
+        Overrides ListAPIView.get_queryset.
+        """
+        return self.user_programs_by_api_permission[self.permission_filter]
+
+    def get_serializer_context(self):
+        """
+        Get the extra data needed to serialize each Program.
+
+        Overrides ListAPIView.get_serializer_context.
+        """
+        return {
+            **super().get_serializer_context(),
+            "user_api_permissions_by_program": (
+                self.user_api_permissions_by_program
+            ),
+        }
+
+    @cached_property
+    def user_api_permissions_by_program(self):
+        """
+        For each Program, the APIPermission that the user possesses on that program.
+
+        Calculated and cached once per request.
+
+        Returns: dict[Program: list[APIPermission]]
+        """
+        result = defaultdict(list)
+        for api_permission, programs in self.user_programs_by_api_permission.items():
+            for program in programs:
+                result[program].append(api_permission)
+        return dict(result)
+
+    @cached_property
+    def user_programs_by_api_permission(self):
+        """
+        For each APIPermission, the Programs on which the user possesses that APIPermission.
+
+        Calculated and cached once per request.
+
+        Returns: dict[APIPermission: list[Program]]
+        """
+        return {
+            api_permission: list(
+                get_programs_by_api_permission(
+                    user=self.request.user,
+                    required_api_permission=api_permission,
+                    organization_filter=self.organization_filter,
+                )
             )
-
-        if self.permission_filter:
-            required_permission = self.permission_filter
-        else:
-            required_permission = API_READ_METADATA
-
-        programs = (
-            program for program in programs
-            if required_permission in get_effective_user_program_api_permissions(user, program)
-        )
-        # Filter out programs with enrollments disabled if the user requested
-        # permission filter to operate on enrollments
-        if self.permission_filter in API_ENROLLMENT_PERMISSIONS:
-            programs = [program for program in programs if program.details.is_enrollment_enabled]
-        return programs
-
-    def get_required_permissions(self, _request):
-        """
-        Return a list of required permissions.
-        Here an empty list is returned because for this endpoint, permission check is done in get_queryset.
-        """
-        return []
-
-    def get_permission_objects(self):
-        """
-        Returns a list of objects against which permissions should be checked.
-        Here an empty list is returned because for this endpoint, permission check is done in get_queryset.
-        """
-        return []
+            for api_permission in perms.API_PERMISSIONS
+        }
 
     @cached_property
     def organization_filter(self):
         """
         Return the organization by which results will be filtered,
-        or None if on filter specified.
+        no None if on filter specified.
 
         Raises 404 for non-existant organiation.
         """
@@ -167,16 +184,16 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     def permission_filter(self):
         """
         Return a list of APIPermission by which results will be filtered,
-        or None if no filter specified.
+        defaulting to API_READ_METADATA.
 
         Raises 404 for bad permission query param.
         """
         perm_query_param = self.request.GET.get('user_has_perm', None)
         if not perm_query_param:
-            return None
+            return perms.API_READ_METADATA
         try:
-            return next(p for p in perms.API_PERMISSIONS if p.name == perm_query_param)
-        except StopIteration:
+            return perms.API_PERMISSIONS_BY_NAME[perm_query_param]
+        except KeyError:
             self.add_tracking_data(failure='no_such_perm')
             raise Http404()
 
@@ -198,7 +215,27 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     event_parameter_map = {'program_key': 'program_key'}
 
     def get_object(self):
+        """
+        Get the Program to be serialized and returned.
+
+        Overrides RetrieveAPIView.get_object.
+        """
         return self.program
+
+    def get_serializer_context(self):
+        """
+        Get the extra data needed to serialize the Program.
+
+        Overrides ListAPIView.get_serializer_context.
+        """
+        return {
+            **super().get_serializer_context(),
+            "user_api_permissions_by_program": {
+                self.program: get_api_permissions_by_program(
+                    user=self.request.user, program=self.program
+                ),
+            },
+        }
 
 
 class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
@@ -405,7 +442,7 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
         return status
 
 
-class JobStatusListView(AuthMixin, TrackViewMixin, ListAPIView):
+class JobStatusListView(TrackViewMixin, ListAPIView):
     """
     A view for listing currently processing jobs.
 

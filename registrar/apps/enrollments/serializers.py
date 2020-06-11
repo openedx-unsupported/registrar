@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from registrar.apps.core.utils import serialize_to_csv
+from registrar.apps.core.csv_utils import serialize_to_csv
 
 from .constants import COURSE_ENROLLMENT_STATUSES, PROGRAM_ENROLLMENT_STATUSES
 

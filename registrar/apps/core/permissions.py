@@ -3,6 +3,7 @@ This module defines constants for permission codenames
 and sets of permissions that can be used as roles.
 """
 import re
+from collections import namedtuple
 
 from guardian.shortcuts import assign_perm
 
@@ -79,49 +80,26 @@ JOB_GLOBAL_READ_KEY = 'job_global_read'
 JOB_GLOBAL_READ = APP_PREFIX + JOB_GLOBAL_READ_KEY
 
 
-class APIPermission:
-    """
-    An association of a corresponding Organization-level and Program-level permissions.
-
-    When an "APIPermission" is checked against a user, it is sufficient for the
-    user to have permission on the program directly OR permission on the managing
-    organization.
-
-    Arguments:
-        name (str)
-        organization_permission (str): App-qualified Organization permission string.
-        program_permission (str): App-qualified Program permission string.
-        enables_enrollment_management (bool):
-            Whether the granting of this permission implies that enrollment management
-            is enabled for the target program.
-    """
-    def __init__(
-            self,
-            name,
-            organization_permission,
-            program_permission,
-            enables_enrollment_management,
-    ):
-        self.name = name
-        self.organization_permission = organization_permission
-        self.program_permission = program_permission
-        self.enables_enrollment_management = enables_enrollment_management
-
-    @property
-    def permissions(self):
-        return [self.organization_permission, self.program_permission]
-
-    def global_check(self, user):
-        for perm in self.permissions:
-            if user.has_perm(perm):
-                return True
-        return False
-
-    def check(self, user, obj):
-        for perm in self.permissions:
-            if user.has_perm(perm, obj):
-                return True
-        return False
+# APIPermission:
+# Associate corresponding Organization-level and Program-level permissions.
+#
+# When an "APIPermission" is checked against a user and a program, it is sufficient for
+# the user to have permission on the program directly OR permission on the program's
+# managing organization.
+#
+# Fields:
+#     name (str)
+#     organization_permission (str): App-qualified Organization permission string.
+#     program_permission (str): App-qualified Program permission string.
+#     enables_enrollment_management (bool):
+#         Whether the granting of this permission implies that enrollment management
+#         is enabled for the target program.
+APIPermission = namedtuple('APIPermission', [
+    'name',
+    'organization_permission',
+    'program_permission',
+    'enables_enrollment_management',
+])
 
 
 API_READ_METADATA = APIPermission(
@@ -156,8 +134,13 @@ API_PERMISSIONS = [
     API_READ_METADATA,
     API_READ_ENROLLMENTS,
     API_WRITE_ENROLLMENTS,
-    API_READ_REPORTS
+    API_READ_REPORTS,
 ]
+
+API_PERMISSIONS_BY_NAME = {
+    api_permission.name: api_permission
+    for api_permission in API_PERMISSIONS
+}
 
 API_ENROLLMENT_PERMISSIONS = [
     api_permission for api_permission in API_PERMISSIONS
@@ -308,7 +291,10 @@ def _build_db_to_api_permissions():
     """
     permission_map = {}
     for api_permission in API_PERMISSIONS:
-        for db_perm in api_permission.permissions:
+        db_permissions = [
+            api_permission.organization_permission, api_permission.program_permission
+        ]
+        for db_perm in db_permissions:
             # map permission string that includes app name
             permission_map[db_perm] = api_permission
             # strip app name from permission to match guardian's usage
