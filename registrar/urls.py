@@ -34,7 +34,7 @@ admin.autodiscover()
 
 app_name = 'registrar'
 api_description_path = os.path.join(settings.PROJECT_ROOT, 'static', 'api-description.html')
-with open(api_description_path) as api_description_file:
+with open(api_description_path, encoding='utf-8') as api_description_file:
     new_api_ui_view = make_docs_ui_view(
         make_api_info(
             title="Registrar API - Online Documentation",
