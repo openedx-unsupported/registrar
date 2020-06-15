@@ -13,6 +13,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 
+import logging
 import os
 
 from auth_backends.urls import oauth2_urlpatterns
@@ -26,6 +27,9 @@ from edx_api_doc_tools import make_api_info, make_docs_ui_view
 from . import api_renderer
 from .apps.api import urls as api_urls
 from .apps.core import views as core_views
+
+
+logger = logging.getLogger(__name__)
 
 
 admin.site.site_header = 'Registrar Service Administration'
@@ -84,9 +88,14 @@ urlpatterns += [
 ]
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
-    import debug_toolbar  # pylint: disable=import-error
-
-    urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+    try:
+        import debug_toolbar
+    except ImportError:
+        logger.exception(
+            "ENABLE_DJANGO_TOOLBAR is true, but debug_toolbar could not be imported."
+        )
+    else:
+        urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
 
 if settings.DEBUG:  # pragma: no cover
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
