@@ -94,7 +94,7 @@ pycodestyle:  # run pycodestyle
 	$(TOX)pycodestyle registrar/ scripts/
 
 pylint:  # run pylint
-	$(TOX)pylint --rcfile=pylintrc registrar
+	$(TOX)pylint --rcfile=pylintrc registrar scripts
 
 yamllint:  # run yamlint
 	$(TOX)yamllint *.yaml
