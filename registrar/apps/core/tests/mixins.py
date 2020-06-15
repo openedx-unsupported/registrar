@@ -7,7 +7,7 @@ import requests
 from user_tasks.models import UserTaskStatus
 
 from ..jobs import get_job_status
-from .factories import DiscoveryProgramFactory, OrganizationFactory, UserFactory
+from .factories import OrganizationFactory, ProgramFactory, UserFactory
 
 
 class BaseTaskTestMixin:
@@ -21,7 +21,7 @@ class BaseTaskTestMixin:
         super().setUpTestData()
         cls.user = UserFactory()
         org = OrganizationFactory(name='STEM Institute')
-        cls.program = DiscoveryProgramFactory(managing_organization=org)
+        cls.program = ProgramFactory(managing_organization=org)
 
     def spawn_task(self, program_key=None, **kwargs):
         """

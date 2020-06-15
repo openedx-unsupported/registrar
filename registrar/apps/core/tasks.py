@@ -8,7 +8,7 @@ from user_tasks.models import UserTaskArtifact
 from user_tasks.tasks import UserTask
 
 from .jobs import post_job_failure
-from .proxies import DiscoveryProgram
+from .models import Program
 
 
 log = get_task_logger(__name__)
@@ -38,7 +38,7 @@ def get_program(job_id, program_key):
     Load a Program by key. Fails job and returns None if key invalid.
     """
     try:
-        return DiscoveryProgram.objects.get(key=program_key)
-    except DiscoveryProgram.DoesNotExist:
+        return Program.objects.get(key=program_key)
+    except Program.DoesNotExist:
         post_job_failure(job_id, "Bad program key: {}".format(program_key))
         return None

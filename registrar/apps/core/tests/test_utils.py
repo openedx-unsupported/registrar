@@ -29,10 +29,10 @@ from ..utils import (
     serialize_to_csv,
 )
 from .factories import (
-    DiscoveryProgramFactory,
     GroupFactory,
     OrganizationFactory,
     OrganizationGroupFactory,
+    ProgramFactory,
     UserFactory,
 )
 
@@ -141,10 +141,10 @@ class GetEffectiveUserProgramAPIPermissionsTests(TestCase):
             role=OrganizationReadWriteEnrollmentsRole.name
         )
 
-        cls.masters_program = DiscoveryProgramFactory(
+        cls.masters_program = ProgramFactory(
             managing_organization=cls.org1
         )
-        cls.non_masters_program = DiscoveryProgramFactory(
+        cls.non_masters_program = ProgramFactory(
             managing_organization=cls.org1
         )
 

@@ -10,10 +10,10 @@ import responses
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
+from mock import patch
 
-from ..proxies import DISCOVERY_PROGRAM_API_TPL, DiscoveryProgram
-from .factories import DiscoveryProgramFactory
-from .utils import mock_oauth_login, patch_discovery_program_details
+from ..discovery_cache import DISCOVERY_PROGRAM_API_TPL, ProgramDetails
+from .utils import mock_oauth_login
 
 
 def make_course_run(n, with_external_key=False):
@@ -35,10 +35,24 @@ def make_course_run(n, with_external_key=False):
     }
 
 
-@ddt.ddt
-class DiscoveryProgramTestCase(TestCase):
+def patch_fetch_program_from_discovery(mock_response_data):
     """
-    Test DiscoveryProgram proxy model.
+    Patch the function that we use to call the Discovery service
+    to instead statically return `mock_response_data`.
+
+    Note that the responses will still be stored in the Django cache.
+    """
+    return patch.object(
+        ProgramDetails,
+        'fetch_program_from_discovery',
+        lambda *_args, **_kwargs: mock_response_data,
+    )
+
+
+@ddt.ddt
+class ProgramDetailsTestCase(TestCase):
+    """
+    Test ProgramDetails interface to the Discovery data cache.
     """
     program_uuid = UUID("88888888-4444-2222-1111-000000000000")
     discovery_url = urljoin(
@@ -50,9 +64,7 @@ class DiscoveryProgramTestCase(TestCase):
     active_curriculum_uuid = UUID("77777777-4444-2222-1111-000000000001")
     ignored_active_curriculum_uuid = UUID("77777777-4444-2222-1111-000000000002")
 
-    make_course_run = make_course_run
-
-    program_details = {
+    program_from_discovery = {
         'title': "Master's in CS",
         'marketing_url': "https://stem.edx.org/masters-in-cs",
         'type': "Masters",
@@ -84,67 +96,55 @@ class DiscoveryProgramTestCase(TestCase):
         ],
     }
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        DiscoveryProgramFactory(key="masters-in-cs", discovery_uuid=cls.program_uuid)
-
     def setUp(self):
         super().setUp()
         cache.clear()
 
-    @classmethod
-    def get_program(cls):
-        """
-        Loads the program with `cls.program_uuid`
-        """
-        return DiscoveryProgram.objects.get(discovery_uuid=cls.program_uuid)
-
     @mock_oauth_login
     @responses.activate
     @ddt.data(
-        (200, program_details, program_details),
+        (200, program_from_discovery, program_from_discovery),
         (200, {}, {}),
         (200, 'this is a string, but it should be a dict', {}),
         (404, {'message': 'program not found'}, {}),
         (500, {'message': 'everything is broken'}, {}),
     )
     @ddt.unpack
-    def test_discovery_program_get(self, disco_status, disco_json, expected_details):
+    def test_discovery_program_get(self, disco_status, disco_json, expected_raw_data):
         responses.add(
             responses.GET,
             self.discovery_url,
             status=disco_status,
             json=disco_json,
         )
-        loaded_program = self.get_program()
-        assert isinstance(loaded_program, DiscoveryProgram)
-        assert loaded_program.discovery_uuid == self.program_uuid
-        assert loaded_program.discovery_details == expected_details
+        loaded_program = ProgramDetails(self.program_uuid)
+        assert isinstance(loaded_program, ProgramDetails)
+        assert loaded_program.uuid == self.program_uuid
+        assert loaded_program.raw_data == expected_raw_data
         self.assertEqual(len(responses.calls), 2)
 
         # This should used the cached Discovery response.
-        reloaded_program = self.get_program()
-        assert isinstance(reloaded_program, DiscoveryProgram)
-        assert reloaded_program.discovery_uuid == self.program_uuid
-        assert reloaded_program.discovery_details == expected_details
+        reloaded_program = ProgramDetails(self.program_uuid)
+        assert isinstance(reloaded_program, ProgramDetails)
+        assert reloaded_program.uuid == self.program_uuid
+        assert reloaded_program.raw_data == expected_raw_data
         self.assertEqual(len(responses.calls), 2)
 
-    @patch_discovery_program_details(program_details)
+    @patch_fetch_program_from_discovery(program_from_discovery)
     def test_active_curriculum(self):
-        program = self.get_program()
+        program = ProgramDetails(self.program_uuid)
         assert program.active_curriculum_uuid == self.active_curriculum_uuid
         assert len(program.course_runs) == 4
         assert program.course_runs[0].title == "Test Course 1"
         assert program.course_runs[-1].title is None
 
-    @patch_discovery_program_details({})
+    @patch_fetch_program_from_discovery({})
     def test_no_active_curriculum(self):
-        program = self.get_program()
+        program = ProgramDetails(self.program_uuid)
         assert program.active_curriculum_uuid is None
         assert not program.course_runs
 
-    @patch_discovery_program_details(program_details)
+    @patch_fetch_program_from_discovery(program_from_discovery)
     @ddt.data(
         # Non-existent course run.
         ('non-existent', None, None),
@@ -160,7 +160,7 @@ class DiscoveryProgramTestCase(TestCase):
     )
     @ddt.unpack
     def test_get_course_keys(self, argument, expected_course_key, expected_external_key):
-        program = self.get_program()
+        program = ProgramDetails(self.program_uuid)
         actual_course_key = program.get_course_key(argument)
         assert actual_course_key == expected_course_key
         actual_external_key = program.get_external_course_key(argument)

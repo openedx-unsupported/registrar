@@ -18,7 +18,6 @@ from ..models import (
     ProgramOrganizationGroup,
 )
 from ..permissions import OrganizationReadMetadataRole, ProgramReadMetadataRole
-from ..proxies import DiscoveryProgram
 
 
 # pylint: disable=missing-class-docstring, missing-function-docstring
@@ -101,11 +100,6 @@ class ProgramFactory(factory.DjangoModelFactory):
         lambda n: UUID('70000000-2222-4444-8888-{:012d}'.format(n))
     )
     managing_organization = factory.SubFactory(OrganizationFactory)
-
-
-class DiscoveryProgramFactory(ProgramFactory):
-    class Meta:
-        model = DiscoveryProgram
 
 
 class OrganizationGroupFactory(factory.DjangoModelFactory):

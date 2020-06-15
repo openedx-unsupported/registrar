@@ -24,7 +24,7 @@ from rest_framework.status import (
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
 from registrar.apps.core.jobs import start_job
-from registrar.apps.core.proxies import DiscoveryProgram
+from registrar.apps.core.models import Program
 from registrar.apps.enrollments.lms_interop import (
     write_course_run_enrollments,
     write_program_enrollments,
@@ -143,14 +143,11 @@ class ProgramSpecificViewMixin(AuthMixin):
     def program(self):
         """
         The program specified by the `program_key` URL parameter.
-
-        Loads a DiscoveryProgram, which gives access to fields from Discovery
-        such as title, program type, etc.
         """
         program_key = self.kwargs['program_key']
         try:
-            return DiscoveryProgram.objects.get(key=program_key)
-        except DiscoveryProgram.DoesNotExist:
+            return Program.objects.get(key=program_key)
+        except Program.DoesNotExist:
             self.add_tracking_data(failure='program_not_found')
             raise Http404()
 
@@ -179,7 +176,7 @@ class CourseSpecificViewMixin(ProgramSpecificViewMixin):
         parameter is not part of self.program.
         """
         provided_course_id = self.kwargs['course_id']
-        real_course_run = self.program.find_course_run(
+        real_course_run = self.program.details.find_course_run(
             provided_course_id
         )
         if not real_course_run:
@@ -253,7 +250,7 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
         return []  # pragma: no cover
 
     def check_permissions(self, request):
-        if not self.program.is_enrollment_enabled:
+        if not self.program.details.is_enrollment_enabled:
             # Raise exception if the program (MM at the moment) is not
             # available for enrollments related API endpoints
             raise PermissionDenied(

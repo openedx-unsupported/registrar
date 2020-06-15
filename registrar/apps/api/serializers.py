@@ -7,7 +7,7 @@ in question should be moved to versioned sub-package.
 from rest_framework import serializers
 from user_tasks.models import UserTaskStatus
 
-from registrar.apps.core.proxies import DiscoveryProgram
+from registrar.apps.core.models import Program
 from registrar.apps.core.utils import get_effective_user_program_api_permissions
 from registrar.apps.enrollments.constants import (
     COURSE_ENROLLMENT_STATUSES,
@@ -16,17 +16,18 @@ from registrar.apps.enrollments.constants import (
 
 
 # pylint: disable=abstract-method
-class DiscoveryProgramSerializer(serializers.ModelSerializer):
+class DetailedProgramSerializer(serializers.ModelSerializer):
     """
-    Serializer for DiscoveryPrograms.
+    Serializer for Programs. Uses ProgramDetails.
     """
     program_key = serializers.CharField(source='key')
-    program_title = serializers.CharField(source='title')
-    program_url = serializers.URLField(source='url')
+    program_title = serializers.SerializerMethodField()
+    program_url = serializers.URLField(source='details.url')
+    program_type = serializers.CharField(source='details.program_type')
     permissions = serializers.SerializerMethodField(source='get_permissions')
 
     class Meta:
-        model = DiscoveryProgram
+        model = Program
         fields = (
             'program_key',
             'program_title',
@@ -34,6 +35,9 @@ class DiscoveryProgramSerializer(serializers.ModelSerializer):
             'program_type',
             'permissions',
         )
+
+    def get_program_title(self, program):
+        return program.details.title or program.key
 
     def get_permissions(self, program):
         """

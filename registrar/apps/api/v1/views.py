@@ -35,9 +35,11 @@ from registrar.apps.core.jobs import (
     get_job_status,
     get_processing_jobs_for_user,
 )
-from registrar.apps.core.models import Organization
-from registrar.apps.core.permissions import API_READ_METADATA, API_ENROLLMENT_PERMISSIONS
-from registrar.apps.core.proxies import DiscoveryProgram
+from registrar.apps.core.models import Organization, Program
+from registrar.apps.core.permissions import (
+    API_ENROLLMENT_PERMISSIONS,
+    API_READ_METADATA,
+)
 from registrar.apps.core.utils import (
     get_effective_user_program_api_permissions,
     load_records_from_uploaded_csv,
@@ -57,7 +59,7 @@ from ..exceptions import FileTooLarge
 from ..mixins import TrackViewMixin
 from ..serializers import (
     CourseRunSerializer,
-    DiscoveryProgramSerializer,
+    DetailedProgramSerializer,
     JobAcceptanceSerializer,
     JobStatusSerializer,
     ProgramReportMetadataSerializer,
@@ -98,7 +100,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     Path: /api/[version]/programs?org={org_key}
     """
 
-    serializer_class = DiscoveryProgramSerializer
+    serializer_class = DetailedProgramSerializer
     event_method_map = {'GET': 'registrar.{api_version}.list_programs'}
     event_parameter_map = {
         'org': 'organization_filter',
@@ -106,7 +108,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     }
 
     def get_queryset(self):
-        programs = DiscoveryProgram.objects.all()
+        programs = Program.objects.all()
         user = self.request.user
 
         if self.organization_filter:
@@ -126,7 +128,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         # Filter out programs with enrollments disabled if the user requested
         # permission filter to operate on enrollments
         if self.permission_filter in API_ENROLLMENT_PERMISSIONS:
-            programs = [program for program in programs if program.is_enrollment_enabled]
+            programs = [program for program in programs if program.details.is_enrollment_enabled]
         return programs
 
     def get_required_permissions(self, _request):
@@ -196,7 +198,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 403: User lacks read access to the specified program.
      * 404: Program does not exist.
     """
-    serializer_class = DiscoveryProgramSerializer
+    serializer_class = DetailedProgramSerializer
     permission_required = [perms.API_READ_METADATA]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
@@ -222,7 +224,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     event_parameter_map = {'program_key': 'program_key'}
 
     def get_queryset(self):
-        return self.program.course_runs
+        return self.program.details.course_runs
 
 
 class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):

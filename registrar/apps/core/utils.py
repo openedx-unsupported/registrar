@@ -51,7 +51,7 @@ def _remove_permissions_if_enrollments_disabled(program, user_permissions):
     If a program does not have enrollments enabled, remove the user's
     permissions to read or write enrollments for that program.
     """
-    if not program.is_enrollment_enabled:
+    if user_permissions and not program.details.is_enrollment_enabled:
         return user_permissions - set(API_ENROLLMENT_PERMISSIONS)
 
     return user_permissions

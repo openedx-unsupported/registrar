@@ -5,26 +5,26 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from registrar.apps.api.serializers import DiscoveryProgramSerializer
+from registrar.apps.api.serializers import DetailedProgramSerializer
 from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.core.permissions import (
     API_READ_METADATA,
     API_WRITE_ENROLLMENTS,
 )
 from registrar.apps.core.tests.factories import (
-    DiscoveryProgramFactory,
     OrganizationFactory,
+    ProgramFactory,
 )
 
 
-class DiscoveryProgramSerializerTests(TestCase):
-    """ Tests the DiscoveryProgramSerializer """
+class DetailedProgramSerializerTests(TestCase):
+    """ Tests the DetailedProgramSerializer """
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
 
         cls.org = OrganizationFactory()
-        cls.program = DiscoveryProgramFactory(managing_organization=cls.org)
+        cls.program = ProgramFactory(managing_organization=cls.org)
 
         cls.request = RequestFactory().get('/api/v1/programs')
         cls.request.user = AnonymousUser()
@@ -51,7 +51,7 @@ class DiscoveryProgramSerializerTests(TestCase):
             API_WRITE_ENROLLMENTS,
             API_READ_METADATA,
         }
-        program = DiscoveryProgramSerializer(
+        program = DetailedProgramSerializer(
             self.program,
             context={
                 'request': self.request
@@ -67,5 +67,5 @@ class DiscoveryProgramSerializerTests(TestCase):
         Serializer should return an empty list for permissions if invoked
         without a request context
         """
-        program = DiscoveryProgramSerializer(self.program).data
+        program = DetailedProgramSerializer(self.program).data
         self.assertListEqual(program.get('permissions'), [])

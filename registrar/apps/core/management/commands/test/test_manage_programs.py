@@ -5,8 +5,8 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from mock import patch
 
+from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.models import Program
-from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.tests.factories import (
     OrganizationFactory,
     ProgramFactory,
@@ -21,9 +21,9 @@ class TestManagePrograms(TestCase):
 
     def setUp(self):
         super().setUp()
-        discoveryprogram_patcher = patch.object(DiscoveryProgram, 'get_program_details')
-        self.mock_get_discovery_program = discoveryprogram_patcher.start()
-        self.addCleanup(discoveryprogram_patcher.stop)
+        program_details_patcher = patch.object(ProgramDetails, 'get_raw_data_for_program')
+        self.mock_get_discovery_program = program_details_patcher.start()
+        self.addCleanup(program_details_patcher.stop)
 
     @classmethod
     def discovery_dict(cls, org_key, uuid, slug):

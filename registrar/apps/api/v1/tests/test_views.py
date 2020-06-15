@@ -29,6 +29,7 @@ from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE
 from registrar.apps.api.tests.mixins import AuthRequestMixin, TrackTestMixin
 from registrar.apps.core import permissions as perms
 from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
+from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.filestore import (
     get_enrollment_uploads_filestore,
     get_program_reports_filestore,
@@ -45,7 +46,6 @@ from registrar.apps.core.models import (
     User,
 )
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
-from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.tests.factories import (
     GroupFactory,
     OrganizationFactory,
@@ -357,9 +357,9 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         )
 
     @mock.patch.object(
-        DiscoveryProgram,
-        'get_program_details',
-        wraps=DiscoveryProgram.get_program_details,
+        ProgramDetails,
+        'get_raw_data_for_program',
+        wraps=ProgramDetails.get_raw_data_for_program,
     )
     def test_details_loaded_only_for_necessary_program(self, get_details_wrapper):
         """
@@ -371,7 +371,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         assert response.status_code == 200
         assert len(response.data) == 1
         call_uuids = {
-            call.kwargs.get('program_uuid') or call.args[0]
+            call.kwargs.get('uuid') or call.args[0]
             for call in get_details_wrapper.call_args_list
         }
         assert call_uuids == {self.english_program.discovery_uuid}

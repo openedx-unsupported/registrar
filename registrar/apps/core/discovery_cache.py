@@ -1,5 +1,5 @@
 """
-Proxies that wrap Django models and enrich their functionality.
+Simple interface to program details from Course Discovery data through a volatile cache.
 """
 import logging
 from collections import namedtuple
@@ -11,7 +11,6 @@ from django.core.cache import cache
 from requests.exceptions import HTTPError
 
 from .constants import PROGRAM_CACHE_KEY_TPL
-from .models import Program
 from .rest_utils import make_request
 
 
@@ -24,78 +23,63 @@ DiscoveryCourseRun = namedtuple(
 )
 
 
-class DiscoveryProgram(Program):
+class ProgramDetails:
     """
-    Proxy to Program model that is enriched with details available from Discovery service.
+    Details about a program from the Course Discovery service.
 
     Data from Discovery is cached for `settings.PROGRAM_CACHE_TIMEOUT` seconds.
-    If Discovery data cannot be loaded, we fall back to default values.
 
-    Get an instance of this class just like you would an instance of `Program`:
-        DiscoveryProgram.objects.get(discovery_uuid=YOUR_UUID)
+    If Discovery data cannot be loaded, we quietly fall back to an object that returns
+    default values (generally empty dicts and None) instead of raising an exception.
+    Callers should anticipate that Discovery data may not always be available,
+    and use the default values gracefully.
 
-    Or, if you just want the raw JSON instead of a model instance:
-        DiscoveryProgram.get_program_details(YOUR_UUID)
+    Details are loaded in the call to the constructor.
 
-    To patch Discovery-data-loading in tests, patch `get_program_details`.
+    Example usage:
+        details = ProgramDetails(program.discovery_uuid)
+        if details.find_course_run(course_key):
+            # ...
     """
-    class Meta:
-        # Guarantees that a table will not be created for this proxy model.
-        proxy = True
 
-    @classmethod
-    def from_db(cls, db, field_names, values):
+    def __init__(self, uuid):
         """
-        When DiscoveryProgram is loaded, warm the cache.
-
-        This way, errors are surfaced right upon `DiscoveryProgram.objects.get`
-        instead of during attribute access.
-
-        Overrides `Model.from_db`.
-        """
-        instance = super().from_db(db, field_names, values)
-        cls.get_program_details(instance.discovery_uuid)  # pylint: disable=no-member
-        return instance
-
-    @classmethod
-    def get_program_details(cls, program_uuid):
-        """
-        Get a JSON representation of a program from the Discovery service.
-
-        Returns an empty dict if not found or other HTTP error.
-
-        Queries a cache with timeout of `settings.PROGRAM_CACHE_TIMEOUT`
-        before hitting Discovery to load the authoritative data.
-
-        Note that the "not-founded-ness" of programs will also be cached
-        using an empty dictionary (which is distinct from None).
-
-        For example:
-            * Program X is requested.
-            * It is not found in Discovery. This result is cached as `{}`
-            * Before PROGRAM_CACHE_TIMEOUT has passed, Program X is created
-              in Discovery.
-            * Program X will not be loaded from Discovery until PROGRAM_CACHE_TIMEOUT
-              has passed.
+        Initialize a program details instance and load details from cache or Discovery.
 
         Arguments:
-            * program_uuid (UUID)
+            uuid (UUID|str): UUID of the program as defined in Discovery service.
+        """
+        self.uuid = uuid
+        self.raw_data = self.get_raw_data_for_program(uuid)
+
+    @classmethod
+    def get_raw_data_for_program(cls, uuid):
+        """
+        Retrieve JSON data containing program details, looking in cache first.
+
+        This is the access point to the "Discovery cache" as referenced
+        in comments throughout Registrar.
+
+        Note that "not-found-in-discovery" is purposefully cached as `{}`,
+        whereas `cache.get(key)` will return `None` if the key is not in the
+        cache.
+
+        Arguments:
+            uuid (UUID|str): UUID of the program as defined in Discovery service.
 
         Returns: dict
         """
-        key = PROGRAM_CACHE_KEY_TPL.format(uuid=program_uuid)
-        # Note that "not-found-in-discovery" is purposefully cached as `{}`,
-        # whereas `cache.get(key)` will return `None` if the key is not in the
-        # cache.
-        program_details = cache.get(key)
-        if not isinstance(program_details, dict):
-            program_details = cls._fetch_discovery_program_details(program_uuid)
-            cache_value = program_details if isinstance(program_details, dict) else {}
-            cache.set(key, cache_value, settings.PROGRAM_CACHE_TIMEOUT)
-        return program_details
+        cache_key = PROGRAM_CACHE_KEY_TPL.format(uuid=uuid)
+        data = cache.get(cache_key)
+        if not isinstance(data, dict):
+            data = cls.fetch_program_from_discovery(uuid)
+            if not isinstance(data, dict):
+                data = {}
+            cache.set(cache_key, data, settings.PROGRAM_CACHE_TIMEOUT)
+        return data
 
     @classmethod
-    def clear_cached_program_details(cls, program_uuids):
+    def clear_cache_for_programs(cls, program_uuids):
         """
         Clear any details from Discovery that we have cached for the given programs.
 
@@ -109,51 +93,39 @@ class DiscoveryProgram(Program):
         cache.delete_many(cache_keys_to_delete)
 
     @staticmethod
-    def _fetch_discovery_program_details(program_uuid):
+    def fetch_program_from_discovery(uuid):
         """
         Fetch a JSON representation of a program from the Discovery service.
 
         Returns None if not found or other HTTP error.
 
         Arguments:
-            * program_uuid (UUID)
+            * uuid (UUID)
             * client (optional)
 
         Returns: dict|None
         """
         url = urljoin(
             settings.DISCOVERY_BASE_URL,
-            DISCOVERY_PROGRAM_API_TPL.format(program_uuid)
+            DISCOVERY_PROGRAM_API_TPL.format(uuid)
         )
         try:
             return make_request('GET', url, client=None).json()
         except HTTPError:
             logger.exception(
                 "Failed to load program with uuid %s from Discovery service.",
-                program_uuid,
+                uuid,
             )
             return None
-
-    @property
-    def discovery_details(self):
-        """
-        Get cached program details from Discovery.
-
-        Returns empty dict if details could not be loaded from Discovery
-        due to a 404 response or some other issue.
-
-        Returns: JSON dict
-        """
-        return self.get_program_details(self.discovery_uuid)
 
     @property
     def title(self):
         """
         Return title of program.
 
-        Falls back to program key if unavailable.
+        Falls back to None if unavailable.
         """
-        return self.discovery_details.get('title', self.key)
+        return self.raw_data.get('title')
 
     @property
     def url(self):
@@ -162,7 +134,7 @@ class DiscoveryProgram(Program):
 
         Falls back to None if unavailable.
         """
-        return self.discovery_details.get('marketing_url')
+        return self.raw_data.get('marketing_url')
 
     @property
     def program_type(self):
@@ -171,7 +143,7 @@ class DiscoveryProgram(Program):
 
         Falls back to None if unavailable.
         """
-        return self.discovery_details.get('type')
+        return self.raw_data.get('type')
 
     @property
     def is_enrollment_enabled(self):
@@ -201,14 +173,13 @@ class DiscoveryProgram(Program):
         """
         try:
             return next(
-                c for c in self.discovery_details.get('curricula', [])
+                c for c in self.raw_data.get('curricula', [])
                 if c.get('is_active')
             )
         except StopIteration:
             logger.exception(
-                'Discovery API returned no active curricula for program {}'.format(
-                    self.discovery_uuid
-                )
+                'Discovery API returned no active curricula for program %s',
+                self.uuid,
             )
             return {}
 
