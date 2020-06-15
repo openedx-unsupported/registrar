@@ -45,6 +45,7 @@ from registrar.apps.core.models import (
     User,
 )
 from registrar.apps.core.permissions import JOB_GLOBAL_READ
+from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.tests.factories import (
     GroupFactory,
     OrganizationFactory,
@@ -354,6 +355,26 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                 }
             ]
         )
+
+    @mock.patch.object(
+        DiscoveryProgram,
+        'get_program_details',
+        wraps=DiscoveryProgram.get_program_details,
+    )
+    def test_details_loaded_only_for_necessary_program(self, get_details_wrapper):
+        """
+        Test that when a user only has metadata permission on one program,
+        we only look up programs details (from the Discovery service or its cache)
+        for that singular program.
+        """
+        response = self.get('programs', self.program_user)
+        assert response.status_code == 200
+        assert len(response.data) == 1
+        call_uuids = {
+            call.kwargs.get('program_uuid') or call.args[0]
+            for call in get_details_wrapper.call_args_list
+        }
+        assert call_uuids == {self.english_program.discovery_uuid}
 
     @ddt.data(
 
