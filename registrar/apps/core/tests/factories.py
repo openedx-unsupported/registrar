@@ -3,6 +3,7 @@ Factories for creating core data.
 """
 
 import re
+from uuid import UUID
 
 import factory
 from django.contrib.auth import get_user_model
@@ -85,7 +86,9 @@ class OrganizationFactory(factory.DjangoModelFactory):
         model = Organization
 
     key = factory.LazyAttribute(lambda org: name_to_key(org.name))
-    discovery_uuid = factory.Faker('uuid4')
+    discovery_uuid = factory.Sequence(
+        lambda n: UUID('60000000-2222-4444-8888-{:012d}'.format(n))
+    )
     name = factory.Sequence(lambda n: "Test Organization " + str(n))
 
 
@@ -94,7 +97,9 @@ class ProgramFactory(factory.DjangoModelFactory):
         model = Program
 
     key = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
-    discovery_uuid = factory.Faker('uuid4')
+    discovery_uuid = factory.Sequence(
+        lambda n: UUID('70000000-2222-4444-8888-{:012d}'.format(n))
+    )
     managing_organization = factory.SubFactory(OrganizationFactory)
 
 
