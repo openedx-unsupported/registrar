@@ -64,7 +64,7 @@ def generate_fake_enrollments(key_length, count):
             continue  # Skip duplicate keys
         enrollments[key] = {
             'student_key': key,
-            'status': random.choices(STATUS_CHOICES, weights=STATUS_WEIGHTS)[0],
+            'status': random.choices(STATUS_CHOICES, weights=STATUS_WEIGHTS)[0],  # pylint: disable=no-member
             'account_exists': random.random() < 0.6,
         }
     return list(enrollments.values())
@@ -87,4 +87,4 @@ def generate_fake_student_key(key_length):
 
 
 if __name__ == '__main__':
-    exit(main(sys.argv[1:]))
+    sys.exit(main(sys.argv[1:]))
