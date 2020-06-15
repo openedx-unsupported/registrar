@@ -2871,8 +2871,8 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     s3_bucket = settings.PROGRAM_REPORTS_BUCKET
 
     @classmethod
-    def uuid_hexify(cls, uuid_string):
-        return uuid_string.replace('-', '')
+    def uuid_hexify(cls, uuid_object):
+        return uuid_object.hex
 
     @classmethod
     def tearDown(cls):
