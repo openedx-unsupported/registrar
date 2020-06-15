@@ -7,7 +7,7 @@ import responses
 from django.conf import settings
 from mock import patch
 
-from ..proxies import DiscoveryProgram
+from ..discovery_cache import ProgramDetails
 
 
 def mock_oauth_login(fn):
@@ -26,13 +26,15 @@ def mock_oauth_login(fn):
     return inner
 
 
-def patch_discovery_program_details(mock_program_details):
+def patch_discovery_program_details(mock_raw_data):
     """
-    Return a decorator that mocks `DiscoveryProgram.get_program_details` to ignore its
-    arguments and always return `mock_program_details`.
+    Patch the function that is used to load data from the
+    Discovery cache to instead statically return `mock_raw_data`.
+
+    Note that this circumvents any usage of the Django cache.
     """
     return patch.object(
-        DiscoveryProgram,
-        'get_program_details',
-        lambda *_args, **_kwargs: mock_program_details,
+        ProgramDetails,
+        'get_raw_data_for_program',
+        lambda *_args, **_kwargs: mock_raw_data,
     )

@@ -7,6 +7,7 @@ from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
 from . import permissions as perms
+from .discovery_cache import ProgramDetails
 
 
 ACCESS_ADMIN = ('admin', 2)
@@ -113,6 +114,17 @@ class Program(TimeStampedModel):
         return "<{}: key={} discovery_uuid={} managing_organization={}>".format(
             type(self).__name__, self.key, self.discovery_uuid, self.managing_organization.key
         )
+
+    @property
+    def details(self):
+        """
+        Load the ProgramDetails instance for this program.
+
+        Note that this involves querying the Discovery cache, which
+        will result in an API call to Discovery if the details for this
+        program are not already cached.
+        """
+        return ProgramDetails(self.discovery_uuid)
 
 
 class OrganizationGroup(Group):

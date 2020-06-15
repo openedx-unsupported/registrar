@@ -14,7 +14,7 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
-from registrar.apps.core.proxies import DiscoveryProgram
+from registrar.apps.core.models import Program
 from registrar.apps.core.rest_utils import (
     do_batched_lms_write,
     get_all_paginated_results,
@@ -95,8 +95,8 @@ def write_program_enrollments(method, program_uuid, enrollments, client=None):
     Returns: See _write_enrollments.
     """
     url = _lms_program_enrollment_url(program_uuid)
-    program = DiscoveryProgram.objects.get(discovery_uuid=program_uuid)
-    curriculum_uuid_string = str(program.active_curriculum_uuid)
+    program = Program.objects.get(discovery_uuid=program_uuid)
+    curriculum_uuid_string = str(program.details.active_curriculum_uuid)
     enrollments = enrollments.copy()
     for enrollment in enrollments:
         enrollment['curriculum_uuid'] = curriculum_uuid_string

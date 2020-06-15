@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
+from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.models import Program
-from registrar.apps.core.proxies import DiscoveryProgram
 
 from ..v1.mixins import AuthMixin
 
@@ -47,5 +47,5 @@ class FlushProgramCacheView(AuthMixin, APIView):
             program_uuids = list(
                 Program.objects.values_list('discovery_uuid', flat=True)
             )
-        DiscoveryProgram.clear_cached_program_details(program_uuids)
+        ProgramDetails.clear_cache_for_programs(program_uuids)
         return Response(status=HTTP_204_NO_CONTENT)

@@ -14,8 +14,8 @@ from mock import patch
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
+from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.filestore import get_enrollment_uploads_filestore
-from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.tests.mixins import (
     BaseTaskTestMixin,
     S3MockEnvVarsMixin,
@@ -368,7 +368,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
     )
     @ddt.unpack
     @patch.object(
-        DiscoveryProgram, 'get_course_key', lambda _self, x: x + '-internal'
+        ProgramDetails, 'get_course_key', lambda _self, x: x + '-internal'
     )
     def test_success_status(self, any_successes, any_failures, expected_code_str):
         enrolls = [
@@ -402,7 +402,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         )
 
     @patch.object(
-        DiscoveryProgram, 'get_course_key', lambda _self, x: x + '-internal'
+        ProgramDetails, 'get_course_key', lambda _self, x: x + '-internal'
     )
     def test_success_status_course_staff_included(self):
         enrolls = [
@@ -439,7 +439,7 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
         )
 
     @patch.object(
-        DiscoveryProgram, 'get_course_key', {'course-1': 'course-1-internal'}.get
+        ProgramDetails, 'get_course_key', {'course-1': 'course-1-internal'}.get
     )
     @patch_discovery_program_details({})
     def test_success_invalid_course_id(self):

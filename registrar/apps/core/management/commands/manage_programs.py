@@ -4,8 +4,8 @@ import logging
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.models import Organization, Program
-from registrar.apps.core.proxies import DiscoveryProgram
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class Command(BaseCommand):
     def handle(self, uuidkeys, *args, **options):
         uuidkeys = self.parse_uuidkeys(uuidkeys)
         for uuidkey in uuidkeys:
-            discovery_details = DiscoveryProgram.get_program_details(uuidkey[0])
+            discovery_details = ProgramDetails(uuidkey[0]).raw_data
             if not discovery_details:
                 raise CommandError('Could not read program from course-discovery; aborting')
             authoring_orgs = self.get_authoring_org_keys(discovery_details)
