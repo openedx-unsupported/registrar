@@ -4,7 +4,7 @@ Mixins common to more than one version of the REST API.
 import json
 import logging
 
-from registrar.apps.core.permissions import APIPermissionBase
+from registrar.apps.core.permissions import APIPermission
 
 from . import segment
 
@@ -121,6 +121,6 @@ class CustomEncoder(json.JSONEncoder):
     helps encode APIPermission class to JSON.
     """
     def default(self, o):  # pylint: disable=method-hidden
-        if issubclass(o, APIPermissionBase):
+        if isinstance(o, APIPermission):
             return o.permissions
         return json.JSONEncoder.default(self, o)  # pragma: no cover

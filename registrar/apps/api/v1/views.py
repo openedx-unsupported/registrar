@@ -36,7 +36,7 @@ from registrar.apps.core.jobs import (
     get_processing_jobs_for_user,
 )
 from registrar.apps.core.models import Organization
-from registrar.apps.core.permissions import APIReadMetadataPermission
+from registrar.apps.core.permissions import API_READ_METADATA, API_ENROLLMENT_PERMISSIONS
 from registrar.apps.core.proxies import DiscoveryProgram
 from registrar.apps.core.utils import (
     get_effective_user_program_api_permissions,
@@ -52,11 +52,7 @@ from registrar.apps.enrollments.tasks import (
 from registrar.apps.enrollments.utils import is_enrollment_write_blocked
 from registrar.apps.grades.tasks import get_course_run_grades
 
-from ..constants import (
-    ENROLLMENT_PERMISSIONS_LIST,
-    LEGACY_PERMISSION_QUERY_PARAMS,
-    UPLOAD_FILE_MAX_SIZE,
-)
+from ..constants import LEGACY_PERMISSION_QUERY_PARAMS, UPLOAD_FILE_MAX_SIZE
 from ..exceptions import FileTooLarge
 from ..mixins import TrackViewMixin
 from ..serializers import (
@@ -121,7 +117,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         if self.permission_filter:
             required_permission = self.permission_filter
         else:
-            required_permission = APIReadMetadataPermission
+            required_permission = API_READ_METADATA
 
         programs = (
             program for program in programs
@@ -129,7 +125,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         )
         # Filter out programs with enrollments disabled if the user requested
         # permission filter to operate on enrollments
-        if self.permission_filter in ENROLLMENT_PERMISSIONS_LIST:
+        if self.permission_filter in API_ENROLLMENT_PERMISSIONS:
             programs = [program for program in programs if program.is_enrollment_enabled]
         return programs
 
@@ -168,7 +164,7 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
     @cached_property
     def permission_filter(self):
         """
-        Return a list of ApiPermissionBase by which results will be filtered,
+        Return a list of APIPermission by which results will be filtered,
         or None if no filter specified.
 
         Raises 404 for bad permission query param.
@@ -201,7 +197,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
      * 404: Program does not exist.
     """
     serializer_class = DiscoveryProgramSerializer
-    permission_required = [perms.APIReadMetadataPermission]
+    permission_required = [perms.API_READ_METADATA]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_detail'}
     event_parameter_map = {'program_key': 'program_key'}
 
@@ -221,7 +217,7 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
      * 404: Program does not exist.
     """
     serializer_class = CourseRunSerializer
-    permission_required = [perms.APIReadMetadataPermission]
+    permission_required = [perms.API_READ_METADATA]
     event_method_map = {'GET': 'registrar.{api_version}.get_program_courses'}
     event_parameter_map = {'program_key': 'program_key'}
 
@@ -557,7 +553,7 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
 
     Path: /api/[version]/programs/{program_key}/courses/{course_id}/grades
     """
-    permission_required = [perms.APIReadEnrollmentsPermission]
+    permission_required = [perms.API_READ_ENROLLMENTS]
     event_method_map = {
         'GET': 'registrar.v1.get_course_grades',
     }
@@ -616,7 +612,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         'program_key': 'program_key',
         'min_created_date': 'min_created_date',
     }
-    permission_required = [perms.APIReadReportsPermission]
+    permission_required = [perms.API_READ_REPORTS]
 
     def get(self, request, *args, **kwargs):
         """

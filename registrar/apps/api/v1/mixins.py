@@ -247,9 +247,9 @@ class EnrollmentMixin(ProgramSpecificViewMixin):
     """
     def get_required_permissions(self, request):
         if request.method == 'GET':
-            return [perms.APIReadEnrollmentsPermission]
+            return [perms.API_READ_ENROLLMENTS]
         if request.method == 'POST' or self.request.method == 'PATCH':
-            return [perms.APIWriteEnrollmentsPermission]
+            return [perms.API_WRITE_ENROLLMENTS]
         return []  # pragma: no cover
 
     def check_permissions(self, request):

@@ -5,7 +5,7 @@ from io import StringIO
 from guardian.shortcuts import get_perms
 from rest_framework.exceptions import ValidationError
 
-from registrar.apps.api.constants import ENROLLMENT_PERMISSIONS_LIST
+from registrar.apps.core.permissions import API_ENROLLMENT_PERMISSIONS
 
 from .models import OrganizationGroup
 from .permissions import DB_TO_API_PERMISSION_MAPPING
@@ -52,7 +52,7 @@ def _remove_permissions_if_enrollments_disabled(program, user_permissions):
     permissions to read or write enrollments for that program.
     """
     if not program.is_enrollment_enabled:
-        return user_permissions - set(ENROLLMENT_PERMISSIONS_LIST)
+        return user_permissions - set(API_ENROLLMENT_PERMISSIONS)
 
     return user_permissions
 

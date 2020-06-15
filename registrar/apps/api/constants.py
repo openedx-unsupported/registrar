@@ -14,12 +14,7 @@ TRACKING_CATEGORY = 'Registrar API'
 
 # To be deprecated with upcoming program manager changes (01/2020)
 LEGACY_PERMISSION_QUERY_PARAMS = {
-    'metadata': perms.APIReadMetadataPermission,
-    'read': perms.APIReadEnrollmentsPermission,
-    'write': perms.APIWriteEnrollmentsPermission,
+    'metadata': perms.API_READ_METADATA,
+    'read': perms.API_READ_ENROLLMENTS,
+    'write': perms.API_WRITE_ENROLLMENTS,
 }
-
-ENROLLMENT_PERMISSIONS_LIST = [
-    perms.APIReadEnrollmentsPermission,
-    perms.APIWriteEnrollmentsPermission,
-]
