@@ -8,6 +8,10 @@ from rest_framework.exceptions import ValidationError
 
 from ..constants import PROGRAM_CACHE_KEY_TPL
 from ..permissions import (
+    API_READ_ENROLLMENTS,
+    API_READ_METADATA,
+    API_READ_REPORTS,
+    API_WRITE_ENROLLMENTS,
     ORGANIZATION_READ_ENROLLMENTS,
     ORGANIZATION_READ_METADATA,
     ORGANIZATION_READ_REPORTS,
@@ -15,10 +19,6 @@ from ..permissions import (
     PROGRAM_READ_ENROLLMENTS,
     PROGRAM_READ_METADATA,
     PROGRAM_WRITE_ENROLLMENTS,
-    APIReadEnrollmentsPermission,
-    APIReadMetadataPermission,
-    APIReadReportsPermission,
-    APIWriteEnrollmentsPermission,
     OrganizationReadWriteEnrollmentsRole,
 )
 from ..utils import (
@@ -103,29 +103,29 @@ class GetUserAPIPermissionsTests(TestCase):
         # validate permissions assigned by a group
         perms = get_user_api_permissions(self.user, self.org1)
         self.assertSetEqual(perms, set([
-            APIReadMetadataPermission,
-            APIReadEnrollmentsPermission,
-            APIWriteEnrollmentsPermission,
+            API_READ_METADATA,
+            API_READ_ENROLLMENTS,
+            API_WRITE_ENROLLMENTS,
         ]))
 
         # validate permissions assigned globally
         perms = get_user_api_permissions(self.user, self.org2)
-        self.assertSetEqual(perms, set([APIReadMetadataPermission]))
+        self.assertSetEqual(perms, set([API_READ_METADATA]))
 
         # validate permissions assigned directly on the object
         perms = get_user_api_permissions(self.user, self.org3)
-        self.assertSetEqual(perms, set([APIReadReportsPermission, APIReadMetadataPermission]))
+        self.assertSetEqual(perms, set([API_READ_REPORTS, API_READ_METADATA]))
 
         # request only permissions assigned globally
         perms = get_user_api_permissions(self.user)
-        self.assertSetEqual(perms, set([APIReadMetadataPermission]))
+        self.assertSetEqual(perms, set([API_READ_METADATA]))
 
         # validate permissions assigned globally by a django group
         user = UserFactory(groups=[self.global_readwrite_enrollments])
         perms = get_user_api_permissions(user)
         self.assertSetEqual(perms, set([
-            APIReadEnrollmentsPermission,
-            APIWriteEnrollmentsPermission,
+            API_READ_ENROLLMENTS,
+            API_WRITE_ENROLLMENTS,
         ]))
 
 
@@ -190,9 +190,9 @@ class GetEffectiveUserProgramAPIPermissionsTests(TestCase):
         """
         perms = get_effective_user_program_api_permissions(self.user1, self.masters_program)
         assert perms == {
-            APIReadMetadataPermission,
-            APIReadEnrollmentsPermission,
-            APIWriteEnrollmentsPermission,
+            API_READ_METADATA,
+            API_READ_ENROLLMENTS,
+            API_WRITE_ENROLLMENTS,
         }
 
     def test_non_masters_perms_via_org_and_global_perms(self):
@@ -203,7 +203,7 @@ class GetEffectiveUserProgramAPIPermissionsTests(TestCase):
         enrollments enabled.
         """
         perms = get_effective_user_program_api_permissions(self.user1, self.non_masters_program)
-        assert perms == {APIReadMetadataPermission}
+        assert perms == {API_READ_METADATA}
 
     def test_masters_perms_via_program_perms(self):
         """
@@ -212,9 +212,9 @@ class GetEffectiveUserProgramAPIPermissionsTests(TestCase):
         """
         perms = get_effective_user_program_api_permissions(self.user2, self.masters_program)
         assert perms == {
-            APIReadMetadataPermission,
-            APIReadEnrollmentsPermission,
-            APIWriteEnrollmentsPermission,
+            API_READ_METADATA,
+            API_READ_ENROLLMENTS,
+            API_WRITE_ENROLLMENTS,
         }
 
     def test_non_masters_perms_via_program_perms(self):
@@ -225,7 +225,7 @@ class GetEffectiveUserProgramAPIPermissionsTests(TestCase):
         enrollments enabled.
         """
         perms = get_effective_user_program_api_permissions(self.user2, self.non_masters_program)
-        assert perms == {APIReadMetadataPermission}
+        assert perms == {API_READ_METADATA}
 
 
 def _create_food(name, is_fruit, rating, color):

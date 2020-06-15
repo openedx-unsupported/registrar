@@ -79,6 +79,92 @@ JOB_GLOBAL_READ_KEY = 'job_global_read'
 JOB_GLOBAL_READ = APP_PREFIX + JOB_GLOBAL_READ_KEY
 
 
+class APIPermission:
+    """
+    An association of a corresponding Organization-level and Program-level permissions.
+
+    When an "APIPermission" is checked against a user, it is sufficient for the
+    user to have permission on the program directly OR permission on the managing
+    organization.
+
+    Arguments:
+        name (str)
+        organization_permission (str): App-qualified Organization permission string.
+        program_permission (str): App-qualified Program permission string.
+        enables_enrollment_management (bool):
+            Whether the granting of this permission implies that enrollment management
+            is enabled for the target program.
+    """
+    def __init__(
+            self,
+            name,
+            organization_permission,
+            program_permission,
+            enables_enrollment_management,
+    ):
+        self.name = name
+        self.organization_permission = organization_permission
+        self.program_permission = program_permission
+        self.enables_enrollment_management = enables_enrollment_management
+
+    @property
+    def permissions(self):
+        return [self.organization_permission, self.program_permission]
+
+    def global_check(self, user):
+        for perm in self.permissions:
+            if user.has_perm(perm):
+                return True
+        return False
+
+    def check(self, user, obj):
+        for perm in self.permissions:
+            if user.has_perm(perm, obj):
+                return True
+        return False
+
+
+API_READ_METADATA = APIPermission(
+    name='read_metadata',
+    organization_permission=ORGANIZATION_READ_METADATA,
+    program_permission=PROGRAM_READ_METADATA,
+    enables_enrollment_management=False,
+)
+
+API_READ_ENROLLMENTS = APIPermission(
+    name='read_enrollments',
+    organization_permission=ORGANIZATION_READ_ENROLLMENTS,
+    program_permission=PROGRAM_READ_ENROLLMENTS,
+    enables_enrollment_management=True,
+)
+
+API_WRITE_ENROLLMENTS = APIPermission(
+    name='write_enrollments',
+    organization_permission=ORGANIZATION_WRITE_ENROLLMENTS,
+    program_permission=PROGRAM_WRITE_ENROLLMENTS,
+    enables_enrollment_management=True,
+)
+
+API_READ_REPORTS = APIPermission(
+    name='read_reports',
+    organization_permission=ORGANIZATION_READ_REPORTS,
+    program_permission=PROGRAM_READ_REPORTS,
+    enables_enrollment_management=False,
+)
+
+API_PERMISSIONS = [
+    API_READ_METADATA,
+    API_READ_ENROLLMENTS,
+    API_WRITE_ENROLLMENTS,
+    API_READ_REPORTS
+]
+
+API_ENROLLMENT_PERMISSIONS = [
+    api_permission for api_permission in API_PERMISSIONS
+    if api_permission.enables_enrollment_management
+]
+
+
 class RoleBase:
     """
     A collection of access permissions that can be assigned
@@ -195,56 +281,6 @@ class ProgramReadReportRole(RoleBase):
         PROGRAM_READ_METADATA,
         PROGRAM_READ_REPORTS,
     )
-
-
-class APIPermissionBase:
-    # pylint: disable=missing-function-docstring
-    """
-    If user has any permission in the permissions list, he will pass permission check.
-    """
-    permissions = []
-
-    @classmethod
-    def global_check(cls, user):
-        for perm in cls.permissions:
-            if user.has_perm(perm):
-                return True
-        return False
-
-    @classmethod
-    def check(cls, user, obj):
-        for perm in cls.permissions:
-            if user.has_perm(perm, obj):
-                return True
-        return False
-
-
-class APIReadMetadataPermission(APIPermissionBase):
-    name = 'read_metadata'
-    permissions = [ORGANIZATION_READ_METADATA, PROGRAM_READ_METADATA]
-
-
-class APIReadEnrollmentsPermission(APIPermissionBase):
-    name = 'read_enrollments'
-    permissions = [ORGANIZATION_READ_ENROLLMENTS, PROGRAM_READ_ENROLLMENTS]
-
-
-class APIWriteEnrollmentsPermission(APIPermissionBase):
-    name = 'write_enrollments'
-    permissions = [ORGANIZATION_WRITE_ENROLLMENTS, PROGRAM_WRITE_ENROLLMENTS]
-
-
-class APIReadReportsPermission(APIPermissionBase):
-    name = 'read_reports'
-    permissions = [ORGANIZATION_READ_REPORTS, PROGRAM_READ_REPORTS]
-
-
-API_PERMISSIONS = [
-    APIReadMetadataPermission,
-    APIReadEnrollmentsPermission,
-    APIWriteEnrollmentsPermission,
-    APIReadReportsPermission
-]
 
 
 ORGANIZATION_ROLES = [

@@ -8,8 +8,8 @@ from django.test.client import RequestFactory
 from registrar.apps.api.serializers import DiscoveryProgramSerializer
 from registrar.apps.core.constants import PROGRAM_CACHE_KEY_TPL
 from registrar.apps.core.permissions import (
-    APIReadMetadataPermission,
-    APIWriteEnrollmentsPermission,
+    API_READ_METADATA,
+    API_WRITE_ENROLLMENTS,
 )
 from registrar.apps.core.tests.factories import (
     DiscoveryProgramFactory,
@@ -48,8 +48,8 @@ class DiscoveryProgramSerializerTests(TestCase):
         for permissions.
         """
         fake_get_perms.return_value = {
-            APIWriteEnrollmentsPermission,
-            APIReadMetadataPermission,
+            API_WRITE_ENROLLMENTS,
+            API_READ_METADATA,
         }
         program = DiscoveryProgramSerializer(
             self.program,
@@ -59,7 +59,7 @@ class DiscoveryProgramSerializerTests(TestCase):
         ).data
         self.assertListEqual(
             program.get('permissions'),
-            [APIReadMetadataPermission.name, APIWriteEnrollmentsPermission.name]
+            [API_READ_METADATA.name, API_WRITE_ENROLLMENTS.name]
         )
 
     def test_permissions_no_request_context(self):
