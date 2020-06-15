@@ -183,7 +183,6 @@ def get_program_reports_filestore():
     """
     Get filestore instance for program analytics reports.
     """
-    # TODO: what is the correct path prefix for these reports?
     return get_filestore(settings.PROGRAM_REPORTS_BUCKET, 'reports')
 
 
