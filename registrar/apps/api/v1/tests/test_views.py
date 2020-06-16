@@ -451,12 +451,6 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             'perm_filter': 'read_metadata',
             'expect_hum_programs': True,
         },
-        # Validate old permissions filter (to be deprecated)
-        {
-            'groups': {'hum-admins', 'hum-users'},
-            'perm_filter': 'metadata',
-            'expect_hum_programs': True,
-        },
 
         # Finally, the filters may be combined
         {
