@@ -54,7 +54,7 @@ from registrar.apps.enrollments.tasks import (
 from registrar.apps.enrollments.utils import is_enrollment_write_blocked
 from registrar.apps.grades.tasks import get_course_run_grades
 
-from ..constants import LEGACY_PERMISSION_QUERY_PARAMS, UPLOAD_FILE_MAX_SIZE
+from ..constants import UPLOAD_FILE_MAX_SIZE
 from ..exceptions import FileTooLarge
 from ..mixins import TrackViewMixin
 from ..serializers import (
@@ -174,17 +174,11 @@ class ProgramListView(AuthMixin, TrackViewMixin, ListAPIView):
         perm_query_param = self.request.GET.get('user_has_perm', None)
         if not perm_query_param:
             return None
-
         try:
             return next(p for p in perms.API_PERMISSIONS if p.name == perm_query_param)
         except StopIteration:
-            # maintains functionality with the currently deployed version of the UI
-            # and can be removed once these query params are no loger in use
-            if perm_query_param in LEGACY_PERMISSION_QUERY_PARAMS:
-                return LEGACY_PERMISSION_QUERY_PARAMS[perm_query_param]
-            else:
-                self.add_tracking_data(failure='no_such_perm')
-                raise Http404()
+            self.add_tracking_data(failure='no_such_perm')
+            raise Http404()
 
 
 class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
