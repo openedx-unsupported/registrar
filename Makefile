@@ -84,7 +84,6 @@ shell: ## Run Python shell with devstack settings
 
 coverage: clean
 	$(TOX)pytest --cov-report html
-	$(BROWSER) htmlcov/index.html
 
 test: clean ## run tests and generate coverage report
 	$(TOX)pytest
@@ -118,8 +117,8 @@ migrate: ## apply database migrations
 createsuperuser:  ## create a super user with username and password 'edx'
 	echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"edx\", \"edx@example.com\",\"edx\") if not User.objects.filter(username=\"edx\").exists() else None" | python manage.py shell
 
-html_coverage: ## generate and view HTML coverage report
-	$(TOX)coverage html && open htmlcov/index.html
+html_coverage: coverage ## generate and view HTML coverage report
+	$(BROWSER) htmlcov/index.html
 
 extract_translations: ## extract strings to be translated, outputting .mo files
 	$(TOX)python manage.py makemessages -l en -v1 -d django
