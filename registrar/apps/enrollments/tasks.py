@@ -53,7 +53,7 @@ class EnrollmentReadTask(UserTask):
 
 # pylint: disable=unused-argument
 @shared_task(base=EnrollmentReadTask, bind=True)
-def list_program_enrollments(self, job_id, user_id, file_format, program_key):
+def list_program_enrollments(self, job_id, user_id, file_format, program_key, include_username_email=False):
     """
     A user task for retrieving program enrollments from LMS.
     """
@@ -62,7 +62,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
         return
 
     try:
-        enrollments = lms.get_program_enrollments(program.discovery_uuid)
+        enrollments = lms.get_program_enrollments(program.discovery_uuid, None, include_username_email)
     except HTTPError as err:
         post_job_failure(
             job_id,
@@ -79,9 +79,9 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key):
         return
 
     if file_format == 'json':
-        serialized = json.dumps(enrollments, indent=4)
+        serialized = json.dumps(enrollments, indent=4, sort_keys=True)
     elif file_format == 'csv':
-        serialized = serialize_program_enrollments_to_csv(enrollments)
+        serialized = serialize_program_enrollments_to_csv(enrollments, include_username_email)
     else:
         raise ValueError('Invalid file_format: {}'.format(file_format))
     post_job_success(job_id, serialized, file_format)

@@ -277,7 +277,9 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         """
         Submit a user task that retrieves program enrollment data.
         """
-        return self.invoke_download_job(list_program_enrollments, self.program.key)
+        include_username_email = waffle.flag_is_active(request, 'include_name_email_in_get_program_enrollment')
+        return self.invoke_download_job(
+            list_program_enrollments, self.program.key, include_username_email)
 
     def post(self, request, program_key):
         """ POST handler """

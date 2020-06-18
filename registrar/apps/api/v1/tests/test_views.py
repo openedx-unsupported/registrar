@@ -1203,11 +1203,33 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
             'account_exists': False,
         },
     ]
-    enrollments_json = json.dumps(enrollments, indent=4)
+    user_linked_enrollments = [
+        {
+            'student_key': 'abcd',
+            'status': 'enrolled',
+            'account_exists': True,
+            'username': 'Alex',
+            'email': 'alex@edx.org',
+        },
+        {
+            'student_key': 'efgh',
+            'status': 'pending',
+            'account_exists': False,
+            'username': '',
+            'email': '',
+        },
+    ]
+    enrollments_json = json.dumps(enrollments, indent=4, sort_keys=True)
+    user_linked_enrollments_json = json.dumps(user_linked_enrollments, indent=4, sort_keys=True)
     enrollments_csv = (
         "student_key,status,account_exists\r\n"
         "abcd,enrolled,True\r\n"
         "efgh,pending,False\r\n"
+    )
+    user_linked_enrollments_csv = (
+        "student_key,status,account_exists,username,email\r\n"
+        "abcd,enrolled,True,Alex,alex@edx.org\r\n"
+        "efgh,pending,False,,\r\n"
     )
 
     @mock.patch.object(lms, 'get_program_enrollments', return_value=enrollments)
@@ -1235,6 +1257,42 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
                 job_state='Succeeded',
         ):
             job_response = self.get(response.data['job_url'], self.hum_admin)
+        self.assertEqual(job_response.status_code, 200)
+        self.assertEqual(job_response.data['state'], 'Succeeded')
+
+        result_url = job_response.data['result']
+        self.assertIn(".{}?".format(expected_format), result_url)
+        file_response = requests.get(result_url)
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response.text, expected_contents)
+
+    @mock.patch.object(lms, 'get_all_paginated_results', return_value=user_linked_enrollments)
+    @ddt.data(
+        (None, 'json', user_linked_enrollments_json),
+        ('json', 'json', user_linked_enrollments_json),
+        ('csv', 'csv', user_linked_enrollments_csv),
+    )
+    @ddt.unpack
+    def test_enrollments_with_user_info_ok(self, format_param, expected_format, expected_contents, _enrollments_mock):
+        format_suffix = "?fmt=" + format_param if format_param else ""
+        kwargs = {'result_format': format_param} if format_param else {}
+        with self.assert_tracking(
+                user=self.hum_admin,
+                program_key='masters-in-english',
+                status_code=202,
+                **kwargs
+        ):
+            with activate_waffle_flag('include_name_email_in_get_program_enrollment', self.hum_admin_group):
+                response = self.get(self.path + format_suffix, self.hum_admin)
+        self.assertEqual(response.status_code, 202)
+        with self.assert_tracking(
+                event='registrar.v1.get_job_status',
+                user=self.hum_admin,
+                job_id=response.data['job_id'],
+                job_state='Succeeded',
+        ):
+            with activate_waffle_flag('include_name_email_in_get_program_enrollment', self.hum_admin_group):
+                job_response = self.get(response.data['job_url'], self.hum_admin)
         self.assertEqual(job_response.status_code, 200)
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
