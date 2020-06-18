@@ -183,7 +183,7 @@ def get_program_reports_filestore():
     """
     Get filestore instance for program analytics reports.
     """
-    return get_filestore(settings.PROGRAM_REPORTS_BUCKET, 'reports')
+    return get_filestore(settings.PROGRAM_REPORTS_BUCKET, settings.PROGRAM_REPORTS_FOLDER)
 
 
 def get_filestore(bucket, path_prefix):
