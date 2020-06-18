@@ -71,7 +71,8 @@ class GetUserOrganizationsTests(TestCase):
     def test_get_user_organizations(self, group_names, expected_org_keys):
         groups = [Group.objects.get(name=name) for name in group_names]
         user = UserFactory(groups=groups)
-        orgs = get_user_organizations(user)
+        with self.assertNumQueries(1):
+            orgs = get_user_organizations(user)
         org_keys = {org.key for org in orgs}
         self.assertEqual(org_keys, expected_org_keys)
 
