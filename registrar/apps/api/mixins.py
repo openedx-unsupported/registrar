@@ -58,27 +58,28 @@ class TrackViewMixin:
         """
         Add fields to the tracking event.
         """
-        data = kwargs.copy()
-        missing_perms = data.get('missing_permissions')
-        if missing_perms:
-            data['missing_permissions'] = list(
-                self._ensure_permissions_are_valid_json(missing_perms)
-            )
-        self._extra_tracking_data.update(data)
+        cleaned_data = self._ensure_missing_permissions_are_valid_json(kwargs)
+        self._extra_tracking_data.update(cleaned_data)
 
     @staticmethod
-    def _ensure_permissions_are_valid_json(permissions):
+    def _ensure_missing_permissions_are_valid_json(data):
         """
-        Given a list of 'permission' objects, make sure they can all be
-        represented in JSON without special handling. Yields one validated element
-        at a time.
+        Given some tracking data, return a copy of the tracking data where the values in
+        the missing_permissions field (if any) can be rendered as JSON.
+
+        Arguments:
+            data (dict)
+
+        Returns: dict
         """
-        for perm in permissions:
-            if isinstance(perm, APIPermission):
-                # For APIPermission objects, use their name.
-                yield perm.name
-            else:
-                yield perm
+        cleaned_data = data.copy()
+        missing_perms = cleaned_data.get('missing_permissions')
+        if missing_perms:
+            cleaned_data['missing_permissions'] = [
+                (perm.name if isinstance(perm, APIPermission) else perm)
+                for perm in missing_perms
+            ]
+        return cleaned_data
 
     def dispatch(self, *args, **kwargs):
         """
