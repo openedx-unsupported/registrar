@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
@@ -115,7 +116,7 @@ class Program(TimeStampedModel):
             type(self).__name__, self.key, self.discovery_uuid, self.managing_organization.key
         )
 
-    @property
+    @cached_property
     def details(self):
         """
         Load the ProgramDetails instance for this program.
