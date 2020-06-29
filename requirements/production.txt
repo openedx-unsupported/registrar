@@ -8,8 +8,8 @@ amqp==1.4.9               # via kombu
 analytics-python==1.2.9   # via -r requirements/base.in
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-boto3==1.14.7             # via -r requirements/production.in
-botocore==1.17.7          # via boto3, s3transfer
+boto3==1.14.12            # via -r requirements/production.in
+botocore==1.17.12         # via boto3, s3transfer
 celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
@@ -20,7 +20,7 @@ django-cors-headers==3.4.0  # via -r requirements/base.in
 django-extensions==2.2.9  # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
-django-mysql==3.7.0       # via -r requirements/base.in
+django-mysql==3.7.1       # via -r requirements/base.in
 django-simple-history==2.11.0  # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
 django-user-tasks==1.1.0  # via -r requirements/base.in
@@ -41,7 +41,7 @@ future==0.18.2            # via pyjwkest
 gevent==20.6.2            # via -r requirements/production.in
 greenlet==0.4.16          # via gevent
 gunicorn==20.0.4          # via -r requirements/production.in
-idna==2.9                 # via requests
+idna==2.10                # via requests
 inflection==0.5.0         # via drf-yasg
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
@@ -54,7 +54,7 @@ oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 packaging==20.4           # via drf-yasg
 pbr==5.4.5                # via stevedore
 psutil==1.2.1             # via edx-django-utils
-pycryptodomex==3.9.7      # via pyjwkest
+pycryptodomex==3.9.8      # via pyjwkest
 pyjwkest==1.4.2           # via edx-drf-extensions
 pyjwt==1.7.1              # via drf-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
 pymongo==3.10.1           # via edx-opaque-keys
