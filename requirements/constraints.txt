@@ -16,9 +16,6 @@ django-storages<1.9
 mock<4.0.0
 zipp<2.0.0
 
-# BOM-1410 : drf-jwt 1.15.0 introduces migration issues.
-drf-jwt<1.15.0
-
 # Stay on latest LTS release
 Django>=2.2,<3.0
 
