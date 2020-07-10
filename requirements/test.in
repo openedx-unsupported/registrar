@@ -20,5 +20,3 @@ responses
 yamllint
 isort[requirements]
 tox
-nose
-
