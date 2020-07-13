@@ -1,5 +1,5 @@
 -c constraints.txt
--r github.in              # Forks and other dependencies not yet on PyPI
+-r github.txt              # Forks and other dependencies not yet on PyPI
 
 analytics-python
 celery

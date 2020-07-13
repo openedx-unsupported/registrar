@@ -46,7 +46,7 @@ static: ## generate static files
 
 upgrade: piptools  ## re-compile requirements .txt files from .in files
 	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
-	# pip-compile --upgrade -o requirements/github.txt requirements/github.in
+	pip-compile --upgrade -o requirements/github.txt requirements/github.in
 	pip-compile --upgrade -o requirements/optional.txt requirements/optional.in
 	pip-compile --upgrade -o requirements/base.txt requirements/base.in
 	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
