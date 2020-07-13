@@ -2,5 +2,5 @@
 -c constraints.txt
 -r github.in              # Forks and other dependencies not yet on PyPI
 
--r local.in
--r nonlocal.in
+-r local.txt
+-r nonlocal.txt

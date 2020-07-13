@@ -46,10 +46,15 @@ static: ## generate static files
 
 upgrade: piptools  ## re-compile requirements .txt files from .in files
 	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
+	# pip-compile --upgrade -o requirements/github.txt requirements/github.in
+	pip-compile --upgrade -o requirements/optional.txt requirements/optional.in
+	pip-compile --upgrade -o requirements/base.txt requirements/base.in
+	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
+	pip-compile --upgrade -o requirements/test.txt requirements/test.in
+	pip-compile --upgrade -o requirements/local.txt requirements/local.in
+	pip-compile --upgrade -o requirements/nonlocal.txt requirements/nonlocal.in
 	pip-compile --upgrade -o requirements/production.txt requirements/production.in
 	pip-compile --upgrade -o requirements/devstack.txt requirements/devstack.in
-	pip-compile --upgrade -o requirements/local.txt requirements/local.in
-	pip-compile --upgrade -o requirements/test.txt requirements/test.in
 	pip-compile --upgrade -o requirements/monitoring/requirements.txt requirements/monitoring/requirements.in
 
 	# Let tox control the Django version for tests

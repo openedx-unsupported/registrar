@@ -5,7 +5,7 @@
 #    pip-compile --output-file=requirements/test.txt requirements/test.in
 #
 amqp==1.4.9               # via kombu
-analytics-python==1.2.9   # via -r requirements/base.in
+analytics-python==1.2.9   # via -c requirements/constraints.txt, -r requirements/base.in
 anyjson==0.3.3            # via kombu
 appdirs==1.4.4            # via virtualenv
 astroid==2.3.3            # via pylint, pylint-celery
@@ -13,10 +13,10 @@ attrs==19.3.0             # via jsonschema, pytest
 aws-sam-translator==1.25.0  # via cfn-lint
 aws-xray-sdk==2.6.0       # via moto
 billiard==3.3.0.23        # via celery
-boto3==1.14.20            # via aws-sam-translator, moto
+boto3==1.14.20            # via -c requirements/constraints.txt, aws-sam-translator, moto
 boto==2.49.0              # via moto
 botocore==1.17.20         # via aws-xray-sdk, boto3, moto, s3transfer
-celery==3.1.26.post2      # via -r requirements/base.in, django-user-tasks
+celery==3.1.26.post2      # via -c requirements/constraints.txt, -r requirements/base.in, django-user-tasks
 certifi==2020.6.20        # via requests
 cffi==1.14.0              # via cryptography
 cfn-lint==0.33.2          # via moto
@@ -45,7 +45,7 @@ django-waffle==1.0.0      # via -r requirements/base.in, edx-django-utils, edx-d
 djangorestframework==3.11.0  # via -r requirements/base.in, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
 docker==4.2.2             # via moto
 docopt==0.6.2             # via pipreqs
-docutils==0.15.2          # via botocore
+docutils==0.15.2          # via -c requirements/constraints.txt, botocore
 drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensions
 drf-yasg==1.17.1          # via edx-api-doc-tools
 ecdsa==0.15               # via python-jose
@@ -55,14 +55,14 @@ edx-django-release-util==0.4.4  # via -r requirements/base.in
 edx-django-utils==3.2.3   # via edx-drf-extensions
 edx-drf-extensions==6.1.0  # via -r requirements/base.in
 edx-lint==1.5.0           # via -r requirements/test.in
-edx-opaque-keys==2.1.0    # via edx-drf-extensions
-edx-rest-api-client==1.9.2  # via -r requirements/base.in
+edx-opaque-keys==2.1.1    # via edx-drf-extensions
+edx-rest-api-client==1.9.2  # via -c requirements/constraints.txt, -r requirements/base.in
 factory-boy==2.12.0       # via -r requirements/test.in
 faker==4.1.1              # via -r requirements/test.in, factory-boy
 filelock==3.0.12          # via tox, virtualenv
 freezegun==0.3.15         # via -r requirements/test.in
 future==0.18.2            # via aws-xray-sdk, pyjwkest
-idna==2.8                 # via moto, requests
+idna==2.8                 # via -c requirements/constraints.txt, moto, requests
 importlib-metadata==1.7.0  # via importlib-resources, jsonpickle, jsonschema, pluggy, pytest, tox, virtualenv
 importlib-resources==1.5.0  # via cfn-lint, virtualenv
 inflection==0.5.0         # via drf-yasg
@@ -116,8 +116,8 @@ python-jose==3.1.0        # via moto
 python-slugify==4.0.1     # via code-annotations
 python3-openid==3.2.0     # via social-auth-core
 pytz==2020.1              # via -r requirements/base.in, celery, django, moto
-pyyaml==5.3.1             # via cfn-lint, code-annotations, edx-django-release-util, moto, yamllint
-redis==2.8                # via -r requirements/base.in
+pyyaml==5.1               # via -c requirements/constraints.txt, cfn-lint, code-annotations, edx-django-release-util, moto, yamllint
+redis==2.8                # via -c requirements/constraints.txt, -r requirements/base.in
 requests-oauthlib==1.3.0  # via social-auth-core
 requests==2.24.0          # via analytics-python, coreapi, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, yarg
 responses==0.10.15        # via -r requirements/test.in, moto

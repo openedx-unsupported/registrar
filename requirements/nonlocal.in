@@ -1,4 +1,5 @@
 # Packages required for all environments other than standalone local
+-c constraints.txt
 
-mysqlclient==1.3.14  # have to stay on this until Django 2
+mysqlclient
 python-memcached
