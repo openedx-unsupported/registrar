@@ -35,6 +35,11 @@ Sphinx==1.6.7 ## Pinned due to bug in 1.7.0 - 1.7.1 (https://github.com/sphinx-d
 
 mysqlclient==1.3.14  # have to stay on this until Django 2
 
+# from test.in
+code-annotations>=0.3.1
+
+moto==1.3.8  # Temporary pin. Most recent moto version locks PyYAML at 3.13; will open a PR against moto to un-pin.
+
 # From production.in
 boto3>=1.4.4
 PyYAML==5.1

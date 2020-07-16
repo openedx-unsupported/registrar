@@ -15,7 +15,7 @@ coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via -r requirements/github.txt, python3-openid, social-auth-core
 django-cors-headers==3.4.0  # via -r requirements/base.in
-django-extensions==3.0.2  # via -r requirements/base.in
+django-extensions==3.0.3  # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
 django-mysql==3.7.1       # via -r requirements/base.in
