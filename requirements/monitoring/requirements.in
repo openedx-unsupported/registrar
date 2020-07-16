@@ -4,8 +4,8 @@
 # It can not be used to do the full installation because it is not in the correct
 # order.
 
--r ../production.in
--r ../devstack.in
--r ../local.in
--r ../test.in
--r ../optional.in
+-r ../production.txt
+-r ../devstack.txt
+-r ../local.txt
+-r ../test.txt
+-r ../optional.txt

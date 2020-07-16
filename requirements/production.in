@@ -1,11 +1,11 @@
 # Packages required in a production environment
 -c constraints.txt
 
--r base.in
--r nonlocal.in
+-r base.txt
+-r nonlocal.txt
 
-boto3>=1.4.4
+boto3
 gevent
 gunicorn
 mysqlclient
-PyYAML==5.1
+PyYAML

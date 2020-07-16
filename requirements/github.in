@@ -1,3 +1,5 @@
+-c constraints.txt
+
 # Forks and other dependencies not yet on PyPI
 
 # Forked to get Django 2.2 support from unreleased master branch from social-app-django repo.

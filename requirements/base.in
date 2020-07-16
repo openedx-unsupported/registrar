@@ -1,8 +1,8 @@
 -c constraints.txt
--r github.in              # Forks and other dependencies not yet on PyPI
+-r github.txt              # Forks and other dependencies not yet on PyPI
 
-analytics-python<2.0
-celery<4.0
+analytics-python
+celery
 django
 djangorestframework
 django-cors-headers
@@ -12,12 +12,12 @@ django-model-utils
 django-mysql
 django-simple-history
 django-storages
-django-user-tasks>=0.1.7
+django-user-tasks
 django-waffle
 edx-api-doc-tools
 edx-auth-backends
 edx-django-release-util
 edx-drf-extensions
-edx-rest-api-client==1.9.2
+edx-rest-api-client
 pytz
-redis==2.8
+redis
