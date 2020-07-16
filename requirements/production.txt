@@ -48,7 +48,7 @@ jinja2==2.11.2            # via -r requirements/base.txt, coreschema
 jmespath==0.10.0          # via boto3, botocore
 kombu==3.0.37             # via -r requirements/base.txt, celery
 markupsafe==1.1.1         # via -r requirements/base.txt, jinja2
-mysqlclient==1.3.14       # via -c requirements/constraints.txt, -r requirements/nonlocal.txt, -r requirements/production.in
+mysqlclient==2.0.1        # via -r requirements/nonlocal.txt, -r requirements/production.in
 newrelic==5.14.1.144      # via -r requirements/base.txt, edx-django-utils
 oauthlib==3.1.0           # via -r requirements/base.txt, requests-oauthlib, social-auth-core
 packaging==20.4           # via -r requirements/base.txt, drf-yasg
