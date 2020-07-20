@@ -15,9 +15,9 @@ aws-sam-translator==1.25.0  # via -r requirements/monitoring/../devstack.txt, -r
 aws-xray-sdk==2.6.0       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, moto
 babel==2.8.0              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, sphinx
 billiard==3.3.0.23        # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, celery
-boto3==1.14.21            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-sam-translator, moto
+boto3==1.14.23            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-sam-translator, moto
 boto==2.49.0              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, moto
-botocore==1.17.21         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.17.23         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2      # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, django-user-tasks
 certifi==2020.6.20        # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, requests
 cffi==1.14.0              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, cryptography
@@ -57,8 +57,8 @@ ecdsa==0.15               # via -r requirements/monitoring/../devstack.txt, -r r
 edx-api-doc-tools==1.3.1  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 edx-auth-backends==3.1.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 edx-django-release-util==0.4.4  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
-edx-django-utils==3.2.3   # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, edx-drf-extensions
-edx-drf-extensions==6.1.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
+edx-django-utils==3.3.0   # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, edx-drf-extensions
+edx-drf-extensions==6.1.1  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 edx-i18n-tools==0.5.3     # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt
 edx-lint==1.5.0           # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
 edx-opaque-keys==2.1.1    # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, edx-drf-extensions

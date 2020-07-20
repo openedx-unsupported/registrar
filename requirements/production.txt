@@ -8,8 +8,8 @@ amqp==1.4.9               # via -r requirements/base.txt, kombu
 analytics-python==1.2.9   # via -c requirements/constraints.txt, -r requirements/base.txt
 anyjson==0.3.3            # via -r requirements/base.txt, kombu
 billiard==3.3.0.23        # via -r requirements/base.txt, celery
-boto3==1.14.21            # via -c requirements/constraints.txt, -r requirements/production.in
-botocore==1.17.21         # via boto3, s3transfer
+boto3==1.14.23            # via -c requirements/constraints.txt, -r requirements/production.in
+botocore==1.17.23         # via boto3, s3transfer
 celery==3.1.26.post2      # via -c requirements/constraints.txt, -r requirements/base.txt, django-user-tasks
 certifi==2020.6.20        # via -r requirements/base.txt, requests
 chardet==3.0.4            # via -r requirements/base.txt, requests
@@ -33,8 +33,8 @@ drf-yasg==1.17.1          # via -r requirements/base.txt, edx-api-doc-tools
 edx-api-doc-tools==1.3.1  # via -r requirements/base.txt
 edx-auth-backends==3.1.0  # via -r requirements/base.txt
 edx-django-release-util==0.4.4  # via -r requirements/base.txt
-edx-django-utils==3.2.3   # via -r requirements/base.txt, edx-drf-extensions
-edx-drf-extensions==6.1.0  # via -r requirements/base.txt
+edx-django-utils==3.3.0   # via -r requirements/base.txt, edx-drf-extensions
+edx-drf-extensions==6.1.1  # via -r requirements/base.txt
 edx-opaque-keys==2.1.1    # via -r requirements/base.txt, edx-drf-extensions
 edx-rest-api-client==1.9.2  # via -c requirements/constraints.txt, -r requirements/base.txt
 future==0.18.2            # via -r requirements/base.txt, pyjwkest
