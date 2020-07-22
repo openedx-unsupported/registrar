@@ -55,7 +55,7 @@ newrelic==5.14.1.144      # via -r requirements/base.txt, edx-django-utils
 oauthlib==3.1.0           # via -r requirements/base.txt, requests-oauthlib, social-auth-core
 packaging==20.4           # via -r requirements/base.txt, drf-yasg
 pbr==5.4.5                # via -r requirements/base.txt, stevedore
-psutil==1.2.1             # via -r requirements/base.txt, edx-django-utils
+psutil==5.6.6             # via -r requirements/base.txt, edx-django-utils
 pycparser==2.20           # via -r requirements/base.txt, cffi
 pycryptodomex==3.9.8      # via -r requirements/base.txt, pyjwkest
 pyjwkest==1.4.2           # via -r requirements/base.txt, edx-drf-extensions

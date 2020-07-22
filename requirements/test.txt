@@ -93,7 +93,7 @@ pbr==5.4.5                # via -r requirements/base.txt, stevedore
 pip-api==0.0.14           # via isort
 pipreqs==0.4.10           # via isort
 pluggy==0.13.1            # via pytest, tox
-psutil==1.2.1             # via -r requirements/base.txt, edx-django-utils
+psutil==5.6.6             # via -r requirements/base.txt, edx-django-utils
 py==1.9.0                 # via pytest, tox
 pyasn1==0.4.8             # via python-jose, rsa
 pycodestyle==2.6.0        # via -r requirements/test.in
