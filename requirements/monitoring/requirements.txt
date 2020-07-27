@@ -15,21 +15,21 @@ aws-sam-translator==1.25.0  # via -r requirements/monitoring/../devstack.txt, -r
 aws-xray-sdk==2.6.0       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, moto
 babel==2.8.0              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, sphinx
 billiard==3.3.0.23        # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, celery
-boto3==1.14.25            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-sam-translator, moto
+boto3==1.14.28            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-sam-translator, moto
 boto==2.49.0              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, moto
-botocore==1.17.25         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.17.28         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, aws-xray-sdk, boto3, moto, s3transfer
 celery==3.1.26.post2      # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, django-user-tasks
 certifi==2020.6.20        # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, requests
-cffi==1.14.0              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, cryptography
+cffi==1.14.1              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, cryptography
 cfn-lint==0.34.0          # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, moto
 chardet==3.0.4            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, requests
 click-log==0.3.2          # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, edx-lint
 click==7.1.2              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, click-log, code-annotations, edx-lint
-code-annotations==0.3.4   # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
+code-annotations==0.4.0   # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
 configobj==5.0.6          # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, ruamel.yaml.cmd
 coreapi==2.3.3            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, coreapi, drf-yasg
-coverage==5.2             # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, pytest-cov
+coverage==5.2.1           # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, pytest-cov
 cryptography==3.0         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, moto, pyjwt
 ddt==1.4.1                # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
 decorator==4.4.2          # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, networkx
@@ -41,7 +41,7 @@ django-dynamic-fixture==3.1.0  # via -r requirements/monitoring/../devstack.txt,
 django-extensions==3.0.3  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 django-guardian==2.3.0    # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 django-model-utils==4.0.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, django-user-tasks
-django-mysql==3.7.1       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
+django-mysql==3.8.0       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 django-simple-history==2.11.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 django-storages==1.8      # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 django-user-tasks==1.1.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
@@ -57,7 +57,7 @@ ecdsa==0.15               # via -r requirements/monitoring/../devstack.txt, -r r
 edx-api-doc-tools==1.3.1  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 edx-auth-backends==3.1.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 edx-django-release-util==0.4.4  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
-edx-django-utils==3.4.0   # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, edx-drf-extensions
+edx-django-utils==3.5.0   # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, edx-drf-extensions
 edx-drf-extensions==6.1.1  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt
 edx-i18n-tools==0.5.3     # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt
 edx-lint==1.5.0           # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
@@ -162,12 +162,12 @@ sqlparse==0.3.1           # via -r requirements/monitoring/../devstack.txt, -r r
 stevedore==1.32.0         # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, code-annotations, edx-opaque-keys
 text-unidecode==1.3       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, faker, python-slugify
 toml==0.10.1              # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, tox
-tox==3.17.1               # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
+tox==3.18.0               # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt
 transifex-client==0.13.11  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt
 typed-ast==1.4.1          # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, astroid
 uritemplate==3.0.1        # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, coreapi, drf-yasg
-urllib3==1.25.9           # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, botocore, requests, transifex-client
-virtualenv==20.0.27       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, tox
+urllib3==1.25.10          # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../production.txt, -r requirements/monitoring/../test.txt, botocore, requests, transifex-client
+virtualenv==20.0.28       # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, tox
 wcwidth==0.2.5            # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, pytest
 websocket-client==0.57.0  # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, docker
 werkzeug==1.0.1           # via -r requirements/monitoring/../devstack.txt, -r requirements/monitoring/../local.txt, -r requirements/monitoring/../test.txt, moto
