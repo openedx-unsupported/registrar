@@ -21,7 +21,7 @@ six==1.15.0               # via edx-sphinx-theme, sphinx
 snowballstemmer==2.0.0    # via sphinx
 sphinx==1.6.7             # via -c requirements/constraints.txt, -r requirements/docs.in, edx-sphinx-theme
 sphinxcontrib-websupport==1.2.3  # via sphinx
-urllib3==1.25.9           # via requests
+urllib3==1.25.10          # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
