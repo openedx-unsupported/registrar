@@ -153,3 +153,20 @@ api_generated: ## generates an expanded verison of api.yaml for consuming tools 
 
 validate_api_committed: ## check to make sure any api.yaml changes have been committed to the expanded document
 	$(TOX)bash -c "diff .api-generated.yaml <(python scripts/yaml_merge.py api.yaml -)"
+
+docker_build:
+	docker build . -f Dockerfile --target app -t openedx/registrar
+	docker build . -f Dockerfile --target newrelic -t openedx/registrar:latest-newrelic
+
+docker_tag: docker_build
+	docker tag openedx/registrar openedx/registrar:${GITHUB_SHA}
+	docker tag openedx/registrar:latest-newrelic openedx/registrar:${GITHUB_SHA}-newrelic
+
+docker_auth:
+	echo "$$DOCKERHUB_PASSWORD" | docker login -u "$$DOCKERHUB_USERNAME" --password-stdin
+
+docker_push: docker_tag docker_auth ## push to docker hub
+	docker push 'openedx/registrar:latest'
+	docker push "openedx/registrar:${GITHUB_SHA}"
+	docker push 'openedx/registrar:latest-newrelic'
+	docker push "openedx/registrar:${GITHUB_SHA}-newrelic"
