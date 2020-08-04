@@ -20,12 +20,12 @@ django-cors-headers==3.4.0  # via -r requirements/base.in
 django-extensions==3.0.3  # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
-django-mysql==3.8.0       # via -r requirements/base.in
+django-mysql==3.8.1       # via -r requirements/base.in
 django-simple-history==2.11.0  # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
 django-user-tasks==1.1.0  # via -r requirements/base.in
 django-waffle==1.0.0      # via -r requirements/base.in, edx-django-utils, edx-drf-extensions
-django==2.2.14            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
+django==2.2.15            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
 djangorestframework==3.11.0  # via -r requirements/base.in, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
 drf-jwt==1.16.2           # via edx-drf-extensions
 drf-yasg==1.17.1          # via edx-api-doc-tools
@@ -52,7 +52,7 @@ pycparser==2.20           # via cffi
 pycryptodomex==3.9.8      # via pyjwkest
 pyjwkest==1.4.2           # via edx-drf-extensions
 pyjwt[crypto]==1.7.1      # via -r requirements/github.txt, drf-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
-pymongo==3.10.1           # via edx-opaque-keys
+pymongo==3.11.0           # via edx-opaque-keys
 pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via analytics-python, edx-drf-extensions
 python3-openid==3.2.0     # via -r requirements/github.txt, social-auth-core
