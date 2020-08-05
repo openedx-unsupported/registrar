@@ -12,10 +12,16 @@ workers = 2
 
 
 def pre_request(worker, req):
+    """
+    TODO: add docstring
+    """
     worker.log.info("%s %s" % (req.method, req.path))
 
 
 def close_all_caches():
+    """
+    TODO: add docstring
+    """
     # Close the cache so that newly forked workers cannot accidentally share
     # the socket with the processes they were forked from. This prevents a race
     # condition in which one worker could get a cache response intended for
@@ -44,4 +50,7 @@ def close_all_caches():
 
 
 def post_fork(server, worker):  # pylint: disable=unused-argument
+    """
+    TODO: add docstring
+    """
     close_all_caches()
