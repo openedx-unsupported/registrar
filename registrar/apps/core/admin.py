@@ -12,6 +12,7 @@ from .models import (
     Program,
     ProgramOrganizationGroup,
     User,
+    UserGroup,
 )
 
 
@@ -24,6 +25,14 @@ class CustomUserAdmin(UserAdmin):
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
+
+
+class UserGroupAdmin(UserAdmin):
+    readonly_fields = ('username',)
+    fieldsets = (
+        (None, {'fields': ('username',)}),
+        (_('Permissions'), {'fields': ('groups',)}),
     )
 
 
@@ -64,6 +73,7 @@ class ProgramGroupAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(UserGroup, UserGroupAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
 admin.site.register(PendingUserGroup, PendingUserGroupAdmin)

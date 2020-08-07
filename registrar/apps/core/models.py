@@ -51,6 +51,13 @@ class User(AbstractUser):
         return str(self.username)
 
 
+class UserGroup(User):
+    """
+    """
+    class Meta:
+        proxy = True
+
+
 class Organization(TimeStampedModel):
     """
     Model that represents a course-discovery Organization entity.
