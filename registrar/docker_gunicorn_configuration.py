@@ -7,27 +7,39 @@ import multiprocessing  # pylint: disable=unused-import
 preload_app = True
 timeout = 300
 bind = "0.0.0.0:8381"
-
 workers = 2
 
 
 def pre_request(worker, req):
     """
-    TODO: add docstring
+    Called just before a worker processes the request.
+    Logs a request to the worker.
+
+    Args:
+        worker (Worker): The worker to process the request
+        req (Request): The request to be processed
+
+    Returns:
+        None
     """
     worker.log.info("%s %s" % (req.method, req.path))
 
 
 def close_all_caches():
     """
-    TODO: add docstring
+    Closes the cache so that newly forked workers cannot accidentally
+    share the socket with the processes they were forked from.
+    Prevents a race condition in which one worker could get a cache response
+    intended for another worker.
+
+    Safe for 1.4 and 1.8.
+
+    Args:
+        None
+
+    Returns:
+        None
     """
-    # Close the cache so that newly forked workers cannot accidentally share
-    # the socket with the processes they were forked from. This prevents a race
-    # condition in which one worker could get a cache response intended for
-    # another worker.
-    # We do this in a way that is safe for 1.4 and 1.8 while we still have some
-    # 1.4 installations.
     from django.conf import settings  # pylint: disable=import-outside-toplevel
     from django.core import cache as django_cache  # pylint: disable=import-outside-toplevel
     if hasattr(django_cache, 'caches'):
@@ -51,6 +63,13 @@ def close_all_caches():
 
 def post_fork(server, worker):  # pylint: disable=unused-argument
     """
-    TODO: add docstring
+    Called just after a worker has been forked.
+
+    Args:
+        server (Arbiter): The arbiter that maintains worker's processes
+        worker (Worker): The worker that was forked
+
+    Returns:
+        None
     """
     close_all_caches()
