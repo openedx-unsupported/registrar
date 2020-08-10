@@ -51,6 +51,15 @@ class User(AbstractUser):
         return str(self.username)
 
 
+class UserGroup(User):
+    """
+    Proxy model for user, this model has a custom admin page that only exposes
+    a user's assigned groups.
+    """
+    class Meta:
+        proxy = True
+
+
 class Organization(TimeStampedModel):
     """
     Model that represents a course-discovery Organization entity.
