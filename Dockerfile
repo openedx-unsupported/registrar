@@ -22,10 +22,11 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+ENV DJANGO_SETTINGS_MODULE registrar.settings.production
 
 RUN mkdir -p /edx/app/registrar
 
-# Expose canonical Registrar port.
+# Expose port.
 EXPOSE 18734
 
 RUN useradd -m --shell /bin/false app
@@ -42,11 +43,12 @@ RUN make production-requirements
 # So we copy it before changing users.
 USER app
 
-CMD gunicorn -c /edx/app/registrar/registrar/docker_gunicorn_configuration.py --bind=0.0.0.0:18734 --workers=2 --max-requests=1000 registrar.wsgi:application
+# Gunicorn 19 does not log to stdout or stderr by default. Once we are past gunicorn 19, the logging to STDOUT need not be specified.
+CMD ["gunicorn", "--workers=2", "--name", "registrar", "-c", "/edx/app/registrar/registrar/docker_gunicorn_configuration.py", "--log-file", "-", "--max-requests=1000", "registrar.wsgi:application"]
 
 # After the requirements so changes to the code will not bust the image cache
 COPY . /edx/app/registrar
 
 FROM app as newrelic
 RUN pip3 install newrelic
-CMD newrelic-admin run-program gunicorn -c /edx/app/registrar/registrar/docker_gunicorn_configuration.py --bind=0.0.0.0:18734 --workers=2 --max-requests=1000  registrar.wsgi:application
+CMD ["newrelic-admin", "run-program", "gunicorn", "--workers=2", "--name", "registrar", "-c", "/edx/app/registrar/registrar/docker_gunicorn_configuration.py", "--log-file", "-", "--max-requests=1000", "registrar.wsgi:application"]
