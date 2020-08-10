@@ -53,6 +53,8 @@ class User(AbstractUser):
 
 class UserGroup(User):
     """
+    Proxy model for user, this model has a custom admin page that only exposes
+    a user's assigned groups.
     """
     class Meta:
         proxy = True
