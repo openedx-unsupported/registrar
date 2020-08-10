@@ -31,7 +31,7 @@ class CustomUserAdmin(UserAdmin):
 class UserGroupAdmin(UserAdmin):
     """
     Admin configuration for the UserGroup model. UserGroup is just a proxy to
-    user. This admin class only allows for editing user group assignements.
+    User. This admin class only allows for editing a user's group assignements.
     """
     readonly_fields = ('username',)
     fieldsets = (
