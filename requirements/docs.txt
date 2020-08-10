@@ -20,7 +20,8 @@ requests==2.24.0          # via sphinx
 six==1.15.0               # via edx-sphinx-theme, sphinx
 snowballstemmer==2.0.0    # via sphinx
 sphinx==1.6.7             # via -c requirements/constraints.txt, -r requirements/docs.in, edx-sphinx-theme
-sphinxcontrib-websupport==1.2.3  # via sphinx
+sphinxcontrib-serializinghtml==1.1.4  # via sphinxcontrib-websupport
+sphinxcontrib-websupport==1.2.4  # via sphinx
 urllib3==1.25.10          # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
