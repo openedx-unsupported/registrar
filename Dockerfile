@@ -26,8 +26,9 @@ ENV DJANGO_SETTINGS_MODULE registrar.settings.production
 
 RUN mkdir -p /edx/app/registrar
 
-# Expose port.
+# Expose ports.
 EXPOSE 18734
+EXPOSE 18735
 
 RUN useradd -m --shell /bin/false app
 

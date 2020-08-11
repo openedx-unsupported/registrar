@@ -30,7 +30,6 @@ services:
       CELERY_BROKER_VHOST: 0
       CELERY_BROKER_PASSWORD: password
       DJANGO_SETTINGS_MODULE: registrar.settings.devstack
-      ENABLE_DJANGO_TOOLBAR: 1
 
   worker:
     # Uncomment this line to use the official catalog base image
@@ -54,7 +53,7 @@ services:
       DJANGO_SETTINGS_MODULE: registrar.settings.devstack
     hostname: worker.registrar
     ports:
-      - "18734:18734"
+      - "18735:18735"
     restart: always
     # Allows attachment to this container using 'docker attach <containerID>'.
     stdin_open: true
@@ -74,7 +73,7 @@ services:
     environment:
       TEST_ELASTICSEARCH_URL: http://edx.devstack.elasticsearch:9200
       DJANGO_WATCHMAN_TIMEOUT: 30
-    image: openedx/course-discovery:latest
+    image: kdmccormick96/course-discovery:latest
     ports:
       - "18381:18381"
     volumes:
@@ -100,7 +99,7 @@ services:
     environment:
       NO_INSTALL_PREREQS: 1
       DJANGO_WATCHMAN_TIMEOUT: 30
-    image: openedx/edx-platform:latest
+    image: kdmccormick96/edx-platform:latest
     ports:
       - "18000:18000"
     volumes:
