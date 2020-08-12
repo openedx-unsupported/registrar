@@ -30,6 +30,7 @@ services:
       CELERY_BROKER_VHOST: 0
       CELERY_BROKER_PASSWORD: password
       DJANGO_SETTINGS_MODULE: registrar.settings.devstack
+      #TODO: enable django debug toolbar
 
   worker:
     # Uncomment this line to use the official catalog base image

@@ -6,7 +6,7 @@ source provisioning-utils.sh
 log_step "Starting provisioning process..."
 
 log_step "Bringing down any existing containers..."
-docker-compose down
+docker-compose down --volumes
 
 log_step "Pulling latest images..."
 docker-compose pull --include-deps app
