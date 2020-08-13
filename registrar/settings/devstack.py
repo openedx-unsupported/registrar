@@ -24,10 +24,10 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'registrar'),
-        'USER': os.environ.get('DB_USER', 'registrar001'),
+        'NAME': os.environ.get('DB_NAME', 'regsitrar'),
+        'USER': os.environ.get('DB_USER', 'regsitrar001'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'password'),
-        'HOST': os.environ.get('DB_HOST', 'edx.devstack.mysql'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': os.environ.get('DB_PORT', 3306),
         'ATOMIC_REQUESTS': False,
         'CONN_MAX_AGE': 60,
