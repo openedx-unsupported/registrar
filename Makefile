@@ -160,15 +160,15 @@ docker_build:
 	docker build . --target app -t "openedx/registrar:latest"
 	docker build . --target newrelic -t "openedx/registrar:latest-newrelic"
 
-travis_docker_auth:
-	echo "$$DOCKER_PASSWORD" | docker login -u "$$DOCKER_USERNAME" --password-stdin
+docker_auth:
+	echo "$$DOCKERHUB_PASSWORD" | docker login -u "$$DOCKERHUB_USERNAME" --password-stdin
 
-travis_docker_tag: docker_build
-	docker build . --target app -t "openedx/registrar:$$TRAVIS_COMMIT"
-	docker build . --target newrelic -t "openedx/registrar:$$TRAVIS_COMMIT-newrelic"
+docker_tag: docker_build
+	docker build . --target app -t "openedx/registrar:${GITHUB_SHA}"
+	docker build . --target newrelic -t "openedx/registrar:${GITHUB_SHA}-newrelic"
 
-travis_docker_push: travis_docker_tag travis_docker_auth ## push to docker hub
+docker_push: docker_tag docker_auth ## push to docker hub
 	docker push "openedx/registrar:latest"
-	docker push "openedx/registrar:$$TRAVIS_COMMIT"
+	docker push "openedx/registrar:${GITHUB_SHA}"
 	docker push "openedx/registrar:latest-newrelic"
-	docker push "openedx/registrar:$$TRAVIS_COMMIT-newrelic"
+	docker push "openedx/registrar:${GITHUB_SHA}-newrelic"
