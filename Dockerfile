@@ -22,6 +22,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+
 ENV DJANGO_SETTINGS_MODULE registrar.settings.production
 
 RUN mkdir -p /edx/app/registrar
@@ -40,8 +41,6 @@ COPY requirements/ /edx/app/registrar/requirements/
 COPY Makefile /edx/app/registrar/
 RUN make production-requirements
 
-# Code is owned by root so it cannot be modified by the application user.
-# So we copy it before changing users.
 USER app
 
 # Gunicorn 19 does not log to stdout or stderr by default. Once we are past gunicorn 19, the logging to STDOUT need not be specified.

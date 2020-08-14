@@ -32,8 +32,6 @@ def close_all_caches():
     Prevents a race condition in which one worker could get a cache response
     intended for another worker.
 
-    Safe for 1.4 and 1.8.
-
     Args:
         None
 
