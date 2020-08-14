@@ -5,6 +5,8 @@ source=registrar
 omit =
     registrar/settings*
     registrar/conf*
+    # Need tests for docker gunicorn configuration (ticket created PSRE-218)
+    registrar/docker_gunicorn_configuration.py
     *celery.py
     *wsgi.py
     *migrations*
