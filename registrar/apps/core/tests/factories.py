@@ -29,7 +29,7 @@ User = get_user_model()
 USER_PASSWORD = 'password'
 
 
-class GroupFactory(factory.DjangoModelFactory):
+class GroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Group
         django_get_or_create = ('name',)
@@ -45,7 +45,7 @@ class GroupFactory(factory.DjangoModelFactory):
             assign_perm(permission, self)
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
@@ -80,7 +80,7 @@ def name_to_key(name):
     return re.sub(r'[^a-z0-9-]', '', name2)
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
+class OrganizationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Organization
 
@@ -91,7 +91,7 @@ class OrganizationFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: "Test Organization " + str(n))
 
 
-class ProgramFactory(factory.DjangoModelFactory):
+class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Program
 
@@ -102,7 +102,7 @@ class ProgramFactory(factory.DjangoModelFactory):
     managing_organization = factory.SubFactory(OrganizationFactory)
 
 
-class OrganizationGroupFactory(factory.DjangoModelFactory):
+class OrganizationGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OrganizationGroup
 
@@ -113,7 +113,7 @@ class OrganizationGroupFactory(factory.DjangoModelFactory):
     role = OrganizationReadMetadataRole.name
 
 
-class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
+class ProgramOrganizationGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProgramOrganizationGroup
 
@@ -125,7 +125,7 @@ class ProgramOrganizationGroupFactory(factory.DjangoModelFactory):
     role = ProgramReadMetadataRole.name
 
 
-class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
+class PendingUserOrganizationGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = PendingUserGroup
 
@@ -133,7 +133,7 @@ class PendingUserOrganizationGroupFactory(factory.DjangoModelFactory):
     user_email = factory.Faker('email')
 
 
-class PendingUserProgramGroupFactory(factory.DjangoModelFactory):
+class PendingUserProgramGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = PendingUserGroup
 
@@ -141,7 +141,7 @@ class PendingUserProgramGroupFactory(factory.DjangoModelFactory):
     user_email = factory.Faker('email')
 
 
-class PendingUserGenericGroupFactory(factory.DjangoModelFactory):
+class PendingUserGenericGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = PendingUserGroup
 
