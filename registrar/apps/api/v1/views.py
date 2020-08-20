@@ -794,7 +794,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         Get a list of reports for a program.
         """
         filestore = get_program_reports_filestore()
-        file_prefix = '{}/{}'.format(self.program.managing_organization.key, self.program.discovery_uuid.hex)
+        file_prefix = f'{self.program.managing_organization.key}/{self.program.discovery_uuid.hex}'
         date_format_string = '%Y-%m-%d'
 
         reports_metadata = []

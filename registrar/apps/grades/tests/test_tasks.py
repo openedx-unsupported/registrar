@@ -1,7 +1,7 @@
 """ Tests for celery task error behavior in the grades app """
+from unittest import mock
 
 import ddt
-import mock
 import requests
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError

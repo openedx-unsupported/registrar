@@ -38,7 +38,7 @@ class OldAPIDocViewTest(APITestCase):
             role=perms.OrganizationReadWriteEnrollmentsRole.name
         )
         cls.org_admin = UserFactory()
-        cls.org_admin.groups.add(cls.org_admin_group)  # pylint: disable=no-member
+        cls.org_admin.groups.add(cls.org_admin_group)
 
         cls.no_perms_user = UserFactory()
 

@@ -17,7 +17,6 @@ class CoreConfig(AppConfig):
     USER_POST_SAVE_DISPATCH_UID = 'user_post_save_assign_org_group'
     name = "registrar.apps.core"
 
-    # pylint: disable=import-outside-toplevel
     def ready(self):
         """
         Perform other one-time initialization steps.
@@ -33,7 +32,6 @@ class CoreConfig(AppConfig):
         )
         pre_migrate.connect(self._disconnect_user_post_save_for_migrations)
 
-    # pylint: disable=import-outside-toplevel
     def _disconnect_user_post_save_for_migrations(self, sender, **kwargs):  # pylint: disable=unused-argument
         """
         Handle pre_migrate signal - disconnect User post_save handler.

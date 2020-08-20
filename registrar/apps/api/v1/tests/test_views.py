@@ -6,10 +6,10 @@ import uuid
 from contextlib import contextmanager
 from io import StringIO
 from posixpath import join as urljoin
+from unittest import mock
 
 import boto3
 import ddt
-import mock
 import moto
 import requests
 import responses
@@ -137,8 +137,8 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             organization=cls.stem_org,
             role=perms.OrganizationReadMetadataRole.name
         )
-        cls.stem_admin.groups.add(cls.stem_admin_group)  # pylint: disable=no-member
-        cls.stem_user.groups.add(cls.stem_user_group)  # pylint: disable=no-member
+        cls.stem_admin.groups.add(cls.stem_admin_group)
+        cls.stem_user.groups.add(cls.stem_user_group)
 
         cls.hum_org = OrganizationFactory(name='Humanities College')
         cls.phil_program = ProgramFactory(
@@ -171,8 +171,8 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             organization=cls.hum_org,
             role=perms.OrganizationReadReportRole.name
         )
-        cls.hum_admin.groups.add(cls.hum_admin_group)  # pylint: disable=no-member
-        cls.hum_admin.groups.add(cls.hum_data_op_group)  # pylint: disable=no-member
+        cls.hum_admin.groups.add(cls.hum_admin_group)
+        cls.hum_admin.groups.add(cls.hum_data_op_group)
 
         cls.program_user = UserFactory(username='english-program-user')
         cls.program_group = ProgramOrganizationGroupFactory(
@@ -180,7 +180,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             program=cls.english_program,
             role=perms.ProgramReadMetadataRole.name
         )
-        cls.program_user.groups.add(cls.program_group)  # pylint: disable=no-member
+        cls.program_user.groups.add(cls.program_group)
 
         cls.cs_program_admin = UserFactory(username='cs-program-admin')
         cls.cs_program_admin_group = ProgramOrganizationGroupFactory(
@@ -188,7 +188,7 @@ class RegistrarAPITestCase(TrackTestMixin, APITestCase):
             program=cls.cs_program,
             role=perms.ProgramReadWriteEnrollmentsRole.name
         )
-        cls.cs_program_admin.groups.add(cls.cs_program_admin_group)  # pylint: disable=no-member
+        cls.cs_program_admin.groups.add(cls.cs_program_admin_group)
 
     def setUp(self):
         super().setUp()
@@ -488,7 +488,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
             if test_program_group else [OrganizationGroup.objects.get(name=name) for name in groups]
         user = UserFactory(groups=org_or_program_groups)
         if global_perm:
-            user.groups.add(self.global_read_and_write_group)  # pylint: disable=no-member
+            user.groups.add(self.global_read_and_write_group)
 
         query = []
         tracking_kwargs = {}
@@ -588,7 +588,7 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
         org_groups = [OrganizationGroup.objects.get(name=name) for name in groups]
         user = UserFactory(groups=org_groups)
         if global_perm:
-            user.groups.add(self.global_read_and_write_group)  # pylint: disable=no-member
+            user.groups.add(self.global_read_and_write_group)
 
         with self.assert_tracking(
                 user=user,
@@ -1261,7 +1261,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -1297,7 +1297,7 @@ class ProgramEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthRequestMi
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -1435,7 +1435,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -1473,7 +1473,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -1512,7 +1512,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -1549,7 +1549,7 @@ class ProgramCourseEnrollmentGetTests(S3MockMixin, RegistrarAPITestCase, AuthReq
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -1615,7 +1615,7 @@ class JobStatusRetrieveViewTests(S3MockMixin, RegistrarAPITestCase, AuthRequestM
         self.assertEqual(job_status['state'], 'Succeeded')
         self.assertIsNone(job_status['text'])
         result_url = job_status['result']
-        self.assertIn("/job-results/{}.json?".format(job_id), result_url)
+        self.assertIn(f"/job-results/{job_id}.json?", result_url)
 
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
@@ -1712,7 +1712,7 @@ class ProgramCourseEnrollmentWriteMixin:
         cls.program_uuid = cls.program.discovery_uuid
         cls.course_id = cls.course_run_keys[2][0]
         cls.external_course_key = cls.course_run_keys[2][1]
-        cls.path = 'programs/masters-in-english/courses/{}/enrollments'.format(cls.course_id)
+        cls.path = f'programs/masters-in-english/courses/{cls.course_id}/enrollments'
         cls.lms_request_url = urljoin(
             settings.LMS_BASE_URL, LMS_PROGRAM_COURSE_ENROLLMENTS_API_TPL
         ).format(cls.program_uuid, cls.course_id)
@@ -2757,7 +2757,7 @@ class CourseEnrollmentDownloadTest(S3MockMixin, RegistrarAPITestCase, AuthReques
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -2875,7 +2875,7 @@ class CourseGradeViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         result_url = job_response.data['result']
-        self.assertIn(".{}?".format(expected_format), result_url)
+        self.assertIn(f".{expected_format}?", result_url)
         file_response = requests.get(result_url)
         self.assertEqual(file_response.status_code, 200)
         self.assertEqual(file_response.text, expected_contents)
@@ -3061,7 +3061,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
-                '{}/{}'.format(file_prefix, file),
+                f'{file_prefix}/{file}',
                 'data',
             )
         expected_data = [
