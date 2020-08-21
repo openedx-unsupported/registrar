@@ -133,7 +133,7 @@ class TrackViewMixin:
             'userAgent': self.request.META.get('HTTP_USER_AGENT'),
         }
 
-        segment.track(self.request.user.username, event_name, properties, context)
+        segment.track(self.request.user.id, event_name, properties, context)
         logger.info(
             '%s invoked on Registrar by user with ID=%s with properties %s and context %s',
             event_name,
