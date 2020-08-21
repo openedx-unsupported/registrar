@@ -24,7 +24,6 @@ social-auth-core<3.3.0
 
 # From base.in
 analytics-python<2.0         # https://github.com/edx/registrar/pull/39
-celery<4.0                   # https://github.com/edx/registrar/pull/66
 edx-rest-api-client==1.9.2   # https://github.com/edx/registrar/pull/1
 redis==2.8                   # https://github.com/edx/registrar/pull/66
 
@@ -41,3 +40,6 @@ PyYAML==5.1           # https://github.com/edx/registrar/pull/48
 # Constraints required to resolve requirements in docs.in and test.in
 docutils==0.15.2
 idna==2.8
+
+# adding constraint to do incremental upgrade
+celery < 4.1.0
