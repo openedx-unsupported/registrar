@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from registrar.settings.base import *
 
@@ -33,6 +34,9 @@ CELERY_ALWAYS_EAGER = True
 
 # Results
 CELERY_IGNORE_RESULT = True
+
+results_dir = tempfile.TemporaryDirectory()
+CELERY_RESULT_BACKEND = 'file://{}'.format(results_dir.name)
 
 # END CELERY
 
