@@ -146,6 +146,11 @@ BROKER_URL = "{0}://{1}:{2}@{3}/{4}".format(
     CELERY_BROKER_VHOST
 )
 
+BROKER_TRANSPORT_OPTIONS = {
+    'fanout_patterns': True,
+    'fanout_prefix': True,
+}
+
 # Celery task time limits.
 # Tasks will be asked to quit after four minutes, and un-gracefully killed
 # after five.
