@@ -24,7 +24,7 @@ cfn-lint==0.35.0          # via -r requirements/local.txt, moto
 chardet==3.0.4            # via -r requirements/github.txt, -r requirements/local.txt, requests
 click-log==0.3.2          # via -r requirements/local.txt, edx-lint
 click==7.1.2              # via -r requirements/local.txt, click-log, code-annotations, edx-lint
-code-annotations==0.5.0   # via -c requirements/constraints.txt, -r requirements/local.txt
+code-annotations==0.5.1   # via -c requirements/constraints.txt, -r requirements/local.txt
 configobj==5.0.6          # via -r requirements/local.txt, ruamel.yaml.cmd
 coreapi==2.3.3            # via -r requirements/local.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/local.txt, coreapi, drf-yasg
@@ -43,14 +43,14 @@ django-model-utils==4.0.0  # via -r requirements/local.txt, django-user-tasks
 django-mysql==3.8.1       # via -r requirements/local.txt
 django-simple-history==2.11.0  # via -r requirements/local.txt
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/local.txt
-django-user-tasks==1.2.0  # via -r requirements/local.txt
+django-user-tasks==1.3.0  # via -r requirements/local.txt
 django-waffle==1.0.0      # via -r requirements/local.txt, edx-django-utils, edx-drf-extensions
 django==2.2.15            # via -c requirements/constraints.txt, -r requirements/local.txt, code-annotations, django-cors-headers, django-debug-toolbar, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, edx-i18n-tools, rest-condition
 djangorestframework==3.11.1  # via -r requirements/local.txt, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
 docker==4.3.1             # via -r requirements/local.txt, moto
 docopt==0.6.2             # via -r requirements/local.txt, pipreqs
 docutils==0.15.2          # via -c requirements/constraints.txt, -r requirements/local.txt, botocore, sphinx
-drf-jwt==1.17.0           # via -r requirements/local.txt, edx-drf-extensions
+drf-jwt==1.17.1           # via -r requirements/local.txt, edx-drf-extensions
 drf-yasg==1.17.1          # via -r requirements/local.txt, edx-api-doc-tools
 ecdsa==0.14.1             # via -r requirements/local.txt, python-jose
 edx-api-doc-tools==1.3.1  # via -r requirements/local.txt
@@ -134,7 +134,7 @@ python3-openid==3.2.0     # via -r requirements/github.txt, -r requirements/loca
 pytz==2020.1              # via -r requirements/local.txt, babel, celery, django, moto
 pywatchman==1.4.1         # via -r requirements/local.txt
 pyyaml==5.1               # via -c requirements/constraints.txt, -r requirements/local.txt, cfn-lint, code-annotations, edx-django-release-util, edx-i18n-tools, moto, yamllint
-redis==2.8                # via -c requirements/constraints.txt, -r requirements/local.txt
+redis==3.5.3              # via -r requirements/local.txt
 requests-oauthlib==1.3.0  # via -r requirements/github.txt, -r requirements/local.txt, social-auth-core
 requests==2.24.0          # via -r requirements/github.txt, -r requirements/local.txt, analytics-python, coreapi, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, sphinx, transifex-client, yarg
 responses==0.11.0         # via -r requirements/local.txt, moto

@@ -26,7 +26,6 @@ social-auth-core<3.3.0
 analytics-python<2.0         # https://github.com/edx/registrar/pull/39
 celery<4.3                   # Remove this after BOM-1995 is completed
 edx-rest-api-client==1.9.2   # https://github.com/edx/registrar/pull/1
-redis==2.8                   # https://github.com/edx/registrar/pull/66
 
 Sphinx==1.6.7 ## Pinned due to bug in 1.7.0 - 1.7.1 (https://github.com/sphinx-doc/sphinx/issues/4692)
 
