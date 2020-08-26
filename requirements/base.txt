@@ -23,7 +23,7 @@ django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
 django-mysql==3.8.1       # via -r requirements/base.in
 django-simple-history==2.11.0  # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
-django-user-tasks==1.1.0  # via -r requirements/base.in
+django-user-tasks==1.2.0  # via -r requirements/base.in
 django-waffle==1.0.0      # via -r requirements/base.in, edx-django-utils, edx-drf-extensions
 django==2.2.15            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
 djangorestframework==3.11.1  # via -r requirements/base.in, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
@@ -38,12 +38,12 @@ edx-opaque-keys==2.1.1    # via edx-drf-extensions
 edx-rest-api-client==1.9.2  # via -c requirements/constraints.txt, -r requirements/base.in
 future==0.18.2            # via pyjwkest
 idna==2.8                 # via -c requirements/constraints.txt, -r requirements/github.txt, requests
-inflection==0.5.0         # via drf-yasg
+inflection==0.5.1         # via drf-yasg
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
 kombu==3.0.37             # via celery
 markupsafe==1.1.1         # via jinja2
-newrelic==5.16.0.145      # via edx-django-utils
+newrelic==5.16.1.146      # via edx-django-utils
 oauthlib==3.1.0           # via -r requirements/github.txt, requests-oauthlib, social-auth-core
 packaging==20.4           # via drf-yasg
 pbr==5.4.5                # via stevedore
