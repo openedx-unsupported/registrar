@@ -8,7 +8,8 @@ from django.conf import settings
 
 app = Celery('registrar')
 
-app.config_from_object(settings)
+app.conf.task_protocol = 1
+app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
