@@ -38,6 +38,10 @@ CELERY_IGNORE_RESULT = True
 results_dir = tempfile.TemporaryDirectory()
 CELERY_RESULT_BACKEND = 'file://{}'.format(results_dir.name)
 
+# Celery environment variables are not available in travis
+# Hence providing memory as broker for test suite
+BROKER_URL = 'memory://localhost/'
+
 # END CELERY
 
 # Media
