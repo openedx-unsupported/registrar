@@ -14,9 +14,9 @@ aws-sam-translator==1.26.0  # via -r requirements/test.txt, cfn-lint
 aws-xray-sdk==2.6.0       # via -r requirements/test.txt, moto
 babel==2.8.0              # via -r requirements/docs.txt, sphinx
 billiard==3.5.0.5         # via -r requirements/test.txt, celery
-boto3==1.14.48            # via -c requirements/constraints.txt, -r requirements/test.txt, aws-sam-translator, moto
+boto3==1.14.51            # via -c requirements/constraints.txt, -r requirements/test.txt, aws-sam-translator, moto
 boto==2.49.0              # via -r requirements/test.txt, moto
-botocore==1.17.48         # via -r requirements/test.txt, aws-xray-sdk, boto3, moto, s3transfer
+botocore==1.17.51         # via -r requirements/test.txt, aws-xray-sdk, boto3, moto, s3transfer
 celery==4.2.2             # via -c requirements/constraints.txt, -r requirements/test.txt, django-user-tasks
 certifi==2020.6.20        # via -r requirements/docs.txt, -r requirements/github.txt, -r requirements/test.txt, requests
 cffi==1.14.2              # via -r requirements/test.txt, cryptography
@@ -29,7 +29,7 @@ configobj==5.0.6          # via ruamel.yaml.cmd
 coreapi==2.3.3            # via -r requirements/test.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/test.txt, coreapi, drf-yasg
 coverage==5.2.1           # via -r requirements/test.txt, pytest-cov
-cryptography==3.0         # via -r requirements/test.txt, moto, pyjwt
+cryptography==3.1         # via -r requirements/test.txt, moto, pyjwt
 ddt==1.4.1                # via -r requirements/test.txt
 decorator==4.4.2          # via -r requirements/test.txt, networkx
 defusedxml==0.6.0         # via -r requirements/github.txt, -r requirements/test.txt, python3-openid, social-auth-core
@@ -91,7 +91,7 @@ lazy-object-proxy==1.4.3  # via -r requirements/test.txt, astroid
 markupsafe==1.1.1         # via -r requirements/docs.txt, -r requirements/test.txt, jinja2
 mccabe==0.6.1             # via -r requirements/test.txt, pylint
 mock==3.0.5               # via -c requirements/constraints.txt, -r requirements/test.txt, moto
-more-itertools==8.4.0     # via -r requirements/test.txt, pytest
+more-itertools==8.5.0     # via -r requirements/test.txt, pytest
 moto==1.3.8               # via -c requirements/constraints.txt, -r requirements/test.txt
 networkx==2.4             # via -r requirements/test.txt, cfn-lint
 newrelic==5.16.2.147      # via -r requirements/test.txt, edx-django-utils
@@ -135,7 +135,7 @@ pyyaml==5.1               # via -c requirements/constraints.txt, -r requirements
 redis==3.5.3              # via -r requirements/test.txt
 requests-oauthlib==1.3.0  # via -r requirements/github.txt, -r requirements/test.txt, social-auth-core
 requests==2.24.0          # via -r requirements/docs.txt, -r requirements/github.txt, -r requirements/test.txt, analytics-python, coreapi, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, sphinx, transifex-client, yarg
-responses==0.11.0         # via -r requirements/test.txt, moto
+responses==0.12.0         # via -r requirements/test.txt, moto
 rest-condition==1.0.3     # via -r requirements/test.txt, edx-drf-extensions
 rsa==4.6                  # via -r requirements/test.txt, python-jose
 ruamel.std.argparse==0.8.3  # via ruamel.yaml.cmd
