@@ -3,19 +3,16 @@ Simple interface to program details from Course Discovery data through a volatil
 """
 import logging
 from collections import namedtuple
-from posixpath import join as urljoin
 from uuid import UUID
 
 from django.conf import settings
 from django.core.cache import cache
-from requests.exceptions import HTTPError
 
+from .api_client import DiscoveryServiceClient
 from .constants import PROGRAM_CACHE_KEY_TPL
-from .rest_utils import make_request
 
 
 logger = logging.getLogger(__name__)
-DISCOVERY_PROGRAM_API_TPL = 'api/v1/programs/{}/'
 
 DiscoveryCourseRun = namedtuple(
     'DiscoveryCourseRun',
@@ -72,7 +69,7 @@ class ProgramDetails:
         cache_key = PROGRAM_CACHE_KEY_TPL.format(uuid=uuid)
         data = cache.get(cache_key)
         if not isinstance(data, dict):
-            data = cls.fetch_program_from_discovery(uuid)
+            data = DiscoveryServiceClient.get_program(uuid)
             if not isinstance(data, dict):
                 data = {}
             cache.set(cache_key, data, settings.PROGRAM_CACHE_TIMEOUT)
@@ -91,32 +88,6 @@ class ProgramDetails:
             for program_uuid in program_uuids
         ]
         cache.delete_many(cache_keys_to_delete)
-
-    @staticmethod
-    def fetch_program_from_discovery(uuid):
-        """
-        Fetch a JSON representation of a program from the Discovery service.
-
-        Returns None if not found or other HTTP error.
-
-        Arguments:
-            * uuid (UUID)
-            * client (optional)
-
-        Returns: dict|None
-        """
-        url = urljoin(
-            settings.DISCOVERY_BASE_URL,
-            DISCOVERY_PROGRAM_API_TPL.format(uuid)
-        )
-        try:
-            return make_request('GET', url, client=None).json()
-        except HTTPError:
-            logger.exception(
-                "Failed to load program with uuid %s from Discovery service.",
-                uuid,
-            )
-            return None
 
     @classmethod
     def load_many(cls, uuids):
