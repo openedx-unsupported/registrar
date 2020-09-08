@@ -94,7 +94,7 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
 
     def assert_org_nonexistant(self, expected_uuid):
         """
-        Make sure the passed in org uuids do not exists in the database
+        Make sure the passed in org uuids do not exist in the database
         """
         with self.assertRaises(Organization.DoesNotExist):
             Organization.objects.get(discovery_uuid=expected_uuid)
@@ -338,15 +338,8 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
             'marketing_slug': 'multi_orgs_program',
         }
         programs_to_sync = [
-            new_program_to_create,
             self.german_discovery_program,
             self.english_discovery_program,
         ]
-        self.assert_programs(programs_to_sync, 27)
-        newly_created_program = Program.objects.get(
-            discovery_uuid=new_program_uuid_string
-        )
-        self.assertEqual(
-            newly_created_program.managing_organization.discovery_uuid,
-            self.org.discovery_uuid
-        )
+        self.assert_programs(programs_to_sync + [new_program_to_create], 5, programs_to_sync)
+        self.assert_program_nonexistant(new_program_uuid_string)

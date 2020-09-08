@@ -19,7 +19,7 @@ from registrar.apps.core.permissions import (
 
 logger = logging.getLogger(__name__)
 
-PROGRAM_TYPES_TO_SYNC = ['micromasters', 'masters', 'professional-certificate', 'microbachelors']
+PROGRAM_TYPES_TO_SYNC = ['micromasters', 'masters', 'professional-certificate', 'microbachelors', 'xseries']
 
 
 class Command(BaseCommand):
@@ -106,19 +106,27 @@ class Command(BaseCommand):
 
         logger.info('Start sync Discovery programs...')
         for discovery_program in discovery_programs:
-            cur_program = existing_program_dictionary.get(discovery_program.get('uuid'))
-            first_discovery_authoring_org = next(iter(discovery_program.get('authoring_organizations')), None)
-            first_auth_org = None
-            if first_discovery_authoring_org:
-                first_auth_org = existing_org_dictionary.get(first_discovery_authoring_org.get('uuid'))
+            program_orgs_count = len(discovery_program.get('authoring_organizations'))
+            if program_orgs_count > 1:
+                logger.info(
+                    'Encounterd program %s with multiple authoring orgs. Not updating registrar',
+                    discovery_program.get('marketing_slug'),
+                )
+                continue
 
-            if not cur_program and first_auth_org:
-                programs_to_create.append(Program(
-                    discovery_uuid=discovery_program.get('uuid'),
-                    managing_organization=first_auth_org,
-                    key=discovery_program.get('marketing_slug'),
-                ))
-                logger.info('Creating %s', discovery_program.get('marketing_slug'))
+            cur_program = existing_program_dictionary.get(discovery_program.get('uuid'))
+            if not cur_program:
+                discovery_authoring_org = next(iter(discovery_program.get('authoring_organizations')), None)
+                auth_org = None
+                if discovery_authoring_org:
+                    auth_org = existing_org_dictionary.get(discovery_authoring_org.get('uuid'))
+                if auth_org:
+                    programs_to_create.append(Program(
+                        discovery_uuid=discovery_program.get('uuid'),
+                        managing_organization=auth_org,
+                        key=discovery_program.get('marketing_slug'),
+                    ))
+                    logger.info('Creating %s', discovery_program.get('marketing_slug'))
 
         if not programs_to_create:
             logger.info('Sync complete. No changes made to Registrar service')
