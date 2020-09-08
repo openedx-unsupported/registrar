@@ -12,7 +12,8 @@ from django.core.cache import cache
 from django.test import TestCase
 from mock import patch
 
-from ..discovery_cache import DISCOVERY_PROGRAM_API_TPL, ProgramDetails
+from ..api_client import DISCOVERY_API_TPL, DiscoveryServiceClient
+from ..discovery_cache import ProgramDetails
 from .utils import mock_oauth_login
 
 
@@ -35,7 +36,7 @@ def make_course_run(n, with_external_key=False):
     }
 
 
-def patch_fetch_program_from_discovery(mock_response_data):
+def patch_discovery_client_get_program(mock_response_data):
     """
     Patch the function that we use to call the Discovery service
     to instead statically return `mock_response_data`.
@@ -43,8 +44,8 @@ def patch_fetch_program_from_discovery(mock_response_data):
     Note that the responses will still be stored in the Django cache.
     """
     return patch.object(
-        ProgramDetails,
-        'fetch_program_from_discovery',
+        DiscoveryServiceClient,
+        'get_program',
         lambda *_args, **_kwargs: mock_response_data,
     )
 
@@ -57,7 +58,7 @@ class ProgramDetailsTestCase(TestCase):
     program_uuid = UUID("88888888-4444-2222-1111-000000000000")
     discovery_url = urljoin(
         settings.DISCOVERY_BASE_URL,
-        DISCOVERY_PROGRAM_API_TPL.format(program_uuid)
+        DISCOVERY_API_TPL.format('programs', program_uuid)
     )
 
     inactive_curriculum_uuid = UUID("77777777-4444-2222-1111-000000000000")
@@ -130,7 +131,7 @@ class ProgramDetailsTestCase(TestCase):
         assert reloaded_program.raw_data == expected_raw_data
         self.assertEqual(len(responses.calls), 2)
 
-    @patch_fetch_program_from_discovery(program_from_discovery)
+    @patch_discovery_client_get_program(program_from_discovery)
     def test_active_curriculum(self):
         program = ProgramDetails(self.program_uuid)
         assert program.active_curriculum_uuid == self.active_curriculum_uuid
@@ -138,13 +139,13 @@ class ProgramDetailsTestCase(TestCase):
         assert program.course_runs[0].title == "Test Course 1"
         assert program.course_runs[-1].title is None
 
-    @patch_fetch_program_from_discovery({})
+    @patch_discovery_client_get_program({})
     def test_no_active_curriculum(self):
         program = ProgramDetails(self.program_uuid)
         assert program.active_curriculum_uuid is None
         assert not program.course_runs
 
-    @patch_fetch_program_from_discovery(program_from_discovery)
+    @patch_discovery_client_get_program(program_from_discovery)
     @ddt.data(
         # Non-existent course run.
         ('non-existent', None, None),
