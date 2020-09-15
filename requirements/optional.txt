@@ -4,4 +4,4 @@
 #
 #    pip-compile --output-file=requirements/optional.txt requirements/optional.in
 #
-newrelic==5.16.2.147      # via -r requirements/optional.in
+newrelic==5.18.0.148      # via -r requirements/optional.in
