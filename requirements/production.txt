@@ -7,18 +7,18 @@
 amqp==2.6.1               # via -r requirements/base.txt, kombu
 analytics-python==1.2.9   # via -c requirements/constraints.txt, -r requirements/base.txt
 billiard==3.5.0.5         # via -r requirements/base.txt, celery
-boto3==1.14.60            # via -c requirements/constraints.txt, -r requirements/production.in
-botocore==1.17.60         # via boto3, s3transfer
+boto3==1.15.1             # via -c requirements/constraints.txt, -r requirements/production.in
+botocore==1.18.1          # via boto3, s3transfer
 celery==4.2.2             # via -c requirements/constraints.txt, -r requirements/base.txt, django-user-tasks
 certifi==2020.6.20        # via -r requirements/base.txt, requests
-cffi==1.14.2              # via -r requirements/base.txt, cryptography
+cffi==1.14.3              # via -r requirements/base.txt, cryptography
 chardet==3.0.4            # via -r requirements/base.txt, requests
 coreapi==2.3.3            # via -r requirements/base.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/base.txt, coreapi, drf-yasg
 cryptography==3.1         # via -r requirements/base.txt, pyjwt
 defusedxml==0.6.0         # via -r requirements/base.txt, python3-openid, social-auth-core
 django-cors-headers==3.5.0  # via -r requirements/base.txt
-django-extensions==3.0.8  # via -r requirements/base.txt
+django-extensions==3.0.9  # via -r requirements/base.txt
 django-guardian==2.3.0    # via -r requirements/base.txt
 django-model-utils==4.0.0  # via -r requirements/base.txt, django-user-tasks
 django-mysql==3.8.1       # via -r requirements/base.txt
@@ -28,8 +28,7 @@ django-user-tasks==1.3.0  # via -r requirements/base.txt
 django-waffle==2.0.0      # via -r requirements/base.txt, edx-django-utils, edx-drf-extensions
 django==2.2.16            # via -c requirements/constraints.txt, -r requirements/base.txt, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
 djangorestframework==3.11.1  # via -r requirements/base.txt, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
-docutils==0.15.2          # via -c requirements/constraints.txt, botocore
-drf-jwt==1.17.1           # via -r requirements/base.txt, edx-drf-extensions
+drf-jwt==1.17.2           # via -r requirements/base.txt, edx-drf-extensions
 drf-yasg==1.17.1          # via -r requirements/base.txt, edx-api-doc-tools
 edx-api-doc-tools==1.3.1  # via -r requirements/base.txt
 edx-auth-backends==3.1.0  # via -r requirements/base.txt
@@ -83,7 +82,7 @@ stevedore==1.32.0         # via -r requirements/base.txt, edx-django-utils, edx-
 uritemplate==3.0.1        # via -r requirements/base.txt, coreapi, drf-yasg
 urllib3==1.25.10          # via -r requirements/base.txt, botocore, requests
 vine==1.3.0               # via -r requirements/base.txt, amqp
-zope.event==4.4           # via gevent
+zope.event==4.5.0         # via gevent
 zope.interface==5.1.0     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:

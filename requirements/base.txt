@@ -9,14 +9,14 @@ analytics-python==1.2.9   # via -c requirements/constraints.txt, -r requirements
 billiard==3.5.0.5         # via celery
 celery==4.2.2             # via -c requirements/constraints.txt, -r requirements/base.in, django-user-tasks
 certifi==2020.6.20        # via -r requirements/github.txt, requests
-cffi==1.14.2              # via cryptography
+cffi==1.14.3              # via cryptography
 chardet==3.0.4            # via -r requirements/github.txt, requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 cryptography==3.1         # via pyjwt
 defusedxml==0.6.0         # via -r requirements/github.txt, python3-openid, social-auth-core
 django-cors-headers==3.5.0  # via -r requirements/base.in
-django-extensions==3.0.8  # via -r requirements/base.in
+django-extensions==3.0.9  # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-model-utils==4.0.0  # via -r requirements/base.in, django-user-tasks
 django-mysql==3.8.1       # via -r requirements/base.in
@@ -26,7 +26,7 @@ django-user-tasks==1.3.0  # via -r requirements/base.in
 django-waffle==2.0.0      # via -r requirements/base.in, edx-django-utils, edx-drf-extensions
 django==2.2.16            # via -c requirements/constraints.txt, -r requirements/base.in, django-cors-headers, django-guardian, django-model-utils, django-mysql, django-storages, django-user-tasks, djangorestframework, drf-jwt, drf-yasg, edx-api-doc-tools, edx-auth-backends, edx-django-release-util, edx-django-utils, edx-drf-extensions, rest-condition
 djangorestframework==3.11.1  # via -r requirements/base.in, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
-drf-jwt==1.17.1           # via edx-drf-extensions
+drf-jwt==1.17.2           # via edx-drf-extensions
 drf-yasg==1.17.1          # via edx-api-doc-tools
 edx-api-doc-tools==1.3.1  # via -r requirements/base.in
 edx-auth-backends==3.1.0  # via -r requirements/base.in
