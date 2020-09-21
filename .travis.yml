@@ -17,7 +17,6 @@ services:
 cache: pip
 before_install:
     - "export DISPLAY=:99.0"
-    - "sudo rm -f /etc/boto.cfg"  # See https://github.com/travis-ci/travis-ci/issues/7940
     - export DJANGO_SETTINGS_MODULE=registrar.settings.test
 
 install:
