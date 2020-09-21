@@ -1,6 +1,7 @@
 """ Internal utility API views """
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from edx_api_doc_tools import exclude_schema_for_all
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -16,10 +17,11 @@ from registrar.apps.core.models import Program
 from ..mixins import TrackViewMixin
 
 
+@exclude_schema_for_all
 class FlushProgramCacheView(TrackViewMixin, APIView):
     """
     A view for clearing the programs cache.
-    Is only accessable to staff users.
+    Is only accessible to staff users.
 
     Paths:
         All programs:      /api/internal/cache/
