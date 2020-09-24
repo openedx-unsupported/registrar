@@ -26,6 +26,7 @@ from edx_api_doc_tools import make_api_info, make_docs_ui_view
 
 from . import api_renderer
 from .apps.api import urls as api_urls
+from .apps.api.v2 import urls as v2_urls
 from .apps.core import views as core_views
 
 
@@ -45,7 +46,8 @@ with open(api_description_path, encoding='utf-8') as api_description_file:
             version="v2",
             email="masters-dev@edx.org",
             description=api_description_file.read(),
-        )
+        ),
+        api_url_patterns=[url(r'^api/v2/', include(v2_urls))],
     )
 
 urlpatterns = oauth2_urlpatterns + [
