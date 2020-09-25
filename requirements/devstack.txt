@@ -13,11 +13,11 @@ attrs==20.2.0             # via -r requirements/local.txt, jsonschema, pytest
 aws-sam-translator==1.27.0  # via -r requirements/local.txt, cfn-lint
 aws-xray-sdk==2.6.0       # via -r requirements/local.txt, moto
 babel==2.8.0              # via -r requirements/local.txt, sphinx
-billiard==3.5.0.5         # via -r requirements/local.txt, celery
+billiard==3.6.3.0         # via -r requirements/local.txt, celery
 boto3==1.15.1             # via -c requirements/constraints.txt, -r requirements/local.txt, aws-sam-translator, moto
 boto==2.49.0              # via -r requirements/local.txt, moto
 botocore==1.18.1          # via -r requirements/local.txt, aws-xray-sdk, boto3, moto, s3transfer
-celery==4.2.2             # via -c requirements/constraints.txt, -r requirements/local.txt, django-user-tasks
+celery==4.4.7             # via -r requirements/local.txt, django-user-tasks
 certifi==2020.6.20        # via -r requirements/github.txt, -r requirements/local.txt, requests
 cffi==1.14.3              # via -r requirements/local.txt, cryptography
 cfn-lint==0.36.0          # via -r requirements/local.txt, moto
@@ -72,7 +72,7 @@ gitdb==4.0.5              # via -r requirements/local.txt, gitpython
 gitpython==3.1.8          # via -r requirements/local.txt, transifex-client
 idna==2.8                 # via -c requirements/constraints.txt, -r requirements/github.txt, -r requirements/local.txt, moto, requests
 imagesize==1.2.0          # via -r requirements/local.txt, sphinx
-importlib-metadata==1.7.0  # via -r requirements/local.txt, importlib-resources, jsonpickle, jsonschema, path, pluggy, pytest, tox, virtualenv
+importlib-metadata==1.7.0  # via -r requirements/local.txt, importlib-resources, jsonpickle, jsonschema, kombu, path, pluggy, pytest, tox, virtualenv
 importlib-resources==1.5.0  # via -r requirements/local.txt, cfn-lint, virtualenv
 inflection==0.5.1         # via -r requirements/local.txt, drf-yasg
 iniconfig==1.0.1          # via -r requirements/local.txt, pytest
@@ -86,7 +86,7 @@ jsonpickle==1.4.1         # via -r requirements/local.txt, aws-xray-sdk
 jsonpointer==2.0          # via -r requirements/local.txt, jsonpatch
 jsonschema==3.2.0         # via -r requirements/local.txt, aws-sam-translator, cfn-lint
 junit-xml==1.9            # via -r requirements/local.txt, cfn-lint
-kombu==4.3.0              # via -r requirements/local.txt, celery
+kombu==4.6.11             # via -r requirements/local.txt, celery
 lazy-object-proxy==1.4.3  # via -r requirements/local.txt, astroid
 markupsafe==1.1.1         # via -r requirements/local.txt, jinja2
 mccabe==0.6.1             # via -r requirements/local.txt, pylint
@@ -165,7 +165,7 @@ transifex-client==0.13.11  # via -r requirements/local.txt
 typed-ast==1.4.1          # via -r requirements/local.txt, astroid
 uritemplate==3.0.1        # via -r requirements/local.txt, coreapi, drf-yasg
 urllib3==1.25.10          # via -r requirements/github.txt, -r requirements/local.txt, botocore, requests, responses, transifex-client
-vine==1.3.0               # via -r requirements/local.txt, amqp
+vine==1.3.0               # via -r requirements/local.txt, amqp, celery
 virtualenv==20.0.31       # via -r requirements/local.txt, tox
 websocket-client==0.57.0  # via -r requirements/local.txt, docker
 werkzeug==1.0.1           # via -r requirements/local.txt, moto
