@@ -94,6 +94,9 @@ class ProgramListView(TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
+    This endpoint returns a list of all of the active programs for the school specified by org_key. API users may only
+    make requests with org_keys for schools they have API access to.
+
     Path: /api/[version]/programs?org={org_key}
     """
     authentication_classes = (JwtAuthentication, SessionAuthentication)
@@ -198,9 +201,23 @@ class ProgramListView(TrackViewMixin, ListAPIView):
             raise Http404()
 
 
+@schema_for(
+    'get',
+    parameters=[
+        query_parameter('program_key', str, 'Program filter'),
+    ],
+    responses={
+        200: DetailedProgramSerializer,
+        403: 'User lacks access to program.',
+        404: 'Program does not exist.',
+        **SCHEMA_COMMON_RESPONSES,
+    },
+)
 class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     """
     A view for retrieving a single program object.
+
+    This endpoint returns a single program specified by the program_key.
 
     Path: /api/[version]/programs/{program_key}
 
@@ -238,16 +255,29 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
         }
 
 
+@schema_for(
+    'get',
+    parameters=[
+        query_parameter('program_key', str, 'Program filter'),
+    ],
+    responses={
+        403: 'User lacks access to program.',
+        404: 'Program does not exist.',
+        **SCHEMA_COMMON_RESPONSES,
+    },
+)
 class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     """
     A view for listing courses in a program.
+
+    This endpoint returns information about the course runs that are associated with the specified program.
 
     Path: /api/[version]/programs/{program_key}/courses
 
     Returns:
      * 200: OK
-     * 403: User lacks read access to the specified program.
-     * 404: Program does not exist.
+     * 403: Requester does not have access to view the program’s course list.
+     * 404: Program key is invalid.
     """
     serializer_class = CourseRunSerializer
     permission_required = [perms.API_READ_METADATA]
