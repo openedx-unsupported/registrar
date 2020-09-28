@@ -40,3 +40,8 @@ PyYAML==5.1           # https://github.com/edx/registrar/pull/48
 # Constraints required to resolve requirements in docs.in and test.in
 docutils==0.15.2
 idna==2.8
+
+# Needed to resolve requirements between tox and other requirements
+# tox has a <2 requirement, but isn't defined as a requirement in base.in, so base.txt compiles
+# to the most recent version of this library
+importlib-metadata<2
