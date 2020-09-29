@@ -10,7 +10,7 @@ del LOGGING['handlers']['local']
 SECRET_KEY = os.environ.get('SECRET_KEY', 'change-me')
 LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', 'en')
 
-CELERY_ALWAYS_EAGER = (
+CELERY_TASK_ALWAYS_EAGER = (
     os.environ.get("CELERY_ALWAYS_EAGER", "false").lower() == "true"
 )
 
