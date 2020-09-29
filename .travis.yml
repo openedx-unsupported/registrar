@@ -3,6 +3,7 @@ branches:
   - master
 
 language: python
+dist: focal
 python:
     - 3.5.2
     - 3.8
