@@ -44,6 +44,7 @@ class Command(BaseCommand):
         discovery_organizations = DiscoveryServiceClient.get_organizations()
         existing_org_dictionary = {}
         orgs_to_create = []
+        org_groups_to_create = []
         orgs_to_update = []
 
         for org in Organization.objects.all():
@@ -53,22 +54,29 @@ class Command(BaseCommand):
         for discovery_org in discovery_organizations:
             existing_org = existing_org_dictionary.get(discovery_org.get('uuid'))
             if not existing_org:
-                orgs_to_create.append(Organization(
+                org = Organization(
                     discovery_uuid=discovery_org.get('uuid'),
                     name=discovery_org.get('name'),
                     key=discovery_org.get('key'),
-                ))
-                logger.info('Creating %s', discovery_org.get('key'))
-            elif existing_org.name != discovery_org.get('name') or existing_org.key != discovery_org.get('key'):
-                existing_org.name = discovery_org.get('name')
-                existing_org.key = discovery_org.get('key')
-                orgs_to_update.append(existing_org)
-                logger.info(
-                    'Updating %s to have %s and %s',
-                    existing_org.discovery_uuid,
-                    existing_org.key,
-                    existing_org.name,
                 )
+                orgs_to_create.append(org)
+                org_groups_to_create.append(org)
+                logger.info('Creating %s', discovery_org.get('key'))
+            else:
+                if existing_org.name != discovery_org.get('name') or existing_org.key != discovery_org.get('key'):
+                    existing_org.name = discovery_org.get('name')
+                    existing_org.key = discovery_org.get('key')
+                    orgs_to_update.append(existing_org)
+                    logger.info(
+                        'Updating %s to have %s and %s',
+                        existing_org.discovery_uuid,
+                        existing_org.key,
+                        existing_org.name,
+                    )
+                # if the organization exists but does not have a read report role, create one
+                if not self.has_read_report_role(discovery_org):
+                    org_groups_to_create.append(existing_org)
+                    logger.info('Creating group for existing organization %s', existing_org.name)
 
         if not orgs_to_create and not orgs_to_update:
             logger.info('Sync complete. No changes made to Registrar service')
@@ -76,7 +84,9 @@ class Command(BaseCommand):
         if orgs_to_create:
             # Bulk create those new organizations
             Organization.objects.bulk_create(orgs_to_create)
-            self.create_org_groups(orgs_to_create)
+
+        if org_groups_to_create:
+            self.create_org_groups(org_groups_to_create)
 
         if orgs_to_update:
             # Bulk update those organizations needs updating
@@ -138,6 +148,15 @@ class Command(BaseCommand):
 
         logger.info('Sync Programs Success!')
 
+    def has_read_report_role(self, org):
+        """
+        Returns if org has a read report role associated with it
+        """
+        return OrganizationGroup.objects.filter(
+            organization__discovery_uuid=org.get('uuid'),
+            role=OrganizationReadReportRole.name
+        )
+
     def update_org_groups(self, updated_orgs):
         """
         Update the existing OrganizationGroups to match the up to date name of the organization
@@ -147,7 +166,8 @@ class Command(BaseCommand):
         )
         org_group_to_update = []
         for org_group in existing_org_groups:
-            org_group.name = '{}_ReadOrganizationReports'.format(org_group.organization.key)
+            role_name = org_group.name.split("_")[-1]
+            org_group.name = '{name}_{role}'.format(name=org_group.organization.key, role=role_name)
             org_group_to_update.append(org_group)
 
         OrganizationGroup.objects.bulk_update(org_group_to_update, ['name'])

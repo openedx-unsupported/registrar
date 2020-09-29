@@ -12,6 +12,7 @@ from registrar.apps.core.models import (
     ProgramOrganizationGroup,
 )
 from registrar.apps.core.permissions import (
+    OrganizationReadEnrollmentsRole,
     OrganizationReadReportRole,
     ProgramReadReportRole,
 )
@@ -47,10 +48,15 @@ class TestSyncWithDiscoveryCommandBase(TestCase):
             organization=cls.org,
             role=OrganizationReadReportRole.name
         )
-        cls.other_org_read_reports_group = OrganizationGroupFactory(
-            name='{}_ReadOrganizationReports'.format(cls.other_org.key),
+        cls.org_read_enrollments = OrganizationGroupFactory(
+            name='{}_ReadEnrollments'.format(cls.org.key),
+            organization=cls.org,
+            role=OrganizationReadEnrollmentsRole.name
+        )
+        cls.other_org_read_enrollments = OrganizationGroupFactory(
+            name='{}_ReadEnrollments'.format(cls.other_org.key),
             organization=cls.other_org,
-            role=OrganizationReadReportRole.name
+            role=OrganizationReadEnrollmentsRole.name
         )
 
 
@@ -111,13 +117,26 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
 
         for org in orgs_expected:
             self.assertTrue(Organization.objects.get(discovery_uuid=org['uuid'], key=org['key'], name=org['name']))
-            existing_org_group = OrganizationGroup.objects.get(
+
+            # check that read report role exists
+            existing_org_report_group = OrganizationGroup.objects.get(
                 organization__discovery_uuid=org['uuid'],
                 role=OrganizationReadReportRole.name
             )
-            self.assertTrue(existing_org_group)
+            self.assertTrue(existing_org_report_group)
             expected_org_group_name = '{}_ReadOrganizationReports'.format(org['key'])
-            self.assertEqual(existing_org_group.name, expected_org_group_name)
+            self.assertEqual(existing_org_report_group.name, expected_org_group_name)
+
+            # check that read enrollment role exists
+            existing_org_enrollment_group = OrganizationGroup.objects.filter(
+                organization__discovery_uuid=org['uuid'],
+                role=OrganizationReadEnrollmentsRole.name
+            )
+            if existing_org_enrollment_group:
+                self.assertEqual(len(existing_org_enrollment_group), 1)
+                group = existing_org_enrollment_group[0]
+                expected_org_group_name = '{}_ReadEnrollments'.format(org['key'])
+                self.assertEqual(group.name, expected_org_group_name)
 
     def test_sync_organization_create_and_update(self):
         orgs_to_sync = [
@@ -127,7 +146,7 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
         ]
         self.assert_org_nonexistant(self.new_discovery_org_uuid)
 
-        self.assert_organizations(orgs_to_sync, 32)
+        self.assert_organizations(orgs_to_sync, 56)
 
     def test_sync_organization_create_only(self):
         other_new_org_uuid = '99999999-2222-2222-3333-555555555555'
@@ -145,7 +164,7 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
         self.assert_org_nonexistant(self.new_discovery_org_uuid)
         self.assert_org_nonexistant(other_new_org_uuid)
 
-        self.assert_organizations(orgs_to_sync, 47)
+        self.assert_organizations(orgs_to_sync, 70)
 
     def test_sync_organization_update_only(self):
         orgs_to_sync = [
@@ -153,14 +172,14 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
             self.discovery_other_org
         ]
 
-        self.assert_organizations(orgs_to_sync, 10)
+        self.assert_organizations(orgs_to_sync, 35)
 
     def test_sync_no_change(self):
         orgs_to_sync = [
             self.discovery_org,
             self.discovery_other_org,
         ]
-        self.assert_organizations(orgs_to_sync, 5)
+        self.assert_organizations(orgs_to_sync, 29)
 
 
 @ddt.ddt
