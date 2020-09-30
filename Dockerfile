@@ -1,4 +1,4 @@
-FROM ubuntu:focal as app
+FROM ubuntu:xenial as app
 
 # System requirements.
 RUN apt-get update && apt-get upgrade -qy
