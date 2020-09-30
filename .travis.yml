@@ -3,8 +3,9 @@ branches:
   - master
 
 language: python
+dist: focal
 python:
-    - 3.5.2
+    - 3.5
     - 3.8
 env:
 - TOXENV=django22
