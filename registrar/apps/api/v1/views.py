@@ -679,6 +679,21 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
     }
     permission_required = [perms.API_READ_REPORTS]
 
+    @schema(
+        parameters=[
+            query_parameter('program_key', str, 'edX program key'),
+            query_parameter('min_created_date', str, 'ISO-formatted date used to filter reports based on creation date')
+        ],
+        responses={
+            200: ProgramReportMetadataSerializer,
+            403: 'User lacks access to program.',
+            404: 'Program does not exist.',
+            **SCHEMA_COMMON_RESPONSES,
+        },
+        summary='Get a list of reports for a program.',
+        description=('This endpoint returns a list of all reports specified by the program_key. '
+                     'If a min_created_date is given, only reports created after that date will be returned.')
+    )
     def get(self, request, *args, **kwargs):
         """
         Get a list of reports for a program.
