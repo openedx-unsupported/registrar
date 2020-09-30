@@ -60,6 +60,7 @@ from ..serializers import (
     DetailedProgramSerializer,
     JobAcceptanceSerializer,
     JobStatusSerializer,
+    ProgramEnrollmentRequestSerializer,
     ProgramReportMetadataSerializer,
 )
 from .mixins import (
@@ -289,34 +290,13 @@ class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
 
 
 class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
+    # pylint: disable=line-too-long
     """
     A view for enrolling students in a program, or retrieving/modifying program enrollment data.
 
     Path: /api/[version]/programs/{program_key}/enrollments
 
     Accepts: [GET, POST, PATCH]
-
-    ------------------------------------------------------------------------------------
-    GET
-    ------------------------------------------------------------------------------------
-
-    See @schema decorator on `get` method.
-
-    ------------------------------------------------------------------------------------
-    POST / PATCH
-    ------------------------------------------------------------------------------------
-
-    Create or modify program enrollments. Checks user permissions and forwards request
-    to the LMS program_enrollments endpoint.  Accepts up to 25 enrollments
-
-    Returns:
-     * 200: Returns a map of students and their enrollment status.
-     * 207: Not all students enrolled. Returns resulting enrollment status.
-     * 401: User is not authenticated
-     * 403: User lacks enrollment write access to the specified program.
-     * 404: Program does not exist.
-     * 413: Payload too large, over 25 students supplied.
-     * 422: Invalid request, unable to enroll students.
     """
     event_method_map = {
         'GET': 'registrar.{api_version}.get_program_enrollment',
@@ -335,7 +315,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         ],
         responses={
             202: JobAcceptanceSerializer,
-            403: "No program access.",
+            403: "User does not have permission.",
             404: "Invalid program key.",
             **SCHEMA_COMMON_RESPONSES,
         },
@@ -343,17 +323,115 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves program enrollment data.
+
+        Begins an asyncronous job to fetch the list of students in the specified program.
+        The endpoint returns a URL which can be used to retrieve the status of and, when complete, the result of the job.
+
+        The resulting file will contain a JSON list of dictionaries. Each dictionary will have the following fields:
+
+        | Field          | Data Type | Description                                                                                         |
+        |----------------|-----------|-----------------------------------------------------------------------------------------------------|
+        | student_key    | string    | The student ID assigned to the student by the school.                                               |
+        | status         | string    | The program enrollment status string of the student. See "Enrollment Statuses" for possible values. |
+        | account_exists | boolean   | Whether an edX account is associated with the given student key.                                    |
         """
         include_username_email = waffle.flag_is_active(request, 'include_name_email_in_get_program_enrollment')
         return self.invoke_download_job(
             list_program_enrollments, self.program.key, include_username_email)
 
+    @schema(
+        body=ProgramEnrollmentRequestSerializer(many=True),
+        parameters=[
+            query_parameter('program_key', str, 'The identifier of the program for which students will be enrolled.'),
+        ],
+        responses={
+            200: "All students were successfully listed.",
+            207: "Some students were successfully listed, while others were not. Details are included in JSON response data.",
+            400: "The JSON list of dictionaries in the request was malformed or missing required fields.",
+            403: "User does not have permission to enroll students in the program.",
+            404: "Program key is invalid.",
+            413: "Over 25 students supplied.",
+            422: "None of the students were successfully listed. Details are included in JSON response data.",
+            **SCHEMA_COMMON_RESPONSES,
+        },
+    )
     def post(self, request, program_key):
-        """ POST handler """
+        """
+        Enroll a list of students to the specified program.
+
+        This endpoint will enroll the specified students in the program, up to 25 students at a time.
+
+        There are four possible states in which a program enrollment can exist. Each state is denoted by a lowercase, one-word *status string*. The valid status strings and their meanings are shown below.
+
+        | Status string | Meaning                                                                                                |
+        |---------------|--------------------------------------------------------------------------------------------------------|
+        | "enrolled"    | The student has completed the program's registration and payment process and is now actively enrolled. |
+        | "pending"     | The student has, in some way, not yet completed the program's registration and payment process.        |
+        | "suspended"   | The student has been temporarily removed from the program.                                             |
+        | "canceled"    | The student has been permanently removed from the program.                                             |
+        | "ended"       | The student has finished the program.                                                                  |
+
+        Note: Currently, all non-enrolled statuses ( pending, canceled, suspended, ended ) are functionally identical. From an edX perspective, they will result in identical behavior. This may change in the future.
+
+        The response will be a JSON dictionary mapping each supplied student key to either:
+        - An enrollment status string.
+        - An error status string. Possible values are listed below.
+
+        | Error status        | Meaning                                                                                     |
+        |---------------------|---------------------------------------------------------------------------------------------|
+        | "duplicated"        | The same student key was supplied twice in the POST data.                                   |
+        | "invalid-status"    | The supplied status string was invalid.                                                     |
+        | "conflict"          | A student with the given key is already enrolled in the program.                            |
+        | "internal-error"    | An unspecified internal error has occurred. Contact edX Support.                            |
+        """
         return self.handle_enrollments()
 
+    @schema(
+        body=ProgramEnrollmentRequestSerializer(many=True),
+        parameters=[
+            query_parameter('program_key', str, 'The identifier of the program to modify enrollments for.'),
+        ],
+        responses={
+            200: "All students' enrollment statuses were successfully set.",
+            207: "Some students' enrollment statuses were successfully set, while others were not. Details are included in JSON response data.",
+            400: "The JSON list of dictionaries in the request was malformed or missing required fields.",
+            403: "User does not have permission to modify program enrollments.",
+            404: "Program key is invalid.",
+            413: "Over 25 students supplied.",
+            422: "None of the students' enrollment statuses were successfully set. Details are included in JSON response data.",
+            **SCHEMA_COMMON_RESPONSES,
+        },
+    )
     def patch(self, request, program_key):
-        """ PATCH handler """
+        """
+        Modify the program enrollment status of specified students.
+
+        This endpoint will modify the program enrollment status of specified students.
+
+        There are four possible states in which a program enrollment can exist. Each state is denoted by a lowercase, one-word *status string*. The valid status strings and their meanings are shown below.
+
+        | Status string | Meaning                                                                                                |
+        |---------------|--------------------------------------------------------------------------------------------------------|
+        | "enrolled"    | The student has completed the program's registration and payment process and is now actively enrolled. |
+        | "pending"     | The student has, in some way, not yet completed the program's registration and payment process.        |
+        | "suspended"   | The student has been temporarily removed from the program.                                             |
+        | "canceled"    | The student has been permanently removed from the program.                                             |
+        | "ended"       | The student has finished the program.                                                                  |
+
+        Note: Currently, all non-enrolled statuses ( pending, canceled, suspended, ended ) are functionally identical. From an edX perspective, they will result in identical behavior. This may change in the future.
+
+        The response will be a JSON dictionary mapping each supplied student key to either:
+        - An enrollment status string.
+        - An error status string. Possible values are listed below.
+
+        | Error status        | Meaning                                                                                     |
+        |---------------------|---------------------------------------------------------------------------------------------|
+        | "duplicated"        | The same student key was supplied twice in the PATCH data.                                  |
+        | "invalid-status"    | The supplied status string was invalid.                                                     |
+        | "illegal-operation" | The supplied status string was recognized, but the student's status could not be set to it. |
+        | "not-found"         | No such student exists in the program.                                                      |
+        | "internal-error"    | An unspecified internal error has occurred. Contact edX Support.                            |
+        """
         return self.handle_enrollments()
 
 
