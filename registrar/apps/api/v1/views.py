@@ -628,6 +628,23 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
         'fmt': 'result_format',
     }
 
+    @schema(
+        parameters=[
+            query_parameter('course_id', str, 'edX course run ID or external course key'),
+            query_parameter('program_key', str, 'edX program key'),
+        ],
+        responses={
+            202: 'Accepted, an asynchronous job was successfully started.',
+            403: 'User lacks enrollment read access to organization of specified program.',
+            404: 'Program was not found, course was not found, or course was not found in program.',
+            **SCHEMA_COMMON_RESPONSES,
+        },
+        summary='Submit a user task that retrieves course grade data for the given course.',
+        description=('This endpoint begins an asynchronous job to fetch the grades of students '
+                     'enrolled in the specified course run as part of the specified program. The '
+                     'endpoint returns a URL which can be used to retrieve the status of and, when complete, '
+                     'the result of the job. The resulting file will be in JSON format.'),
+    )
     def get(self, request, *args, **kwargs):
         """
         Submit a user task that retrieves course grade data for the given course
