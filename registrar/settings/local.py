@@ -74,7 +74,7 @@ CORS_ALLOW_HEADERS = corsheaders_default_headers + (
     'use-jwt-cookie',
 )
 
-CELERY_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = True
 
 # File storage.
 # Because S3 storage is not available for locally-run Registrar,

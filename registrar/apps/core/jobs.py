@@ -59,7 +59,7 @@ def start_job(user, task_fn, *args, **kwargs):
         [job_id, user.id] + list(args),
         kwargs,
         task_id=job_id,
-        queue=settings.CELERY_DEFAULT_QUEUE,
+        queue=settings.CELERY_TASK_DEFAULT_QUEUE,
     )
     return job_id
 
