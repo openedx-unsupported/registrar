@@ -36,7 +36,7 @@ CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_IGNORE_RESULT = True
 
 results_dir = tempfile.TemporaryDirectory()
-CELERY_RESULT_BACKEND = 'file://{}'.format(results_dir.name)
+CELERY_RESULT_BACKEND = f'file://{results_dir.name}'
 
 # Celery environment variables are not available in travis
 # Hence providing memory as broker for test suite
