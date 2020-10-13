@@ -3,7 +3,6 @@ Tests for core proxy models.
 """
 
 from posixpath import join as urljoin
-from unittest.mock import patch
 from uuid import UUID
 
 import ddt
@@ -11,6 +10,7 @@ import responses
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
+from mock import patch
 
 from ..api_client import DISCOVERY_API_TPL, DiscoveryServiceClient
 from ..discovery_cache import ProgramDetails
@@ -24,14 +24,14 @@ def make_course_run(n, with_external_key=False):
     If `with_external_key` is set to True, set ext key to testorg-course-${n}.
     """
     return {
-        'key': f'course-v1:TestRun+{n}',
+        'key': 'course-v1:TestRun+{}'.format(n),
         'external_key': (
-            f'testorg-course-{n}'
+            'testorg-course-{}'.format(n)
             if with_external_key
             else None
         ),
-        'title': f'Test Course {n}',
-        'marketing_url': f'https://stem.edx.org/masters-in-cs/test-course-{n}',
+        'title': 'Test Course {}'.format(n),
+        'marketing_url': 'https://stem.edx.org/masters-in-cs/test-course-{}'.format(n),
         'extraneous_data': ['blah blah blah'],
     }
 

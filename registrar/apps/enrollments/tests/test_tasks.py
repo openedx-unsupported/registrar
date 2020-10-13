@@ -3,7 +3,6 @@ Unit tests for the enrollment.tasks module.
 """
 import json
 from collections import OrderedDict, namedtuple
-from unittest.mock import patch
 from uuid import UUID
 
 import boto3
@@ -11,6 +10,7 @@ import ddt
 import moto
 from django.conf import settings
 from django.test import TestCase
+from mock import patch
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import ValidationError
 
@@ -72,7 +72,7 @@ class ListEnrollmentTaskTestMixin(BaseTaskTestMixin):
             mock_get_enrollments.side_effect = error
             task = self.spawn_task()  # pylint: disable=assignment-from-no-return
             task.wait()
-        expected_msg = f"HTTP error {status_code} when getting enrollments at registrar.edx.org"
+        expected_msg = "HTTP error {} when getting enrollments at registrar.edx.org".format(status_code)
         self.assert_failed(expected_msg)
 
     def test_invalid_data(self):

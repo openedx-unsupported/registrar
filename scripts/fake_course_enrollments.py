@@ -54,7 +54,7 @@ def main(args):
         with open(args[0]) as f:
             text = f.read()
         program_enrollments = json.loads(text)
-    except OSError:
+    except IOError:
         print('Count not read input file', args[0])
         return 1
     try:
@@ -81,7 +81,7 @@ def generate_fake_enrollments(program_enrollments, count):
     course_enrollments = random.sample(program_enrollments, count)
     for enrollment in course_enrollments:
         choices, weights = STATUS_MAP[enrollment['status']]
-        enrollment['status'] = random.choices(choices, weights=weights)[0]
+        enrollment['status'] = random.choices(choices, weights=weights)[0]  # pylint: disable=no-member
     return course_enrollments
 
 
