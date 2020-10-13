@@ -204,7 +204,7 @@ class GetProgramsByAPIPermissionsTests(TestCase):
         for program in self.programs:
             program_type = (
                 'Masters'
-                if program.key.startswith('masters')  # pylint: disable=no-member
+                if program.key.startswith('masters')
                 else 'MicroMasters'
             )
             cache.set(
