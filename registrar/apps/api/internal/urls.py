@@ -16,7 +16,7 @@ urlpatterns = [
         name="flush-program-cache-all",
     ),
     url(
-        fr'^cache/{PROGRAM_KEY_PATTERN}/?$',
+        r'^cache/{}/?$'.format(PROGRAM_KEY_PATTERN),
         views.FlushProgramCacheView.as_view(),
         name="flush-program-cache-one",
     ),

@@ -9,7 +9,6 @@ python:
     - 3.8
 env:
 - TOXENV=django22
-- TOXENV=django30
 
 sudo: false
 
