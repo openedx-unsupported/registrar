@@ -511,9 +511,26 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         return self.handle_enrollments(self.internal_course_key)
 
 
+@schema_for(
+    'get',
+    parameters=[
+        query_parameter('job_id', str, 'ID of asynchronous job, in UUID-4 format'),
+    ],
+    responses={
+        200: JobStatusSerializer,
+        404: "Program key is invalid.",
+        **SCHEMA_COMMON_RESPONSES,
+    },
+)
 class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
     """
     A view for getting the status of a job.
+
+    This endpoint returns the status of jobs created by GET queries to the program and course enrollment endpoints.
+    If a job is complete, a link to the result of the job will be included.
+
+    The only users who can view a job status are the job’s creator and edX staff.
+
 
     Path: /api/[version]/jobs/{job_id}
 
@@ -550,9 +567,22 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
         return status
 
 
+@schema_for(
+    'get',
+    responses={
+        200: JobStatusSerializer(many=True),
+        401: "User is not logged in.",
+        **SCHEMA_COMMON_RESPONSES,
+    },
+)
 class JobStatusListView(TrackViewMixin, ListAPIView):
     """
     A view for listing currently processing jobs.
+
+    This endpoint returns a list of job status created by GET queries to the program and course enrollment endpoints.
+    If a job is complete, a link to the result of the job will be included.
+
+    The only users who can view a job status are the job’s creator and edX staff.
 
     Path: /api/[version]/jobs/
 
