@@ -84,6 +84,7 @@ SCHEMA_COMMON_RESPONSES = {
     parameters=[
         query_parameter('org_key', str, 'Organization filter'),
         query_parameter('user_has_perm', str, 'Permission filter'),
+        query_parameter('program_title', str, 'Filter by program title')
     ],
     responses={
         403: 'User lacks access to organization.',
@@ -95,10 +96,10 @@ class ProgramListView(TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
 
-    This endpoint returns a list of all of the active programs for the school specified by org_key. API users may only
-    make requests with org_keys for schools they have API access to.
+    This endpoint returns a list of all of the active programs for the school specified by `org_key`. API users may only
+    make requests with `org_key`s for schools they have API access to. Programs can be filtered by `program_title`.
 
-    Path: /api/[version]/programs?org={org_key}
+    Path: /api/[version]/programs?org={org_key}&program_title={program_title}
     """
     authentication_classes = (JwtAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
@@ -116,7 +117,11 @@ class ProgramListView(TrackViewMixin, ListAPIView):
 
         Overrides ListAPIView.get_queryset.
         """
-        return self.user_programs_by_api_permission[self.permission_filter]
+        queryset = self.user_programs_by_api_permission[self.permission_filter]
+        title_filter = self.request.GET.get('program_title')
+        if title_filter:
+            queryset = [program for program in queryset if title_filter.lower() in program.details.title.lower()]
+        return queryset
 
     def get_serializer_context(self):
         """
