@@ -93,7 +93,7 @@ SCHEMA_COMMON_RESPONSES = {
 )
 class ProgramListView(TrackViewMixin, ListAPIView):
     """
-    A view for listing program objects.
+    List programs
 
     This endpoint returns a list of all of the active programs for the school specified by org_key. API users may only
     make requests with org_keys for schools they have API access to.
@@ -205,7 +205,7 @@ class ProgramListView(TrackViewMixin, ListAPIView):
 @schema_for(
     'get',
     parameters=[
-        query_parameter('program_key', str, 'Program filter'),
+        path_parameter('program_key', str, 'Program filter'),
     ],
     responses={
         200: DetailedProgramSerializer,
@@ -216,7 +216,7 @@ class ProgramListView(TrackViewMixin, ListAPIView):
 )
 class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
     """
-    A view for retrieving a single program object.
+    Retrieve a program
 
     This endpoint returns a single program specified by the program_key.
 
@@ -259,7 +259,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
 @schema_for(
     'get',
     parameters=[
-        query_parameter('program_key', str, 'Program filter'),
+        path_parameter('program_key', str, 'Program filter'),
     ],
     responses={
         403: 'User lacks access to program.',
@@ -269,7 +269,7 @@ class ProgramRetrieveView(ProgramSpecificViewMixin, RetrieveAPIView):
 )
 class ProgramCourseListView(ProgramSpecificViewMixin, ListAPIView):
     """
-    A view for listing courses in a program.
+    List program courses
 
     This endpoint returns information about the course runs that are associated with the specified program.
 
@@ -322,7 +322,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     )
     def get(self, request, *args, **kwargs):
         """
-        Submit a user task that retrieves program enrollment data.
+        Request program enrollment data
 
         Begins an asyncronous job to fetch the list of students in the specified program.
         The endpoint returns a URL which can be used to retrieve the status of and, when complete, the result of the job.
@@ -342,7 +342,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     @schema(
         body=ProgramEnrollmentRequestSerializer(many=True),
         parameters=[
-            query_parameter('program_key', str, 'The identifier of the program for which students will be enrolled.'),
+            path_parameter('program_key', str, 'The identifier of the program for which students will be enrolled.'),
         ],
         responses={
             200: "All students were successfully listed.",
@@ -357,7 +357,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     )
     def post(self, request, program_key):
         """
-        Enroll a list of students to the specified program.
+        Enroll students in a program
 
         This endpoint will enroll the specified students in the program, up to 25 students at a time.
 
@@ -389,7 +389,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     @schema(
         body=ProgramEnrollmentRequestSerializer(many=True),
         parameters=[
-            query_parameter('program_key', str, 'The identifier of the program to modify enrollments for.'),
+            path_parameter('program_key', str, 'The identifier of the program to modify enrollments for.'),
         ],
         responses={
             200: "All students' enrollment statuses were successfully set.",
@@ -404,7 +404,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
     )
     def patch(self, request, program_key):
         """
-        Modify the program enrollment status of specified students.
+        Modify program enrollments
 
         This endpoint will modify the program enrollment status of specified students.
 
@@ -436,6 +436,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
 
 
 class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentMixin, APIView):
+    # pylint: disable=line-too-long
     """
     A view for enrolling students in a program course run.
 
@@ -489,9 +490,35 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
         'fmt': 'result_format',
     }
 
+    @schema(
+        parameters=[
+            path_parameter('course_id', str, 'edX course run ID or external course key'),
+            path_parameter('program_key', str, 'edX program key'),
+            query_parameter('fmt', str, 'Response format: "json" or "csv"'),
+        ],
+        responses={
+            202: JobAcceptanceSerializer,
+            403: 'Requester does not have permission to view the course run’s enrollments.',
+            404: 'Program key is invalid, or course ID is not within program.',
+            **SCHEMA_COMMON_RESPONSES,
+        },
+    )
     def get(self, request, *args, **kwargs):
         """
-        Submit a user task that retrieves course run enrollment data.
+        Request course enrollment data
+
+        Begins an asynchronous job to fetch the list of students in the specified course run as part of the specified program.
+        The endpoint returns a URL which can be used to retrieve the status of and, when complete, the result of the job.
+
+        The resulting file will contain a JSON list of dictionaries. Each dictionary will have the following fields:
+
+        | Field          | Data Type | Description                                                                                            |
+        |----------------|-----------|--------------------------------------------------------------------------------------------------------|
+        | course_id      | string    | The external course key for the course run, or the internal edX course key if there is no external key |
+        | student_key    | string    | The student ID assigned to the student by the school.                                                  |
+        | status         | string    | The program enrollment status string of the student. See "Enrollment Statuses" for possible values.    |
+        | account_exists | boolean   | Whether an edX account is associated with the given student key.                                       |
+
         """
         course_role_management_enabled = waffle.flag_is_active(request, 'enable_course_role_management')
         return self.invoke_download_job(
@@ -502,19 +529,86 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             course_role_management_enabled,
         )
 
+    @schema(
+        body=ProgramEnrollmentRequestSerializer(many=True),
+        parameters=[
+            path_parameter('course_id', str, 'edX course run ID or external course key'),
+            path_parameter('program_key', str, 'edX program key'),
+        ],
+        responses={
+            200: 'All students were successfully listed.',
+            207: 'Some students with successfully listed, while others were not. Details are included in JSON response data.',
+            400: 'The JSON list of dictionaries in the request was malformed or missing required fields.',
+            403: 'Requester does not have permission to enroll students in the program.',
+            404: 'Program key is invalid, or course ID is not within program.',
+            413: 'Over 25 students supplied.',
+            422: 'None of the students were successfully listed. Details are included in JSON response data.',
+            **SCHEMA_COMMON_RESPONSES,
+        },
+    )
     def post(self, request, program_key, course_id):
-        """ POST handler """
+        """
+        Enroll students in a course
+
+        POST calls to this endpoint will enroll the specified students in the program course, up to 25 students at a time.
+
+        The response will be a JSON dictionary mapping each supplied student key to either:
+        - An enrollment status string (either "active" or "inactive").
+        - An error status string. Possible values are listed below.
+
+        | Error status        | Meaning                                                                                     |
+        |---------------------|---------------------------------------------------------------------------------------------|
+        | "duplicated"        | The same student key was supplied twice in the POST data.                                   |
+        | "invalid-status"    | The supplied status string was invalid.                                                     |
+        | "conflict"          | A student with the given key is already enrolled in the program.                            |
+        | "illegal-operation" | The supplied status string was recognized, but the student's status could not be set to it. |
+        | "not-in-program"    | No such student exists in the program to which the course belongs.                          |
+        | "internal-error"    | An unspecified internal error has occurred. Contact edX Support.                            |
+        """
         return self.handle_enrollments(self.internal_course_key)
 
+    @schema(
+        body=ProgramEnrollmentRequestSerializer(many=True),
+        parameters=[
+            path_parameter('course_id', str, 'edX course run ID or external course key'),
+            path_parameter('program_key', str, 'edX program key'),
+        ],
+        responses={
+            200: 'All students’ admission statuses were successfully set.',
+            207: 'Some students’ statuses were successfully set, others were not. Details are included in JSON response data.',
+            400: 'The JSON list of dictionaries in the request was malformed or missing required fields.',
+            403: 'Requester does not have permission to modify program admissions.',
+            404: 'Program key is invalid, or course ID is not within program.',
+            413: 'Over 25 students supplied.',
+            422: 'None of the students’ statuses were successfully set. Details are included in JSON response data.',
+            **SCHEMA_COMMON_RESPONSES,
+        },
+    )
     def patch(self, request, program_key, course_id):
-        """ PATCH handler """
+        """
+        Modify program course enrollments
+
+        PATCH calls to this endpoint will modify the enrollment status of students within the specified course run within the specified program.
+
+        The response will be a JSON dictionary mapping each supplied student key to either:
+        - An enrollment status string (either "active" or "inactive").
+        - An error status string. Possible values are listed below.
+
+        | Error status        | Meaning                                                                                     |
+        |---------------------|---------------------------------------------------------------------------------------------|
+        | "duplicated"        | The same student key was supplied twice in the PATCH data.                                  |
+        | "invalid-status"    | The supplied status string was invalid.                                                     |
+        | "illegal-operation" | The supplied status string was recognized, but the student's status could not be set to it. |
+        | "not-found"         | No such student exists in the course.                                                       |
+        | "internal-error"    | An unspecified internal error has occurred. Contact edX Support.                            |
+        """
         return self.handle_enrollments(self.internal_course_key)
 
 
 @schema_for(
     'get',
     parameters=[
-        query_parameter('job_id', str, 'ID of asynchronous job, in UUID-4 format'),
+        path_parameter('job_id', str, 'ID of asynchronous job, in UUID-4 format'),
     ],
     responses={
         200: JobStatusSerializer,
@@ -524,7 +618,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
 )
 class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
     """
-    A view for getting the status of a job.
+    Get the status of a job
 
     This endpoint returns the status of jobs created by GET queries to the program and course enrollment endpoints.
     If a job is complete, a link to the result of the job will be included.
@@ -577,7 +671,7 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
 )
 class JobStatusListView(TrackViewMixin, ListAPIView):
     """
-    A view for listing currently processing jobs.
+    List currently processing jobs
 
     This endpoint returns a list of job status created by GET queries to the program and course enrollment endpoints.
     If a job is complete, a link to the result of the job will be included.
@@ -671,6 +765,7 @@ class CourseRunEnrollmentUploadView(EnrollmentMixin, CourseSpecificViewMixin, En
             return {'student_key', 'course_id', 'status'}
 
 
+@exclude_schema_for_all
 class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView):
     """
     Invokes a Django User Task that retrieves student enrollment
@@ -709,6 +804,7 @@ class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView)
 
 
 class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
+    # pylint: disable=line-too-long
     """
     Invokes a Django User Task that retrieves student grade data for the given course run.
 
@@ -738,24 +834,34 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
 
     @schema(
         parameters=[
-            query_parameter('course_id', str, 'edX course run ID or external course key'),
-            query_parameter('program_key', str, 'edX program key'),
+            path_parameter('course_id', str, 'edX course run ID or external course key'),
+            path_parameter('program_key', str, 'edX program key'),
+            query_parameter('fmt', str, 'Response format: "json" or "csv"'),
         ],
         responses={
-            202: 'Accepted, an asynchronous job was successfully started.',
+            202: JobAcceptanceSerializer,
             403: 'User lacks enrollment read access to organization of specified program.',
             404: 'Program was not found, course was not found, or course was not found in program.',
             **SCHEMA_COMMON_RESPONSES,
         },
-        summary='Submit a user task that retrieves course grade data for the given course.',
-        description=('This endpoint begins an asynchronous job to fetch the grades of students '
-                     'enrolled in the specified course run as part of the specified program. The '
-                     'endpoint returns a URL which can be used to retrieve the status of and, when complete, '
-                     'the result of the job. The resulting file will be in JSON format.'),
     )
     def get(self, request, *args, **kwargs):
         """
-        Submit a user task that retrieves course grade data for the given course
+        Request course run grade data
+
+        Begins an asynchronous job to fetch the grades of students enrolled in the specified course run as part of the specified program.
+        The endpoint returns a URL which can be used to retrieve the status of and, when complete, the result of the job.
+
+        The resulting file will contain a JSON list of dictionaries. Each dictionary will have the following fields:
+
+        | Field          | Data Type | Description                                                                                            |
+        |----------------|-----------|--------------------------------------------------------------------------------------------------------|
+        | student_key    | string    | The student ID assigned to the student by the school.                                                  |
+        | letter_grade   | string    | A letter grade as defined in grading policy.                                                           |
+        | percent        | number    | A number from 0-1 representing the overall grade for the course.                                       |
+        | passed         | boolean   | Whether the course has been passed according to the course grading policy                              |
+        | error          | string    | If there was an issue loading this user's grade, an explanation of what went wrong                     |
+
         """
         return self.invoke_download_job(
             get_course_run_grades,
@@ -806,16 +912,16 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
 
     @schema(
         parameters=[
-            query_parameter('program_key', str, 'edX program key'),
+            path_parameter('program_key', str, 'edX program key'),
             query_parameter('min_created_date', str, 'ISO-formatted date used to filter reports based on creation date')
         ],
         responses={
-            200: ProgramReportMetadataSerializer,
+            200: ProgramReportMetadataSerializer(many=True),
             403: 'User lacks access to program.',
             404: 'Program does not exist.',
             **SCHEMA_COMMON_RESPONSES,
         },
-        summary='Get a list of reports for a program.',
+        summary='List program reports',
         description=('This endpoint returns a list of all reports specified by the program_key. '
                      'If a min_created_date is given, only reports created after that date will be returned.')
     )
