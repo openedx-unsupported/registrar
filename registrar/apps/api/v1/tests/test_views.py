@@ -291,7 +291,7 @@ class ViewMethodNotSupportedTests(RegistrarAPITestCase, AuthRequestMixin):
 
 @ddt.ddt
 class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
-    """ Tests for the /api/v1/programs?org={org_key} endpoint """
+    """ Tests for the /api/v1/programs?org={org_key}&program_title={program_title} endpoint """
 
     method = 'GET'
     path = 'programs'
@@ -355,6 +355,72 @@ class ProgramListViewTests(RegistrarAPITestCase, AuthRequestMixin):
                 }
             ]
         )
+
+    def test_program_title_filter(self):
+        with self.assert_tracking(user=self.edx_admin):
+            response = self.get('programs?program_title=philosophy', self.edx_admin)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        response_programs = sorted(response.data, key=lambda p: p['program_key'])
+        self.assertListEqual(
+            response_programs,
+            [
+                {
+                    'program_key': 'masters-in-philosophy',
+                    'program_title': 'masters in philosophy',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-philosophy/',
+                    'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
+                }
+            ]
+        )
+
+    def test_title_filter_empty(self):
+        with self.assert_tracking(user=self.edx_admin):
+            response = self.get('programs?program_title=', self.edx_admin)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 4)
+        response_programs = sorted(response.data, key=lambda p: p['program_key'])
+        self.assertListEqual(
+            response_programs,
+            [
+                {
+                    'program_key': 'masters-in-cs',
+                    'program_title': 'masters in cs',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-cs/',
+                    'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
+                },
+                {
+                    'program_key': 'masters-in-english',
+                    'program_title': 'masters in english',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-english/',
+                    'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
+                },
+                {
+                    'program_key': 'masters-in-me',
+                    'program_title': 'masters in me',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-me/',
+                    'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
+                },
+                {
+                    'program_key': 'masters-in-philosophy',
+                    'program_title': 'masters in philosophy',
+                    'program_url': 'http://registrar-test-data.edx.org/masters-in-philosophy/',
+                    'program_type': 'Masters',
+                    'permissions': ['read_metadata'],
+                },
+            ]
+        )
+
+    def test_title_filter_invalid(self):
+        with self.assert_tracking(user=self.edx_admin):
+            response = self.get('programs?program_title=invalidtitle', self.edx_admin)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+        self.assertListEqual(response.data, [])
 
     @mock.patch.object(
         ProgramDetails,
