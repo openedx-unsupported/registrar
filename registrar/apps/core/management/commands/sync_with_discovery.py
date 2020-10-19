@@ -34,8 +34,8 @@ class Command(BaseCommand):
         self.sync_organizations()
         self.sync_programs(PROGRAM_TYPES_TO_SYNC)
 
-        self.create_org_groups()
-        self.create_program_org_groups()
+        self.sync_org_groups()
+        self.sync_program_org_groups()
 
     def sync_organizations(self):
         """
@@ -84,7 +84,7 @@ class Command(BaseCommand):
         if orgs_to_update:
             # Bulk update those organizations needs updating
             Organization.objects.bulk_update(orgs_to_update, ['name', 'key'])
-            # self.update_org_groups(orgs_to_update)
+            self.update_org_groups(orgs_to_update)
 
         logger.info('Sync Organizations Success!')
 
@@ -154,7 +154,7 @@ class Command(BaseCommand):
 
         OrganizationGroup.objects.bulk_update(org_group_to_update, ['name'])
 
-    def create_org_groups(self):
+    def sync_org_groups(self):
         """
         All organizations should have the ReadOrganizationReports group with a consistent naming convention.
         Create or update the groups for all organizations missing this default group.
@@ -162,15 +162,24 @@ class Command(BaseCommand):
         each new org group save() function includes a lot of logic we cannot bulk create
         """
         
-        for org in Organization.objects.all():
-            org_group, created = OrganizationGroup.objects.get_or_create(
-                organization=org,
-                role=OrganizationReadReportRole.name,
-            )
+        read_reports_groups = {}
+        for group in OrganizationGroup.objects.select_related('organization').filter(role=OrganizationReadReportRole.name):
+            read_reports_groups[group.organization.key] = group
 
+        for org in Organization.objects.all():
             name = '{}_ReadOrganizationReports'.format(org.key)
-            updated = False
-            if org_group.name != name:
+
+            created, updated = (False, False)
+            org_group = read_reports_groups.get(org.key)
+
+            if not org_group:
+                org_group = OrganizationGroup(
+                    name=name,
+                    organization=org,
+                    role=OrganizationReadReportRole.name,
+                )
+                created = True
+            elif org_group.name != name:
                 org_group.name = name
                 updated = True
 
@@ -184,29 +193,35 @@ class Command(BaseCommand):
                     org_group.id,
                 )
 
-    def create_program_org_groups(self):
+    def sync_program_org_groups(self):
         """
         All programs should have the ReadProgramReports group with a consistent naming convention.
         Create or update the groups for all programs missing this default group.
         Then we save each new program org group one by one. This is inefficient but necessary
         each new program org group save() function includes a lot of logic we cannot bulk create
         """
+        read_reports_groups = {}
+        for group in ProgramOrganizationGroup.objects.select_related('program').select_related('granting_organization').filter(role=ProgramReadReportRole.name):
+            read_reports_groups[(group.granting_organization.key, group.program.key)] = group
 
-        all_programs = Program.objects.select_related('managing_organization')
-        # read_reports_groups = ProgramOrganizationGroup.objects.filter(role=ProgramReadReportRole)
-        for program in all_programs:
-            program_org_group, created = ProgramOrganizationGroup.objects.get_or_create(
-                granting_organization=program.managing_organization,
-                program=program,
-                role=ProgramReadReportRole.name
-            )
-
+        for program in Program.objects.select_related('managing_organization'):
             name = '{}_{}_ReadProgramReports'.format(
                 program.managing_organization.key,
                 program.key,
             )
-            updated = False
-            if program_org_group.name != name:
+
+            created, updated = (False, False)
+            program_org_group = read_reports_groups.get((program.managing_organization.key, program.key))
+
+            if not program_org_group:
+                program_org_group = ProgramOrganizationGroup(
+                    name=name,
+                    granting_organization=program.managing_organization,
+                    program=program,
+                    role=ProgramReadReportRole.name
+                )
+                created = True
+            elif program_org_group.name != name:
                 program_org_group.name = name
                 updated = True
 
