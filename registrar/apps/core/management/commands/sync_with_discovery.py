@@ -84,7 +84,6 @@ class Command(BaseCommand):
         if orgs_to_update:
             # Bulk update those organizations needs updating
             Organization.objects.bulk_update(orgs_to_update, ['name', 'key'])
-            self.update_org_groups(orgs_to_update)
 
         logger.info('Sync Organizations Success!')
 
@@ -138,21 +137,6 @@ class Command(BaseCommand):
             logger.info('Sync programs complete. No changes made to Registrar service')
 
         logger.info('Sync Programs Success!')
-
-    def update_org_groups(self, updated_orgs):
-        """
-        Update the existing OrganizationGroups to match the up to date name of the organization
-        """
-        existing_org_groups = OrganizationGroup.objects.select_related('organization').filter(
-            organization__discovery_uuid__in=[org.discovery_uuid for org in updated_orgs]
-        )
-        org_group_to_update = []
-        for org_group in existing_org_groups:
-            role_name = org_group.name.split("_")[-1]
-            org_group.name = '{name}_{role}'.format(name=org_group.organization.key, role=role_name)
-            org_group_to_update.append(org_group)
-
-        OrganizationGroup.objects.bulk_update(org_group_to_update, ['name'])
 
     def sync_org_groups(self):
         """
