@@ -61,7 +61,7 @@ class Command(BaseCommand):
                     key=discovery_org.get('key'),
                 )
                 orgs_to_create.append(org)
-                logger.info('Creating %s', discovery_org.get('key'))
+                logger.info('Creating %s with uuid %s', discovery_org.get('key'), discovery_org.get('uuid'))
             else:
                 if existing_org.name != discovery_org.get('name') or existing_org.key != discovery_org.get('key'):
                     existing_org.name = discovery_org.get('name')
@@ -129,7 +129,7 @@ class Command(BaseCommand):
                         managing_organization=auth_org,
                         key=discovery_program.get('marketing_slug'),
                     ))
-                    logger.info('Creating %s', discovery_program.get('marketing_slug'))
+                    logger.info('Creating %s with uuid %s', discovery_program.get('marketing_slug'), discovery_authoring_org.get('uuid'))
 
         # Bulk create those new programs
         Program.objects.bulk_create(programs_to_create)

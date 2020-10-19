@@ -326,6 +326,48 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
 
         self.assert_programs(programs_to_sync, 42)
 
+    def test_sync_programs_missing_role(self):
+        """ program already exists but no reporting role has been created """
+        spanish_program = ProgramFactory(
+            key='masters-in-spanish',
+            discovery_uuid='77777777-2222-3333-4444-555555555555',
+            managing_organization=self.org
+        )
+        spanish_discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            spanish_program.discovery_uuid,
+            spanish_program.key, 
+        )
+
+        programs_to_sync = [
+            spanish_discovery_program
+        ]
+        self.assert_programs(programs_to_sync, 25)
+
+    def test_sync_programs_update_role(self):
+        """ program already exists but the reporting role has a nonstandard name """
+        spanish_program = ProgramFactory(
+            key='masters-in-spanish',
+            discovery_uuid='77777777-2222-3333-4444-555555555555',
+            managing_organization=self.org
+        )
+        spanish_discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            spanish_program.discovery_uuid,
+            spanish_program.key, 
+        )
+        ProgramOrganizationGroupFactory(
+            name='BadNameReadReports',
+            program=spanish_program,
+            granting_organization=self.org,
+            role=ProgramReadReportRole.name,
+        )
+
+        programs_to_sync = [
+            spanish_discovery_program
+        ]
+        self.assert_programs(programs_to_sync, 15)
+
     def test_sync_programs_no_change(self):
         programs_to_sync = [
             self.english_discovery_program,
@@ -352,7 +394,7 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
         self.assert_program_nonexistant(no_org_program.get('uuid'))
 
     def test_sync_programs_multiple_authoring_orgs(self):
-        new_program_uuid_string = '44444444-2222-3333-4444-555555555555'
+        new_program_uuid_string = '77777777-2222-3333-4444-555555555555'
         new_program_to_create = {
             'authoring_organizations': [
                 {'uuid': str(self.org.discovery_uuid)},
