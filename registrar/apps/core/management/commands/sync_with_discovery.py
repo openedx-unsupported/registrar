@@ -128,7 +128,11 @@ class Command(BaseCommand):
                         managing_organization=auth_org,
                         key=discovery_program.get('marketing_slug'),
                     ))
-                    logger.info('Creating %s with uuid %s', discovery_program.get('marketing_slug'), discovery_authoring_org.get('uuid'))
+                    logger.info(
+                        'Creating %s with uuid %s',
+                        discovery_program.get('marketing_slug'),
+                        discovery_authoring_org.get('uuid')
+                    )
 
         # Bulk create those new programs
         Program.objects.bulk_create(programs_to_create)
@@ -145,9 +149,10 @@ class Command(BaseCommand):
         Then we save each new org group one by one. This is inefficient but necessary
         each new org group save() function includes a lot of logic we cannot bulk create
         """
-        
         read_reports_groups = {}
-        for group in OrganizationGroup.objects.select_related('organization').filter(role=OrganizationReadReportRole.name):
+        for group in OrganizationGroup.objects.select_related('organization').filter(
+            role=OrganizationReadReportRole.name
+        ):
             read_reports_groups[group.organization.key] = group
 
         for org in Organization.objects.all():
@@ -185,7 +190,11 @@ class Command(BaseCommand):
         each new program org group save() function includes a lot of logic we cannot bulk create
         """
         read_reports_groups = {}
-        for group in ProgramOrganizationGroup.objects.select_related('program').select_related('granting_organization').filter(role=ProgramReadReportRole.name):
+        groups_query = ProgramOrganizationGroup.objects.select_related(
+            'program'
+        ).select_related('granting_organization').filter(role=ProgramReadReportRole.name)
+
+        for group in groups_query:
             read_reports_groups[(group.granting_organization.key, group.program.key)] = group
 
         for program in Program.objects.select_related('managing_organization'):
