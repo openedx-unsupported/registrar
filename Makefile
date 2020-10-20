@@ -148,12 +148,6 @@ detect_changed_source_translations: ## check if translation files are up-to-date
 
 validate_translations: fake_translations detect_changed_source_translations ## install fake translations and check if translation files are up-to-date
 
-api_generated: ## generates an expanded verison of api.yaml for consuming tools that cannot read yaml anchors
-	python scripts/yaml_merge.py api.yaml .api-generated.yaml
-
-validate_api_committed: ## check to make sure any api.yaml changes have been committed to the expanded document
-	$(TOX)bash -c "diff .api-generated.yaml <(python scripts/yaml_merge.py api.yaml -)"
-
 # Docker commands
 
 docker_build:
