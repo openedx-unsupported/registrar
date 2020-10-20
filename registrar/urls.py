@@ -24,7 +24,6 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView
 from edx_api_doc_tools import make_api_info, make_docs_ui_view
 
-from . import api_renderer
 from .apps.api import urls as api_urls
 from .apps.api.v2 import urls as v2_urls
 from .apps.core import views as core_views
@@ -61,14 +60,8 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^api-auth/', include(oauth2_urlpatterns)),
 
     # NEW Swagger documentation UI, generated using edx-api-doc-tools.
-    # TODO: Make this the default as part of MST-195.
-    url(r'^api-docs/new$', RedirectView.as_view(pattern_name='api-docs-new')),
-    url(r'^api-docs/new/$', new_api_ui_view, name='api-docs-new'),
-
-    # Swagger documentation UI.
-    # TODO: Remove as part of MST-195.
-    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs')),
-    url(r'^api-docs/$', api_renderer.render_yaml_spec, name='api-docs'),
+    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs-new')),
+    url(r'^api-docs/$', new_api_ui_view, name='api-docs-new'),
 
     # Django admin panel.
     url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
