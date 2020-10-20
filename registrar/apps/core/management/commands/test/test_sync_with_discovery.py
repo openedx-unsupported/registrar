@@ -53,6 +53,11 @@ class TestSyncWithDiscoveryCommandBase(TestCase):
             organization=cls.org,
             role=OrganizationReadEnrollmentsRole.name
         )
+        cls.other_org_read_reports_group = OrganizationGroupFactory(
+            name='{}_ReadOrganizationReports'.format(cls.other_org.key),
+            organization=cls.other_org,
+            role=OrganizationReadReportRole.name
+        )
         cls.other_org_read_enrollments = OrganizationGroupFactory(
             name='{}_ReadEnrollments'.format(cls.other_org.key),
             organization=cls.other_org,
@@ -127,17 +132,6 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
             expected_org_group_name = '{}_ReadOrganizationReports'.format(org['key'])
             self.assertEqual(existing_org_report_group.name, expected_org_group_name)
 
-            # check that read enrollment role exists
-            existing_org_enrollment_group = OrganizationGroup.objects.filter(
-                organization__discovery_uuid=org['uuid'],
-                role=OrganizationReadEnrollmentsRole.name
-            )
-            if existing_org_enrollment_group:
-                self.assertEqual(len(existing_org_enrollment_group), 1)
-                group = existing_org_enrollment_group[0]
-                expected_org_group_name = '{}_ReadEnrollments'.format(org['key'])
-                self.assertEqual(group.name, expected_org_group_name)
-
     def test_sync_organization_create_and_update(self):
         orgs_to_sync = [
             self.new_discovery_organization,
@@ -146,7 +140,7 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
         ]
         self.assert_org_nonexistant(self.new_discovery_org_uuid)
 
-        self.assert_organizations(orgs_to_sync, 56)
+        self.assert_organizations(orgs_to_sync, 53)
 
     def test_sync_organization_create_only(self):
         other_new_org_uuid = '99999999-2222-2222-3333-555555555555'
@@ -164,7 +158,7 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
         self.assert_org_nonexistant(self.new_discovery_org_uuid)
         self.assert_org_nonexistant(other_new_org_uuid)
 
-        self.assert_organizations(orgs_to_sync, 70)
+        self.assert_organizations(orgs_to_sync, 52)
 
     def test_sync_organization_update_only(self):
         orgs_to_sync = [
@@ -172,14 +166,14 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
             self.discovery_other_org
         ]
 
-        self.assert_organizations(orgs_to_sync, 35)
+        self.assert_organizations(orgs_to_sync, 32)
 
     def test_sync_no_change(self):
         orgs_to_sync = [
             self.discovery_org,
             self.discovery_other_org,
         ]
-        self.assert_organizations(orgs_to_sync, 29)
+        self.assert_organizations(orgs_to_sync, 11)
 
 
 @ddt.ddt
@@ -296,7 +290,7 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
         self.assert_program_nonexistant(self.russian_discovery_program.get('uuid'))
         self.assert_program_nonexistant(self.arabic_discovery_program.get('uuid'))
 
-        self.assert_programs(programs_to_sync, 47)
+        self.assert_programs(programs_to_sync, 54)
 
     def test_sync_programs_with_different_slugs(self):
         updated_discovery_program = self.discovery_program_dict(
@@ -308,7 +302,7 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
             self.english_discovery_program,
             updated_discovery_program
         ]
-        self.assert_programs(programs_to_sync, 5)
+        self.assert_programs(programs_to_sync, 13)
 
     def test_sync_programs_create_only(self):
         programs_to_sync = [
@@ -319,14 +313,56 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
         self.assert_program_nonexistant(self.russian_discovery_program.get('uuid'))
         self.assert_program_nonexistant(self.arabic_discovery_program.get('uuid'))
 
-        self.assert_programs(programs_to_sync, 47)
+        self.assert_programs(programs_to_sync, 54)
+
+    def test_sync_programs_missing_role(self):
+        """ program already exists but no reporting role has been created """
+        spanish_program = ProgramFactory(
+            key='masters-in-spanish',
+            discovery_uuid='77777777-2222-3333-4444-555555555555',
+            managing_organization=self.org
+        )
+        spanish_discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            spanish_program.discovery_uuid,
+            spanish_program.key,
+        )
+
+        programs_to_sync = [
+            spanish_discovery_program
+        ]
+        self.assert_programs(programs_to_sync, 33)
+
+    def test_sync_programs_update_role(self):
+        """ program already exists but the reporting role has a nonstandard name """
+        spanish_program = ProgramFactory(
+            key='masters-in-spanish',
+            discovery_uuid='77777777-2222-3333-4444-555555555555',
+            managing_organization=self.org
+        )
+        spanish_discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            spanish_program.discovery_uuid,
+            spanish_program.key,
+        )
+        ProgramOrganizationGroupFactory(
+            name='BadNameReadReports',
+            program=spanish_program,
+            granting_organization=self.org,
+            role=ProgramReadReportRole.name,
+        )
+
+        programs_to_sync = [
+            spanish_discovery_program
+        ]
+        self.assert_programs(programs_to_sync, 34)
 
     def test_sync_programs_no_change(self):
         programs_to_sync = [
             self.english_discovery_program,
             self.german_discovery_program,
         ]
-        self.assert_programs(programs_to_sync, 5)
+        self.assert_programs(programs_to_sync, 13)
 
     @ddt.data(
         '44444444-2222-3333-4444-000000000000',
@@ -343,11 +379,11 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
             no_org_program,
         ]
         self.assert_program_nonexistant(no_org_program.get('uuid'))
-        self.assert_programs(programs_to_sync, 5, [self.english_discovery_program])
+        self.assert_programs(programs_to_sync, 13, [self.english_discovery_program])
         self.assert_program_nonexistant(no_org_program.get('uuid'))
 
     def test_sync_programs_multiple_authoring_orgs(self):
-        new_program_uuid_string = '44444444-2222-3333-4444-555555555555'
+        new_program_uuid_string = '77777777-2222-3333-4444-555555555555'
         new_program_to_create = {
             'authoring_organizations': [
                 {'uuid': str(self.org.discovery_uuid)},
@@ -360,5 +396,5 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
             self.german_discovery_program,
             self.english_discovery_program,
         ]
-        self.assert_programs(programs_to_sync + [new_program_to_create], 5, programs_to_sync)
+        self.assert_programs(programs_to_sync + [new_program_to_create], 13, programs_to_sync)
         self.assert_program_nonexistant(new_program_uuid_string)

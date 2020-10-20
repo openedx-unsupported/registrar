@@ -31,9 +31,11 @@ class Command(BaseCommand):
         """
         The main logic and entry point of the management command
         """
-        # First make api call to discovery service to get list of organizations available
         self.sync_organizations()
         self.sync_programs(PROGRAM_TYPES_TO_SYNC)
+
+        self.sync_org_groups()
+        self.sync_program_org_groups()
 
     def sync_organizations(self):
         """
@@ -44,7 +46,6 @@ class Command(BaseCommand):
         discovery_organizations = DiscoveryServiceClient.get_organizations()
         existing_org_dictionary = {}
         orgs_to_create = []
-        org_groups_to_create = []
         orgs_to_update = []
 
         for org in Organization.objects.all():
@@ -60,8 +61,7 @@ class Command(BaseCommand):
                     key=discovery_org.get('key'),
                 )
                 orgs_to_create.append(org)
-                org_groups_to_create.append(org)
-                logger.info('Creating %s', discovery_org.get('key'))
+                logger.info('Creating %s with uuid %s', discovery_org.get('key'), discovery_org.get('uuid'))
             else:
                 if existing_org.name != discovery_org.get('name') or existing_org.key != discovery_org.get('key'):
                     existing_org.name = discovery_org.get('name')
@@ -73,25 +73,17 @@ class Command(BaseCommand):
                         existing_org.key,
                         existing_org.name,
                     )
-                # if the organization exists but does not have a read report role, create one
-                if not self.has_read_report_role(discovery_org):
-                    org_groups_to_create.append(existing_org)
-                    logger.info('Creating group for existing organization %s', existing_org.name)
 
         if not orgs_to_create and not orgs_to_update:
-            logger.info('Sync complete. No changes made to Registrar service')
+            logger.info('Sync organizations complete. No changes made to Registrar service')
 
         if orgs_to_create:
             # Bulk create those new organizations
             Organization.objects.bulk_create(orgs_to_create)
 
-        if org_groups_to_create:
-            self.create_org_groups(org_groups_to_create)
-
         if orgs_to_update:
             # Bulk update those organizations needs updating
             Organization.objects.bulk_update(orgs_to_update, ['name', 'key'])
-            self.update_org_groups(orgs_to_update)
 
         logger.info('Sync Organizations Success!')
 
@@ -136,90 +128,103 @@ class Command(BaseCommand):
                         managing_organization=auth_org,
                         key=discovery_program.get('marketing_slug'),
                     ))
-                    logger.info('Creating %s', discovery_program.get('marketing_slug'))
-
-        if not programs_to_create:
-            logger.info('Sync complete. No changes made to Registrar service')
-            return
+                    logger.info(
+                        'Creating %s with uuid %s',
+                        discovery_program.get('marketing_slug'),
+                        discovery_authoring_org.get('uuid')
+                    )
 
         # Bulk create those new programs
         Program.objects.bulk_create(programs_to_create)
-        self.create_program_org_groups(programs_to_create)
+
+        if not programs_to_create:
+            logger.info('Sync programs complete. No changes made to Registrar service')
 
         logger.info('Sync Programs Success!')
 
-    def has_read_report_role(self, org):
+    def sync_org_groups(self):
         """
-        Returns if org has a read report role associated with it
-        """
-        return OrganizationGroup.objects.filter(
-            organization__discovery_uuid=org.get('uuid'),
-            role=OrganizationReadReportRole.name
-        )
-
-    def update_org_groups(self, updated_orgs):
-        """
-        Update the existing OrganizationGroups to match the up to date name of the organization
-        """
-        existing_org_groups = OrganizationGroup.objects.select_related('organization').filter(
-            organization__discovery_uuid__in=[org.discovery_uuid for org in updated_orgs]
-        )
-        org_group_to_update = []
-        for org_group in existing_org_groups:
-            role_name = org_group.name.split("_")[-1]
-            org_group.name = '{name}_{role}'.format(name=org_group.organization.key, role=role_name)
-            org_group_to_update.append(org_group)
-
-        OrganizationGroup.objects.bulk_update(org_group_to_update, ['name'])
-
-    def create_org_groups(self, new_orgs):
-        """
-        Create new org groups based on the new orgs passed in.
+        All organizations should have the ReadOrganizationReports group with a consistent naming convention.
+        Create or update the groups for all organizations missing this default group.
         Then we save each new org group one by one. This is inefficient but necessary
         each new org group save() function includes a lot of logic we cannot bulk create
         """
-        newly_created_orgs = Organization.objects.filter(
-            discovery_uuid__in=[org.discovery_uuid for org in new_orgs]
-        )
-        for new_org in newly_created_orgs:
-            new_org_group = OrganizationGroup(
-                name='{}_ReadOrganizationReports'.format(new_org.key),
-                organization=new_org,
-                role=OrganizationReadReportRole.name,
-            )
-            new_org_group.save()
-            logger.info(
-                'Created new org group for org %s and permission %s. org_group_id: %s',
-                new_org.key,
-                OrganizationReadReportRole.name,
-                new_org_group.id
-            )
+        read_reports_groups = {}
+        for group in OrganizationGroup.objects.select_related('organization').filter(
+            role=OrganizationReadReportRole.name
+        ):
+            read_reports_groups[group.organization.key] = group
 
-    def create_program_org_groups(self, new_programs):
+        for org in Organization.objects.all():
+            name = '{}_ReadOrganizationReports'.format(org.key)
+
+            created, updated = (False, False)
+            org_group = read_reports_groups.get(org.key)
+
+            if not org_group:
+                org_group = OrganizationGroup(
+                    name=name,
+                    organization=org,
+                    role=OrganizationReadReportRole.name,
+                )
+                created = True
+            elif org_group.name != name:
+                org_group.name = name
+                updated = True
+
+            if created or updated:
+                org_group.save()
+                logger.info(
+                    '%s org group for org %s and permission %s. org_group_id: %s',
+                    'Created' if created else 'Updated',
+                    org.key,
+                    OrganizationReadReportRole.name,
+                    org_group.id,
+                )
+
+    def sync_program_org_groups(self):
         """
-        Create new program org groups based on the new programs passed in.
+        All programs should have the ReadProgramReports group with a consistent naming convention.
+        Create or update the groups for all programs missing this default group.
         Then we save each new program org group one by one. This is inefficient but necessary
         each new program org group save() function includes a lot of logic we cannot bulk create
         """
+        read_reports_groups = {}
+        groups_query = ProgramOrganizationGroup.objects.select_related(
+            'program'
+        ).select_related('granting_organization').filter(role=ProgramReadReportRole.name)
 
-        newly_created_programs = Program.objects.select_related('managing_organization').filter(
-            discovery_uuid__in=[program.discovery_uuid for program in new_programs]
-        )
-        for new_program in newly_created_programs:
-            new_program_org_group = ProgramOrganizationGroup(
-                name='{}_{}_ReadProgramReports'.format(
-                    new_program.managing_organization.key,
-                    new_program.key,
-                ),
-                granting_organization=new_program.managing_organization,
-                program=new_program,
-                role=ProgramReadReportRole.name
+        for group in groups_query:
+            read_reports_groups[(group.granting_organization.key, group.program.key)] = group
+
+        for program in Program.objects.select_related('managing_organization'):
+            name = '{}_{}_ReadProgramReports'.format(
+                program.managing_organization.key,
+                program.key,
             )
-            new_program_org_group.save()
-            logger.info(
-                'Created new program_org group for org %s, program %s and permission %s. program_org_group_id: %s',
-                new_program.managing_organization.key,
-                new_program.key,
-                ProgramReadReportRole.name,
-                new_program_org_group.id
-            )
+
+            created, updated = (False, False)
+            program_org_group = read_reports_groups.get((program.managing_organization.key, program.key))
+
+            if not program_org_group:
+                program_org_group = ProgramOrganizationGroup(
+                    name=name,
+                    granting_organization=program.managing_organization,
+                    program=program,
+                    role=ProgramReadReportRole.name
+                )
+                created = True
+            elif program_org_group.name != name:
+                program_org_group.name = name
+                updated = True
+
+            if created or updated:
+                program_org_group.save()
+                logger.info(
+                    '%s program_org group for org %s, program %s and permission %s. program_org_group_id: %s',
+                    'Created' if created else 'Updated',
+                    program.managing_organization.key,
+                    program.key,
+                    ProgramReadReportRole.name,
+                    program_org_group.id,
+                )
