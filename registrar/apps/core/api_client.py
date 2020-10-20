@@ -44,7 +44,7 @@ class DiscoveryServiceClient:
     @classmethod
     def get_programs_by_types(cls, types):
         """
-        Fetch a JSON representation of programs of specified types from the Discovery service.
+        Fetch a JSON representation of all active programs of specified types from the Discovery service.
 
         Returns empty if not found or other HTTP error.
 
@@ -57,7 +57,7 @@ class DiscoveryServiceClient:
             settings.DISCOVERY_BASE_URL,
             DISCOVERY_API_TPL.format('programs', '')
         )
-        url += '?types={}'.format(','.join(types))
+        url += '?types={}&status=active'.format(','.join(types))
         try:
             return get_all_paginated_results(url)
         except HTTPError:
