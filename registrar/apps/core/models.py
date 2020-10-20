@@ -161,15 +161,6 @@ class OrganizationGroup(Group):
         default=perms.OrganizationReadMetadataRole.name,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Save the value of organization in an attribute, so that when
-        # save() is called, we have access to the old value.
-        try:
-            self._initial_organization = self.organization
-        except Organization.DoesNotExist:   # pragma: no cover
-            self._initial_organization = None
-
     @property
     def role_object(self):
         """
@@ -229,13 +220,6 @@ class ProgramOrganizationGroup(Group):
         choices=ROLE_CHOICES,
         default=perms.ProgramReadMetadataRole.name,
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        try:
-            self._initial_program = self.program
-        except Program.DoesNotExist:   # pragma: no cover
-            self._initial_program = None
 
     @property
     def role_object(self):

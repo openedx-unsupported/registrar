@@ -22,14 +22,26 @@ class CoreConfig(AppConfig):
         """
         Perform other one-time initialization steps.
         """
-        from django.db.models.signals import pre_migrate, post_save     # pylint: disable=import-outside-toplevel
-        from registrar.apps.core.models import User     # pylint: disable=import-outside-toplevel
-        from registrar.apps.core.signals import handle_user_post_save       # pylint: disable=import-outside-toplevel
+        from django.db.models.signals import pre_migrate, pre_save, post_save     # pylint: disable=import-outside-toplevel
+        from registrar.apps.core.models import OrganizationGroup, ProgramOrganizationGroup, User     # pylint: disable=import-outside-toplevel
+        from registrar.apps.core.signals import (
+            handle_organization_group_pre_save,
+            handle_program_group_pre_save,
+            handle_user_post_save
+        )       # pylint: disable=import-outside-toplevel
 
         post_save.connect(
             handle_user_post_save,
             sender=User,
             dispatch_uid=self.USER_POST_SAVE_DISPATCH_UID
+        )
+        pre_save.connect(
+            handle_organization_group_pre_save,
+            sender=OrganizationGroup,
+        )
+        pre_save.connect(
+            handle_program_group_pre_save,
+            sender=ProgramOrganizationGroup,
         )
         pre_migrate.connect(self._disconnect_user_post_save_for_migrations)
 
