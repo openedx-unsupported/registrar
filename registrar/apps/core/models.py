@@ -141,6 +141,10 @@ class OrganizationGroup(Group):
     """
     Group subclass to grant select guardian permissions to a group on an organization level.
 
+    signals:
+        - pre-save: sets the _initial_organization attribute so we can remove permissions on
+            the old organization when this model is saved.
+
     .. no_pii::
     """
     objects = models.Manager()
@@ -203,6 +207,10 @@ class OrganizationGroup(Group):
 class ProgramOrganizationGroup(Group):
     """
     Group subclass to grant select guardian permissions to a group on a program level.
+
+    signals:
+        - pre-save: sets the _initial_program attribute so we can remove permissions on
+            the old program when this model is saved.
 
     .. no_pii::
     """

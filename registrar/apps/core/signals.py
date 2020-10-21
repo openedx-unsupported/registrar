@@ -33,7 +33,7 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     pending_groups.delete()
 
 
-def handle_organization_group_pre_save(sender, instance):   # pylint: disable=unused-argument
+def handle_organization_group_pre_save(sender, instance, **kwargs):   # pylint: disable=unused-argument
     """
     Save previous organization value so guardian permissions can be cleaned up on save
     """
@@ -48,7 +48,7 @@ def handle_organization_group_pre_save(sender, instance):   # pylint: disable=un
         instance._initial_organization = None
 
 
-def handle_program_group_pre_save(sender, instance):   # pylint: disable=unused-argument
+def handle_program_group_pre_save(sender, instance, **kwargs):   # pylint: disable=unused-argument
     """
     Save previous program value so guardian permissions can be cleaned up on save
     """
