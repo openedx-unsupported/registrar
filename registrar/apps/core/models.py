@@ -161,6 +161,11 @@ class OrganizationGroup(Group):
         default=perms.OrganizationReadMetadataRole.name,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # assigned by pre-save signal
+        self._initial_organization = None
+
     @property
     def role_object(self):
         """
@@ -220,6 +225,11 @@ class ProgramOrganizationGroup(Group):
         choices=ROLE_CHOICES,
         default=perms.ProgramReadMetadataRole.name,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # assigned by pre-save signal
+        self._initial_program = None
 
     @property
     def role_object(self):

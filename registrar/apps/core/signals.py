@@ -5,6 +5,7 @@ from logging import getLogger
 
 from .models import (
     Organization,
+    Program,
     OrganizationGroup,
     PendingUserGroup,
     ProgramOrganizationGroup,
@@ -32,10 +33,11 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     pending_groups.delete()
 
 
-def handle_organization_group_pre_save(sender, instance, **kwargs):
+def handle_organization_group_pre_save(sender, instance):   # pylint: disable=unused-argument
     """
     Save previous organization value so guardian permissions can be cleaned up on save
     """
+    # pylint: disable=protected-access
     if instance.id:
         existing_org_group = OrganizationGroup.objects.get(pk=instance.id)
         try:
@@ -46,10 +48,11 @@ def handle_organization_group_pre_save(sender, instance, **kwargs):
         instance._initial_organization = None
 
 
-def handle_program_group_pre_save(sender, instance, **kwargs):
+def handle_program_group_pre_save(sender, instance):   # pylint: disable=unused-argument
     """
     Save previous program value so guardian permissions can be cleaned up on save
     """
+    # pylint: disable=protected-access
     if instance.id:
         existing_program_group = ProgramOrganizationGroup.objects.get(pk=instance.id)
         try:
