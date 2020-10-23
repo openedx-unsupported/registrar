@@ -5,9 +5,9 @@ from logging import getLogger
 
 from .models import (
     Organization,
-    Program,
     OrganizationGroup,
     PendingUserGroup,
+    Program,
     ProgramOrganizationGroup,
 )
 
