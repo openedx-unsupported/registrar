@@ -42,7 +42,7 @@ def handle_organization_group_pre_save(sender, instance, **kwargs):   # pylint: 
         existing_org_group = OrganizationGroup.objects.get(pk=instance.id)
         try:
             instance._initial_organization = existing_org_group.organization
-        except Organization.DoesNotExist:
+        except Organization.DoesNotExist:   # pragma: no cover
             instance._initial_organization = None
     else:
         instance._initial_organization = None
@@ -57,7 +57,7 @@ def handle_program_group_pre_save(sender, instance, **kwargs):   # pylint: disab
         existing_program_group = ProgramOrganizationGroup.objects.get(pk=instance.id)
         try:
             instance._initial_program = existing_program_group.program
-        except Program.DoesNotExist:
+        except Program.DoesNotExist:   # pragma: no cover
             instance._initial_program = None
     else:
         instance._initial_program = None
