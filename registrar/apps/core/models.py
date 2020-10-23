@@ -141,6 +141,10 @@ class OrganizationGroup(Group):
     """
     Group subclass to grant select guardian permissions to a group on an organization level.
 
+    signals:
+        - pre-save: sets the _initial_organization attribute so we can remove permissions on
+            the old organization when this model is saved.
+
     .. no_pii::
     """
     objects = models.Manager()
@@ -163,12 +167,8 @@ class OrganizationGroup(Group):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Save the value of organization in an attribute, so that when
-        # save() is called, we have access to the old value.
-        try:
-            self._initial_organization = self.organization
-        except Organization.DoesNotExist:   # pragma: no cover
-            self._initial_organization = None
+        # assigned by pre-save signal
+        self._initial_organization = None
 
     @property
     def role_object(self):
@@ -208,6 +208,10 @@ class ProgramOrganizationGroup(Group):
     """
     Group subclass to grant select guardian permissions to a group on a program level.
 
+    signals:
+        - pre-save: sets the _initial_program attribute so we can remove permissions on
+            the old program when this model is saved.
+
     .. no_pii::
     """
 
@@ -232,10 +236,8 @@ class ProgramOrganizationGroup(Group):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        try:
-            self._initial_program = self.program
-        except Program.DoesNotExist:   # pragma: no cover
-            self._initial_program = None
+        # assigned by pre-save signal
+        self._initial_program = None
 
     @property
     def role_object(self):

@@ -108,7 +108,7 @@ class OrganizationGroupTests(TestCase):
         )
         permissions = get_perms(self.user, self.organization)
         self.assertEqual([], permissions)
-        self.user.groups.add(org_group)  # pylint: disable=no-member
+        self.user.groups.add(org_group)
         permissions = get_perms(self.user, self.organization)
         self.assertEqual(len(role.permissions), len(permissions))
         for permission in Organization._meta.permissions:
@@ -122,7 +122,7 @@ class OrganizationGroupTests(TestCase):
             role=perm.OrganizationReadMetadataRole.name,
             organization=self.organization,
         )
-        self.user.groups.add(org_group)  # pylint: disable=no-member
+        self.user.groups.add(org_group)
         permission = perm.OrganizationReadMetadataRole.permissions[0]
         self.assertTrue(self.user.has_perm(permission, self.organization))
         self.assertFalse(self.user.has_perm(permission))
@@ -136,7 +136,7 @@ class OrganizationGroupTests(TestCase):
             role=perm.OrganizationReadMetadataRole.name,
             organization=self.organization,
         )
-        self.user.groups.add(org_group)  # pylint: disable=no-member
+        self.user.groups.add(org_group)
         self.assertTrue(self.user.has_perm(permission, self.organization))
         self.assertFalse(self.user.has_perm(permission, organization2))
 
@@ -151,7 +151,7 @@ class OrganizationGroupTests(TestCase):
             role=perm.OrganizationReadWriteEnrollmentsRole.name,
             organization=org1,
         )
-        self.user.groups.add(org_group)  # pylint: disable=no-member
+        self.user.groups.add(org_group)
         self.assertTrue(self.user.has_perm(metdata_permission, org1))
         self.assertTrue(self.user.has_perm(write_permission, org1))
         self.assertFalse(self.user.has_perm(metdata_permission, org2))
@@ -204,7 +204,7 @@ class ProgramOrganizationGroupTests(TestCase):
         )
         permissions = get_perms(self.user, self.program)
         self.assertEqual([], permissions)
-        self.user.groups.add(program_group)  # pylint: disable=no-member
+        self.user.groups.add(program_group)
         permissions = get_perms(self.user, self.program)
         self.assertEqual(len(role.permissions), len(permissions))
         for permission in Program._meta.permissions:
@@ -219,7 +219,7 @@ class ProgramOrganizationGroupTests(TestCase):
             program=self.program,
             granting_organization=self.program.managing_organization,
         )
-        self.user.groups.add(program_group)  # pylint: disable=no-member
+        self.user.groups.add(program_group)
         permission = perm.ProgramReadMetadataRole.permissions[0]
         self.assertTrue(self.user.has_perm(permission, self.program))
         self.assertFalse(self.user.has_perm(permission))
@@ -234,7 +234,7 @@ class ProgramOrganizationGroupTests(TestCase):
             program=self.program,
             granting_organization=self.program.managing_organization,
         )
-        self.user.groups.add(program_group)  # pylint: disable=no-member
+        self.user.groups.add(program_group)
         self.assertTrue(self.user.has_perm(permission, self.program))
         self.assertFalse(self.user.has_perm(permission, program2))
 
@@ -250,7 +250,7 @@ class ProgramOrganizationGroupTests(TestCase):
             program=program1,
             granting_organization=program1.managing_organization,
         )
-        self.user.groups.add(program_group)  # pylint: disable=no-member
+        self.user.groups.add(program_group)
         self.assertTrue(self.user.has_perm(metdata_permission, program1))
         self.assertTrue(self.user.has_perm(write_permission, program1))
         self.assertFalse(self.user.has_perm(metdata_permission, program2))
