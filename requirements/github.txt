@@ -16,4 +16,4 @@ requests==2.24.0          # via requests-oauthlib, social-auth-core
 six==1.15.0               # via social-auth-app-django, social-auth-core
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in
 social-auth-core==3.2.0   # via -c requirements/constraints.txt, social-auth-app-django
-urllib3==1.25.10          # via requests
+urllib3==1.25.11          # via requests
