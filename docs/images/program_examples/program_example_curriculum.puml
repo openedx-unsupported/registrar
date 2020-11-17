@@ -1,0 +1,50 @@
+@startuml
+
+title Example program using a curriculum structure
+
+object "Curriculum - **Master of Plant Care**" as c #peachpuff
+object "Curriculum Program Membership" as cpm #peachpuff
+object "Curriculum Course Membership for C1" as ccm1 #peachpuff
+object "Curriculum Course Membership for C2" as ccm2 #peachpuff
+object "Curriculum Course Run Exclusion for C2" as ccre2 #peachpuff
+
+object "Intro to Plants - **MicroMasters Program**" as p
+object "Program Courses" as pc
+object "Excluded Course Runs" as ecr
+
+object "Water and Why It Helps - **Course C1**" as c1
+object "course-v1:H20+cr1a - **Course Run CR1a**" as cr1a
+object "course-v1:H20+cr1b - **Course Run CR1b**" as cr1b
+
+object "Growing Toward the Light - **Course C2**" as c2
+object "course-v1:LT+cr2a - **Course Run CR2a**" as cr2a
+object "course-v1:LT+cr2b - **Course Run CR2b**" as cr2b
+
+c --> p
+c --> cpm
+cpm --> p
+note left of cpm:A program is linked both directly to a Curriculum,\nand through a Curriculum Program Membership
+
+c --> ccm1
+c --> ccm2
+ccm1 --> c1
+ccm2 --> c2
+ccm2 ..> ccre2
+ccre2 ..> cr2b
+note left of ccre2: The Curriculum Course Run Exclusion excludes CR2b
+
+p --> pc
+pc --> c1
+pc --> c2
+p ..> ecr
+ecr ..> cr2b
+note left of ecr: Programs can exclude specific course runs.\nThis program excludes CR2b
+
+c1 --> cr1a
+c1 --> cr1b
+
+c2 --> cr2a
+c2 --> cr2b
+note left of cr2b: CR2b is associated with C2,\nbut is not associated with the program.\nIt is also excluded from the Curriculum\nvia the Curriculum Course Run Exclusion
+
+@enduml

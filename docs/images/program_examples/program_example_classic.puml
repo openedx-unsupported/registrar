@@ -1,0 +1,31 @@
+@startuml
+
+title Example program using the "classic" program structure
+
+object "Intro to Plants - **MicroMasters Program**" as p
+object "Program Courses" as pc
+object "Excluded Course Runs" as ecr
+
+object "Water and Why It Helps - **Course C1**" as c1
+object "course-v1:H20+cr1a - **Course Run CR1a**" as cr1a
+object "course-v1:H20+cr1b - **Course Run CR1b**" as cr1b
+
+object "Growing Toward the Light - **Course C2**" as c2
+object "course-v1:LT+cr2a - **Course Run CR2a**" as cr2a
+object "course-v1:LT+cr2b - **Course Run CR2b**" as cr2b
+
+p --> pc
+pc --> c1
+pc --> c2
+p ..> ecr
+ecr ..> cr2b
+note left of ecr: Programs can exclude specific course runs.\nThis program excludes CR2b
+
+c1 --> cr1a
+c1 --> cr1b
+
+c2 --> cr2a
+c2 --> cr2b
+note left of cr2b: CR2b is associated with C2,\nbut is not associated with the program
+
+@enduml
