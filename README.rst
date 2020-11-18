@@ -1,7 +1,7 @@
 Registrar service  |Travis|_ |Codecov|_
 ===================================================
-.. |Travis| image:: https://travis-ci.org/edx/registrar.svg?branch=master
-.. _Travis: https://travis-ci.org/edx/registrar
+.. |Travis| image:: https://travis-ci.com/edx/registrar.svg?branch=master
+.. _Travis: https://travis-ci.com/edx/registrar
 
 .. |Codecov| image:: http://codecov.io/github/edx/registrar/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/registrar?branch=master
