@@ -4,6 +4,6 @@
 #
 #    pip-compile --output-file=requirements/nonlocal.txt requirements/nonlocal.in
 #
-mysqlclient==2.0.1        # via -r requirements/nonlocal.in
+mysqlclient==2.0.2        # via -r requirements/nonlocal.in
 python-memcached==1.59    # via -r requirements/nonlocal.in
 six==1.15.0               # via python-memcached
