@@ -19,9 +19,6 @@ zipp<2.0.0
 # Stay on latest LTS release
 Django>=2.2,<3.0
 
-# This package is pinned due to openedx.atlassian.net/browse/ARCHBOM-1078
-social-auth-core<3.3.0
-
 # From base.in
 analytics-python<2.0         # https://github.com/edx/registrar/pull/39
 celery<5.0                   # version 5.0 drops support for python 3.5
