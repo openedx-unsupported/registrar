@@ -21,3 +21,4 @@ edx-drf-extensions
 edx-rest-api-client
 pytz
 redis
+social-auth-app-django
