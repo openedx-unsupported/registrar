@@ -26,27 +26,27 @@ code-annotations==0.10.2  # via -c requirements/constraints.txt, -r requirements
 coreapi==2.3.3            # via -r requirements/base.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/base.txt, coreapi, drf-yasg
 coverage==5.3.1           # via -r requirements/test.in, pytest-cov
-cryptography==3.3.1       # via -r requirements/base.txt, moto, pyjwt, social-auth-core
+cryptography==3.2.1       # via -r requirements/base.txt, moto, pyjwt, social-auth-core
 ddt==1.4.1                # via -r requirements/test.in
 decorator==4.4.2          # via networkx
 defusedxml==0.6.0         # via -r requirements/base.txt, python3-openid, social-auth-core
 distlib==0.3.1            # via virtualenv
-django-cors-headers==3.6.0  # via -r requirements/base.txt
+django-cors-headers==3.5.0  # via -r requirements/base.txt
 django-crum==0.7.9        # via -r requirements/base.txt, edx-django-utils
 django-dynamic-fixture==3.1.1  # via -r requirements/test.in
 django-extensions==3.1.0  # via -r requirements/base.txt
 django-guardian==2.3.0    # via -r requirements/base.txt
 django-model-utils==4.1.1  # via -r requirements/base.txt, django-user-tasks
-django-mysql==3.10.0      # via -r requirements/base.txt
+django-mysql==3.9.0       # via -r requirements/base.txt
 django-simple-history==2.12.0  # via -r requirements/base.txt
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.txt
 django-user-tasks==1.3.2  # via -r requirements/base.txt
 django-waffle==2.0.0      # via -r requirements/base.txt, edx-django-utils, edx-drf-extensions
-djangorestframework==3.12.2  # via -r requirements/base.txt, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
+djangorestframework==3.11.1  # via -c requirements/constraints.txt, -r requirements/base.txt, django-user-tasks, drf-jwt, drf-yasg, edx-api-doc-tools, edx-drf-extensions, rest-condition
 docker==4.4.1             # via moto
 docopt==0.6.2             # via pipreqs
 drf-jwt==1.17.3           # via -r requirements/base.txt, edx-drf-extensions
-drf-yasg==1.20.0          # via -r requirements/base.txt, edx-api-doc-tools
+drf-yasg==1.17.1          # via -r requirements/base.txt, edx-api-doc-tools
 ecdsa==0.14.1             # via python-jose
 edx-api-doc-tools==1.4.0  # via -r requirements/base.txt
 edx-auth-backends==3.1.0  # via -r requirements/base.txt
@@ -56,12 +56,14 @@ edx-drf-extensions==6.2.0  # via -r requirements/base.txt
 edx-lint==1.5.2           # via -c requirements/constraints.txt, -r requirements/test.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.txt, edx-drf-extensions
 edx-rest-api-client==1.9.2  # via -c requirements/constraints.txt, -r requirements/base.txt
-factory-boy==3.2.0        # via -r requirements/test.in
-faker==5.3.0              # via -r requirements/test.in, factory-boy
+factory-boy==3.1.0        # via -r requirements/test.in
+faker==5.0.0              # via -r requirements/test.in, factory-boy
 filelock==3.0.12          # via tox, virtualenv
 freezegun==1.0.0          # via -r requirements/test.in
 future==0.18.2            # via -r requirements/base.txt, aws-xray-sdk, pyjwkest
 idna==2.8                 # via -c requirements/constraints.txt, -r requirements/base.txt, moto, requests
+importlib-metadata==2.1.1  # via -r requirements/base.txt, jsonpickle, jsonschema, kombu, pluggy, pytest, tox, virtualenv
+importlib-resources==3.2.1  # via cfn-lint, virtualenv
 inflection==0.5.1         # via -r requirements/base.txt, drf-yasg
 iniconfig==1.1.1          # via pytest
 isort[requirements]==4.3.21  # via -r requirements/test.in, pylint
@@ -80,10 +82,11 @@ markupsafe==1.1.1         # via -r requirements/base.txt, jinja2
 mccabe==0.6.1             # via pylint
 mock==3.0.5               # via -c requirements/constraints.txt, moto
 moto==1.3.8               # via -c requirements/constraints.txt, -r requirements/test.in
-networkx==2.5             # via cfn-lint
+networkx==2.4             # via cfn-lint
 newrelic==5.24.0.153      # via -r requirements/base.txt, edx-django-utils
 oauthlib==3.1.0           # via -r requirements/base.txt, requests-oauthlib, social-auth-core
 packaging==20.8           # via -r requirements/base.txt, drf-yasg, pytest, tox
+pathlib2==2.3.5           # via pytest
 pathspec==0.8.1           # via yamllint
 pbr==5.5.1                # via -r requirements/base.txt, stevedore
 pip-api==0.0.17           # via isort
@@ -106,7 +109,7 @@ pyparsing==2.4.7          # via -r requirements/base.txt, packaging
 pyrsistent==0.17.3        # via jsonschema
 pytest-cov==2.10.1        # via -r requirements/test.in
 pytest-django==4.1.0      # via -r requirements/test.in
-pytest==6.2.1             # via -r requirements/test.in, pytest-cov, pytest-django
+pytest==6.1.2             # via -r requirements/test.in, pytest-cov, pytest-django
 python-dateutil==2.8.1    # via -r requirements/base.txt, analytics-python, botocore, edx-drf-extensions, faker, freezegun, moto
 python-jose==3.2.0        # via moto
 python-slugify==4.0.1     # via code-annotations
@@ -115,7 +118,7 @@ pytz==2020.5              # via -r requirements/base.txt, celery, django, moto
 pyyaml==5.1               # via -c requirements/constraints.txt, -r requirements/base.txt, cfn-lint, code-annotations, edx-django-release-util, moto, yamllint
 redis==3.5.3              # via -r requirements/base.txt
 requests-oauthlib==1.3.0  # via -r requirements/base.txt, social-auth-core
-requests==2.25.1          # via -r requirements/base.txt, analytics-python, coreapi, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core
+requests==2.25.1          # via -r requirements/base.txt, analytics-python, coreapi, docker, edx-drf-extensions, edx-rest-api-client, moto, pyjwkest, requests-oauthlib, responses, slumber, social-auth-core, yarg
 responses==0.12.1         # via -r requirements/test.in, moto
 rest-condition==1.0.3     # via -r requirements/base.txt, edx-drf-extensions
 rsa==4.6                  # via python-jose
@@ -123,15 +126,16 @@ ruamel.yaml.clib==0.2.2   # via -r requirements/base.txt, ruamel.yaml
 ruamel.yaml==0.16.12      # via -r requirements/base.txt, drf-yasg
 s3transfer==0.3.3         # via boto3
 semantic-version==2.8.5   # via -r requirements/base.txt, edx-drf-extensions
-six==1.15.0               # via -r requirements/base.txt, analytics-python, astroid, aws-sam-translator, cfn-lint, cryptography, django-dynamic-fixture, django-simple-history, docker, ecdsa, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, jsonschema, junit-xml, mock, moto, pyjwkest, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, tox, virtualenv, websocket-client
+six==1.15.0               # via -r requirements/base.txt, analytics-python, astroid, aws-sam-translator, cfn-lint, cryptography, django-dynamic-fixture, django-simple-history, docker, drf-yasg, ecdsa, edx-auth-backends, edx-django-release-util, edx-drf-extensions, edx-lint, edx-opaque-keys, jsonschema, junit-xml, mock, moto, pathlib2, pyjwkest, python-dateutil, python-jose, responses, social-auth-app-django, social-auth-core, stevedore, tox, virtualenv, websocket-client
 slumber==0.7.1            # via -r requirements/base.txt, edx-rest-api-client
 social-auth-app-django==4.0.0  # via -r requirements/base.txt, edx-auth-backends
 social-auth-core==3.3.3   # via -r requirements/base.txt, edx-auth-backends, social-auth-app-django
 sqlparse==0.4.1           # via -r requirements/base.txt, django
-stevedore==3.3.0          # via -r requirements/base.txt, code-annotations, edx-django-utils, edx-opaque-keys
+stevedore==1.32.0         # via -r requirements/base.txt, code-annotations, edx-django-utils, edx-opaque-keys
 text-unidecode==1.3       # via faker, python-slugify
 toml==0.10.2              # via pytest, tox
 tox==3.20.1               # via -r requirements/test.in
+typed-ast==1.4.2          # via astroid
 uritemplate==3.0.1        # via -r requirements/base.txt, coreapi, drf-yasg
 urllib3==1.26.2           # via -r requirements/base.txt, botocore, requests, responses
 vine==1.3.0               # via -r requirements/base.txt, amqp, celery
@@ -142,6 +146,7 @@ wrapt==1.11.2             # via astroid, aws-xray-sdk
 xmltodict==0.12.0         # via moto
 yamllint==1.25.0          # via -r requirements/test.in
 yarg==0.1.9               # via pipreqs
+zipp==1.2.0               # via -c requirements/constraints.txt, -r requirements/base.txt, importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
