@@ -8,23 +8,20 @@
 # pin when possible.  Writing an issue against the offending project and
 # linking to it here is good.
 
-# ImportError: cannot import name 'URLPattern' from 'rest_framework.compat' error on newer versions
-djangorestframework==3.11.1
+
+# This file contains all common constraints for edx-repos
+-c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+
 
 # django-storages version 1.9 drops support for boto storage backend.
 django-storages<1.9
 
 
-# Requires: Python >=3.6
-mock<4.0.0
-zipp<2.0.0
 
 # A lot of quality failures coming on newer versions, opened BOM-2193 ticket for fixing those.
 edx-lint==1.5.2
 pylint==2.4.4
 
-# Stay on latest LTS release
-Django>=2.2,<3.0
 
 # From base.in
 analytics-python<2.0         # https://github.com/edx/registrar/pull/39
@@ -44,3 +41,7 @@ PyYAML==5.1           # https://github.com/edx/registrar/pull/48
 # Constraints required to resolve requirements in docs.in and test.in
 docutils==0.15.2
 idna==2.8
+
+
+# greater versions failing make upgrade job due to pyjwt conflicts.
+social-auth-core<4.0.3
