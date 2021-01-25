@@ -45,3 +45,7 @@ idna==2.8
 
 # greater versions failing make upgrade job due to pyjwt conflicts.
 social-auth-core<4.0.3
+
+
+# latest versions need python3.6+
+newrelic==5.24.0.153

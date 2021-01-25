@@ -169,7 +169,7 @@ coverage==5.3.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pytest-cov
-cryptography==3.3.1
+cryptography==3.2.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -203,7 +203,7 @@ distlib==0.3.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   virtualenv
-django-cors-headers==3.6.0
+django-cors-headers==3.5.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -216,7 +216,7 @@ django-crum==0.7.9
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-django-utils
-django-debug-toolbar==3.2
+django-debug-toolbar==3.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -244,7 +244,7 @@ django-model-utils==4.1.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django-user-tasks
-django-mysql==3.10.0
+django-mysql==3.9.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -337,7 +337,7 @@ drf-jwt==1.17.3
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-drf-extensions
-drf-yasg==1.20.0
+drf-yasg==1.17.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -407,12 +407,12 @@ edx-sphinx-theme==1.6.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
-factory-boy==3.2.0
+factory-boy==3.1.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==5.6.5
+faker==5.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -469,6 +469,27 @@ imagesize==1.2.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   sphinx
+importlib-metadata==2.1.1
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../production.txt
+    #   -r requirements/monitoring/../test.txt
+    #   jsonpickle
+    #   jsonschema
+    #   kombu
+    #   path
+    #   pluggy
+    #   pytest
+    #   tox
+    #   virtualenv
+importlib-resources==3.2.1
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../test.txt
+    #   cfn-lint
+    #   virtualenv
 inflection==0.5.1
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -576,7 +597,7 @@ mccabe==0.6.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pylint
-mock==4.0.3
+mock==3.0.5
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -591,13 +612,13 @@ mysqlclient==2.0.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../production.txt
-networkx==2.5
+networkx==2.4
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   cfn-lint
-newrelic==6.0.1.155
+newrelic==5.24.0.153
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -627,11 +648,17 @@ path.py==12.5.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   edx-i18n-tools
-path==15.0.1
+path==13.1.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   path.py
+pathlib2==2.3.5
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../test.txt
+    #   pytest
 pathspec==0.8.1
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -789,7 +816,7 @@ pytest-django==4.1.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-pytest==6.2.1
+pytest==6.1.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -970,6 +997,7 @@ six==1.15.0
     #   django-dynamic-fixture
     #   django-simple-history
     #   docker
+    #   drf-yasg
     #   ecdsa
     #   edx-auth-backends
     #   edx-django-release-util
@@ -980,7 +1008,9 @@ six==1.15.0
     #   edx-sphinx-theme
     #   jsonschema
     #   junit-xml
+    #   mock
     #   moto
+    #   pathlib2
     #   pyjwkest
     #   python-dateutil
     #   python-jose
@@ -989,6 +1019,7 @@ six==1.15.0
     #   social-auth-app-django
     #   social-auth-core
     #   sphinx
+    #   stevedore
     #   tox
     #   transifex-client
     #   virtualenv
@@ -1048,7 +1079,7 @@ sqlparse==0.4.1
     #   -r requirements/monitoring/../test.txt
     #   django
     #   django-debug-toolbar
-stevedore==3.3.0
+stevedore==1.32.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -1080,6 +1111,12 @@ transifex-client==0.14.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
+typed-ast==1.4.2
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../test.txt
+    #   astroid
 uritemplate==3.0.1
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -1148,6 +1185,14 @@ yarg==0.1.9
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pipreqs
+zipp==1.2.0
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../production.txt
+    #   -r requirements/monitoring/../test.txt
+    #   importlib-metadata
+    #   importlib-resources
 zope.event==4.5.0
     # via
     #   -r requirements/monitoring/../production.txt
