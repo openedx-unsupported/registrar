@@ -16,11 +16,11 @@ billiard==3.6.3.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.16.59
+boto3==1.16.60
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.19.59
+botocore==1.19.60
     # via
     #   boto3
     #   s3transfer
@@ -50,7 +50,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-cryptography==3.3.1
+cryptography==3.2.1
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -60,7 +60,7 @@ defusedxml==0.6.0
     #   -r requirements/base.txt
     #   python3-openid
     #   social-auth-core
-django-cors-headers==3.7.0
+django-cors-headers==3.5.0
     # via -r requirements/base.txt
 django-crum==0.7.9
     # via
@@ -74,7 +74,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==3.11.0
+django-mysql==3.9.0
     # via -r requirements/base.txt
 django-simple-history==2.12.0
     # via -r requirements/base.txt
@@ -123,7 +123,7 @@ drf-jwt==1.17.3
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-drf-yasg==1.20.0
+drf-yasg==1.17.1
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
@@ -162,11 +162,10 @@ idna==2.8
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   requests
-importlib-metadata==3.4.0
+importlib-metadata==2.1.1
     # via
     #   -r requirements/base.txt
     #   kombu
-    #   stevedore
 inflection==0.5.1
     # via
     #   -r requirements/base.txt
@@ -195,8 +194,9 @@ mysqlclient==2.0.3
     # via
     #   -r requirements/nonlocal.txt
     #   -r requirements/production.in
-newrelic==6.0.1.155
+newrelic==5.24.0.153
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   edx-django-utils
 oauthlib==3.1.0
@@ -308,6 +308,7 @@ six==1.15.0
     #   analytics-python
     #   cryptography
     #   django-simple-history
+    #   drf-yasg
     #   edx-auth-backends
     #   edx-django-release-util
     #   edx-drf-extensions
@@ -317,6 +318,7 @@ six==1.15.0
     #   python-memcached
     #   social-auth-app-django
     #   social-auth-core
+    #   stevedore
 slumber==0.7.1
     # via
     #   -r requirements/base.txt
@@ -335,21 +337,17 @@ sqlparse==0.4.1
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==3.3.0
+stevedore==1.32.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==3.7.4.3
-    # via
-    #   -r requirements/base.txt
-    #   importlib-metadata
 uritemplate==3.0.1
     # via
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   -r requirements/base.txt
     #   botocore

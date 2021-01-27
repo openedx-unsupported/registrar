@@ -46,7 +46,7 @@ billiard==3.6.3.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.16.59
+boto3==1.16.60
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -56,7 +56,7 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-botocore==1.19.59
+botocore==1.19.60
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -112,11 +112,11 @@ coreschema==0.0.4
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-coverage==5.3.1
+coverage==5.4
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==3.3.1
+cryptography==3.2.1
     # via
     #   -r requirements/local.txt
     #   moto
@@ -137,13 +137,13 @@ distlib==0.3.1
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django-cors-headers==3.7.0
+django-cors-headers==3.5.0
     # via -r requirements/local.txt
 django-crum==0.7.9
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-django-debug-toolbar==3.2
+django-debug-toolbar==3.1.1
     # via -r requirements/local.txt
 django-dynamic-fixture==3.1.1
     # via -r requirements/local.txt
@@ -155,7 +155,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==3.11.0
+django-mysql==3.9.0
     # via -r requirements/local.txt
 django-simple-history==2.12.0
     # via -r requirements/local.txt
@@ -208,6 +208,10 @@ docker==4.4.1
     # via
     #   -r requirements/local.txt
     #   moto
+docopt==0.6.2
+    # via
+    #   -r requirements/local.txt
+    #   pipreqs
 docutils==0.15.2
     # via
     #   -c requirements/constraints.txt
@@ -217,7 +221,7 @@ drf-jwt==1.17.3
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-drf-yasg==1.20.0
+drf-yasg==1.17.1
     # via
     #   -r requirements/local.txt
     #   edx-api-doc-tools
@@ -239,7 +243,7 @@ edx-drf-extensions==6.4.0
     # via -r requirements/local.txt
 edx-i18n-tools==0.5.3
     # via -r requirements/local.txt
-edx-lint==3.0
+edx-lint==3.0.2
     # via -r requirements/local.txt
 edx-opaque-keys==2.1.1
     # via
@@ -251,9 +255,9 @@ edx-rest-api-client==1.9.2
     #   -r requirements/local.txt
 edx-sphinx-theme==1.6.1
     # via -r requirements/local.txt
-factory-boy==3.2.0
+factory-boy==3.1.0
     # via -r requirements/local.txt
-faker==5.7.0
+faker==5.0.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -287,18 +291,18 @@ imagesize==1.2.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-importlib-metadata==3.4.0
+importlib-metadata==2.1.1
     # via
     #   -r requirements/local.txt
     #   jsonpickle
     #   jsonschema
     #   kombu
+    #   path
     #   pluggy
     #   pytest
-    #   stevedore
     #   tox
     #   virtualenv
-importlib-resources==3.3.1
+importlib-resources==3.2.1
     # via
     #   -r requirements/local.txt
     #   cfn-lint
@@ -311,7 +315,7 @@ iniconfig==1.1.1
     # via
     #   -r requirements/local.txt
     #   pytest
-isort[requirements]==5.7.0
+isort[requirements]==4.3.21
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -383,12 +387,13 @@ moto==1.3.8
     #   -r requirements/local.txt
 mysqlclient==2.0.3
     # via -r requirements/nonlocal.txt
-networkx==2.5
+networkx==2.4
     # via
     #   -r requirements/local.txt
     #   cfn-lint
-newrelic==6.0.1.155
+newrelic==5.24.0.153
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   edx-django-utils
 oauthlib==3.1.0
@@ -406,10 +411,14 @@ path.py==12.5.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-path==15.0.1
+path==13.1.0
     # via
     #   -r requirements/local.txt
     #   path.py
+pathlib2==2.3.5
+    # via
+    #   -r requirements/local.txt
+    #   pytest
 pathspec==0.8.1
     # via
     #   -r requirements/local.txt
@@ -418,6 +427,14 @@ pbr==5.5.1
     # via
     #   -r requirements/local.txt
     #   stevedore
+pip-api==0.0.18
+    # via
+    #   -r requirements/local.txt
+    #   isort
+pipreqs==0.4.10
+    # via
+    #   -r requirements/local.txt
+    #   isort
 pluggy==0.13.1
     # via
     #   -r requirements/local.txt
@@ -470,7 +487,7 @@ pylint-celery==0.3
     # via
     #   -r requirements/local.txt
     #   edx-lint
-pylint-django==2.3.0
+pylint-django==2.4.2
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -502,7 +519,7 @@ pytest-cov==2.11.1
     # via -r requirements/local.txt
 pytest-django==4.1.0
     # via -r requirements/local.txt
-pytest==6.2.2
+pytest==6.1.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -573,6 +590,7 @@ requests==2.25.1
     #   social-auth-core
     #   sphinx
     #   transifex-client
+    #   yarg
 responses==0.12.1
     # via
     #   -r requirements/local.txt
@@ -626,6 +644,7 @@ six==1.15.0
     #   django-dynamic-fixture
     #   django-simple-history
     #   docker
+    #   drf-yasg
     #   ecdsa
     #   edx-auth-backends
     #   edx-django-release-util
@@ -638,6 +657,7 @@ six==1.15.0
     #   junit-xml
     #   mock
     #   moto
+    #   pathlib2
     #   pyjwkest
     #   python-dateutil
     #   python-jose
@@ -646,6 +666,7 @@ six==1.15.0
     #   social-auth-app-django
     #   social-auth-core
     #   sphinx
+    #   stevedore
     #   tox
     #   transifex-client
     #   virtualenv
@@ -690,7 +711,7 @@ sqlparse==0.4.1
     #   -r requirements/local.txt
     #   django
     #   django-debug-toolbar
-stevedore==3.3.0
+stevedore==1.32.0
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -715,16 +736,12 @@ typed-ast==1.4.2
     # via
     #   -r requirements/local.txt
     #   astroid
-typing-extensions==3.7.4.3
-    # via
-    #   -r requirements/local.txt
-    #   importlib-metadata
 uritemplate==3.0.1
     # via
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   -r requirements/local.txt
     #   botocore
@@ -759,6 +776,10 @@ xmltodict==0.12.0
     #   moto
 yamllint==1.25.0
     # via -r requirements/local.txt
+yarg==0.1.9
+    # via
+    #   -r requirements/local.txt
+    #   pipreqs
 zipp==1.2.0
     # via
     #   -c requirements/constraints.txt
@@ -767,4 +788,5 @@ zipp==1.2.0
     #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
+# pip
 # setuptools
