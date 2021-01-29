@@ -325,7 +325,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def get(self, request, *args, **kwargs):  # pylint: disable=W0613
+    def get(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Request program enrollment data
 
@@ -360,7 +360,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def post(self, request, program_key):  # pylint: disable=W0613
+    def post(self, request, program_key):  # pylint: disable=unused-argument
         """
         Enroll students in a program
 
@@ -407,7 +407,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def patch(self, request, program_key):  # pylint: disable=W0613
+    def patch(self, request, program_key):  # pylint: disable=unused-argument
         """
         Modify program enrollments
 
@@ -508,7 +508,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def get(self, request, *args, **kwargs):  # pylint: disable=W0613
+    def get(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Request course enrollment data
 
@@ -551,7 +551,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def post(self, request, program_key, course_id):  # pylint: disable=W0613
+    def post(self, request, program_key, course_id):  # pylint: disable=unused-argument
         """
         Enroll students in a course
 
@@ -589,7 +589,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def patch(self, request, program_key, course_id):  # pylint: disable=W0613
+    def patch(self, request, program_key, course_id):  # pylint: disable=unused-argument
         """
         Modify program course enrollments
 
@@ -798,7 +798,7 @@ class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView)
         'fmt': 'result_format',
     }
 
-    def get(self, request, *args, **kwargs):  # pylint: disable=W0613
+    def get(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Submit a user task that retrieves course run enrollment data for the given program.
         """
@@ -850,7 +850,7 @@ class CourseGradesView(CourseSpecificViewMixin, JobInvokerMixin, APIView):
             **SCHEMA_COMMON_RESPONSES,
         },
     )
-    def get(self, request, *args, **kwargs):  # pylint: disable=W0613
+    def get(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Request course run grade data
 
@@ -930,7 +930,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         description=('This endpoint returns a list of all reports specified by the program_key. '
                      'If a min_created_date is given, only reports created after that date will be returned.')
     )
-    def get(self, request, *args, **kwargs):  # pylint: disable=W0613
+    def get(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Get a list of reports for a program.
         """

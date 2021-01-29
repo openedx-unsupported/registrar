@@ -180,7 +180,7 @@ class OrganizationGroup(Group):
                 return role
         return None  # pragma: no cover
 
-    def save(self, *args, **kwargs):  # pylint: disable=W0222
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         super().save(*args, **kwargs)
         if self._initial_organization:  # pragma: no branch
             for perm in perms.ORGANIZATION_PERMISSIONS:
@@ -248,7 +248,7 @@ class ProgramOrganizationGroup(Group):
                 return role
         return None  # pragma: no cover
 
-    def save(self, *args, **kwargs):  # pylint: disable=W0222
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         super().save(*args, **kwargs)
         if self._initial_program:  # pragma: no branch
             for perm in perms.PROGRAM_PERMISSIONS:

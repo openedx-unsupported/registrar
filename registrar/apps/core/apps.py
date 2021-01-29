@@ -54,9 +54,7 @@ class CoreConfig(AppConfig):
         """
         Handle pre_migrate signal - disconnect User post_save handler.
         """
-        from django.db.models.signals import \
-            post_save  # pylint: disable=import-outside-toplevel
+        from django.db.models.signals import post_save  # pylint: disable=import-outside-toplevel
 
-        from registrar.apps.core.models import \
-            User  # pylint: disable=import-outside-toplevel
+        from registrar.apps.core.models import User  # pylint: disable=import-outside-toplevel
         post_save.disconnect(sender=User, dispatch_uid=self.USER_POST_SAVE_DISPATCH_UID)
