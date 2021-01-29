@@ -46,7 +46,7 @@ billiard==3.6.3.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.16.51
+boto3==1.16.62
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -56,7 +56,7 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-botocore==1.19.51
+botocore==1.19.62
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -76,7 +76,7 @@ cffi==1.14.4
     # via
     #   -r requirements/local.txt
     #   cryptography
-cfn-lint==0.44.3
+cfn-lint==0.44.5
     # via
     #   -r requirements/local.txt
     #   moto
@@ -94,7 +94,7 @@ click==7.1.2
     #   click-log
     #   code-annotations
     #   edx-lint
-code-annotations==0.10.2
+code-annotations==1.0.2
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -111,11 +111,11 @@ coreschema==0.0.4
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-coverage==5.3.1
+coverage==5.4
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==3.2.1
+cryptography==3.3.1
     # via
     #   -r requirements/local.txt
     #   moto
@@ -136,13 +136,13 @@ distlib==0.3.1
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django-cors-headers==3.5.0
+django-cors-headers==3.7.0
     # via -r requirements/local.txt
 django-crum==0.7.9
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-django-debug-toolbar==3.1.1
+django-debug-toolbar==3.2
     # via -r requirements/local.txt
 django-dynamic-fixture==3.1.1
     # via -r requirements/local.txt
@@ -154,7 +154,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==3.9.0
+django-mysql==3.11.1
     # via -r requirements/local.txt
 django-simple-history==2.12.0
     # via -r requirements/local.txt
@@ -164,14 +164,14 @@ django-storages==1.8
     #   -r requirements/local.txt
 django-user-tasks==1.3.2
     # via -r requirements/local.txt
-django-waffle==2.0.0
+django-waffle==2.1.0
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
     #   edx-drf-extensions
 django==2.2.17
     # via
-    #   -c requirements/constraints.txt
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/local.txt
     #   code-annotations
     #   django-cors-headers
@@ -219,7 +219,7 @@ drf-jwt==1.17.3
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-drf-yasg==1.17.1
+drf-yasg==1.20.0
     # via
     #   -r requirements/local.txt
     #   edx-api-doc-tools
@@ -229,15 +229,15 @@ ecdsa==0.14.1
     #   python-jose
 edx-api-doc-tools==1.4.0
     # via -r requirements/local.txt
-edx-auth-backends==3.3.0
+edx-auth-backends==3.3.1
     # via -r requirements/local.txt
-edx-django-release-util==0.4.4
+edx-django-release-util==1.0.0
     # via -r requirements/local.txt
 edx-django-utils==3.13.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-edx-drf-extensions==6.2.0
+edx-drf-extensions==6.4.0
     # via -r requirements/local.txt
 edx-i18n-tools==0.5.3
     # via -r requirements/local.txt
@@ -245,7 +245,7 @@ edx-lint==1.5.2
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
-edx-opaque-keys==2.1.1
+edx-opaque-keys==2.2.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -253,11 +253,11 @@ edx-rest-api-client==1.9.2
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
-edx-sphinx-theme==1.6.0
+edx-sphinx-theme==1.6.1
     # via -r requirements/local.txt
-factory-boy==3.1.0
+factory-boy==3.2.0
     # via -r requirements/local.txt
-faker==5.0.0
+faker==5.8.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -266,7 +266,7 @@ filelock==3.0.12
     #   -r requirements/local.txt
     #   tox
     #   virtualenv
-freezegun==1.0.0
+freezegun==1.1.0
     # via -r requirements/local.txt
 future==0.18.2
     # via
@@ -291,22 +291,6 @@ imagesize==1.2.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-importlib-metadata==2.1.1
-    # via
-    #   -r requirements/local.txt
-    #   jsonpickle
-    #   jsonschema
-    #   kombu
-    #   path
-    #   pluggy
-    #   pytest
-    #   tox
-    #   virtualenv
-importlib-resources==3.2.1
-    # via
-    #   -r requirements/local.txt
-    #   cfn-lint
-    #   virtualenv
 inflection==0.5.1
     # via
     #   -r requirements/local.txt
@@ -343,7 +327,7 @@ jsonpatch==1.28
     # via
     #   -r requirements/local.txt
     #   cfn-lint
-jsonpickle==1.4.2
+jsonpickle==1.5.0
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -387,11 +371,11 @@ moto==1.3.8
     #   -r requirements/local.txt
 mysqlclient==2.0.3
     # via -r requirements/nonlocal.txt
-networkx==2.4
+networkx==2.5
     # via
     #   -r requirements/local.txt
     #   cfn-lint
-newrelic==5.24.0.153
+newrelic==6.0.1.155
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
@@ -410,14 +394,10 @@ path.py==12.5.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-path==13.1.0
+path==15.1.0
     # via
     #   -r requirements/local.txt
     #   path.py
-pathlib2==2.3.5
-    # via
-    #   -r requirements/local.txt
-    #   pytest
 pathspec==0.8.1
     # via
     #   -r requirements/local.txt
@@ -426,7 +406,7 @@ pbr==5.5.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-pip-api==0.0.17
+pip-api==0.0.18
     # via
     #   -r requirements/local.txt
     #   isort
@@ -467,7 +447,7 @@ pycryptodomex==3.9.9
     # via
     #   -r requirements/local.txt
     #   pyjwkest
-pygments==2.7.3
+pygments==2.7.4
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -515,11 +495,11 @@ pyrsistent==0.17.3
     # via
     #   -r requirements/local.txt
     #   jsonschema
-pytest-cov==2.10.1
+pytest-cov==2.11.1
     # via -r requirements/local.txt
 pytest-django==4.1.0
     # via -r requirements/local.txt
-pytest==6.1.2
+pytest==6.2.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -623,7 +603,7 @@ ruamel.yaml==0.16.12
     #   drf-yasg
     #   ruamel.yaml.cmd
     #   ruamel.yaml.convert
-s3transfer==0.3.3
+s3transfer==0.3.4
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -644,20 +624,17 @@ six==1.15.0
     #   django-dynamic-fixture
     #   django-simple-history
     #   docker
-    #   drf-yasg
     #   ecdsa
     #   edx-auth-backends
     #   edx-django-release-util
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   edx-lint
-    #   edx-opaque-keys
     #   edx-sphinx-theme
     #   jsonschema
     #   junit-xml
     #   mock
     #   moto
-    #   pathlib2
     #   pyjwkest
     #   python-dateutil
     #   python-jose
@@ -666,7 +643,6 @@ six==1.15.0
     #   social-auth-app-django
     #   social-auth-core
     #   sphinx
-    #   stevedore
     #   tox
     #   transifex-client
     #   virtualenv
@@ -675,11 +651,11 @@ slumber==0.7.1
     # via
     #   -r requirements/local.txt
     #   edx-rest-api-client
-smmap==3.0.4
+smmap==3.0.5
     # via
     #   -r requirements/local.txt
     #   gitdb
-snowballstemmer==2.0.0
+snowballstemmer==2.1.0
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -689,6 +665,7 @@ social-auth-app-django==4.0.0
     #   edx-auth-backends
 social-auth-core==4.0.2
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/local.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -710,7 +687,7 @@ sqlparse==0.4.1
     #   -r requirements/local.txt
     #   django
     #   django-debug-toolbar
-stevedore==1.32.0
+stevedore==3.3.0
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -726,20 +703,16 @@ toml==0.10.2
     #   -r requirements/local.txt
     #   pytest
     #   tox
-tox==3.21.0
+tox==3.21.3
     # via -r requirements/local.txt
 transifex-client==0.14.2
     # via -r requirements/local.txt
-typed-ast==1.4.2
-    # via
-    #   -r requirements/local.txt
-    #   astroid
 uritemplate==3.0.1
     # via
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   -r requirements/local.txt
     #   botocore
@@ -751,7 +724,7 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.3.0
+virtualenv==20.4.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -778,12 +751,6 @@ yarg==0.1.9
     # via
     #   -r requirements/local.txt
     #   pipreqs
-zipp==1.2.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/local.txt
-    #   importlib-metadata
-    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
