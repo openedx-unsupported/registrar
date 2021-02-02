@@ -44,3 +44,6 @@ PyYAML==5.1           # https://github.com/edx/registrar/pull/48
 # Constraints required to resolve requirements in docs.in and test.in
 docutils==0.15.2
 idna==2.8
+
+# Requires: Python >=3.6
+newrelic<6.0
