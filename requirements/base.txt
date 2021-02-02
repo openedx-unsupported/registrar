@@ -64,7 +64,7 @@ django-waffle==2.1.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-django==2.2.17
+django==2.2.18
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
@@ -100,7 +100,7 @@ drf-yasg==1.20.0
     # via edx-api-doc-tools
 edx-api-doc-tools==1.4.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.1
+edx-auth-backends==3.3.2
     # via -r requirements/base.in
 edx-django-release-util==1.0.0
     # via -r requirements/base.in
@@ -124,19 +124,21 @@ inflection==0.5.1
     # via drf-yasg
 itypes==1.2.0
     # via coreapi
-jinja2==2.11.2
+jinja2==2.11.3
     # via coreschema
 kombu==4.6.11
     # via celery
 markupsafe==1.1.1
     # via jinja2
-newrelic==6.0.1.155
-    # via edx-django-utils
+newrelic==5.24.0.153
+    # via
+    #   -c requirements/constraints.txt
+    #   edx-django-utils
 oauthlib==3.1.0
     # via
     #   requests-oauthlib
     #   social-auth-core
-packaging==20.8
+packaging==20.9
     # via drf-yasg
 pbr==5.5.1
     # via stevedore
@@ -164,7 +166,7 @@ python-dateutil==2.8.1
     #   edx-drf-extensions
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2020.5
+pytz==2021.1
     # via
     #   -r requirements/base.in
     #   celery
