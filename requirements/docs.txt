@@ -24,13 +24,13 @@ idna==2.8
     #   requests
 imagesize==1.2.0
     # via sphinx
-jinja2==2.11.2
+jinja2==2.11.3
     # via sphinx
 markupsafe==1.1.1
     # via jinja2
 pygments==2.7.4
     # via sphinx
-pytz==2020.5
+pytz==2021.1
     # via babel
 requests==2.25.1
     # via sphinx

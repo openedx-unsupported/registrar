@@ -16,11 +16,11 @@ billiard==3.6.3.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.16.62
+boto3==1.16.63
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.19.62
+botocore==1.19.63
     # via
     #   boto3
     #   s3transfer
@@ -89,7 +89,7 @@ django-waffle==2.1.0
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-drf-extensions
-django==2.2.17
+django==2.2.18
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.txt
@@ -129,7 +129,7 @@ drf-yasg==1.20.0
     #   edx-api-doc-tools
 edx-api-doc-tools==1.4.0
     # via -r requirements/base.txt
-edx-auth-backends==3.3.1
+edx-auth-backends==3.3.2
     # via -r requirements/base.txt
 edx-django-release-util==1.0.0
     # via -r requirements/base.txt
@@ -170,7 +170,7 @@ itypes==1.2.0
     # via
     #   -r requirements/base.txt
     #   coreapi
-jinja2==2.11.2
+jinja2==2.11.3
     # via
     #   -r requirements/base.txt
     #   coreschema
@@ -190,8 +190,9 @@ mysqlclient==2.0.3
     # via
     #   -r requirements/nonlocal.txt
     #   -r requirements/production.in
-newrelic==6.0.1.155
+newrelic==5.24.0.153
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   edx-django-utils
 oauthlib==3.1.0
@@ -199,7 +200,7 @@ oauthlib==3.1.0
     #   -r requirements/base.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==20.8
+packaging==20.9
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -250,7 +251,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2020.5
+pytz==2021.1
     # via
     #   -r requirements/base.txt
     #   celery
