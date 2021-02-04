@@ -100,7 +100,7 @@ drf-yasg==1.20.0
     # via edx-api-doc-tools
 edx-api-doc-tools==1.4.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.2
+edx-auth-backends==3.3.3
     # via -r requirements/base.in
 edx-django-release-util==1.0.0
     # via -r requirements/base.in
@@ -156,7 +156,7 @@ pyjwt[crypto]==1.7.1
     #   edx-auth-backends
     #   edx-rest-api-client
     #   social-auth-core
-pymongo==3.11.2
+pymongo==3.11.3
     # via edx-opaque-keys
 pyparsing==2.4.7
     # via packaging
