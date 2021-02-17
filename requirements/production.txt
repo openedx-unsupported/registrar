@@ -50,7 +50,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-cryptography==3.3.1
+cryptography==3.3.2
     # via
     #   -r requirements/base.txt
     #   pyjwt
