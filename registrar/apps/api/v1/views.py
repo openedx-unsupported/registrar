@@ -376,7 +376,9 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
         | "canceled"    | The student has been permanently removed from the program.                                             |
         | "ended"       | The student has finished the program.                                                                  |
 
-        Note: Currently, all non-enrolled statuses ( pending, canceled, suspended, ended ) are functionally identical. From an edX perspective, they will result in identical behavior. This may change in the future.
+        Note: Currently, all non-enrolled statuses ( pending, canceled, suspended, ended ) are functionally identical. From an edX perspective, they will result in identical behavior.
+        All non-enrolled statuses will block acccess to the Student Portal. The "enrolled" status is the only status that allows learners to view their program in the Student Portal.
+        This may change in the future.
 
         The response will be a JSON dictionary mapping each supplied student key to either:
         - An enrollment status string.
