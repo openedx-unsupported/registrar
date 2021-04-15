@@ -233,6 +233,7 @@ TEMPLATES = [
 # multiple Django services are running behind the same hostname.
 # Detailed information at: https://docs.djangoproject.com/en/dev/ref/settings/
 SESSION_COOKIE_NAME = 'registrar_sessionid'
+SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_NAME = 'registrar_csrftoken'
 LANGUAGE_COOKIE_NAME = 'openedx-language-preference'
 # END COOKIE CONFIGURATION
