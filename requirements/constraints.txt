@@ -10,7 +10,7 @@
 
 # Common constraints for edx repos
 -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
- 
+
 # ImportError: cannot import name 'URLPattern' from 'rest_framework.compat' error on newer versions
 djangorestframework==3.11.1
 
@@ -30,6 +30,8 @@ pylint==2.4.4
 analytics-python<2.0         # https://github.com/edx/registrar/pull/39
 celery<5.0                   # version 5.0 drops support for python 3.5
 edx-rest-api-client==1.9.2   # https://github.com/edx/registrar/pull/1
+social-auth-core<4.0.3       # higher versions require PYJWT>=2.0.0 which is
+                             # incompatible with the pinned edx-rest-api-client
 
 Sphinx==1.6.7 ## Pinned due to bug in 1.7.0 - 1.7.1 (https://github.com/sphinx-doc/sphinx/issues/4692)
 
@@ -42,7 +44,6 @@ boto3>=1.4.4          # https://github.com/edx/registrar/pull/66
 PyYAML==5.1           # https://github.com/edx/registrar/pull/48
 
 # Constraints required to resolve requirements in docs.in and test.in
-docutils==0.15.2
 idna==2.8
 
 # Requires: Python >=3.6
