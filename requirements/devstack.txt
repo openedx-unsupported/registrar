@@ -537,7 +537,7 @@ pytz==2021.1
     #   moto
 pywatchman==1.4.1
     # via -r requirements/local.txt
-pyyaml==5.1
+pyyaml==5.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
