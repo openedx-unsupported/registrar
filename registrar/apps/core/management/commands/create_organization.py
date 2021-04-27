@@ -62,8 +62,8 @@ class Command(BaseCommand):
                 discovery_uuid=uuid.uuid4(),
             )
         except Exception as e:
-            raise CommandError(f'Unable to create Organization. cause: {e}')
-        logger.info(f'Created Organization {org.key}')
+            raise CommandError(f'Unable to create Organization. cause: {e}') from e
+        logger.info('Created Organization {}'.format(org.key))
         return org
 
     def create_org_group(self, org, group_role, group_name):  # pylint: disable=missing-function-docstring
@@ -76,5 +76,5 @@ class Command(BaseCommand):
                 role=group_role,
             )
         except Exception as e:
-            raise CommandError(f'Unable to create OrganizationGroup {group_name}. cause: {e}')
-        logger.info(f'Created OrganizationGroup {group_name} with role {group_role}')
+            raise CommandError(f'Unable to create OrganizationGroup {group_name}. cause: {e}') from e
+        logger.info('Created OrganizationGroup {} with role {}'.format(group_name, group_role))

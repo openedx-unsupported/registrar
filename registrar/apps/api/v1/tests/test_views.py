@@ -22,7 +22,8 @@ from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 from user_tasks.models import UserTaskStatus
 from user_tasks.tasks import UserTask
-from waffle import get_waffle_flag_model
+from waffle import \
+    get_waffle_flag_model  # pylint: disable=invalid-django-waffle-import
 from waffle.testutils import override_flag
 
 from registrar.apps.api.constants import ENROLLMENT_WRITE_MAX_SIZE

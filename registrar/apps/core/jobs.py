@@ -81,8 +81,8 @@ def get_job_status(user, job_id):
     """
     try:
         task_status = UserTaskStatus.objects.get(task_id=job_id)
-    except UserTaskStatus.DoesNotExist:
-        raise ObjectDoesNotExist(f"No such job: {job_id}")
+    except UserTaskStatus.DoesNotExist as ex:
+        raise ObjectDoesNotExist(f"No such job: {job_id}") from ex
     if user.has_perm(JOB_GLOBAL_READ) or user == task_status.user:
         return _make_job_status(task_status)
     else:

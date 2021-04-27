@@ -180,7 +180,6 @@ class OrganizationGroup(Group):
                 return role
         return None  # pragma: no cover
 
-    # pylint: disable=arguments-differ
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self._initial_organization:  # pragma: no branch
@@ -249,7 +248,6 @@ class ProgramOrganizationGroup(Group):
                 return role
         return None  # pragma: no cover
 
-    # pylint: disable=arguments-differ
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self._initial_program:  # pragma: no branch

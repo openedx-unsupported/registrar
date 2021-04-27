@@ -14,14 +14,13 @@ from .models import Program
 log = get_task_logger(__name__)
 
 
-# pylint: disable=unused-argument
 @shared_task(bind=True)
 def debug_task(self, *args, **kwargs):
     """
     A task for debugging.  Will dump the context of the task request
     to the log as a DEBUG message.
     """
-    log.debug(f'Request: {self.request!r}')
+    log.debug('Request: {0!r}'.format(self.request))
 
 
 # pylint: disable=unused-argument
