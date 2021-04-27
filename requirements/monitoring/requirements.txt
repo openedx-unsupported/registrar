@@ -48,7 +48,7 @@ aws-sam-translator==1.35.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   cfn-lint
-aws-xray-sdk==2.6.0
+aws-xray-sdk==2.7.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -59,14 +59,14 @@ babel==2.9.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   sphinx
-billiard==3.6.3.0
+billiard==3.6.4.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.17.33
+boto3==1.17.58
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -80,7 +80,7 @@ boto==2.49.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.20.33
+botocore==1.20.58
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -111,7 +111,7 @@ cffi==1.14.5
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   cryptography
-cfn-lint==0.47.2
+cfn-lint==0.48.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -138,7 +138,7 @@ click==7.1.2
     #   click-log
     #   code-annotations
     #   edx-lint
-code-annotations==1.1.0
+code-annotations==1.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -169,7 +169,7 @@ coverage==5.5
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pytest-cov
-cryptography==3.4.6
+cryptography==3.4.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -216,7 +216,7 @@ django-crum==0.7.9
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-django-utils
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -225,7 +225,7 @@ django-dynamic-fixture==3.1.1
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-django-extensions==3.1.1
+django-extensions==3.1.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -250,7 +250,7 @@ django-mysql==3.11.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-django-simple-history==2.12.0
+django-simple-history==3.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -276,7 +276,7 @@ django-waffle==2.1.0
     #   -r requirements/monitoring/../test.txt
     #   edx-django-utils
     #   edx-drf-extensions
-django==2.2.19
+django==2.2.20
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -286,6 +286,7 @@ django==2.2.19
     #   django-cors-headers
     #   django-crum
     #   django-debug-toolbar
+    #   django-extensions
     #   django-guardian
     #   django-model-utils
     #   django-mysql
@@ -313,7 +314,7 @@ djangorestframework==3.11.1
     #   edx-api-doc-tools
     #   edx-drf-extensions
     #   rest-condition
-docker==4.4.4
+docker==5.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -325,12 +326,12 @@ docopt==0.6.2
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pipreqs
-docutils==0.15.2
+docutils==0.16
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   sphinx
-drf-jwt==1.18.0
+drf-jwt==1.19.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -368,7 +369,7 @@ edx-django-release-util==1.0.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-edx-django-utils==3.15.0
+edx-django-utils==3.16.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -403,7 +404,7 @@ edx-rest-api-client==1.9.2
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-edx-sphinx-theme==2.0.0
+edx-sphinx-theme==2.1.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -412,7 +413,7 @@ factory-boy==3.2.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==6.6.2
+faker==8.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -440,7 +441,7 @@ future==0.18.2
     #   pyjwkest
 gevent==21.1.2
     # via -r requirements/monitoring/../production.txt
-gitdb==4.0.5
+gitdb==4.0.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -454,7 +455,7 @@ greenlet==1.0.0
     # via
     #   -r requirements/monitoring/../production.txt
     #   gevent
-gunicorn==20.0.4
+gunicorn==20.1.0
     # via -r requirements/monitoring/../production.txt
 idna==2.8
     # via
@@ -525,12 +526,6 @@ jsonpatch==1.32
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   cfn-lint
-jsonpickle==2.0.0
-    # via
-    #   -r requirements/monitoring/../devstack.txt
-    #   -r requirements/monitoring/../local.txt
-    #   -r requirements/monitoring/../test.txt
-    #   aws-xray-sdk
 jsonpointer==2.1
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -591,7 +586,7 @@ mysqlclient==2.0.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../production.txt
-networkx==2.5
+networkx==2.5.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -638,7 +633,7 @@ pathspec==0.8.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   yamllint
-pbr==5.5.1
+pbr==5.6.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -664,7 +659,7 @@ pluggy==0.13.1
     #   -r requirements/monitoring/../test.txt
     #   pytest
     #   tox
-polib==1.1.0
+polib==1.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -784,12 +779,12 @@ pytest-cov==2.11.1
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-pytest-django==4.1.0
+pytest-django==4.2.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-pytest==6.2.2
+pytest==6.2.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -892,7 +887,7 @@ requests==2.25.1
     #   sphinx
     #   transifex-client
     #   yarg
-responses==0.13.1
+responses==0.13.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -932,7 +927,7 @@ ruamel.yaml.convert==0.3.2
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   ruamel.yaml.cmd
-ruamel.yaml==0.16.13
+ruamel.yaml==0.17.4
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -941,7 +936,7 @@ ruamel.yaml==0.16.13
     #   drf-yasg
     #   ruamel.yaml.cmd
     #   ruamel.yaml.convert
-s3transfer==0.3.6
+s3transfer==0.4.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -967,8 +962,6 @@ six==1.15.0
     #   cfn-lint
     #   configobj
     #   django-dynamic-fixture
-    #   django-simple-history
-    #   docker
     #   ecdsa
     #   edx-auth-backends
     #   edx-django-release-util
@@ -999,7 +992,7 @@ slumber==0.7.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-rest-api-client
-smmap==3.0.5
+smmap==4.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -1105,7 +1098,7 @@ vine==1.3.0
     #   -r requirements/monitoring/../test.txt
     #   amqp
     #   celery
-virtualenv==20.4.3
+virtualenv==20.4.4
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -1136,7 +1129,7 @@ xmltodict==0.12.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-yamllint==1.26.0
+yamllint==1.26.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -1151,7 +1144,7 @@ zope.event==4.5.0
     # via
     #   -r requirements/monitoring/../production.txt
     #   gevent
-zope.interface==5.3.0
+zope.interface==5.4.0
     # via
     #   -r requirements/monitoring/../production.txt
     #   gevent
