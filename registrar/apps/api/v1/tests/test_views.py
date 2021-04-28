@@ -3018,10 +3018,10 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     def tearDown(cls):
         super().tearDown(cls)
         filestore = get_program_reports_filestore()
-        files = filestore.list('{}/{}'.format(cls.hum_org.key, cls.uuid_hexify(cls.english_program.discovery_uuid)))
+        files = filestore.list(f'{cls.hum_org.key}/{cls.uuid_hexify(cls.english_program.discovery_uuid)}')
 
         for file in files[1]:
-            file_path = '{}/{}/{}'.format(cls.hum_org.key, cls.uuid_hexify(cls.english_program.discovery_uuid), file)
+            file_path = f'{cls.hum_org.key}/{cls.uuid_hexify(cls.english_program.discovery_uuid)}/{file}'
             filestore.delete(file_path)
 
     def test_ok(self):
@@ -3040,7 +3040,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             },
         ]
 
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
+        file_prefix = f'{self.hum_org.key}/{self.uuid_hexify(self.english_program.discovery_uuid)}'
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
@@ -3078,7 +3078,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             },
         ]
 
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
+        file_prefix = f'{self.hum_org.key}/{self.uuid_hexify(self.english_program.discovery_uuid)}'
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
@@ -3105,7 +3105,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     def test_min_created_date_parameter_invalid_date(self):
         filestore = get_program_reports_filestore()
         filestore.store(
-            '{}/{}/individual_report_1'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid)),
+            f'{self.hum_org.key}/{self.uuid_hexify(self.english_program.discovery_uuid)}/individual_report_1',
             'data',
         )
 
@@ -3123,7 +3123,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             'individual_report_1',  # Malformed
             'individual_report__2019-12-18',  # Well-formed
         ]
-        file_prefix = '{}/{}'.format(self.hum_org.key, self.uuid_hexify(self.english_program.discovery_uuid))
+        file_prefix = f'{self.hum_org.key}/{self.uuid_hexify(self.english_program.discovery_uuid)}'
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
