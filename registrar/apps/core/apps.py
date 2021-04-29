@@ -1,6 +1,7 @@
 """
 Registrar Core Django application initialization.
 """
+# pylint: disable=import-outside-toplevel
 
 from logging import getLogger
 
@@ -17,7 +18,6 @@ class CoreConfig(AppConfig):
     USER_POST_SAVE_DISPATCH_UID = 'user_post_save_assign_org_group'
     name = "registrar.apps.core"
 
-    # pylint: disable=import-outside-toplevel
     def ready(self):
         """
         Perform other one-time initialization steps.

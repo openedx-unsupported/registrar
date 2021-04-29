@@ -28,7 +28,7 @@ def main():
         yaml.dump(data, wp)
 
     # Now, use ruamel yaml to merge-expand
-    os.system('yaml merge-expand {0} {1}'.format(output_path, sys.argv[2]))
+    os.system(f'yaml merge-expand {output_path} {sys.argv[2]}')
 
     if output_path != sys.argv[2]:
         os.remove(output_path)

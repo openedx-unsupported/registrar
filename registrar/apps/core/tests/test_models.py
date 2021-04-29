@@ -52,7 +52,7 @@ class UserTests(TestCase):
         first_name = 'Jerry'
         last_name = 'Seinfeld'
         user = G(User, full_name=None, first_name=first_name, last_name=last_name)
-        expected = '{first_name} {last_name}'.format(first_name=first_name, last_name=last_name)
+        expected = f'{first_name} {last_name}'
         self.assertEqual(user.get_full_name(), expected)
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
@@ -69,7 +69,7 @@ class OrganizationTests(TestCase):
         A "slug" can include ASCII-valid alphanumeric characters, underscores, and hyphens.
         """
         org = OrganizationFactory.build(key="AmericanDodgeballAssociationOfAmericá")
-        with self.assertRaisesRegex(ValidationError, "Enter a valid 'slug'"):
+        with self.assertRaisesRegex(ValidationError, "Enter a valid .slug"):
             org.full_clean()
 
 
@@ -83,7 +83,7 @@ class ProgramTests(TestCase):
         A "slug" can include ASCII-valid alphanumeric characters, underscores, and hyphens.
         """
         program = ProgramFactory.build(key="Master's_Degree")
-        with self.assertRaisesRegex(ValidationError, "Enter a valid 'slug'"):
+        with self.assertRaisesRegex(ValidationError, "Enter a valid .slug"):
             program.full_clean()
 
 
@@ -92,7 +92,7 @@ class OrganizationGroupTests(TestCase):
     """ Tests for OrganizationGroup model """
 
     def setUp(self):
-        super(OrganizationGroupTests, self).setUp()
+        super().setUp()
         self.organization = OrganizationFactory()
         self.user = UserFactory()
 
@@ -187,7 +187,7 @@ class ProgramOrganizationGroupTests(TestCase):
     """ Tests for ProgramOrganizationGroup model """
 
     def setUp(self):
-        super(ProgramOrganizationGroupTests, self).setUp()
+        super().setUp()
         self.program = ProgramFactory()
         self.user = UserFactory()
 

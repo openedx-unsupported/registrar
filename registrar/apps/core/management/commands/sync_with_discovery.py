@@ -156,7 +156,7 @@ class Command(BaseCommand):
             read_reports_groups[group.organization.key] = group
 
         for org in Organization.objects.all():
-            name = '{}_ReadOrganizationReports'.format(org.key)
+            name = f'{org.key}_ReadOrganizationReports'
 
             created, updated = (False, False)
             org_group = read_reports_groups.get(org.key)

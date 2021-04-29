@@ -22,7 +22,7 @@ def pre_request(worker, req):
     Returns:
         None
     """
-    worker.log.info("%s %s" % (req.method, req.path))
+    worker.log.info(f"{req.method} {req.path}")
 
 
 def close_all_caches():

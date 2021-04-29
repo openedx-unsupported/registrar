@@ -8,9 +8,9 @@ tested by our view tests.
 import json
 import uuid
 from posixpath import join as urljoin
+from unittest import mock
 
 import ddt
-import mock
 import responses
 from django.conf import settings
 from django.test import TestCase
