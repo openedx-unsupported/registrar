@@ -4,7 +4,7 @@ Mixins for the public V1 REST API.
 import uuid
 from collections.abc import Iterable
 
-import waffle
+import waffle  # pylint: disable=invalid-django-waffle-import
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
@@ -103,9 +103,9 @@ class ProgramSpecificViewMixin(TrackViewMixin):
         program_key = self.kwargs['program_key']
         try:
             return Program.objects.get(key=program_key)
-        except Program.DoesNotExist:
+        except Program.DoesNotExist as ex:
             self.add_tracking_data(failure='program_not_found')
-            raise Http404()
+            raise Http404() from ex
 
 
 class CourseSpecificViewMixin(ProgramSpecificViewMixin):

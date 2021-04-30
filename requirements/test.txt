@@ -14,7 +14,7 @@ analytics-python==1.2.9
     #   -r requirements/base.txt
 appdirs==1.4.4
     # via virtualenv
-astroid==2.3.3
+astroid==2.5.6
     # via
     #   pylint
     #   pylint-celery
@@ -73,6 +73,7 @@ code-annotations==1.1.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
+    #   edx-lint
 coreapi==2.3.3
     # via
     #   -r requirements/base.txt
@@ -154,6 +155,7 @@ django-waffle==2.1.0
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
+    #   edx-lint
     #   rest-condition
 djangorestframework==3.11.1
     # via
@@ -167,8 +169,6 @@ djangorestframework==3.11.1
     #   rest-condition
 docker==5.0.0
     # via moto
-docopt==0.6.2
-    # via pipreqs
 drf-jwt==1.19.0
     # via
     #   -r requirements/base.txt
@@ -191,10 +191,8 @@ edx-django-utils==3.16.0
     #   edx-drf-extensions
 edx-drf-extensions==6.5.0
     # via -r requirements/base.txt
-edx-lint==1.5.2
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.in
+edx-lint==5.0.0
+    # via -r requirements/test.in
 edx-opaque-keys==2.2.0
     # via
     #   -r requirements/base.txt
@@ -232,7 +230,7 @@ inflection==0.5.1
     #   drf-yasg
 iniconfig==1.1.1
     # via pytest
-isort[requirements]==4.3.21
+isort[requirements]==5.8.0
     # via
     #   -r requirements/test.in
     #   pylint
@@ -266,7 +264,7 @@ kombu==4.6.11
     # via
     #   -r requirements/base.txt
     #   celery
-lazy-object-proxy==1.4.3
+lazy-object-proxy==1.6.0
     # via astroid
 markupsafe==1.1.1
     # via
@@ -306,10 +304,6 @@ pbr==5.6.0
     # via
     #   -r requirements/base.txt
     #   stevedore
-pip-api==0.0.20
-    # via isort
-pipreqs==0.4.10
-    # via isort
 pluggy==0.13.1
     # via
     #   pytest
@@ -349,16 +343,15 @@ pyjwt[crypto]==1.7.1
     #   social-auth-core
 pylint-celery==0.3
     # via edx-lint
-pylint-django==2.0.11
+pylint-django==2.4.4
     # via edx-lint
 pylint-plugin-utils==0.6
     # via
     #   pylint-celery
     #   pylint-django
-pylint==2.4.4
+pylint==2.7.4
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
-    #   -c requirements/constraints.txt
     #   edx-lint
     #   pylint-celery
     #   pylint-django
@@ -462,7 +455,6 @@ six==1.15.0
     # via
     #   -r requirements/base.txt
     #   analytics-python
-    #   astroid
     #   aws-sam-translator
     #   cfn-lint
     #   django-dynamic-fixture
@@ -514,6 +506,7 @@ text-unidecode==1.3
     #   python-slugify
 toml==0.10.2
     # via
+    #   pylint
     #   pytest
     #   tox
 tox==3.23.0
@@ -540,7 +533,7 @@ websocket-client==0.58.0
     # via docker
 werkzeug==1.0.1
     # via moto
-wrapt==1.11.2
+wrapt==1.12.1
     # via
     #   astroid
     #   aws-xray-sdk
@@ -548,9 +541,6 @@ xmltodict==0.12.0
     # via moto
 yamllint==1.26.1
     # via -r requirements/test.in
-yarg==0.1.9
-    # via pipreqs
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
 # setuptools

@@ -7,7 +7,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 
-import waffle
+import waffle  # pylint: disable=invalid-django-waffle-import
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils.functional import cached_property
@@ -183,9 +183,9 @@ class ProgramListView(TrackViewMixin, ListAPIView):
         if org_key:
             try:
                 return Organization.objects.get(key=org_key)
-            except Organization.DoesNotExist:
+            except Organization.DoesNotExist as ex:
                 self.add_tracking_data(failure='org_not_found')
-                raise Http404()
+                raise Http404() from ex
         else:
             return None
 
@@ -202,9 +202,9 @@ class ProgramListView(TrackViewMixin, ListAPIView):
             return perms.API_READ_METADATA
         try:
             return perms.API_PERMISSIONS_BY_NAME[perm_query_param]
-        except KeyError:
+        except KeyError as ex:
             self.add_tracking_data(failure='no_such_perm')
-            raise Http404()
+            raise Http404() from ex
 
 
 @schema_for(
@@ -360,6 +360,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
             **SCHEMA_COMMON_RESPONSES,
         },
     )
+    # pylint: disable=unused-argument
     def post(self, request, program_key):
         """
         Enroll students in a program
@@ -409,6 +410,7 @@ class ProgramEnrollmentView(EnrollmentMixin, JobInvokerMixin, APIView):
             **SCHEMA_COMMON_RESPONSES,
         },
     )
+    # pylint: disable=unused-argument
     def patch(self, request, program_key):
         """
         Modify program enrollments
@@ -553,6 +555,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             **SCHEMA_COMMON_RESPONSES,
         },
     )
+    # pylint: disable=unused-argument
     def post(self, request, program_key, course_id):
         """
         Enroll students in a course
@@ -591,6 +594,7 @@ class CourseEnrollmentView(CourseSpecificViewMixin, JobInvokerMixin, EnrollmentM
             **SCHEMA_COMMON_RESPONSES,
         },
     )
+    # pylint: disable=unused-argument
     def patch(self, request, program_key, course_id):
         """
         Modify program course enrollments
@@ -661,9 +665,9 @@ class JobStatusRetrieveView(TrackViewMixin, RetrieveAPIView):
         except PermissionDenied:
             self.add_tracking_data(missing_permissions=[perms.JOB_GLOBAL_READ])
             raise
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as ex:
             self.add_tracking_data(failure='job_not_found')
-            raise Http404()
+            raise Http404() from ex
         self.add_tracking_data(job_state=status.state)
         return status
 
