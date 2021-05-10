@@ -22,10 +22,6 @@ django-storages<1.9
 mock<4.0.0
 zipp<2.0.0
 
-# A lot of quality failures coming on newer versions, opened BOM-2193 ticket for fixing those.
-edx-lint==1.5.2
-pylint==2.4.4
-
 # From base.in
 analytics-python<2.0         # https://github.com/edx/registrar/pull/39
 celery<5.0                   # version 5.0 drops support for python 3.5

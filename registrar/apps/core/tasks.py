@@ -14,7 +14,6 @@ from .models import Program
 log = get_task_logger(__name__)
 
 
-# pylint: disable=unused-argument
 @shared_task(bind=True)
 def debug_task(self, *args, **kwargs):
     """
@@ -40,5 +39,5 @@ def get_program(job_id, program_key):
     try:
         return Program.objects.get(key=program_key)
     except Program.DoesNotExist:
-        post_job_failure(job_id, "Bad program key: {}".format(program_key))
+        post_job_failure(job_id, f"Bad program key: {program_key}")
         return None

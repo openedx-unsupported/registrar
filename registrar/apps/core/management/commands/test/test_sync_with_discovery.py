@@ -1,8 +1,9 @@
 """ Tests for sync_with_discovery management command """
+from unittest.mock import patch
+
 import ddt
 from django.core.management import call_command
 from django.test import TestCase
-from mock import patch
 
 from registrar.apps.core.api_client import DiscoveryServiceClient
 from registrar.apps.core.models import (
@@ -44,22 +45,22 @@ class TestSyncWithDiscoveryCommandBase(TestCase):
         cls.org = OrganizationFactory()
         cls.other_org = OrganizationFactory()
         cls.org_read_reports_group = OrganizationGroupFactory(
-            name='{}_ReadOrganizationReports'.format(cls.org.key),
+            name=f'{cls.org.key}_ReadOrganizationReports',
             organization=cls.org,
             role=OrganizationReadReportRole.name
         )
         cls.org_read_enrollments = OrganizationGroupFactory(
-            name='{}_ReadEnrollments'.format(cls.org.key),
+            name=f'{cls.org.key}_ReadEnrollments',
             organization=cls.org,
             role=OrganizationReadEnrollmentsRole.name
         )
         cls.other_org_read_reports_group = OrganizationGroupFactory(
-            name='{}_ReadOrganizationReports'.format(cls.other_org.key),
+            name=f'{cls.other_org.key}_ReadOrganizationReports',
             organization=cls.other_org,
             role=OrganizationReadReportRole.name
         )
         cls.other_org_read_enrollments = OrganizationGroupFactory(
-            name='{}_ReadEnrollments'.format(cls.other_org.key),
+            name=f'{cls.other_org.key}_ReadEnrollments',
             organization=cls.other_org,
             role=OrganizationReadEnrollmentsRole.name
         )

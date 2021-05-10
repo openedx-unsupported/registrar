@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 return org
             except Organization.DoesNotExist:
                 logger.info('Org {} not found in registrar'.format(org_key))
-        raise CommandError('None of the authoring organizations {} were found in Registrar'.format(org_keys))
+        raise CommandError(f'None of the authoring organizations {org_keys} were found in Registrar')
 
     # pylint: disable=missing-function-docstring
     def create_or_modify_program(self, org, program_details, program_uuid, program_key):

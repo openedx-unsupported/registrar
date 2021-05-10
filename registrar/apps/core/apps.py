@@ -1,6 +1,7 @@
 """
 Registrar Core Django application initialization.
 """
+# pylint: disable=import-outside-toplevel
 
 from logging import getLogger
 
@@ -17,17 +18,21 @@ class CoreConfig(AppConfig):
     USER_POST_SAVE_DISPATCH_UID = 'user_post_save_assign_org_group'
     name = "registrar.apps.core"
 
-    # pylint: disable=import-outside-toplevel
     def ready(self):
         """
         Perform other one-time initialization steps.
         """
-        from django.db.models.signals import pre_migrate, pre_save, post_save
-        from registrar.apps.core.models import OrganizationGroup, ProgramOrganizationGroup, User
+        from django.db.models.signals import post_save, pre_migrate, pre_save
+
+        from registrar.apps.core.models import (
+            OrganizationGroup,
+            ProgramOrganizationGroup,
+            User,
+        )
         from registrar.apps.core.signals import (
             handle_organization_group_pre_save,
             handle_program_group_pre_save,
-            handle_user_post_save
+            handle_user_post_save,
         )
 
         post_save.connect(
@@ -49,6 +54,9 @@ class CoreConfig(AppConfig):
         """
         Handle pre_migrate signal - disconnect User post_save handler.
         """
-        from django.db.models.signals import post_save      # pylint: disable=import-outside-toplevel
-        from registrar.apps.core.models import User     # pylint: disable=import-outside-toplevel
+        from django.db.models.signals import \
+            post_save  # pylint: disable=import-outside-toplevel
+
+        from registrar.apps.core.models import \
+            User  # pylint: disable=import-outside-toplevel
         post_save.disconnect(sender=User, dispatch_uid=self.USER_POST_SAVE_DISPATCH_UID)
