@@ -4,9 +4,13 @@
 #
 #    pip-compile --output-file=requirements/docs.txt requirements/docs.in
 #
+--index-url http://edx.devstack.devpi:3141/root/pypi/+simple/
+--extra-index-url https://pypi.python.org/simple
+--trusted-host edx.devstack.devpi
+
 alabaster==0.7.12
     # via sphinx
-babel==2.9.0
+babel==2.9.1
     # via sphinx
 certifi==2020.12.5
     # via requests
@@ -28,13 +32,13 @@ jinja2==2.11.3
     # via sphinx
 markupsafe==1.1.1
     # via jinja2
-pygments==2.8.1
+pygments==2.9.0
     # via sphinx
 pytz==2021.1
     # via babel
 requests==2.25.1
     # via sphinx
-six==1.15.0
+six==1.16.0
     # via
     #   edx-sphinx-theme
     #   sphinx
