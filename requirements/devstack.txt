@@ -4,6 +4,10 @@
 #
 #    pip-compile --output-file=requirements/devstack.txt requirements/devstack.in
 #
+--index-url http://edx.devstack.devpi:3141/root/pypi/+simple/
+--extra-index-url https://pypi.python.org/simple
+--trusted-host edx.devstack.devpi
+
 alabaster==0.7.12
     # via
     #   -r requirements/local.txt
@@ -25,7 +29,7 @@ astroid==2.5.6
     #   -r requirements/local.txt
     #   pylint
     #   pylint-celery
-attrs==20.3.0
+attrs==21.2.0
     # via
     #   -r requirements/local.txt
     #   jsonschema
@@ -34,11 +38,11 @@ aws-sam-translator==1.35.0
     # via
     #   -r requirements/local.txt
     #   cfn-lint
-aws-xray-sdk==2.7.0
+aws-xray-sdk==2.8.0
     # via
     #   -r requirements/local.txt
     #   moto
-babel==2.9.0
+babel==2.9.1
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -46,7 +50,7 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.17.58
+boto3==1.17.70
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -56,7 +60,7 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-botocore==1.20.58
+botocore==1.20.70
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -76,7 +80,7 @@ cffi==1.14.5
     # via
     #   -r requirements/local.txt
     #   cryptography
-cfn-lint==0.48.3
+cfn-lint==0.49.1
     # via
     #   -r requirements/local.txt
     #   moto
@@ -232,7 +236,7 @@ edx-auth-backends==3.3.3
     # via -r requirements/local.txt
 edx-django-release-util==1.0.0
     # via -r requirements/local.txt
-edx-django-utils==3.16.0
+edx-django-utils==4.0.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -254,7 +258,7 @@ edx-sphinx-theme==2.1.0
     # via -r requirements/local.txt
 factory-boy==3.2.0
     # via -r requirements/local.txt
-faker==8.1.1
+faker==8.1.3
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -274,7 +278,7 @@ gitdb==4.0.7
     # via
     #   -r requirements/local.txt
     #   gitpython
-gitpython==3.1.14
+gitpython==3.1.15
     # via
     #   -r requirements/local.txt
     #   transifex-client
@@ -433,7 +437,7 @@ pycryptodomex==3.10.1
     # via
     #   -r requirements/local.txt
     #   pyjwkest
-pygments==2.8.1
+pygments==2.9.0
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -463,13 +467,13 @@ pylint-plugin-utils==0.6
     #   pylint-django
 pylint==2.7.4
     # via
-    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   edx-lint
     #   pylint-celery
     #   pylint-django
     #   pylint-plugin-utils
-pymongo==3.11.3
+pymongo==3.11.4
     # via
     #   -r requirements/local.txt
     #   edx-opaque-keys
@@ -485,7 +489,7 @@ pytest-cov==2.11.1
     # via -r requirements/local.txt
 pytest-django==4.2.0
     # via -r requirements/local.txt
-pytest==6.2.3
+pytest==6.2.4
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -508,6 +512,7 @@ python-memcached==1.59
     # via -r requirements/nonlocal.txt
 python-slugify==4.0.1
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   code-annotations
     #   transifex-client
@@ -524,9 +529,8 @@ pytz==2021.1
     #   moto
 pywatchman==1.4.1
     # via -r requirements/local.txt
-pyyaml==5.1
+pyyaml==5.4.1
     # via
-    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   cfn-lint
     #   code-annotations
@@ -556,7 +560,8 @@ requests==2.25.1
     #   social-auth-core
     #   sphinx
     #   transifex-client
-responses==0.13.2
+    #   yarg
+responses==0.13.3
     # via
     #   -r requirements/local.txt
     #   moto
@@ -596,7 +601,7 @@ semantic-version==2.8.5
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-six==1.15.0
+six==1.16.0
     # via
     #   -r requirements/local.txt
     #   -r requirements/nonlocal.txt
@@ -685,10 +690,14 @@ toml==0.10.2
     #   pylint
     #   pytest
     #   tox
-tox==3.23.0
+tox==3.23.1
     # via -r requirements/local.txt
 transifex-client==0.14.2
     # via -r requirements/local.txt
+typing-extensions==3.10.0.0
+    # via
+    #   -r requirements/local.txt
+    #   gitpython
 uritemplate==3.0.1
     # via
     #   -r requirements/local.txt
@@ -706,11 +715,11 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.4.4
+virtualenv==20.4.6
     # via
     #   -r requirements/local.txt
     #   tox
-websocket-client==0.58.0
+websocket-client==0.59.0
     # via
     #   -r requirements/local.txt
     #   docker
