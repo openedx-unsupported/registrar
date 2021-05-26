@@ -14,7 +14,6 @@ RUN pip3 install --upgrade pip setuptools
 RUN rm -rf /var/lib/apt/lists/*
 
 # Python is Python3.
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Use UTF-8.
