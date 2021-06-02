@@ -286,7 +286,7 @@ class WriteEnrollmentsTestMixin:
 
         expected_num_calls = len(lms_statuses)
         # There is an initial request for the OAuth token
-        self.assertEqual(len(responses.calls) - 1, expected_num_calls)
+        self.assertEqual(len(responses.calls), expected_num_calls)
         for call in responses.calls[1:]:
             body = json.loads(call.request.body.decode('utf-8'))
             self.assertLessEqual(len(body), lms_write_size)

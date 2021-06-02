@@ -122,14 +122,14 @@ class ProgramDetailsTestCase(TestCase):
         assert isinstance(loaded_program, ProgramDetails)
         assert loaded_program.uuid == self.program_uuid
         assert loaded_program.raw_data == expected_raw_data
-        self.assertEqual(len(responses.calls), 2)
+        self.assertEqual(len(responses.calls), 1)
 
         # This should used the cached Discovery response.
         reloaded_program = ProgramDetails(self.program_uuid)
         assert isinstance(reloaded_program, ProgramDetails)
         assert reloaded_program.uuid == self.program_uuid
         assert reloaded_program.raw_data == expected_raw_data
-        self.assertEqual(len(responses.calls), 2)
+        self.assertEqual(len(responses.calls), 1)
 
     @patch_discovery_client_get_program(program_from_discovery)
     def test_active_curriculum(self):
