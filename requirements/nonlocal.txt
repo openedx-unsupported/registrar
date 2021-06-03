@@ -4,10 +4,6 @@
 #
 #    pip-compile --output-file=requirements/nonlocal.txt requirements/nonlocal.in
 #
---index-url http://edx.devstack.devpi:3141/root/pypi/+simple/
---extra-index-url https://pypi.python.org/simple
---trusted-host edx.devstack.devpi
-
 mysqlclient==2.0.3
     # via -r requirements/nonlocal.in
 python-memcached==1.59
