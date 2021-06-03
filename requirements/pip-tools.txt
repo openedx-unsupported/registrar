@@ -4,7 +4,11 @@
 #
 #    pip-compile --output-file=requirements/pip-tools.txt requirements/pip-tools.in
 #
-click==8.0.1
+--index-url http://edx.devstack.devpi:3141/root/pypi/+simple/
+--extra-index-url https://pypi.python.org/simple
+--trusted-host edx.devstack.devpi
+
+click==7.1.2
     # via pip-tools
 pep517==0.10.0
     # via pip-tools
