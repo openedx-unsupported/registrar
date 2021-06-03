@@ -100,7 +100,7 @@ def get_client(host_base_url):
         settings.BACKEND_SERVICE_EDX_OAUTH2_KEY,
         settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET,
     )
-    client._check_auth()  # pylint: disable=protected-access
+    client._ensure_authentication()  # pylint: disable=protected-access
     if not client.auth.token:  # pragma: no cover
-        raise 'No Auth Token'
+        raise Exception('No Auth Token')
     return client
