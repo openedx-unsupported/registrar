@@ -32,14 +32,14 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.17.86
+boto3==1.17.93
     # via
     #   -c requirements/constraints.txt
     #   aws-sam-translator
     #   moto
 boto==2.49.0
     # via moto
-botocore==1.20.86
+botocore==1.20.93
     # via
     #   aws-xray-sdk
     #   boto3
@@ -58,7 +58,7 @@ cffi==1.14.5
     # via
     #   -r requirements/base.txt
     #   cryptography
-cfn-lint==0.49.2
+cfn-lint==0.50.0
     # via moto
 chardet==4.0.0
     # via
@@ -122,7 +122,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==3.11.1
+django-mysql==3.12.0
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via -r requirements/base.txt
@@ -130,7 +130,7 @@ django-storages==1.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
-django-user-tasks==2.0.2
+django-user-tasks==2.0.3
     # via -r requirements/base.txt
 django-waffle==2.2.0
     # via
@@ -179,7 +179,7 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
-ecdsa==0.14.1
+ecdsa==0.17.0
     # via python-jose
 edx-api-doc-tools==1.4.0
     # via -r requirements/base.txt
@@ -204,7 +204,7 @@ edx-rest-api-client==5.3.0
     # via -r requirements/base.txt
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.5.0
+faker==8.7.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -371,7 +371,7 @@ pyrsistent==0.17.3
     # via jsonschema
 pytest-cov==2.12.1
     # via -r requirements/test.in
-pytest-django==4.3.0
+pytest-django==4.4.0
     # via -r requirements/test.in
 pytest==6.2.4
     # via
@@ -387,7 +387,7 @@ python-dateutil==2.8.1
     #   faker
     #   freezegun
     #   moto
-python-jose==3.2.0
+python-jose==3.3.0
     # via moto
 python-slugify==4.0.1
     # via
@@ -445,7 +445,7 @@ ruamel.yaml.clib==0.2.2
     # via
     #   -r requirements/base.txt
     #   ruamel.yaml
-ruamel.yaml==0.17.7
+ruamel.yaml==0.17.9
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -472,7 +472,6 @@ six==1.16.0
     #   moto
     #   pyjwkest
     #   python-dateutil
-    #   python-jose
     #   responses
     #   social-auth-app-django
     #   social-auth-core
@@ -532,7 +531,7 @@ vine==1.3.0
     #   celery
 virtualenv==20.4.7
     # via tox
-websocket-client==1.0.1
+websocket-client==1.1.0
     # via docker
 werkzeug==2.0.1
     # via moto

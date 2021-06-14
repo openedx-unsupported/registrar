@@ -18,11 +18,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.17.86
+boto3==1.17.93
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.20.86
+botocore==1.20.93
     # via
     #   boto3
     #   s3transfer
@@ -76,7 +76,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==3.11.1
+django-mysql==3.12.0
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via -r requirements/base.txt
@@ -84,7 +84,7 @@ django-storages==1.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
-django-user-tasks==2.0.2
+django-user-tasks==2.0.3
     # via -r requirements/base.txt
 django-waffle==2.2.0
     # via
@@ -294,7 +294,7 @@ ruamel.yaml.clib==0.2.2
     # via
     #   -r requirements/base.txt
     #   ruamel.yaml
-ruamel.yaml==0.17.7
+ruamel.yaml==0.17.9
     # via
     #   -r requirements/base.txt
     #   drf-yasg

@@ -49,7 +49,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/base.in
     #   django-user-tasks
-django-mysql==3.11.1
+django-mysql==3.12.0
     # via -r requirements/base.in
 django-simple-history==3.0.0
     # via -r requirements/base.in
@@ -57,7 +57,7 @@ django-storages==1.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-django-user-tasks==2.0.2
+django-user-tasks==2.0.3
     # via -r requirements/base.in
 django-waffle==2.2.0
     # via
@@ -197,7 +197,7 @@ rest-condition==1.0.3
     # via edx-drf-extensions
 ruamel.yaml.clib==0.2.2
     # via ruamel.yaml
-ruamel.yaml==0.17.7
+ruamel.yaml==0.17.9
     # via drf-yasg
 semantic-version==2.8.5
     # via edx-drf-extensions
