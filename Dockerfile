@@ -11,6 +11,7 @@ RUN apt-get install -qy \
 	libmysqlclient-dev \
 	libssl-dev
 RUN pip3 install --upgrade pip setuptools
+# delete apt package lists because we do not need them inflating our image
 RUN rm -rf /var/lib/apt/lists/*
 
 # Python is Python3.
