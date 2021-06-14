@@ -73,7 +73,7 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.17.86
+boto3==1.17.93
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -87,7 +87,7 @@ boto==2.49.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.20.86
+botocore==1.20.93
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -118,7 +118,7 @@ cffi==1.14.5
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   cryptography
-cfn-lint==0.49.2
+cfn-lint==0.50.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -252,7 +252,7 @@ django-model-utils==4.1.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django-user-tasks
-django-mysql==3.11.1
+django-mysql==3.12.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -270,7 +270,7 @@ django-storages==1.8
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-django-user-tasks==2.0.2
+django-user-tasks==2.0.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -347,7 +347,7 @@ drf-yasg==1.20.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-api-doc-tools
-ecdsa==0.14.1
+ecdsa==0.17.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -416,7 +416,7 @@ factory-boy==3.2.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==8.5.0
+faker==8.7.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -633,7 +633,7 @@ path.py==12.5.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   edx-i18n-tools
-path==15.1.2
+path==16.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -778,7 +778,7 @@ pytest-cov==2.12.1
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-pytest-django==4.3.0
+pytest-django==4.4.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -803,7 +803,7 @@ python-dateutil==2.8.1
     #   freezegun
     #   moto
     #   ruamel.yaml.convert
-python-jose==3.2.0
+python-jose==3.3.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -916,7 +916,7 @@ ruamel.yaml.clib==0.2.2
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   ruamel.yaml
-ruamel.yaml.cmd==0.5.6
+ruamel.yaml.cmd==0.5.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -925,7 +925,7 @@ ruamel.yaml.convert==0.3.2
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   ruamel.yaml.cmd
-ruamel.yaml==0.17.7
+ruamel.yaml==0.17.9
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -971,7 +971,6 @@ six==1.16.0
     #   moto
     #   pyjwkest
     #   python-dateutil
-    #   python-jose
     #   python-memcached
     #   responses
     #   social-auth-app-django
@@ -1120,7 +1119,7 @@ virtualenv==20.4.7
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   tox
-websocket-client==1.0.1
+websocket-client==1.1.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
