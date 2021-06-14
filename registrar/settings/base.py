@@ -134,7 +134,7 @@ CELERY_TASK_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE', 'registrar.de
 # These settings need not be set if CELERY_TASK_ALWAYS_EAGER == True, like in Standalone.
 # Devstack overrides these in its docker-compose.yml.
 # Production environments can override these to be whatever they want.
-CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "")
+CELERY_BROKER_TRANSPORT = os.environ.get("CELERY_BROKER_TRANSPORT", "redis")
 CELERY_BROKER_HOSTNAME = os.environ.get("CELERY_BROKER_HOSTNAME", "")
 CELERY_BROKER_VHOST = os.environ.get("CELERY_BROKER_VHOST", "")
 CELERY_BROKER_USER = os.environ.get("CELERY_BROKER_USER", "")
