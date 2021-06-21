@@ -85,7 +85,10 @@ class IsEnrollmentWriteBlockedTests(EnrollmentJobTests):
         import django  # pylint: disable=import-outside-toplevel
         django.get_version()
 
+        # only checking django3 version
         if django.get_version() == '3.1.12':
             self.assertEqual(django.get_version(), '3.1.12')
-        else:
+        elif django.get_version() == '3.0.14':
             self.assertEqual(django.get_version(), '3.0.14')
+        elif django.get_version() == '3.0.14':
+            self.assertEqual(django.get_version(), '3.2.4')

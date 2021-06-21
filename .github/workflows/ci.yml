@@ -19,8 +19,10 @@ jobs:
         python-version:
           - 3.8
         toxenv:
+          - django22
           - django30
           - django31
+          - django32
     steps:
     - uses: actions/checkout@v1
     - name: setup python
@@ -47,7 +49,7 @@ jobs:
         make static
         make validate_translations
     - name: Run Coverage
-      if: matrix.python-version == '3.8' && matrix.toxenv=='django30'
+      if: matrix.python-version == '3.8' && matrix.toxenv=='django22'
       uses: codecov/codecov-action@v1
       with:
         flags: unittests
