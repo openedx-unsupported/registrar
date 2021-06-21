@@ -3,7 +3,6 @@
 
 analytics-python
 celery
-django
 djangorestframework
 django-cors-headers
 django-extensions
@@ -14,7 +13,6 @@ django-simple-history
 django-storages
 django-user-tasks
 django-waffle
-edx-api-doc-tools
 edx-auth-backends
 edx-django-release-util
 edx-drf-extensions
@@ -22,3 +20,4 @@ edx-rest-api-client
 pytz
 redis
 social-auth-app-django
+edx_api_doc_tools

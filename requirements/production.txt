@@ -4,6 +4,10 @@
 #
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
+-e git+https://github.com/edx/api-doc-tools.git@77ae24cc99794c77a5d93a61170af91715680881#egg=edx_api_doc_tools
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.txt
 amqp==2.6.1
     # via
     #   -r requirements/base.txt
@@ -18,11 +22,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.17.93
+boto3==1.17.97
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.20.93
+botocore==1.20.97
     # via
     #   boto3
     #   s3transfer
@@ -64,14 +68,17 @@ defusedxml==0.7.1
     #   social-auth-core
 django-cors-headers==3.7.0
     # via -r requirements/base.txt
-django-crum==0.7.9
+django-crum==0.7.5
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   edx-django-utils
 django-extensions==3.1.3
     # via -r requirements/base.txt
-django-guardian==2.4.0
-    # via -r requirements/base.txt
+django-guardian==2.2.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.txt
 django-model-utils==4.1.1
     # via
     #   -r requirements/base.txt
@@ -94,6 +101,7 @@ django-waffle==2.2.0
 django==2.2.24
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   django-cors-headers
     #   django-crum
@@ -112,7 +120,7 @@ django==2.2.24
     #   edx-django-utils
     #   edx-drf-extensions
     #   rest-condition
-djangorestframework==3.11.1
+djangorestframework==3.12.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
@@ -131,8 +139,6 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
-edx-api-doc-tools==1.4.0
-    # via -r requirements/base.txt
 edx-auth-backends==3.3.3
     # via -r requirements/base.txt
 edx-django-release-util==1.0.0

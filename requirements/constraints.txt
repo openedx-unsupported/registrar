@@ -11,8 +11,10 @@
 # Common constraints for edx repos
 -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
 
+django<3.2
+
 # ImportError: cannot import name 'URLPattern' from 'rest_framework.compat' error on newer versions
-djangorestframework==3.11.1
+djangorestframework==3.12.0
 
 # django-storages version 1.9 drops support for boto storage backend.
 django-storages<1.9
@@ -38,3 +40,9 @@ idna==2.8
 
 # Requires: Python >=3.6
 newrelic<6.0
+
+
+django-crum==0.7.5
+django-guardian==2.2.0
+
+-e git+https://github.com/edx/api-doc-tools.git@77ae24cc99794c77a5d93a61170af91715680881#egg=edx_api_doc_tools

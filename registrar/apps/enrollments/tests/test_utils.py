@@ -80,3 +80,12 @@ class IsEnrollmentWriteBlockedTests(EnrollmentJobTests):
         task_name = build_enrollment_job_status_name(self.program.key, 'read', self.TASK_NAME)
         self.create_dummy_job_status(UserTaskStatus.IN_PROGRESS, self.user, task_name)
         self.assertFalse(is_enrollment_write_blocked(self.program.key))
+
+    def test_djang_version(self):
+        import django  # pylint: disable=import-outside-toplevel
+        django.get_version()
+
+        if django.get_version() == '3.1.12':
+            self.assertEqual(django.get_version(), '3.1.12')
+        else:
+            self.assertEqual(django.get_version(), '3.0.14')
