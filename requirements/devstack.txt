@@ -48,7 +48,7 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.17.93
+boto3==1.17.97
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -58,7 +58,7 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-botocore==1.20.93
+botocore==1.20.97
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -78,7 +78,7 @@ cffi==1.14.5
     # via
     #   -r requirements/local.txt
     #   cryptography
-cfn-lint==0.50.0
+cfn-lint==0.51.0
     # via
     #   -r requirements/local.txt
     #   moto
@@ -255,7 +255,7 @@ edx-sphinx-theme==2.1.0
     # via -r requirements/local.txt
 factory-boy==3.2.0
     # via -r requirements/local.txt
-faker==8.7.0
+faker==8.8.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -275,7 +275,7 @@ gitdb==4.0.7
     # via
     #   -r requirements/local.txt
     #   gitpython
-gitpython==3.1.17
+gitpython==3.1.18
     # via
     #   -r requirements/local.txt
     #   transifex-client

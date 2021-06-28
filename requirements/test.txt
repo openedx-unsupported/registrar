@@ -32,14 +32,14 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.17.93
+boto3==1.17.97
     # via
     #   -c requirements/constraints.txt
     #   aws-sam-translator
     #   moto
 boto==2.49.0
     # via moto
-botocore==1.20.93
+botocore==1.20.97
     # via
     #   aws-xray-sdk
     #   boto3
@@ -58,7 +58,7 @@ cffi==1.14.5
     # via
     #   -r requirements/base.txt
     #   cryptography
-cfn-lint==0.50.0
+cfn-lint==0.51.0
     # via moto
 chardet==4.0.0
     # via
@@ -204,7 +204,7 @@ edx-rest-api-client==5.3.0
     # via -r requirements/base.txt
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.7.0
+faker==8.8.1
     # via
     #   -r requirements/test.in
     #   factory-boy
