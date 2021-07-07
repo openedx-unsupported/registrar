@@ -18,11 +18,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.17.97
+boto3==1.17.106
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.20.97
+botocore==1.20.106
     # via
     #   boto3
     #   s3transfer
@@ -144,7 +144,7 @@ edx-django-utils==4.1.0
     #   edx-rest-api-client
 edx-drf-extensions==6.5.0
     # via -r requirements/base.txt
-edx-opaque-keys==2.2.1
+edx-opaque-keys==2.2.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -207,7 +207,7 @@ oauthlib==3.1.1
     #   -r requirements/base.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==20.9
+packaging==21.0
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -290,11 +290,11 @@ rest-condition==1.0.3
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-ruamel.yaml.clib==0.2.2
+ruamel.yaml.clib==0.2.6
     # via
     #   -r requirements/base.txt
     #   ruamel.yaml
-ruamel.yaml==0.17.9
+ruamel.yaml==0.17.10
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -345,7 +345,7 @@ uritemplate==3.0.1
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.5
+urllib3==1.26.6
     # via
     #   -r requirements/base.txt
     #   botocore
