@@ -20,7 +20,7 @@ class CourseGradeSerializer(serializers.Serializer):
 
     error = serializers.CharField(required=False)
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-renamed
     def validate(self, data):
         """
         Either ['error'] or ['letter_grade', 'percent', 'passed'] are required, but they are mutually exclusive
