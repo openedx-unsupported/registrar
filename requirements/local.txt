@@ -52,13 +52,13 @@ boto==2.49.0
     # via
     #   -r requirements/test.txt
     #   moto
-boto3==1.17.108
+boto3==1.17.109
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   aws-sam-translator
     #   moto
-botocore==1.20.108
+botocore==1.20.109
     # via
     #   -r requirements/test.txt
     #   aws-xray-sdk
@@ -124,12 +124,12 @@ cryptography==3.4.7
     #   moto
     #   pyjwt
     #   social-auth-core
-cycler==0.10.0
-    # via
-    #   -r requirements/test.txt
-    #   matplotlib
 ddt==1.4.2
     # via -r requirements/test.txt
+decorator==4.4.2
+    # via
+    #   -r requirements/test.txt
+    #   networkx
 defusedxml==0.7.1
     # via
     #   -r requirements/test.txt
@@ -335,10 +335,6 @@ junit-xml==1.9
     # via
     #   -r requirements/test.txt
     #   cfn-lint
-kiwisolver==1.3.1
-    # via
-    #   -r requirements/test.txt
-    #   matplotlib
 kombu==4.6.11
     # via
     #   -r requirements/test.txt
@@ -352,10 +348,6 @@ markupsafe==2.0.1
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   jinja2
-matplotlib==3.4.2
-    # via
-    #   -r requirements/test.txt
-    #   networkx
 mccabe==0.6.1
     # via
     #   -r requirements/test.txt
@@ -372,7 +364,7 @@ moto==1.3.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
-networkx==2.6.1
+networkx==2.5.1
     # via
     #   -r requirements/test.txt
     #   cfn-lint
@@ -381,13 +373,6 @@ newrelic==5.24.0.153
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   edx-django-utils
-numpy==1.21.0
-    # via
-    #   -r requirements/test.txt
-    #   matplotlib
-    #   networkx
-    #   pandas
-    #   scipy
 oauthlib==3.1.1
     # via
     #   -r requirements/test.txt
@@ -401,10 +386,6 @@ packaging==21.0
     #   pytest
     #   sphinx
     #   tox
-pandas==1.3.0
-    # via
-    #   -r requirements/test.txt
-    #   networkx
 path==16.0.0
     # via path.py
 path.py==12.5.0
@@ -417,10 +398,6 @@ pbr==5.6.0
     # via
     #   -r requirements/test.txt
     #   stevedore
-pillow==8.3.1
-    # via
-    #   -r requirements/test.txt
-    #   matplotlib
 pluggy==0.13.1
     # via
     #   -r requirements/test.txt
@@ -496,7 +473,6 @@ pyparsing==2.4.7
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
-    #   matplotlib
     #   packaging
 pyrsistent==0.18.0
     # via
@@ -519,9 +495,7 @@ python-dateutil==2.8.1
     #   edx-drf-extensions
     #   faker
     #   freezegun
-    #   matplotlib
     #   moto
-    #   pandas
     #   ruamel.yaml.convert
 python-jose==3.3.0
     # via
@@ -545,7 +519,6 @@ pytz==2021.1
     #   celery
     #   django
     #   moto
-    #   pandas
 pywatchman==1.4.1
     # via -r requirements/local.in
 pyyaml==5.4.1
@@ -612,10 +585,6 @@ s3transfer==0.4.2
     # via
     #   -r requirements/test.txt
     #   boto3
-scipy==1.7.0
-    # via
-    #   -r requirements/test.txt
-    #   networkx
 semantic-version==2.8.5
     # via
     #   -r requirements/test.txt
@@ -628,7 +597,6 @@ six==1.16.0
     #   aws-sam-translator
     #   cfn-lint
     #   configobj
-    #   cycler
     #   django-dynamic-fixture
     #   ecdsa
     #   edx-auth-backends
@@ -668,7 +636,7 @@ social-auth-core==4.0.2
     #   -r requirements/test.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==4.0.3
+sphinx==4.1.0
     # via
     #   -r requirements/docs.txt
     #   edx-sphinx-theme

@@ -52,13 +52,13 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-boto3==1.17.108
+boto3==1.17.109
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   aws-sam-translator
     #   moto
-botocore==1.20.108
+botocore==1.20.109
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -124,12 +124,12 @@ cryptography==3.4.7
     #   moto
     #   pyjwt
     #   social-auth-core
-cycler==0.10.0
-    # via
-    #   -r requirements/local.txt
-    #   matplotlib
 ddt==1.4.2
     # via -r requirements/local.txt
+decorator==4.4.2
+    # via
+    #   -r requirements/local.txt
+    #   networkx
 defusedxml==0.7.1
     # via
     #   -r requirements/local.txt
@@ -337,10 +337,6 @@ junit-xml==1.9
     # via
     #   -r requirements/local.txt
     #   cfn-lint
-kiwisolver==1.3.1
-    # via
-    #   -r requirements/local.txt
-    #   matplotlib
 kombu==4.6.11
     # via
     #   -r requirements/local.txt
@@ -353,10 +349,6 @@ markupsafe==2.0.1
     # via
     #   -r requirements/local.txt
     #   jinja2
-matplotlib==3.4.2
-    # via
-    #   -r requirements/local.txt
-    #   networkx
 mccabe==0.6.1
     # via
     #   -r requirements/local.txt
@@ -375,7 +367,7 @@ moto==1.3.8
     #   -r requirements/local.txt
 mysqlclient==2.0.3
     # via -r requirements/nonlocal.txt
-networkx==2.6.1
+networkx==2.5.1
     # via
     #   -r requirements/local.txt
     #   cfn-lint
@@ -384,13 +376,6 @@ newrelic==5.24.0.153
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   edx-django-utils
-numpy==1.21.0
-    # via
-    #   -r requirements/local.txt
-    #   matplotlib
-    #   networkx
-    #   pandas
-    #   scipy
 oauthlib==3.1.1
     # via
     #   -r requirements/local.txt
@@ -403,10 +388,6 @@ packaging==21.0
     #   pytest
     #   sphinx
     #   tox
-pandas==1.3.0
-    # via
-    #   -r requirements/local.txt
-    #   networkx
 path==16.0.0
     # via
     #   -r requirements/local.txt
@@ -423,10 +404,6 @@ pbr==5.6.0
     # via
     #   -r requirements/local.txt
     #   stevedore
-pillow==8.3.1
-    # via
-    #   -r requirements/local.txt
-    #   matplotlib
 pluggy==0.13.1
     # via
     #   -r requirements/local.txt
@@ -503,7 +480,6 @@ pymongo==3.11.4
 pyparsing==2.4.7
     # via
     #   -r requirements/local.txt
-    #   matplotlib
     #   packaging
 pyrsistent==0.18.0
     # via
@@ -526,9 +502,7 @@ python-dateutil==2.8.1
     #   edx-drf-extensions
     #   faker
     #   freezegun
-    #   matplotlib
     #   moto
-    #   pandas
     #   ruamel.yaml.convert
 python-jose==3.3.0
     # via
@@ -553,7 +527,6 @@ pytz==2021.1
     #   celery
     #   django
     #   moto
-    #   pandas
 pywatchman==1.4.1
     # via -r requirements/local.txt
 pyyaml==5.4.1
@@ -623,10 +596,6 @@ s3transfer==0.4.2
     # via
     #   -r requirements/local.txt
     #   boto3
-scipy==1.7.0
-    # via
-    #   -r requirements/local.txt
-    #   networkx
 semantic-version==2.8.5
     # via
     #   -r requirements/local.txt
@@ -639,7 +608,6 @@ six==1.16.0
     #   aws-sam-translator
     #   cfn-lint
     #   configobj
-    #   cycler
     #   django-dynamic-fixture
     #   ecdsa
     #   edx-auth-backends
@@ -682,7 +650,7 @@ social-auth-core==4.0.2
     #   -r requirements/local.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==4.0.3
+sphinx==4.1.0
     # via
     #   -r requirements/local.txt
     #   edx-sphinx-theme

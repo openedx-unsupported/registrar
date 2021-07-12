@@ -18,11 +18,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.17.108
+boto3==1.17.109
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.20.108
+botocore==1.20.109
     # via
     #   boto3
     #   s3transfer
