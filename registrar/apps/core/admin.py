@@ -47,8 +47,22 @@ class OrganizationAdmin(GuardedModelAdmin):
     date_hierarchy = 'modified'
 
 
-class OrganizationGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'organization', 'role')
+class GroupAdmin(admin.ModelAdmin):
+    """
+    Custom admin class for OrganizationGroupAdmin and ProgramGroupAdmin
+    """
+    def group_users(self, obj):
+        """Return comma separated list of users in group"""
+        return ", ".join([user.username for user in User.objects.filter(groups__name=obj.name)])
+
+
+class OrganizationGroupAdmin(GroupAdmin):
+    """
+    Admin tool for the OrganizationGroup model
+    """
+    list_display = ('name', 'organization', 'role', 'group_users')
+    fields = ('name', 'organization', 'role', 'group_users')
+    readonly_fields = ('group_users',)
     search_fields = ('name', 'organization__key', 'organization__name', 'role')
     ordering = ('name',)
     exclude = ('permissions',)
@@ -69,8 +83,13 @@ class ProgramAdmin(admin.ModelAdmin):
     ordering = ("managing_organization", "key")
 
 
-class ProgramGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'program', 'granting_organization', 'role')
+class ProgramGroupAdmin(GroupAdmin):
+    """
+    Admin tool for the ProgramOrganizationGroup model
+    """
+    list_display = ('name', 'program', 'granting_organization', 'role', 'group_users')
+    fields = ('name', 'program', 'granting_organization', 'role', 'group_users')
+    readonly_fields = ('group_users',)
     search_fields = ('name', 'program__key', 'granting_organization__name', 'role')
     ordering = ('name',)
     exclude = ('permissions', )
