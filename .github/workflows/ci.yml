@@ -11,7 +11,7 @@ on:
 jobs:
   run_tests:
     name: Tests
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
