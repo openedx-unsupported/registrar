@@ -38,7 +38,7 @@ jobs:
         pip install -U pip wheel
         make requirements
     - name: Run Tests
-      continue-on-error: ${{ matrix.allow-failure }}
+      continue-on-error: true
       env:
         TOXENV: ${{ matrix.toxenv }}
       run: make validate
