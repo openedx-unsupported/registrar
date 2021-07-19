@@ -18,11 +18,7 @@ jobs:
         os:
           - ubuntu-20.04
         python-version: ["3.8"]
-        toxenv: ['django22', 'django30', 'django31']
-        allow-failure: [ false ]
-          - runs-on: ubuntu-latest
-            python-version: 3.8
-            toxenv: django32
+        toxenv: ['django22', 'django30', 'django31', 'django32']
     steps:
     - uses: actions/checkout@v1
     - name: setup python
