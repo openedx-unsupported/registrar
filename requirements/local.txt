@@ -12,9 +12,9 @@ amqp==2.6.1
     # via
     #   -r requirements/test.txt
     #   kombu
-analytics-python==1.3.1
+analytics-python==1.4.0
     # via -r requirements/test.txt
-astroid==2.6.2
+astroid==2.6.5
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -24,7 +24,7 @@ attrs==21.2.0
     #   -r requirements/test.txt
     #   jsonschema
     #   pytest
-aws-sam-translator==1.37.0
+aws-sam-translator==1.38.0
     # via
     #   -r requirements/test.txt
     #   cfn-lint
@@ -52,13 +52,13 @@ boto==2.49.0
     # via
     #   -r requirements/test.txt
     #   moto
-boto3==1.18.0
+boto3==1.18.6
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.0
+botocore==1.21.6
     # via
     #   -r requirements/test.txt
     #   aws-xray-sdk
@@ -83,7 +83,7 @@ cfn-lint==0.52.0
     # via
     #   -r requirements/test.txt
     #   moto
-charset-normalizer==2.0.2
+charset-normalizer==2.0.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -240,7 +240,7 @@ edx-django-utils==4.2.0
     #   edx-rest-api-client
 edx-drf-extensions==6.6.0
     # via -r requirements/test.txt
-edx-i18n-tools==0.5.3
+edx-i18n-tools==0.7.0
     # via -r requirements/local.in
 edx-lint==5.0.0
     # via -r requirements/test.txt
@@ -254,7 +254,7 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/docs.txt
 factory-boy==3.2.0
     # via -r requirements/test.txt
-faker==8.10.1
+faker==8.10.2
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -386,11 +386,9 @@ packaging==21.0
     #   pytest
     #   sphinx
     #   tox
-path==16.0.0
-    # via path.py
-path.py==12.5.0
+path==16.1.0
     # via edx-i18n-tools
-pathspec==0.8.1
+pathspec==0.9.0
     # via
     #   -r requirements/test.txt
     #   yamllint
@@ -398,7 +396,7 @@ pbr==5.6.0
     # via
     #   -r requirements/test.txt
     #   stevedore
-platformdirs==2.0.2
+platformdirs==2.1.0
     # via
     #   -r requirements/test.txt
     #   virtualenv
@@ -449,7 +447,7 @@ pyjwt[crypto]==1.7.1
     #   edx-auth-backends
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.9.3
+pylint==2.9.5
     # via
     #   -r requirements/test.txt
     #   edx-lint

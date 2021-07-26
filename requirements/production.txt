@@ -8,7 +8,7 @@ amqp==2.6.1
     # via
     #   -r requirements/base.txt
     #   kombu
-analytics-python==1.3.1
+analytics-python==1.4.0
     # via -r requirements/base.txt
 backoff==1.10.0
     # via
@@ -18,11 +18,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.18.0
+boto3==1.18.6
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.21.0
+botocore==1.21.6
     # via
     #   boto3
     #   s3transfer
@@ -39,7 +39,7 @@ cffi==1.14.6
     # via
     #   -r requirements/base.txt
     #   cryptography
-charset-normalizer==2.0.2
+charset-normalizer==2.0.3
     # via
     #   -r requirements/base.txt
     #   requests
