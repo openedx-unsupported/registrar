@@ -12,9 +12,9 @@ amqp==2.6.1
     # via
     #   -r requirements/test.txt
     #   kombu
-analytics-python==1.3.1
+analytics-python==1.4.0
     # via -r requirements/test.txt
-astroid==2.6.2
+astroid==2.6.6
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -24,7 +24,7 @@ attrs==21.2.0
     #   -r requirements/test.txt
     #   jsonschema
     #   pytest
-aws-sam-translator==1.37.0
+aws-sam-translator==1.38.0
     # via
     #   -r requirements/test.txt
     #   cfn-lint
@@ -52,13 +52,13 @@ boto==2.49.0
     # via
     #   -r requirements/test.txt
     #   moto
-boto3==1.18.0
+boto3==1.18.15
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.0
+botocore==1.21.15
     # via
     #   -r requirements/test.txt
     #   aws-xray-sdk
@@ -79,11 +79,11 @@ cffi==1.14.6
     # via
     #   -r requirements/test.txt
     #   cryptography
-cfn-lint==0.52.0
+cfn-lint==0.53.0
     # via
     #   -r requirements/test.txt
     #   moto
-charset-normalizer==2.0.2
+charset-normalizer==2.0.4
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -98,7 +98,7 @@ click-log==0.3.2
     # via
     #   -r requirements/test.txt
     #   edx-lint
-code-annotations==1.1.2
+code-annotations==1.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -126,10 +126,6 @@ cryptography==3.4.7
     #   social-auth-core
 ddt==1.4.2
     # via -r requirements/test.txt
-decorator==4.4.2
-    # via
-    #   -r requirements/test.txt
-    #   networkx
 defusedxml==0.7.1
     # via
     #   -r requirements/test.txt
@@ -231,7 +227,7 @@ edx-api-doc-tools==1.4.3
     # via -r requirements/test.txt
 edx-auth-backends==3.4.0
     # via -r requirements/test.txt
-edx-django-release-util==1.0.0
+edx-django-release-util==1.1.0
     # via -r requirements/test.txt
 edx-django-utils==4.2.0
     # via
@@ -240,7 +236,7 @@ edx-django-utils==4.2.0
     #   edx-rest-api-client
 edx-drf-extensions==6.6.0
     # via -r requirements/test.txt
-edx-i18n-tools==0.5.3
+edx-i18n-tools==0.7.0
     # via -r requirements/local.in
 edx-lint==5.0.0
     # via -r requirements/test.txt
@@ -254,7 +250,7 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/docs.txt
 factory-boy==3.2.0
     # via -r requirements/test.txt
-faker==8.10.1
+faker==8.11.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -293,7 +289,7 @@ iniconfig==1.1.1
     # via
     #   -r requirements/test.txt
     #   pytest
-isort[requirements]==5.9.2
+isort[requirements]==5.9.3
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -364,7 +360,7 @@ moto==1.3.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
-networkx==2.5.1
+networkx==2.6.2
     # via
     #   -r requirements/test.txt
     #   cfn-lint
@@ -386,11 +382,9 @@ packaging==21.0
     #   pytest
     #   sphinx
     #   tox
-path==16.0.0
-    # via path.py
-path.py==12.5.0
+path==16.2.0
     # via edx-i18n-tools
-pathspec==0.8.1
+pathspec==0.9.0
     # via
     #   -r requirements/test.txt
     #   yamllint
@@ -398,7 +392,7 @@ pbr==5.6.0
     # via
     #   -r requirements/test.txt
     #   stevedore
-platformdirs==2.0.2
+platformdirs==2.2.0
     # via
     #   -r requirements/test.txt
     #   virtualenv
@@ -449,7 +443,7 @@ pyjwt[crypto]==1.7.1
     #   edx-auth-backends
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.9.3
+pylint==2.9.6
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -632,15 +626,17 @@ snowballstemmer==2.1.0
     #   sphinx
 social-auth-app-django==4.0.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
     #   edx-auth-backends
 social-auth-core==4.0.2
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==4.1.1
+sphinx==4.1.2
     # via
     #   -r requirements/docs.txt
     #   edx-sphinx-theme
@@ -691,7 +687,7 @@ toml==0.10.2
     #   pytest
     #   pytest-cov
     #   tox
-tox==3.24.0
+tox==3.24.1
     # via -r requirements/test.txt
 transifex-client==0.14.3
     # via -r requirements/local.in
@@ -713,11 +709,11 @@ vine==1.3.0
     #   -r requirements/test.txt
     #   amqp
     #   celery
-virtualenv==20.6.0
+virtualenv==20.7.0
     # via
     #   -r requirements/test.txt
     #   tox
-websocket-client==1.1.0
+websocket-client==1.1.1
     # via
     #   -r requirements/test.txt
     #   docker
@@ -734,7 +730,7 @@ xmltodict==0.12.0
     # via
     #   -r requirements/test.txt
     #   moto
-yamllint==1.26.1
+yamllint==1.26.2
     # via -r requirements/test.txt
 
 # The following packages are considered to be unsafe in a requirements file:
