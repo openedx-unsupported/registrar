@@ -78,6 +78,9 @@ CORS_ALLOW_HEADERS = corsheaders_default_headers + (
 )
 CORS_ORIGIN_WHITELIST = []
 
+DEFAULT_HASHING_ALGORITHM = "sha1"
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 
 ROOT_URLCONF = 'registrar.urls'
 APPEND_SLASH = False
@@ -216,6 +219,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.media',
+                'django.template.context_processors.request',
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
