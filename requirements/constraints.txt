@@ -9,7 +9,7 @@
 # linking to it here is good.
 
 # Common constraints for edx repos
--c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+-c common_constraints.txt
 
 # ImportError: cannot import name 'URLPattern' from 'rest_framework.compat' error on newer versions
 djangorestframework==3.11.1
@@ -20,8 +20,6 @@ django-storages<1.9
 # From base.in
 celery<5.0  # version 5.0 drops support for python 3.5
 
-# higher versions require PYJWT>=2.0.0 which is incompatible with the common constraints file
-social-auth-core<4.0.3
 
 code-annotations>=0.3.1  # Pinned to avoid pyyaml security alerts. (https://github.com/edx/registrar/pull/42)
 

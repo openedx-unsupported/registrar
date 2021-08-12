@@ -132,7 +132,7 @@ class JwtMixin:
 
     def generate_jwt_header(self, user, admin=False, ttl=5, **overrides):
         """Generate a jwt header value for AUTHORIZATION"""
-        jwt_token = self.generate_id_token(user, admin, ttl, **overrides).decode('utf-8')
+        jwt_token = self.generate_id_token(user, admin, ttl, **overrides)
         return f'JWT {jwt_token}'
 
 
