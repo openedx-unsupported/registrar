@@ -65,6 +65,8 @@ upgrade: piptools  $(COMMON_CONSTRAINTS_TXT)  ## re-compile requirements .txt fi
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	sed 's/social-auth-core<4.0.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
 	pip-compile --upgrade -o requirements/github.txt requirements/github.in
 	pip-compile --upgrade -o requirements/optional.txt requirements/optional.in

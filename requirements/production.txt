@@ -10,6 +10,10 @@ amqp==2.6.1
     #   kombu
 analytics-python==1.4.0
     # via -r requirements/base.txt
+asgiref==3.4.1
+    # via
+    #   -r requirements/base.txt
+    #   django
 backoff==1.10.0
     # via
     #   -r requirements/base.txt
@@ -18,11 +22,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.18.19
+boto3==1.18.38
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.21.19
+botocore==1.21.38
     # via
     #   boto3
     #   s3transfer
@@ -52,7 +56,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-cryptography==3.4.7
+cryptography==3.4.8
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -62,9 +66,9 @@ defusedxml==0.7.1
     #   -r requirements/base.txt
     #   python3-openid
     #   social-auth-core
-django==2.2.24
+django==3.2.7
     # via
-    #   -c requirements/common_constraints.txt
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   django-cors-headers
     #   django-crum
@@ -83,7 +87,7 @@ django==2.2.24
     #   edx-django-utils
     #   edx-drf-extensions
     #   rest-condition
-django-cors-headers==3.7.0
+django-cors-headers==3.8.0
     # via -r requirements/base.txt
 django-crum==0.7.9
     # via
@@ -97,7 +101,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==3.12.0
+django-mysql==4.0.0
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via -r requirements/base.txt
@@ -137,7 +141,7 @@ edx-auth-backends==4.0.0
     # via -r requirements/base.txt
 edx-django-release-util==1.1.0
     # via -r requirements/base.txt
-edx-django-utils==4.2.0
+edx-django-utils==4.4.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -290,7 +294,7 @@ rest-condition==1.0.3
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-ruamel.yaml==0.17.10
+ruamel.yaml==0.17.16
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -334,7 +338,7 @@ sqlparse==0.4.1
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==3.3.0
+stevedore==3.4.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils

@@ -51,7 +51,7 @@ def main(args):
         print(help_text)
         return 1
     try:
-        with open(args[0]) as f:
+        with open(args[0], encoding='utf-8') as f:
             text = f.read()
         program_enrollments = json.loads(text)
     except OSError:

@@ -17,14 +17,14 @@ def main():
     Main script logic
     """
     # First use pyyaml to do merge key expand
-    with open(sys.argv[1]) as fp:
+    with open(sys.argv[1], encoding='utf-8') as fp:
         data = yaml.safe_load(fp)
 
     output_path = sys.argv[2]
     if output_path == '-':
         output_path = '/tmp/generated.yml'
 
-    with open(output_path, 'w') as wp:
+    with open(output_path, 'w', encoding='utf-8') as wp:
         yaml.dump(data, wp)
 
     # Now, use ruamel yaml to merge-expand
