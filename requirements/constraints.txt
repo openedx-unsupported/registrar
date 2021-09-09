@@ -11,6 +11,8 @@
 # Common constraints for edx repos
 -c common_constraints.txt
 
+Django<4.0
+
 # ImportError: cannot import name 'URLPattern' from 'rest_framework.compat' error on newer versions
 djangorestframework==3.11.1
 
