@@ -86,7 +86,7 @@ boto==2.49.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-boto3==1.18.38
+boto3==1.18.39
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -94,7 +94,7 @@ boto3==1.18.38
     #   -r requirements/monitoring/../test.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.38
+botocore==1.21.39
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -449,7 +449,7 @@ gitdb==4.0.7
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   gitpython
-gitpython==3.1.18
+gitpython==3.1.23
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -596,7 +596,7 @@ mysqlclient==2.0.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../production.txt
-networkx==2.6.2
+networkx==2.6.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -1089,6 +1089,11 @@ transifex-client==0.14.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
+typing-extensions==3.10.0.2
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   gitpython
 uritemplate==3.0.1
     # via
     #   -r requirements/monitoring/../devstack.txt

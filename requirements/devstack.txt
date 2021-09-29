@@ -56,13 +56,13 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-boto3==1.18.38
+boto3==1.18.39
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.38
+botocore==1.21.39
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -273,7 +273,7 @@ gitdb==4.0.7
     # via
     #   -r requirements/local.txt
     #   gitpython
-gitpython==3.1.18
+gitpython==3.1.23
     # via
     #   -r requirements/local.txt
     #   transifex-client
@@ -366,7 +366,7 @@ moto==1.3.8
     #   -r requirements/local.txt
 mysqlclient==2.0.3
     # via -r requirements/nonlocal.txt
-networkx==2.6.2
+networkx==2.6.3
     # via
     #   -r requirements/local.txt
     #   cfn-lint
@@ -704,6 +704,10 @@ tox==3.24.3
     # via -r requirements/local.txt
 transifex-client==0.14.3
     # via -r requirements/local.txt
+typing-extensions==3.10.0.2
+    # via
+    #   -r requirements/local.txt
+    #   gitpython
 uritemplate==3.0.1
     # via
     #   -r requirements/local.txt

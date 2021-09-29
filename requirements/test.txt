@@ -38,12 +38,12 @@ billiard==3.6.4.0
     #   celery
 boto==2.49.0
     # via moto
-boto3==1.18.38
+boto3==1.18.39
     # via
     #   -c requirements/constraints.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.38
+botocore==1.21.39
     # via
     #   aws-xray-sdk
     #   boto3
@@ -284,7 +284,7 @@ moto==1.3.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
-networkx==2.6.2
+networkx==2.6.3
     # via cfn-lint
 newrelic==5.24.0.153
     # via
