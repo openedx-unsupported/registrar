@@ -254,7 +254,7 @@ django-debug-toolbar==3.2.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
-django-dynamic-fixture==3.1.1
+django-dynamic-fixture==3.1.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
