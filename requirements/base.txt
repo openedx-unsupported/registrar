@@ -23,7 +23,7 @@ certifi==2021.5.30
     # via requests
 cffi==1.14.6
     # via cryptography
-charset-normalizer==2.0.4
+charset-normalizer==2.0.6
     # via requests
 coreapi==2.3.3
     # via drf-yasg
@@ -31,7 +31,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==3.4.8
+cryptography==35.0.0
     # via
     #   pyjwt
     #   social-auth-core
@@ -39,7 +39,7 @@ defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.7
+django==3.2.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -59,8 +59,7 @@ django==3.2.7
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
-    #   rest-condition
-django-cors-headers==3.8.0
+django-cors-headers==3.10.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
@@ -72,7 +71,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/base.in
     #   django-user-tasks
-django-mysql==4.0.0
+django-mysql==4.2.0
     # via -r requirements/base.in
 django-simple-history==3.0.0
     # via -r requirements/base.in
@@ -96,14 +95,13 @@ djangorestframework==3.11.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
-    #   rest-condition
 drf-jwt==1.19.0
     # via
     #   -c requirements/common_constraints.txt
     #   edx-drf-extensions
 drf-yasg==1.20.0
     # via edx-api-doc-tools
-edx-api-doc-tools==1.4.3
+edx-api-doc-tools==1.5.0
     # via -r requirements/base.in
 edx-auth-backends==4.0.0
     # via -r requirements/base.in
@@ -113,7 +111,7 @@ edx-django-utils==4.4.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==7.0.1
+edx-drf-extensions==8.0.0
     # via -r requirements/base.in
 edx-opaque-keys==2.2.2
     # via edx-drf-extensions
@@ -129,7 +127,7 @@ inflection==0.5.1
     # via drf-yasg
 itypes==1.2.0
     # via coreapi
-jinja2==3.0.1
+jinja2==3.0.2
     # via coreschema
 kombu==4.6.11
     # via celery
@@ -153,11 +151,11 @@ psutil==5.8.0
     # via edx-django-utils
 pycparser==2.20
     # via cffi
-pycryptodomex==3.10.1
+pycryptodomex==3.10.4
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.1.0
+pyjwt[crypto]==2.2.0
     # via
     #   drf-jwt
     #   edx-auth-backends
@@ -174,7 +172,7 @@ python-dateutil==2.8.2
     #   edx-drf-extensions
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements/base.in
     #   celery
@@ -195,8 +193,6 @@ requests==2.26.0
     #   social-auth-core
 requests-oauthlib==1.3.0
     # via social-auth-core
-rest-condition==1.0.3
-    # via edx-drf-extensions
 ruamel.yaml==0.17.16
     # via drf-yasg
 ruamel.yaml.clib==0.2.6
@@ -211,19 +207,17 @@ six==1.16.0
     #   edx-drf-extensions
     #   pyjwkest
     #   python-dateutil
-    #   social-auth-app-django
 slumber==0.7.1
     # via edx-rest-api-client
-social-auth-app-django==4.0.0
+social-auth-app-django==5.0.0
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
     #   edx-auth-backends
 social-auth-core==4.1.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 stevedore==3.4.0
     # via
@@ -233,7 +227,7 @@ uritemplate==3.0.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.6
+urllib3==1.26.7
     # via requests
 vine==1.3.0
     # via

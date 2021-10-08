@@ -18,7 +18,7 @@ asgiref==3.4.1
     # via
     #   -r requirements/local.txt
     #   django
-astroid==2.7.3
+astroid==2.8.2
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -28,7 +28,7 @@ attrs==21.2.0
     #   -r requirements/local.txt
     #   jsonschema
     #   pytest
-aws-sam-translator==1.38.0
+aws-sam-translator==1.39.0
     # via
     #   -r requirements/local.txt
     #   cfn-lint
@@ -56,13 +56,13 @@ boto==2.49.0
     # via
     #   -r requirements/local.txt
     #   moto
-boto3==1.18.39
+boto3==1.18.57
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.39
+botocore==1.21.57
     # via
     #   -r requirements/local.txt
     #   aws-xray-sdk
@@ -82,11 +82,11 @@ cffi==1.14.6
     # via
     #   -r requirements/local.txt
     #   cryptography
-cfn-lint==0.54.0
+cfn-lint==0.54.2
     # via
     #   -r requirements/local.txt
     #   moto
-charset-normalizer==2.0.4
+charset-normalizer==2.0.6
     # via
     #   -r requirements/local.txt
     #   requests
@@ -118,28 +118,28 @@ coreschema==0.0.4
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-coverage==5.5
+coverage[toml]==6.0.1
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==3.4.8
+cryptography==35.0.0
     # via
     #   -r requirements/local.txt
     #   moto
     #   pyjwt
     #   social-auth-core
-ddt==1.4.2
+ddt==1.4.4
     # via -r requirements/local.txt
 defusedxml==0.7.1
     # via
     #   -r requirements/local.txt
     #   python3-openid
     #   social-auth-core
-distlib==0.3.2
+distlib==0.3.3
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django==3.2.7
+django==3.2.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -161,8 +161,7 @@ django==3.2.7
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
-    #   rest-condition
-django-cors-headers==3.8.0
+django-cors-headers==3.10.0
     # via -r requirements/local.txt
 django-crum==0.7.9
     # via
@@ -170,7 +169,7 @@ django-crum==0.7.9
     #   edx-django-utils
 django-debug-toolbar==3.2.2
     # via -r requirements/local.txt
-django-dynamic-fixture==3.1.1
+django-dynamic-fixture==3.1.2
     # via -r requirements/local.txt
 django-extensions==3.1.3
     # via -r requirements/local.txt
@@ -180,7 +179,7 @@ django-model-utils==4.1.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==4.0.0
+django-mysql==4.2.0
     # via -r requirements/local.txt
 django-simple-history==3.0.0
     # via -r requirements/local.txt
@@ -204,8 +203,7 @@ djangorestframework==3.11.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
-    #   rest-condition
-docker==5.0.2
+docker==5.0.3
     # via
     #   -r requirements/local.txt
     #   moto
@@ -226,7 +224,7 @@ ecdsa==0.17.0
     # via
     #   -r requirements/local.txt
     #   python-jose
-edx-api-doc-tools==1.4.3
+edx-api-doc-tools==1.5.0
     # via -r requirements/local.txt
 edx-auth-backends==4.0.0
     # via -r requirements/local.txt
@@ -237,11 +235,11 @@ edx-django-utils==4.4.0
     #   -r requirements/local.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==7.0.1
+edx-drf-extensions==8.0.0
     # via -r requirements/local.txt
-edx-i18n-tools==0.7.0
+edx-i18n-tools==0.8.1
     # via -r requirements/local.txt
-edx-lint==5.1.0
+edx-lint==5.2.0
     # via -r requirements/local.txt
 edx-opaque-keys==2.2.2
     # via
@@ -253,11 +251,11 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/local.txt
 factory-boy==3.2.0
     # via -r requirements/local.txt
-faker==8.12.1
+faker==9.2.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.0.12
+filelock==3.3.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -273,7 +271,7 @@ gitdb==4.0.7
     # via
     #   -r requirements/local.txt
     #   gitpython
-gitpython==3.1.23
+gitpython==3.1.24
     # via
     #   -r requirements/local.txt
     #   transifex-client
@@ -303,7 +301,7 @@ itypes==1.2.0
     # via
     #   -r requirements/local.txt
     #   coreapi
-jinja2==3.0.1
+jinja2==3.0.2
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -399,7 +397,7 @@ pbr==5.6.0
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==2.3.0
+platformdirs==2.4.0
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -433,7 +431,7 @@ pycparser==2.20
     # via
     #   -r requirements/local.txt
     #   cffi
-pycryptodomex==3.10.1
+pycryptodomex==3.10.4
     # via
     #   -r requirements/local.txt
     #   pyjwkest
@@ -445,7 +443,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.1.0
+pyjwt[crypto]==2.2.0
     # via
     #   -r requirements/local.txt
     #   drf-jwt
@@ -453,7 +451,7 @@ pyjwt[crypto]==2.1.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.10.2
+pylint==2.11.1
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -490,7 +488,7 @@ pytest==6.2.5
     #   -r requirements/local.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements/local.txt
 pytest-django==4.4.0
     # via -r requirements/local.txt
@@ -520,7 +518,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/local.txt
     #   social-auth-core
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements/local.txt
     #   babel
@@ -560,14 +558,10 @@ requests-oauthlib==1.3.0
     # via
     #   -r requirements/local.txt
     #   social-auth-core
-responses==0.13.4
+responses==0.14.0
     # via
     #   -r requirements/local.txt
     #   moto
-rest-condition==1.0.3
-    # via
-    #   -r requirements/local.txt
-    #   edx-drf-extensions
 rsa==4.7.2
     # via
     #   -r requirements/local.txt
@@ -613,7 +607,6 @@ six==1.16.0
     #   edx-auth-backends
     #   edx-django-release-util
     #   edx-drf-extensions
-    #   edx-i18n-tools
     #   edx-lint
     #   edx-sphinx-theme
     #   jsonschema
@@ -623,7 +616,6 @@ six==1.16.0
     #   python-dateutil
     #   python-memcached
     #   responses
-    #   social-auth-app-django
     #   tox
     #   transifex-client
     #   virtualenv
@@ -639,9 +631,8 @@ snowballstemmer==2.1.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-social-auth-app-django==4.0.0
+social-auth-app-django==5.0.0
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/local.txt
     #   edx-auth-backends
 social-auth-core==4.1.0
@@ -649,7 +640,7 @@ social-auth-core==4.1.0
     #   -r requirements/local.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==4.1.2
+sphinx==4.2.0
     # via
     #   -r requirements/local.txt
     #   edx-sphinx-theme
@@ -677,7 +668,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/local.txt
     #   sphinx
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via
     #   -r requirements/local.txt
     #   django
@@ -698,22 +689,27 @@ toml==0.10.2
     #   -r requirements/local.txt
     #   pylint
     #   pytest
-    #   pytest-cov
     #   tox
-tox==3.24.3
+tomli==1.2.1
+    # via
+    #   -r requirements/local.txt
+    #   coverage
+tox==3.24.4
     # via -r requirements/local.txt
 transifex-client==0.14.3
     # via -r requirements/local.txt
 typing-extensions==3.10.0.2
     # via
     #   -r requirements/local.txt
+    #   astroid
     #   gitpython
+    #   pylint
 uritemplate==3.0.1
     # via
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.6
+urllib3==1.26.7
     # via
     #   -r requirements/local.txt
     #   botocore
@@ -725,7 +721,7 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.7.2
+virtualenv==20.8.1
     # via
     #   -r requirements/local.txt
     #   tox
@@ -733,7 +729,7 @@ websocket-client==1.2.1
     # via
     #   -r requirements/local.txt
     #   docker
-werkzeug==2.0.1
+werkzeug==2.0.2
     # via
     #   -r requirements/local.txt
     #   moto
