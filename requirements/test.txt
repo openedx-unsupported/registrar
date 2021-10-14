@@ -14,7 +14,7 @@ asgiref==3.4.1
     # via
     #   -r requirements/base.txt
     #   django
-astroid==2.7.3
+astroid==2.8.2
     # via
     #   pylint
     #   pylint-celery
@@ -308,7 +308,7 @@ pbr==5.6.0
     # via
     #   -r requirements/base.txt
     #   stevedore
-platformdirs==2.3.0
+platformdirs==2.4.0
     # via
     #   pylint
     #   virtualenv
@@ -328,7 +328,7 @@ pyasn1==0.4.8
     # via
     #   python-jose
     #   rsa
-pycodestyle==2.7.0
+pycodestyle==2.8.0
     # via -r requirements/test.in
 pycparser==2.20
     # via
@@ -350,7 +350,7 @@ pyjwt[crypto]==2.1.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.10.2
+pylint==2.11.1
     # via
     #   edx-lint
     #   pylint-celery
@@ -517,6 +517,10 @@ toml==0.10.2
     #   tox
 tox==3.24.3
     # via -r requirements/test.in
+typing-extensions==3.10.0.2
+    # via
+    #   astroid
+    #   pylint
 uritemplate==3.0.1
     # via
     #   -r requirements/base.txt

@@ -84,15 +84,13 @@ def load_records_from_csv(csv_string, field_names, optional_fields=frozenset()):
 
     if missing_fields:
         raise ValidationError(
-            "CSV is missing headers [{}]".format(", ".join(missing_fields))
+            f"CSV is missing headers [{', '.join(missing_fields)}]"
         )
     records = []
     for n, row in enumerate(reader, 1):
         if None in row or not all(row[field] for field in required_fields):
             raise ValidationError(
-                "CSV is missing data at row #{}. Required fields are [{}].".format(
-                    n, ", ".join(field_names)
-                )
+                f"CSV is missing data at row #{n}. Required fields are [{', '.join(field_names)}]."
             )
         stripped_row = {
             field: val.strip()

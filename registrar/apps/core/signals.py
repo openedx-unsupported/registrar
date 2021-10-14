@@ -24,9 +24,8 @@ def handle_user_post_save(sender, **kwargs):  # pylint: disable=unused-argument
     pending_groups = PendingUserGroup.objects.filter(user_email=user_instance.email)
     for pending_group in pending_groups:
         logger.info(
-            'add user {} to group {}'.format(
-                user_instance.email, pending_group.group
-            )
+            'add user %(email)s to group %(group)s',
+            {'email': user_instance.email, 'group': pending_group.group}
         )
         user_instance.groups.add(pending_group.group)
 

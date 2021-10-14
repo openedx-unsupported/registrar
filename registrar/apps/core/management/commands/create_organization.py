@@ -63,7 +63,7 @@ class Command(BaseCommand):
             )
         except Exception as e:
             raise CommandError(f'Unable to create Organization. cause: {e}') from e
-        logger.info('Created Organization {}'.format(org.key))
+        logger.info('Created Organization %(org_key)s', {'org_key': org.key})
         return org
 
     def create_org_group(self, org, group_role, group_name):  # pylint: disable=missing-function-docstring
@@ -77,4 +77,6 @@ class Command(BaseCommand):
             )
         except Exception as e:
             raise CommandError(f'Unable to create OrganizationGroup {group_name}. cause: {e}') from e
-        logger.info('Created OrganizationGroup {} with role {}'.format(group_name, group_role))
+        logger.info(
+            'Created OrganizationGroup %(name)s with role %(role)s', {'name': group_name, 'role': group_role}
+        )

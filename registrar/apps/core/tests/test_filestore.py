@@ -126,16 +126,16 @@ class FilestoreTests(TestCase):
         contents = 'ThisIsPotentiallyPII'
         filestore = FileSystemFilestore(bucket, path_prefix)
 
-        log_error_patcher = mock.patch.object(filestore_logger, 'error', autospec=True)
-        save_patcher = mock.patch.object(
-            filestore.backend, 'save', autospec=True, side_effect=ClientError({}, 'fake-error')
-        )
-        with log_error_patcher as mock_log_error, save_patcher as _mock_save:
-            with self.assertRaises(ClientError):
-                filestore.store(filepath, contents)
+        with self.assertLogs(level='ERROR') as log:
+            save_patcher = mock.patch.object(
+                filestore.backend, 'save', autospec=True, side_effect=ClientError({}, 'fake-error')
+            )
+            with save_patcher as _mock_save:
+                with self.assertRaises(ClientError):
+                    filestore.store(filepath, contents)
 
-        log_message = mock_log_error.call_args_list[0][0][0]
-        assert bucket in log_message
-        assert path_prefix in log_message
-        assert filepath in log_message
-        assert contents not in log_message
+            log_message = log.records[0].getMessage()
+            assert bucket in log_message
+            assert path_prefix in log_message
+            assert filepath in log_message
+            assert contents not in log_message

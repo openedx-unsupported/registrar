@@ -66,9 +66,7 @@ def list_program_enrollments(self, job_id, user_id, file_format, program_key, in
     except HTTPError as err:
         post_job_failure(
             job_id,
-            "HTTP error {} when getting enrollments at {}".format(
-                err.response.status_code, err.request.url
-            ),
+            f"HTTP error {err.response.status_code} when getting enrollments at {err.request.url}"
         )
         return
     except ValidationError as err:
@@ -115,9 +113,7 @@ def list_course_run_enrollments(
     except HTTPError as err:
         post_job_failure(
             job_id,
-            "HTTP error {} when getting enrollments at {}".format(
-                err.response.status_code, err.request.url
-            ),
+            f"HTTP error {err.response.status_code} when getting enrollments at {err.request.url}"
         )
         return
     except ValidationError as err:
@@ -158,9 +154,7 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
         except HTTPError as err:
             post_job_failure(
                 job_id,
-                "HTTP error {} when getting enrollments at {}".format(
-                    err.response.status_code, err.request.url
-                ),
+                f"HTTP error {err.response.status_code} when getting enrollments at {err.request.url}"
             )
             return
         except ValidationError as err:
@@ -334,9 +328,7 @@ def _load_enrollment_requests(job_id, program_key, json_filepath):
     if not json_text:
         post_job_failure(
             job_id,
-            "Enrollment file for program_key={} not found at {}".format(
-                program_key, json_filepath
-            )
+            f"Enrollment file for program_key={program_key} not found at {json_filepath}"
         )
         return None
     try:
@@ -344,8 +336,6 @@ def _load_enrollment_requests(job_id, program_key, json_filepath):
     except json.decoder.JSONDecodeError:
         post_job_failure(
             job_id,
-            "Enrollment file for program_key={} at {} is not valid JSON".format(
-                program_key, json_filepath
-            )
+            f"Enrollment file for program_key={program_key} at {json_filepath} is not valid JSON"
         )
         return None

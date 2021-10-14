@@ -982,7 +982,7 @@ class ReportsListView(ProgramSpecificViewMixin, APIView):
         # wait to generate the download url until after we've done any filtering
         # to avoid generating unnecessary urls
         for report in reports_metadata:
-            report['download_url'] = filestore.get_url('{}/{}'.format(file_prefix, report['name']))
+            report['download_url'] = filestore.get_url(f'{file_prefix}/{report["name"]}')
 
         serializer = ProgramReportMetadataSerializer(reports_metadata, many=True)
         return Response(serializer.data)

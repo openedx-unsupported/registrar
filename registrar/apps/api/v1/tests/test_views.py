@@ -2473,10 +2473,7 @@ class EnrollmentUploadMixin:
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         filestore = get_enrollment_uploads_filestore()
-        retrieved = filestore.retrieve('/{}/{}.json'.format(
-            'uploads',
-            upload_response.data['job_id'],
-        ))
+        retrieved = filestore.retrieve(f'/uploads/{upload_response.data["job_id"]}.json')
         self.assertEqual(json.loads(retrieved), enrollments)
 
     def test_enrollment_upload_conflict(self):
@@ -2612,10 +2609,7 @@ class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAP
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         filestore = get_enrollment_uploads_filestore()
-        retrieved = filestore.retrieve('/{}/{}.json'.format(
-            'uploads',
-            upload_response.data['job_id'],
-        ))
+        retrieved = filestore.retrieve(f'/uploads/{upload_response.data["job_id"]}.json')
         self.assertEqual(json.loads(retrieved), enrollments)
 
     @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
@@ -2643,10 +2637,7 @@ class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAP
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         filestore = get_enrollment_uploads_filestore()
-        retrieved = filestore.retrieve('/{}/{}.json'.format(
-            'uploads',
-            upload_response.data['job_id'],
-        ))
+        retrieved = filestore.retrieve(f'/uploads/{upload_response.data["job_id"]}.json')
         self.assertEqual(json.loads(retrieved), expected_enrollments)
 
     @mock.patch.object(CourseRunEnrollmentUploadView, 'task_fn', _succeeding_job)
@@ -2672,10 +2663,7 @@ class CourseEnrollmentUploadTest(EnrollmentUploadMixin, S3MockMixin, RegistrarAP
         self.assertEqual(job_response.data['state'], 'Succeeded')
 
         filestore = get_enrollment_uploads_filestore()
-        retrieved = filestore.retrieve('/{}/{}.json'.format(
-            'uploads',
-            upload_response.data['job_id'],
-        ))
+        retrieved = filestore.retrieve(f'/uploads/{upload_response.data["job_id"]}.json')
         self.assertEqual(json.loads(retrieved), enrollments)
 
 
@@ -3045,7 +3033,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
-                '{}/{}'.format(file_prefix, file['name']),
+                f'{file_prefix}/{file["name"]}',
                 'data'
             )
 
@@ -3053,7 +3041,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             {
                 'name': file['name'],
                 'created_date': file['created_date'],
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, file['name'])),
+                'download_url': filestore.get_url(f'{file_prefix}/{file["name"]}'),
             } for file in files
         ]
         response = self.get(self.path, self.hum_admin)
@@ -3083,7 +3071,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
         filestore = get_program_reports_filestore()
         for file in files:
             filestore.store(
-                '{}/{}'.format(file_prefix, file['name']),
+                f'{file_prefix}/{file["name"]}',
                 'data',
             )
 
@@ -3091,12 +3079,12 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             {
                 'name': 'aggregate_report__2019-12-18',
                 'created_date': '2019-12-18',
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'aggregate_report__2019-12-18')),
+                'download_url': filestore.get_url(f'{file_prefix}/aggregate_report__2019-12-18'),
             },
             {
                 'name': 'individual_report__2019-12-18',
                 'created_date': '2019-12-18',
-                'download_url': filestore.get_url('{}/{}'.format(file_prefix, 'individual_report__2019-12-18')),
+                'download_url': filestore.get_url(f'{file_prefix}/individual_report__2019-12-18'),
             },
         ]
 
@@ -3135,11 +3123,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
             {
                 'name': 'individual_report__2019-12-18',
                 'created_date': '2019-12-18',
-                'download_url': filestore.get_url(
-                    '{file_prefix}/individual_report__2019-12-18'.format(
-                        file_prefix=file_prefix
-                    ),
-                ),
+                'download_url': filestore.get_url(f'{file_prefix}/individual_report__2019-12-18'),
             }
         ]
         response = self.get(self.path, self.hum_admin)

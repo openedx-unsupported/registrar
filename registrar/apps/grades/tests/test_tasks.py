@@ -64,9 +64,7 @@ class GetCourseRunGradesTest(BaseTaskTestMixin, TestCase):
             )
             mock_load_data.side_effect = error
             self.spawn_task().wait()
-        expected_msg = "HTTP error {} when getting grades at registrar.edx.org".format(
-            status_code,
-        )
+        expected_msg = f"HTTP error {status_code} when getting grades at registrar.edx.org"
         self.assert_failed(expected_msg)
 
     def test_invalid_data(self):

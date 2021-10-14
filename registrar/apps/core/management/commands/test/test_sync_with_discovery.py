@@ -130,7 +130,7 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
                 role=OrganizationReadReportRole.name
             )
             self.assertTrue(existing_org_report_group)
-            expected_org_group_name = '{}_ReadOrganizationReports'.format(org['key'])
+            expected_org_group_name = f'{org["key"]}_ReadOrganizationReports'
             self.assertEqual(existing_org_report_group.name, expected_org_group_name)
 
     def test_sync_organization_create_and_update(self):
@@ -210,19 +210,13 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
             managing_organization=cls.other_org
         )
         cls.english_program_read_report_group = ProgramOrganizationGroupFactory(
-            name='{}_{}_ReadProgramReports'.format(
-                cls.org.key,
-                cls.english_program.key,
-            ),
+            name=f'{cls.org.key}_{cls.english_program.key}_ReadProgramReports',
             program=cls.english_program,
             granting_organization=cls.org,
             role=ProgramReadReportRole.name,
         )
         cls.german_program_read_report_group = ProgramOrganizationGroupFactory(
-            name='{}_{}_ReadProgramReports'.format(
-                cls.other_org.key,
-                cls.german_program.key,
-            ),
+            name=f'{cls.other_org.key}_{cls.german_program.key}_ReadProgramReports',
             program=cls.german_program,
             granting_organization=cls.other_org,
             role=ProgramReadReportRole.name,

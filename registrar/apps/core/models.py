@@ -88,8 +88,9 @@ class Organization(TimeStampedModel):
         """
         Developer-friendly string representation of this Organization.
         """
-        return "<{}: key={} discovery_uuid={} name={!r}>".format(
-            type(self).__name__, self.key, self.discovery_uuid, self.name
+        return (
+            f"<{type(self).__name__}: key={self.key} "
+            f"discovery_uuid={self.discovery_uuid} name={repr(self.name)}>"
         )
 
 
@@ -121,8 +122,9 @@ class Program(TimeStampedModel):
         """
         Developer-friendly string representation of this Program.
         """
-        return "<{}: key={} discovery_uuid={} managing_organization={}>".format(
-            type(self).__name__, self.key, self.discovery_uuid, self.managing_organization.key
+        return (
+            f"<{type(self).__name__}: key={self.key} discovery_uuid={self.discovery_uuid} "
+            f"managing_organization={self.managing_organization.key}>"
         )
 
     @cached_property
@@ -198,8 +200,9 @@ class OrganizationGroup(Group):
         """
         Developer-friendly representation of this OrganizationGroup.
         """
-        return '<{}: name={!r} organization={} role={}>'.format(
-            type(self).__name__, self.name, self.organization.key, self.role
+        return (
+            f'<{type(self).__name__}: name={repr(self.name)} '
+            f'organization={self.organization.key} role={self.role}>'
         )
 
 
@@ -267,13 +270,8 @@ class ProgramOrganizationGroup(Group):
         Developer-friendly representation of this ProgramOrganizationGroup.
         """
         return (
-            "<{}: name={!r} program={} granting_organization={} role={}>".format(
-                type(self).__name__,
-                self.name,
-                self.program.key,
-                self.granting_organization.key,
-                self.role,
-            )
+            f"<{type(self).__name__}: name={repr(self.name)} program={self.program.key} "
+            f"granting_organization={self.granting_organization.key} role={self.role}>"
         )
 
 
@@ -297,9 +295,7 @@ class PendingUserGroup(TimeStampedModel):
         """
         Return human-readable string representation of this PendingUserGroup.
         """
-        return "<{}: user_email={!r} group={!r}>".format(
-            type(self).__name__, self.user_email, self.group
-        )
+        return f"<{type(self).__name__}: user_email={repr(self.user_email)} group={repr(self.group)}>"
 
     def __str__(self):
         """

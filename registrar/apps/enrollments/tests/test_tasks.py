@@ -239,18 +239,14 @@ class WriteEnrollmentTaskTestMixin(BaseTaskTestMixin, S3MockEnvVarsMixin):
     def test_no_such_file(self):
         self.spawn_task().wait()
         self.assert_failed(
-            "Enrollment file for program_key={} not found at {}".format(
-                self.program.key, self.json_filepath
-            )
+            f"Enrollment file for program_key={self.program.key} not found at {self.json_filepath}"
         )
 
     def test_file_not_json(self):
         uploads_filestore.store(self.json_filepath, "this is not valid json")
         self.spawn_task().wait()
         self.assert_failed(
-            "Enrollment file for program_key={} at {} is not valid JSON".format(
-                self.program.key, self.json_filepath
-            )
+            f"Enrollment file for program_key={self.program.key} at {self.json_filepath} is not valid JSON"
         )
 
 
