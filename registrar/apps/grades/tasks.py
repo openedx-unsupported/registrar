@@ -32,9 +32,7 @@ def get_course_run_grades(self, job_id, user_id, file_format, program_key, inter
     except HTTPError as err:
         post_job_failure(
             job_id,
-            "HTTP error {} when getting grades at {}".format(
-                err.response.status_code, err.request.url
-            ),
+            f"HTTP error {err.response.status_code} when getting grades at {err.request.url}"
         )
         return
     except ValidationError as err:

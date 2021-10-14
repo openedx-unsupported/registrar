@@ -156,7 +156,7 @@ class JobInvokerMixin:
         job_id, user_id, and file_format.
         """
         job_id = str(uuid.uuid4())
-        file_path = '{}.{}'.format(job_id, 'json')
+        file_path = f'{job_id}.json'
         upload_filestore.store(file_path, upload_content)
         return self._invoke_job(task_fn, file_path, job_id=job_id, *args, **kwargs)
 

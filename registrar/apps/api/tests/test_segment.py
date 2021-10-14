@@ -22,9 +22,10 @@ class SegmentTrackTests(TestCase):
         )
 
     @mock.patch.object(settings, 'SEGMENT_KEY', new=None)
-    @mock.patch.object(segment.logger, 'debug', autospec=True)
-    def test_track_no_segment_key(self, mock_logger_debug):
-        segment.track(user_id=1, event=self.EVENT_DATA)
-        mock_logger_debug.assert_called_once_with(
+    def test_track_no_segment_key(self):
+        with self.assertLogs(level='DEBUG') as log:
+            segment.track(user_id=1, event=self.EVENT_DATA)
+        self.assertEqual(
+            log.records[0].getMessage(),
             r"{1, {'key': 'value'}} not tracked because SEGMENT_KEY not set"
         )

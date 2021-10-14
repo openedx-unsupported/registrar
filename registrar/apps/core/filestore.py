@@ -58,9 +58,8 @@ class FilestoreBase:
                 return content if isinstance(content, str) else content.decode('utf-8')
         except OSError as e:
             logger.exception(
-                "Could not read file stored at path {!r} in bucket {!r}: {}".format(
-                    full_path, self.bucket, e
-                )
+                "Could not read file stored at path %(path)r in bucket %(bucket)r: %(e)s",
+                {'path': full_path, 'bucket': self.bucket, 'e': e}
             )
             return None
 
@@ -133,9 +132,8 @@ class FilestoreBase:
             return operation(full_path)
         except ClientError:
             logger.error(
-                "Error while {} {!r} in bucket {!r}.".format(
-                    operation_description, full_path, self.bucket
-                )
+                "Error while %(description)s %(path)r in bucket %(bucket)r.",
+                {'description': operation_description, 'path': full_path, 'bucket': self.bucket}
             )
             raise
 

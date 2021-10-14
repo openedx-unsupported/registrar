@@ -34,7 +34,7 @@ class GroupFactory(factory.django.DjangoModelFactory):
         model = Group
         django_get_or_create = ('name',)
 
-    name = factory.Sequence('group{}'.format)
+    name = factory.Sequence(lambda n: f'group{n}')
 
     @factory.post_generation
     def permissions(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
@@ -49,7 +49,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence(lambda n: 'user_%d' % n)
+    username = factory.Sequence(lambda n: f'user_{n}')
     password = factory.PostGenerationMethodCall('set_password', USER_PASSWORD)
     is_active = True
     is_superuser = False

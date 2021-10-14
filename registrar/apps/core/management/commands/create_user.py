@@ -46,7 +46,7 @@ class Command(BaseCommand):
             raise CommandError(f'Unable to create User {username}. Cause: {ex}') from ex
         if not created:
             raise CommandError(f'User {user} already exists')
-        logger.info("Created user: {}".format(user))
+        logger.info("Created user: %(user)r", {'user': user})
         return user
 
     def get_groups(self, group_names):  # pylint: disable=missing-function-docstring
@@ -69,4 +69,4 @@ class Command(BaseCommand):
             user.groups.add(*groups)
         except Exception as ex:  # pragma: no cover
             raise CommandError(f'Unable to add user to groups. Cause: {ex}') from ex
-        logger.info('Added user {} to groups {}'.format(user, groups))
+        logger.info('Added user %(user)r to groups %(groups)r', {'user': user, 'groups': groups})

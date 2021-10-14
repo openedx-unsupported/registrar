@@ -88,7 +88,7 @@ class DiscoveryServiceClientTestCase(TestCase):
             settings.DISCOVERY_BASE_URL,
             DISCOVERY_API_TPL.format('programs', '')
         )
-        discovery_url += '?types={}&status=active'.format(','.join(self.program_types))
+        discovery_url += f'?types={",".join(self.program_types)}&status=active'
         responses.add(
             responses.GET,
             discovery_url,

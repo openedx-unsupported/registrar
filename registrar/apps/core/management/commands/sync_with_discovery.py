@@ -198,10 +198,7 @@ class Command(BaseCommand):
             read_reports_groups[(group.granting_organization.key, group.program.key)] = group
 
         for program in Program.objects.select_related('managing_organization'):
-            name = '{}_{}_ReadProgramReports'.format(
-                program.managing_organization.key,
-                program.key,
-            )
+            name = f'{program.managing_organization.key}_{program.key}_ReadProgramReports'
 
             created, updated = (False, False)
             program_org_group = read_reports_groups.get((program.managing_organization.key, program.key))

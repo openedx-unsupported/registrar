@@ -196,9 +196,8 @@ def _write_enrollments(method, url, enrollments, client=None):
             if isinstance(response_data, dict):
                 results.update(response_data)
         logger.info(
-            "LMS responded to {} {} with status {} and body {}".format(
-                method, url, response.status_code, response.text
-            )
+            "LMS responded to %(method)s %(url)s with status %(status_code)s and body %(text)s",
+            {'method': method, 'url': url, 'status_code': response.status_code, 'text': response.text}
         )
     return good, bad, results
 

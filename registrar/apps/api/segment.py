@@ -29,7 +29,10 @@ def track(
     if settings.SEGMENT_KEY:
         analytics.track(user_id, event, properties, context, timestamp, anonymous_id, integrations)
     else:
-        logger.debug("{{{}, {}}} not tracked because SEGMENT_KEY not set".format(user_id, event))
+        logger.debug(
+            "{%(user_id)s, %(event)r} not tracked because SEGMENT_KEY not set",
+            {'user_id': user_id, 'event': event}
+        )
 
 
 def get_tracking_properties(user, **kwargs):

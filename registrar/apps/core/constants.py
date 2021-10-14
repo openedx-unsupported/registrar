@@ -13,10 +13,7 @@ INTERNAL_COURSE_KEY_PATTERN = r'([^/+]+(/|\+)[^/+]+(/|\+)[^/?]+)'
 
 EXTERNAL_COURSE_KEY_PATTERN = r'([A-Za-z0-9-_:]+)'
 
-COURSE_ID_PATTERN = r'(?P<course_id>({}|{}))'.format(
-    INTERNAL_COURSE_KEY_PATTERN,
-    EXTERNAL_COURSE_KEY_PATTERN
-)
+COURSE_ID_PATTERN = rf'(?P<course_id>({INTERNAL_COURSE_KEY_PATTERN}|{EXTERNAL_COURSE_KEY_PATTERN}))'
 
 # Captures strings composed of alphanumeric characters, dashes, and underscores.
 PROGRAM_KEY_PATTERN = r'(?P<program_key>[A-Za-z0-9-_]+)'

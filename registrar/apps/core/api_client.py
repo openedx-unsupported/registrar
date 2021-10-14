@@ -57,7 +57,7 @@ class DiscoveryServiceClient:
             settings.DISCOVERY_BASE_URL,
             DISCOVERY_API_TPL.format('programs', '')
         )
-        url += '?types={}&status=active'.format(','.join(types))
+        url += f'?types={",".join(types)}&status=active'
         try:
             return get_all_paginated_results(url)
         except HTTPError:

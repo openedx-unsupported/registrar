@@ -20,7 +20,7 @@ def debug_task(self, *args, **kwargs):
     A task for debugging.  Will dump the context of the task request
     to the log as a DEBUG message.
     """
-    log.debug('Request: {0!r}'.format(self.request))
+    log.debug('Request: %(request)r', {'request': self.request})
 
 
 # pylint: disable=unused-argument

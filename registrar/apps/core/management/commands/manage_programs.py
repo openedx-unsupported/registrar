@@ -43,8 +43,10 @@ class Command(BaseCommand):
             elif len(split_args) == 2:
                 result.append((split_args[0], split_args[1]))
             else:
-                message = ('incorrectly formatted argument {}, '
-                           'must be in form <program uuid>:<program key> or <program_uuid>').format(uuidkey)
+                message = (
+                    f'incorrectly formatted argument {uuidkey}, '
+                    'must be in form <program uuid>:<program key> or <program_uuid>'
+                )
                 raise CommandError(message)
         return result
 
@@ -58,10 +60,8 @@ class Command(BaseCommand):
             if 'key' in authoring_org:
                 org_keys.append(authoring_org['key'])
         if not org_keys:
-            raise CommandError('No authoring org keys found for program {}'.format(
-                program_details.get('uuid'))
-            )
-        logger.info('Authoring Organizations are {}'.format(org_keys))
+            raise CommandError(f'No authoring org keys found for program {program_details.get("uuid")}')
+        logger.info('Authoring Organizations are %(org_keys)r', {'org_keys': org_keys})
         return org_keys
 
     def get_org(self, org_keys):
@@ -72,10 +72,10 @@ class Command(BaseCommand):
         for org_key in org_keys:
             try:
                 org = Organization.objects.get(key=org_key)
-                logger.info('Using {} as program organization'.format(org))
+                logger.info('Using %(org)r as program organization', {'org': org})
                 return org
             except Organization.DoesNotExist:
-                logger.info('Org {} not found in registrar'.format(org_key))
+                logger.info('Org %(org_key)s not found in registrar', {'org_key': org_key})
         raise CommandError(f'None of the authoring organizations {org_keys} were found in Registrar')
 
     # pylint: disable=missing-function-docstring
@@ -91,4 +91,7 @@ class Command(BaseCommand):
             program.key = program_key
             program.save()
         verb = 'Created' if created else 'Modified existing'
-        logger.info('{} program (key={} uuid={} managing_org={})'.format(verb, program_key, program_uuid, org.key))
+        logger.info(
+            '%(verb)s program (key=%(program_key)s uuid=%(uuid)s managing_org=%(org_key)s)',
+            {'verb': verb, 'program_key': program_key, 'uuid': program_uuid, 'org_key': org.key}
+        )
