@@ -1,5 +1,6 @@
 """ Tests for manage_programs management command """
 from unittest.mock import patch
+from uuid import uuid4
 
 import ddt
 from django.core.management import call_command
@@ -29,7 +30,7 @@ class TestManagePrograms(TestCase):
     @classmethod
     def discovery_dict(cls, org_key, uuid, slug):
         return {
-            'authoring_organizations': [{'key': org_key}] if org_key else [],
+            'authoring_organizations': [{'key': org_key, 'uuid': uuid4()}] if org_key else [],
             'uuid': uuid,
             'marketing_slug': slug,
         }
@@ -59,11 +60,12 @@ class TestManagePrograms(TestCase):
         cls.russian_discovery_program = cls.discovery_dict(cls.other_org.key, cls.russian_uuid, 'russian-slug')
         cls.arabic_discovery_program = cls.discovery_dict(cls.org.key, cls.arabic_uuid, 'arabic-slug')
 
-    def assert_program(self, expected_uuid, expected_key, expected_org):
+    def assert_program(self, expected_uuid, expected_key, expected_org=None):
         """ Assert that a progam with the given fields exists """
         program = Program.objects.get(discovery_uuid=expected_uuid)
         self.assertEqual(program.key, expected_key)
-        self.assertEqual(program.managing_organization, expected_org)
+        if expected_org:
+            self.assertEqual(program.managing_organization, expected_org)
 
     def assert_program_nonexistant(self, expected_uuid):
         """ Assert that a progam with the given fields exists """
@@ -159,7 +161,7 @@ class TestManagePrograms(TestCase):
             'authoring_organizations': authoring_organizations,
             'uuid': self.english_uuid
         }
-        with self.assertRaisesRegex(CommandError, 'No authoring org keys found for program'):
+        with self.assertRaisesRegex(CommandError, 'No authoring organization could be found or created'):
             call_command(self.command, self._uuidkeys((self.english_uuid, 'english-program')))
 
     def test_org_not_found(self):
@@ -168,8 +170,8 @@ class TestManagePrograms(TestCase):
             self.english_uuid,
             'english-slug'
         )
-        with self.assertRaisesRegex(CommandError, 'None of the authoring organizations (.*?) were found'):
-            call_command(self.command, self._uuidkeys((self.english_uuid, 'english_program')))
+        call_command(self.command, self._uuidkeys((self.english_uuid, 'english_program')))
+        self.assert_program(self.english_uuid, 'english_program')
 
     def test_load_from_disco_failed(self):
         self.mock_get_discovery_program.return_value = {}

@@ -30,8 +30,7 @@ class Command(BaseCommand):
             discovery_details = ProgramDetails(uuidkey[0]).raw_data
             if not discovery_details:
                 raise CommandError('Could not read program from course-discovery; aborting')
-            authoring_orgs = self.get_authoring_org_keys(discovery_details)
-            org = self.get_org(authoring_orgs)
+            org = self.get_or_create_orgs(discovery_details)
             self.create_or_modify_program(org, discovery_details, *uuidkey)
 
     def parse_uuidkeys(self, uuidkeys):  # pylint: disable=missing-function-docstring
@@ -50,33 +49,39 @@ class Command(BaseCommand):
                 raise CommandError(message)
         return result
 
-    def get_authoring_org_keys(self, program_details):
+    def get_or_create_orgs(self, program_details):
         """
-        Return a list of authoring_organization keys
+        From fetched program details, extract discovery information
+        about authoring organizations and return one matching/newly
+        created registrar org.
+
+        We return the last authoring org. so that as many
+        organizations are created as possible, since this leads to
+        more consistent results.
         """
-        org_keys = []
+        last_seen_authoring_org = None
         authoring_orgs = program_details.get('authoring_organizations', [])
         for authoring_org in authoring_orgs:
             if 'key' in authoring_org:
-                org_keys.append(authoring_org['key'])
-        if not org_keys:
-            raise CommandError(f'No authoring org keys found for program {program_details.get("uuid")}')
-        logger.info('Authoring Organizations are %(org_keys)r', {'org_keys': org_keys})
-        return org_keys
+                last_seen_authoring_org = self.get_or_create_org_from_discovery_data(authoring_org)
+        if not last_seen_authoring_org:
+            raise CommandError('No authoring organization could be found or created')
+        return last_seen_authoring_org
 
-    def get_org(self, org_keys):
+    def get_or_create_org_from_discovery_data(self, discovery_org_data):
         """
-        From the list of authoring_organization keys from discovery,
-        return the first matching Registrar Organization
+        From fetched org data, get or create a matching organization
         """
-        for org_key in org_keys:
-            try:
-                org = Organization.objects.get(key=org_key)
-                logger.info('Using %(org)r as program organization', {'org': org})
-                return org
-            except Organization.DoesNotExist:
-                logger.info('Org %(org_key)s not found in registrar', {'org_key': org_key})
-        raise CommandError(f'None of the authoring organizations {org_keys} were found in Registrar')
+        org_key = discovery_org_data['key']
+        org, created = Organization.objects.get_or_create(
+            key=org_key,
+            defaults={'discovery_uuid': discovery_org_data['uuid']},
+        )
+        if created:
+            logger.info('Org %(org_key)s not found in registrar, creating', {'org_key': org_key})
+        else:
+            logger.info('Using %(org)r as program organization', {'org': org})
+        return org
 
     # pylint: disable=missing-function-docstring
     def create_or_modify_program(self, org, program_details, program_uuid, program_key):
