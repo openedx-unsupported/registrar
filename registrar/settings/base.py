@@ -28,6 +28,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'edx_django_utils.user',
 )
 
 THIRD_PARTY_APPS = (
