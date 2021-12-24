@@ -18,7 +18,7 @@ asgiref==3.4.1
     # via
     #   -r requirements/test.txt
     #   django
-astroid==2.8.2
+astroid==2.9.0
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -26,13 +26,15 @@ astroid==2.8.2
 attrs==21.2.0
     # via
     #   -r requirements/test.txt
+    #   jschema-to-python
     #   jsonschema
     #   pytest
-aws-sam-translator==1.38.0
+    #   sarif-om
+aws-sam-translator==1.42.0
     # via
     #   -r requirements/test.txt
     #   cfn-lint
-aws-xray-sdk==2.8.0
+aws-xray-sdk==2.9.0
     # via
     #   -r requirements/test.txt
     #   moto
@@ -44,7 +46,7 @@ backoff==1.10.0
     # via
     #   -r requirements/test.txt
     #   analytics-python
-backports.entry-points-selectable==1.1.0
+backports.entry-points-selectable==1.1.1
     # via
     #   -r requirements/test.txt
     #   virtualenv
@@ -56,13 +58,13 @@ boto==2.49.0
     # via
     #   -r requirements/test.txt
     #   moto
-boto3==1.18.39
+boto3==1.20.26
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   aws-sam-translator
     #   moto
-botocore==1.21.39
+botocore==1.23.26
     # via
     #   -r requirements/test.txt
     #   aws-xray-sdk
@@ -74,25 +76,25 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-user-tasks
-certifi==2021.5.30
+certifi==2021.10.8
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   requests
-cffi==1.14.6
+cffi==1.15.0
     # via
     #   -r requirements/test.txt
     #   cryptography
-cfn-lint==0.54.0
+cfn-lint==0.56.3
     # via
     #   -r requirements/test.txt
     #   moto
-charset-normalizer==2.0.4
+charset-normalizer==2.0.9
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   requests
-click==8.0.1
+click==8.0.3
     # via
     #   -r requirements/test.txt
     #   click-log
@@ -118,29 +120,34 @@ coreschema==0.0.4
     #   -r requirements/test.txt
     #   coreapi
     #   drf-yasg
-coverage==5.5
+coverage[toml]==6.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==3.4.8
+cryptography==36.0.1
     # via
     #   -r requirements/test.txt
     #   moto
     #   pyjwt
     #   social-auth-core
-ddt==1.4.2
+ddt==1.4.4
     # via -r requirements/test.txt
 defusedxml==0.7.1
     # via
     #   -r requirements/test.txt
     #   python3-openid
     #   social-auth-core
-distlib==0.3.2
+deprecated==1.2.13
+    # via
+    #   -r requirements/test.txt
+    #   redis
+distlib==0.3.4
     # via
     #   -r requirements/test.txt
     #   virtualenv
-django==3.2.7
+django==3.2.10
     # via
+    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-cors-headers
@@ -161,26 +168,25 @@ django==3.2.7
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
-    #   rest-condition
-django-cors-headers==3.8.0
+django-cors-headers==3.10.1
     # via -r requirements/test.txt
 django-crum==0.7.9
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-django-debug-toolbar==3.2.2
+django-debug-toolbar==3.2.4
     # via -r requirements/local.in
 django-dynamic-fixture==3.1.2
     # via -r requirements/test.txt
-django-extensions==3.1.3
+django-extensions==3.1.5
     # via -r requirements/test.txt
 django-guardian==2.4.0
     # via -r requirements/test.txt
-django-model-utils==4.1.1
+django-model-utils==4.2.0
     # via
     #   -r requirements/test.txt
     #   django-user-tasks
-django-mysql==4.0.0
+django-mysql==4.3.0
     # via -r requirements/test.txt
 django-simple-history==3.0.0
     # via -r requirements/test.txt
@@ -204,8 +210,7 @@ djangorestframework==3.11.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
-    #   rest-condition
-docker==5.0.2
+docker==5.0.3
     # via
     #   -r requirements/test.txt
     #   moto
@@ -213,9 +218,8 @@ docutils==0.17.1
     # via
     #   -r requirements/docs.txt
     #   sphinx
-drf-jwt==1.19.0
+drf-jwt==1.19.1
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
     #   edx-drf-extensions
 drf-yasg==1.20.0
@@ -226,38 +230,38 @@ ecdsa==0.17.0
     # via
     #   -r requirements/test.txt
     #   python-jose
-edx-api-doc-tools==1.4.3
+edx-api-doc-tools==1.5.0
     # via -r requirements/test.txt
-edx-auth-backends==4.0.0
+edx-auth-backends==4.0.1
     # via -r requirements/test.txt
 edx-django-release-util==1.1.0
     # via -r requirements/test.txt
-edx-django-utils==4.4.0
+edx-django-utils==4.4.1
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==7.0.1
+edx-drf-extensions==8.0.1
     # via -r requirements/test.txt
-edx-i18n-tools==0.7.0
+edx-i18n-tools==0.8.1
     # via -r requirements/local.in
-edx-lint==5.1.0
+edx-lint==5.2.1
     # via -r requirements/test.txt
 edx-opaque-keys==2.2.2
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.4.0
+edx-rest-api-client==5.4.1
     # via -r requirements/test.txt
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.txt
-factory-boy==3.2.0
+factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==8.12.1
+faker==10.0.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
-filelock==3.0.12
+filelock==3.4.0
     # via
     #   -r requirements/test.txt
     #   tox
@@ -269,9 +273,9 @@ future==0.18.2
     #   -r requirements/test.txt
     #   aws-xray-sdk
     #   pyjwkest
-gitdb==4.0.7
+gitdb==4.0.9
     # via gitpython
-gitpython==3.1.23
+gitpython==3.1.24
     # via transifex-client
 idna==2.8
     # via
@@ -280,7 +284,7 @@ idna==2.8
     #   -r requirements/test.txt
     #   moto
     #   requests
-imagesize==1.2.0
+imagesize==1.3.0
     # via
     #   -r requirements/docs.txt
     #   sphinx
@@ -292,7 +296,7 @@ iniconfig==1.1.1
     # via
     #   -r requirements/test.txt
     #   pytest
-isort[requirements]==5.9.3
+isort[requirements]==5.10.1
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -300,7 +304,7 @@ itypes==1.2.0
     # via
     #   -r requirements/test.txt
     #   coreapi
-jinja2==3.0.1
+jinja2==3.0.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -313,6 +317,10 @@ jmespath==0.10.0
     #   -r requirements/test.txt
     #   boto3
     #   botocore
+jschema-to-python==1.2.3
+    # via
+    #   -r requirements/test.txt
+    #   cfn-lint
 jsondiff==1.1.2
     # via
     #   -r requirements/test.txt
@@ -321,7 +329,11 @@ jsonpatch==1.32
     # via
     #   -r requirements/test.txt
     #   cfn-lint
-jsonpointer==2.1
+jsonpickle==2.0.0
+    # via
+    #   -r requirements/test.txt
+    #   jschema-to-python
+jsonpointer==2.2
     # via
     #   -r requirements/test.txt
     #   jsonpatch
@@ -338,7 +350,7 @@ kombu==4.6.11
     # via
     #   -r requirements/test.txt
     #   celery
-lazy-object-proxy==1.6.0
+lazy-object-proxy==1.7.1
     # via
     #   -r requirements/test.txt
     #   astroid
@@ -377,7 +389,7 @@ oauthlib==3.1.1
     #   -r requirements/test.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==21.0
+packaging==21.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -391,9 +403,11 @@ pathspec==0.9.0
     # via
     #   -r requirements/test.txt
     #   yamllint
-pbr==5.6.0
+pbr==5.8.0
     # via
     #   -r requirements/test.txt
+    #   jschema-to-python
+    #   sarif-om
     #   stevedore
 platformdirs==2.4.0
     # via
@@ -411,7 +425,7 @@ psutil==5.8.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-py==1.10.0
+py==1.11.0
     # via
     #   -r requirements/test.txt
     #   pytest
@@ -423,11 +437,11 @@ pyasn1==0.4.8
     #   rsa
 pycodestyle==2.8.0
     # via -r requirements/test.txt
-pycparser==2.20
+pycparser==2.21
     # via
     #   -r requirements/test.txt
     #   cffi
-pycryptodomex==3.10.1
+pycryptodomex==3.12.0
     # via
     #   -r requirements/test.txt
     #   pyjwkest
@@ -439,7 +453,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.1.0
+pyjwt[crypto]==2.3.0
     # via
     #   -r requirements/test.txt
     #   drf-jwt
@@ -447,7 +461,7 @@ pyjwt[crypto]==2.1.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.11.1
+pylint==2.12.2
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -467,11 +481,11 @@ pylint-plugin-utils==0.6
     #   -r requirements/test.txt
     #   pylint-celery
     #   pylint-django
-pymongo==3.12.0
+pymongo==4.0.1
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
-pyparsing==2.4.7
+pyparsing==3.0.6
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -485,9 +499,9 @@ pytest==6.2.5
     #   -r requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements/test.txt
-pytest-django==4.4.0
+pytest-django==4.5.2
     # via -r requirements/test.txt
 python-dateutil==2.8.2
     # via
@@ -513,7 +527,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/test.txt
     #   social-auth-core
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -523,7 +537,7 @@ pytz==2021.1
     #   moto
 pywatchman==1.4.1
     # via -r requirements/local.in
-pyyaml==5.4.1
+pyyaml==6.0
     # via
     #   -r requirements/test.txt
     #   cfn-lint
@@ -532,7 +546,7 @@ pyyaml==5.4.1
     #   edx-i18n-tools
     #   moto
     #   yamllint
-redis==3.5.3
+redis==4.0.2
     # via -r requirements/test.txt
 requests==2.26.0
     # via
@@ -555,31 +569,28 @@ requests-oauthlib==1.3.0
     # via
     #   -r requirements/test.txt
     #   social-auth-core
-responses==0.13.4
+responses==0.16.0
     # via
     #   -r requirements/test.txt
     #   moto
-rest-condition==1.0.3
-    # via
-    #   -r requirements/test.txt
-    #   edx-drf-extensions
-rsa==4.7.2
+rsa==4.8
     # via
     #   -r requirements/test.txt
     #   python-jose
-ruamel.std.argparse==0.8.3
-    # via ruamel.yaml.cmd
-ruamel.yaml==0.17.16
+ruamel.yaml==0.17.18
     # via
     #   -r requirements/test.txt
     #   drf-yasg
+    #   ruamel.yaml.base
     #   ruamel.yaml.cmd
     #   ruamel.yaml.convert
+ruamel.yaml.base==0.2.1
+    # via ruamel.yaml.cmd
 ruamel.yaml.clib==0.2.6
     # via
     #   -r requirements/test.txt
     #   ruamel.yaml
-ruamel.yaml.cmd==0.5.7
+ruamel.yaml.cmd==0.5.10
     # via -r requirements/local.in
 ruamel.yaml.convert==0.3.2
     # via ruamel.yaml.cmd
@@ -587,6 +598,10 @@ s3transfer==0.5.0
     # via
     #   -r requirements/test.txt
     #   boto3
+sarif-om==1.0.4
+    # via
+    #   -r requirements/test.txt
+    #   cfn-lint
 semantic-version==2.8.5
     # via
     #   -r requirements/test.txt
@@ -604,7 +619,6 @@ six==1.16.0
     #   edx-auth-backends
     #   edx-django-release-util
     #   edx-drf-extensions
-    #   edx-i18n-tools
     #   edx-lint
     #   edx-sphinx-theme
     #   jsonschema
@@ -613,7 +627,6 @@ six==1.16.0
     #   pyjwkest
     #   python-dateutil
     #   responses
-    #   social-auth-app-django
     #   tox
     #   transifex-client
     #   virtualenv
@@ -621,15 +634,14 @@ slumber==0.7.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-smmap==4.0.0
+smmap==5.0.0
     # via gitdb
-snowballstemmer==2.1.0
+snowballstemmer==2.2.0
     # via
     #   -r requirements/docs.txt
     #   sphinx
-social-auth-app-django==4.0.0
+social-auth-app-django==5.0.0
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
     #   edx-auth-backends
 social-auth-core==4.1.0
@@ -637,7 +649,7 @@ social-auth-core==4.1.0
     #   -r requirements/test.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==4.1.2
+sphinx==4.3.2
     # via
     #   -r requirements/docs.txt
     #   edx-sphinx-theme
@@ -665,12 +677,12 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/docs.txt
     #   sphinx
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via
     #   -r requirements/test.txt
     #   django
     #   django-debug-toolbar
-stevedore==3.4.0
+stevedore==3.5.0
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -686,24 +698,27 @@ toml==0.10.2
     #   -r requirements/test.txt
     #   pylint
     #   pytest
-    #   pytest-cov
     #   tox
-tox==3.24.3
+tomli==2.0.0
+    # via
+    #   -r requirements/test.txt
+    #   coverage
+tox==3.24.4
     # via -r requirements/test.txt
-transifex-client==0.14.3
+transifex-client==0.14.4
     # via -r requirements/local.in
-typing-extensions==3.10.0.2
+typing-extensions==4.0.1
     # via
     #   -r requirements/test.txt
     #   astroid
     #   gitpython
     #   pylint
-uritemplate==3.0.1
+uritemplate==4.1.1
     # via
     #   -r requirements/test.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.6
+urllib3==1.26.7
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -716,23 +731,24 @@ vine==1.3.0
     #   -r requirements/test.txt
     #   amqp
     #   celery
-virtualenv==20.7.2
+virtualenv==20.10.0
     # via
     #   -r requirements/test.txt
     #   tox
-websocket-client==1.2.1
+websocket-client==1.2.3
     # via
     #   -r requirements/test.txt
     #   docker
-werkzeug==2.0.1
+werkzeug==2.0.2
     # via
     #   -r requirements/test.txt
     #   moto
-wrapt==1.12.1
+wrapt==1.13.3
     # via
     #   -r requirements/test.txt
     #   astroid
     #   aws-xray-sdk
+    #   deprecated
 xmltodict==0.12.0
     # via
     #   -r requirements/test.txt
