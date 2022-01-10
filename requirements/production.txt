@@ -22,11 +22,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.20.26
+boto3==1.20.31
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.23.26
+botocore==1.23.31
     # via
     #   boto3
     #   s3transfer
@@ -43,7 +43,7 @@ cffi==1.15.0
     # via
     #   -r requirements/base.txt
     #   cryptography
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via
     #   -r requirements/base.txt
     #   requests
@@ -70,7 +70,7 @@ deprecated==1.2.13
     # via
     #   -r requirements/base.txt
     #   redis
-django==3.2.10
+django==3.2.11
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -129,7 +129,7 @@ djangorestframework==3.11.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
-drf-jwt==1.19.1
+drf-jwt==1.19.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -217,11 +217,12 @@ packaging==21.3
     # via
     #   -r requirements/base.txt
     #   drf-yasg
+    #   redis
 pbr==5.8.0
     # via
     #   -r requirements/base.txt
     #   stevedore
-psutil==5.8.0
+psutil==5.9.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -275,9 +276,9 @@ pyyaml==6.0
     #   -r requirements/base.txt
     #   -r requirements/production.in
     #   edx-django-release-util
-redis==4.0.2
+redis==4.1.0
     # via -r requirements/base.txt
-requests==2.26.0
+requests==2.27.1
     # via
     #   -r requirements/base.txt
     #   analytics-python
@@ -292,7 +293,7 @@ requests-oauthlib==1.3.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-ruamel.yaml==0.17.18
+ruamel.yaml==0.17.20
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -344,7 +345,7 @@ uritemplate==4.1.1
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.7
+urllib3==1.26.8
     # via
     #   -r requirements/base.txt
     #   botocore

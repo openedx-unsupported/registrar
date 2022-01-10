@@ -14,11 +14,11 @@ asgiref==3.4.1
     # via
     #   -r requirements/base.txt
     #   django
-astroid==2.9.0
+astroid==2.9.3
     # via
     #   pylint
     #   pylint-celery
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   jschema-to-python
     #   jsonschema
@@ -32,20 +32,18 @@ backoff==1.10.0
     # via
     #   -r requirements/base.txt
     #   analytics-python
-backports.entry-points-selectable==1.1.1
-    # via virtualenv
 billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
 boto==2.49.0
     # via moto
-boto3==1.20.26
+boto3==1.20.31
     # via
     #   -c requirements/constraints.txt
     #   aws-sam-translator
     #   moto
-botocore==1.23.26
+botocore==1.23.31
     # via
     #   aws-xray-sdk
     #   boto3
@@ -66,7 +64,7 @@ cffi==1.15.0
     #   cryptography
 cfn-lint==0.56.3
     # via moto
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via
     #   -r requirements/base.txt
     #   requests
@@ -176,7 +174,7 @@ djangorestframework==3.11.1
     #   edx-drf-extensions
 docker==5.0.3
     # via moto
-drf-jwt==1.19.1
+drf-jwt==1.19.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -209,11 +207,11 @@ edx-rest-api-client==5.4.1
     # via -r requirements/base.txt
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==10.0.0
+faker==11.3.0
     # via
     #   -r requirements/test.in
     #   factory-boy
-filelock==3.4.0
+filelock==3.4.2
     # via
     #   tox
     #   virtualenv
@@ -309,6 +307,7 @@ packaging==21.3
     #   -r requirements/base.txt
     #   drf-yasg
     #   pytest
+    #   redis
     #   tox
 pathspec==0.9.0
     # via yamllint
@@ -318,7 +317,7 @@ pbr==5.8.0
     #   jschema-to-python
     #   sarif-om
     #   stevedore
-platformdirs==2.4.0
+platformdirs==2.4.1
     # via
     #   pylint
     #   virtualenv
@@ -326,7 +325,7 @@ pluggy==1.0.0
     # via
     #   pytest
     #   tox
-psutil==5.8.0
+psutil==5.9.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -368,9 +367,9 @@ pylint==2.12.2
     #   pylint-plugin-utils
 pylint-celery==0.3
     # via edx-lint
-pylint-django==2.4.4
+pylint-django==2.5.0
     # via edx-lint
-pylint-plugin-utils==0.6
+pylint-plugin-utils==0.7
     # via
     #   pylint-celery
     #   pylint-django
@@ -426,9 +425,9 @@ pyyaml==6.0
     #   edx-django-release-util
     #   moto
     #   yamllint
-redis==4.0.2
+redis==4.1.0
     # via -r requirements/base.txt
-requests==2.26.0
+requests==2.27.1
     # via
     #   -r requirements/base.txt
     #   analytics-python
@@ -452,7 +451,7 @@ responses==0.16.0
     #   moto
 rsa==4.8
     # via python-jose
-ruamel.yaml==0.17.18
+ruamel.yaml==0.17.20
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -522,7 +521,7 @@ toml==0.10.2
     #   tox
 tomli==2.0.0
     # via coverage
-tox==3.24.4
+tox==3.24.5
     # via -r requirements/test.in
 typing-extensions==4.0.1
     # via
@@ -533,7 +532,7 @@ uritemplate==4.1.1
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.7
+urllib3==1.26.8
     # via
     #   -r requirements/base.txt
     #   botocore
@@ -544,7 +543,7 @@ vine==1.3.0
     #   -r requirements/base.txt
     #   amqp
     #   celery
-virtualenv==20.10.0
+virtualenv==20.13.0
     # via tox
 websocket-client==1.2.3
     # via docker
