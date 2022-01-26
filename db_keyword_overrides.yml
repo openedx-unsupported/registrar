@@ -6,6 +6,7 @@
 #   - ModelName.field_name
 ---
 MYSQL:
+    - Program.key
     - Organization.key
 SNOWFLAKE:
 STITCH:
