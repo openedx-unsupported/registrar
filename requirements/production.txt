@@ -70,7 +70,7 @@ deprecated==1.2.13
     # via
     #   -r requirements/base.txt
     #   redis
-django==3.2.11
+django==3.2.12
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
