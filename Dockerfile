@@ -49,7 +49,3 @@ CMD ["gunicorn", "--workers=2", "--name", "registrar", "-c", "/edx/app/registrar
 
 # After the requirements so changes to the code will not bust the image cache
 COPY . /edx/app/registrar
-
-FROM app as newrelic
-RUN pip3 install newrelic
-CMD ["newrelic-admin", "run-program", "gunicorn", "--workers=2", "--name", "registrar", "-c", "/edx/app/registrar/registrar/docker_gunicorn_configuration.py", "--log-file", "-", "--max-requests=1000", "registrar.wsgi:application"]
