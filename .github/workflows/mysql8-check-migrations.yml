@@ -69,7 +69,7 @@ jobs:
           FLUSH PRIVILEGES;
         EOF
 
-    - name: Run test
+    - name: Run Migrations
       env:
         DB_ENGINE: "django.db.backends.mysql"
         DB_NAME: "registrar"
