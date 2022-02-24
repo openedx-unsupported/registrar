@@ -72,4 +72,4 @@ Consequences
 Notes
 -----
 
-For a deeper delve into the process that lead to this decision, see: https://openedx.atlassian.net/wiki/spaces/MS/pages/952762735/Master+s+Architectural+Review
+For a deeper delve into the process that lead to this decision, see: https://openedx.atlassian.net/wiki/spaces/AC/pages/3345121583/Master+s+Enrollment+Integration+Architectural+Review
