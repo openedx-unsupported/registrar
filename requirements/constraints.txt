@@ -40,6 +40,6 @@ idna==2.8
 newrelic<6.0
 
 # At the time of adding this, the version of deprecated required (1.2.13) requires
-# wrapt > 1.10, <2, but base.in is fir some reason compiled to require ==1.14, which conflicts with
-# later requirements.
+# wrapt > 1.10, <2, (https://github.com/tantale/deprecated/blob/801c558a07ef930f92fc070045d86cb5640397eb/setup.py#L161)
+# but base.in is for some reason compiled to require ==1.14, which conflicts with later requirements.
 wrapt < 1.14.0
