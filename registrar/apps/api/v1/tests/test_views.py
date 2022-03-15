@@ -250,8 +250,12 @@ class S3MockMixin(S3MockEnvVarsMixin):
             logging.getLogger(logger_name).setLevel(logging.INFO)
         cls._s3_mock = moto.mock_s3()
         cls._s3_mock.start()
-        conn = boto3.resource('s3', region_name='us-west-1')
-        conn.create_bucket(Bucket=cls.s3_bucket)
+        bucket_region = 'us-west-1'
+        conn = boto3.resource('s3', region_name=bucket_region)
+        conn.create_bucket(
+            Bucket=cls.s3_bucket,
+            CreateBucketConfiguration={'LocationConstraint': bucket_region},
+        )
 
     @classmethod
     def tearDownClass(cls):

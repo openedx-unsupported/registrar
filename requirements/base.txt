@@ -120,10 +120,8 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.in
 future==0.18.2
     # via pyjwkest
-idna==2.8
-    # via
-    #   -c requirements/constraints.txt
-    #   requests
+idna==3.3
+    # via requests
 inflection==0.5.1
     # via drf-yasg
 itypes==1.2.0
@@ -132,7 +130,7 @@ jinja2==3.0.3
     # via coreschema
 kombu==4.6.11
     # via celery
-markupsafe==2.1.0
+markupsafe==2.1.1
     # via jinja2
 monotonic==1.6
     # via analytics-python
