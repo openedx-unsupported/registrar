@@ -14,6 +14,10 @@ asgiref==3.5.0
     # via
     #   -r requirements/base.txt
     #   django
+async-timeout==4.0.2
+    # via
+    #   -r requirements/base.txt
+    #   redis
 backoff==1.10.0
     # via
     #   -r requirements/base.txt
@@ -22,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.21.19
+boto3==1.21.25
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.24.19
+botocore==1.24.25
     # via
     #   boto3
     #   s3transfer
@@ -56,7 +60,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-cryptography==36.0.1
+cryptography==36.0.2
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -143,7 +147,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.txt
 edx-django-release-util==1.2.0
     # via -r requirements/base.txt
-edx-django-utils==4.5.0
+edx-django-utils==4.6.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -178,11 +182,11 @@ itypes==1.2.0
     # via
     #   -r requirements/base.txt
     #   coreapi
-jinja2==3.0.3
+jinja2==3.1.0
     # via
     #   -r requirements/base.txt
     #   coreschema
-jmespath==0.10.0
+jmespath==1.0.0
     # via
     #   boto3
     #   botocore
@@ -265,7 +269,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2021.3
+pytz==2022.1
     # via
     #   -r requirements/base.txt
     #   celery
@@ -275,7 +279,7 @@ pyyaml==6.0
     #   -r requirements/base.txt
     #   -r requirements/production.in
     #   edx-django-release-util
-redis==4.1.4
+redis==4.2.0
     # via -r requirements/base.txt
 requests==2.27.1
     # via
@@ -339,12 +343,16 @@ stevedore==3.5.0
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-opaque-keys
+typing-extensions==4.1.1
+    # via
+    #   -r requirements/base.txt
+    #   redis
 uritemplate==4.1.1
     # via
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.8
+urllib3==1.26.9
     # via
     #   -r requirements/base.txt
     #   botocore
