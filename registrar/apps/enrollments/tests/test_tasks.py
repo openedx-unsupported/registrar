@@ -335,7 +335,6 @@ class WriteCourseRunEnrollmentTaskTests(WriteEnrollmentTaskTestMixin, TestCase):
             task_id=self.job_id
         )
 
-    # pylint: disable=arguments-differ
     def mock_write_enrollments(self, any_successes, any_failures, expected_enrolls_by_course_key=None):
         """
         Create mock for data.write_course_run_enrollments.
