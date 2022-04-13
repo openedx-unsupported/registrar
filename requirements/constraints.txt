@@ -14,7 +14,7 @@
 Django<4.0
 
 # ImportError: cannot import name 'URLPattern' from 'rest_framework.compat' error on newer versions
-djangorestframework==3.11.1
+#djangorestframework==3.11.1
 
 # django-storages version 1.9 drops support for boto storage backend.
 django-storages<1.9
