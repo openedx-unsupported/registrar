@@ -18,7 +18,7 @@ asgiref==3.5.0
     # via
     #   -r requirements/local.txt
     #   django
-astroid==2.11.2
+astroid==2.11.3
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -31,7 +31,7 @@ attrs==21.4.0
     # via
     #   -r requirements/local.txt
     #   pytest
-babel==2.9.1
+babel==2.10.1
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -43,12 +43,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.21.39
+boto3==1.21.46
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.24.39
+botocore==1.24.46
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -231,7 +231,7 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/local.txt
 factory-boy==3.2.1
     # via -r requirements/local.txt
-faker==13.3.4
+faker==13.4.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -315,7 +315,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==3.1.4
+moto==3.1.6
     # via -r requirements/local.txt
 mysqlclient==2.1.0
     # via -r requirements/nonlocal.txt
@@ -349,7 +349,7 @@ pbr==5.8.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==2.5.1
+platformdirs==2.5.2
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -382,7 +382,7 @@ pycryptodomex==3.14.1
     # via
     #   -r requirements/local.txt
     #   pyjwkest
-pygments==2.11.2
+pygments==2.12.0
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -398,7 +398,7 @@ pyjwt[crypto]==2.3.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.13.5
+pylint==2.13.7
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -426,7 +426,7 @@ pyparsing==3.0.8
     # via
     #   -r requirements/local.txt
     #   packaging
-pytest==7.1.1
+pytest==7.1.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -626,7 +626,7 @@ tox==3.25.0
     # via -r requirements/local.txt
 transifex-client==0.14.4
     # via -r requirements/local.txt
-typing-extensions==4.1.1
+typing-extensions==4.2.0
     # via
     #   -r requirements/local.txt
     #   astroid
