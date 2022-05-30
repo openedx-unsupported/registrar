@@ -67,7 +67,10 @@ upgrade: piptools  $(COMMON_CONSTRAINTS_TXT)  ## re-compile requirements .txt fi
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	pip-compile --upgrade --alow-unsafe --rebuild -o requirements/pip.txt requirements/pip.in
 	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
+	pip install -qr requirements/pip.txt
+	pip install -qr requirements/pip-tools.txt
 	pip-compile --upgrade -o requirements/github.txt requirements/github.in
 	pip-compile --upgrade -o requirements/optional.txt requirements/optional.in
 	pip-compile --upgrade -o requirements/base.txt requirements/base.in
