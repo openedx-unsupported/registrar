@@ -250,10 +250,6 @@ future==0.18.2
     # via
     #   -r requirements/test.txt
     #   pyjwkest
-gitdb==4.0.9
-    # via gitpython
-gitpython==3.1.27
-    # via transifex-client
 idna==3.3
     # via
     #   -r requirements/docs.txt
@@ -453,7 +449,6 @@ python-slugify==4.0.1
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   code-annotations
-    #   transifex-client
 python3-openid==3.2.0
     # via
     #   -r requirements/test.txt
@@ -493,7 +488,6 @@ requests==2.27.1
     #   slumber
     #   social-auth-core
     #   sphinx
-    #   transifex-client
 requests-oauthlib==1.3.1
     # via
     #   -r requirements/test.txt
@@ -544,14 +538,11 @@ six==1.16.0
     #   python-dateutil
     #   responses
     #   tox
-    #   transifex-client
     #   virtualenv
 slumber==0.7.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-smmap==5.0.0
-    # via gitdb
 snowballstemmer==2.2.0
     # via
     #   -r requirements/docs.txt
@@ -620,8 +611,6 @@ tomli==2.0.1
     #   pytest
 tox==3.25.0
     # via -r requirements/test.txt
-transifex-client==0.14.4
-    # via -r requirements/local.in
 typing-extensions==4.2.0
     # via
     #   -r requirements/test.txt
@@ -639,7 +628,6 @@ urllib3==1.26.9
     #   botocore
     #   requests
     #   responses
-    #   transifex-client
 vine==1.3.0
     # via
     #   -r requirements/test.txt
