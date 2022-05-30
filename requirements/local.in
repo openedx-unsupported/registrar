@@ -9,4 +9,3 @@ django-debug-toolbar
 edx-i18n-tools
 pywatchman                # More efficient checking for runserver reload trigger events
 ruamel.yaml.cmd
-transifex-client
