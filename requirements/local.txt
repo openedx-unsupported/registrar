@@ -14,11 +14,11 @@ amqp==2.6.1
     #   kombu
 analytics-python==1.4.0
     # via -r requirements/test.txt
-asgiref==3.5.0
+asgiref==3.5.2
     # via
     #   -r requirements/test.txt
     #   django
-astroid==2.11.2
+astroid==2.11.5
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -31,7 +31,7 @@ attrs==21.4.0
     # via
     #   -r requirements/test.txt
     #   pytest
-babel==2.9.1
+babel==2.10.1
     # via
     #   -r requirements/docs.txt
     #   sphinx
@@ -43,12 +43,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.21.39
+boto3==1.23.10
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.24.39
+botocore==1.26.10
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -59,7 +59,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-user-tasks
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -68,16 +68,18 @@ cffi==1.15.0
     # via
     #   -r requirements/test.txt
     #   cryptography
+    #   pynacl
 charset-normalizer==2.0.12
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   requests
-click==8.1.2
+click==8.1.3
     # via
     #   -r requirements/test.txt
     #   click-log
     #   code-annotations
+    #   edx-django-utils
     #   edx-lint
 click-log==0.4.0
     # via
@@ -99,17 +101,17 @@ coreschema==0.0.4
     #   -r requirements/test.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.3.2
+coverage[toml]==6.4
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==36.0.2
+cryptography==37.0.2
     # via
     #   -r requirements/test.txt
     #   moto
     #   pyjwt
     #   social-auth-core
-ddt==1.4.4
+ddt==1.5.0
     # via -r requirements/test.txt
 defusedxml==0.7.1
     # via
@@ -120,7 +122,7 @@ deprecated==1.2.13
     # via
     #   -r requirements/test.txt
     #   redis
-dill==0.3.4
+dill==0.3.5.1
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -151,13 +153,13 @@ django==3.2.13
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
-django-cors-headers==3.11.0
+django-cors-headers==3.12.0
     # via -r requirements/test.txt
 django-crum==0.7.9
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-django-debug-toolbar==3.2.4
+django-debug-toolbar==3.4.0
     # via -r requirements/local.in
 django-dynamic-fixture==3.1.2
     # via -r requirements/test.txt
@@ -169,10 +171,12 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/test.txt
     #   django-user-tasks
-django-mysql==4.5.0
+django-mysql==4.6.0
     # via -r requirements/test.txt
 django-simple-history==3.0.0
-    # via -r requirements/test.txt
+    # via
+    #   -c requirements/common_constraints.txt
+    #   -r requirements/test.txt
 django-storages==1.8
     # via
     #   -c requirements/constraints.txt
@@ -192,7 +196,7 @@ djangorestframework==3.13.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
-docutils==0.17.1
+docutils==0.18.1
     # via
     #   -r requirements/docs.txt
     #   sphinx
@@ -210,7 +214,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/test.txt
 edx-django-release-util==1.2.0
     # via -r requirements/test.txt
-edx-django-utils==4.6.0
+edx-django-utils==5.0.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
@@ -231,11 +235,11 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/docs.txt
 factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==13.3.4
+faker==13.12.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
-filelock==3.6.0
+filelock==3.7.0
     # via
     #   -r requirements/test.txt
     #   tox
@@ -259,7 +263,7 @@ imagesize==1.3.0
     # via
     #   -r requirements/docs.txt
     #   sphinx
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via
     #   -r requirements/docs.txt
     #   sphinx
@@ -279,7 +283,7 @@ itypes==1.2.0
     # via
     #   -r requirements/test.txt
     #   coreapi
-jinja2==3.1.1
+jinja2==3.1.2
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -314,7 +318,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==3.1.4
+moto==3.1.11
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -341,11 +345,11 @@ pathspec==0.9.0
     # via
     #   -r requirements/test.txt
     #   yamllint
-pbr==5.8.1
+pbr==5.9.0
     # via
     #   -r requirements/test.txt
     #   stevedore
-platformdirs==2.5.1
+platformdirs==2.5.2
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -357,7 +361,7 @@ pluggy==1.0.0
     #   tox
 polib==1.1.1
     # via edx-i18n-tools
-psutil==5.9.0
+psutil==5.9.1
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -376,7 +380,7 @@ pycryptodomex==3.14.1
     # via
     #   -r requirements/test.txt
     #   pyjwkest
-pygments==2.11.2
+pygments==2.12.0
     # via
     #   -r requirements/docs.txt
     #   sphinx
@@ -384,7 +388,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.3.0
+pyjwt[crypto]==2.4.0
     # via
     #   -r requirements/test.txt
     #   drf-jwt
@@ -392,7 +396,7 @@ pyjwt[crypto]==2.3.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.13.5
+pylint==2.13.9
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -416,12 +420,16 @@ pymongo==3.12.3
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
-pyparsing==3.0.8
+pynacl==1.5.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+pyparsing==3.0.9
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   packaging
-pytest==7.1.1
+pytest==7.1.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -468,7 +476,7 @@ pyyaml==6.0
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==4.2.2
+redis==4.3.1
     # via -r requirements/test.txt
 requests==2.27.1
     # via
@@ -502,7 +510,7 @@ ruamel-yaml==0.17.21
     #   ruamel-yaml-base
     #   ruamel-yaml-cmd
     #   ruamel-yaml-convert
-ruamel-yaml-base==0.2.1
+ruamel-yaml-base==0.3.0
     # via ruamel-yaml-cmd
 ruamel-yaml-clib==0.2.6
     # via
@@ -516,7 +524,7 @@ s3transfer==0.5.2
     # via
     #   -r requirements/test.txt
     #   boto3
-semantic-version==2.9.0
+semantic-version==2.10.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
@@ -557,7 +565,7 @@ social-auth-core==4.2.0
     #   -r requirements/test.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==4.5.0
+sphinx==5.0.0
     # via
     #   -r requirements/docs.txt
     #   edx-sphinx-theme
@@ -614,7 +622,7 @@ tox==3.25.0
     # via -r requirements/test.txt
 transifex-client==0.14.4
     # via -r requirements/local.in
-typing-extensions==4.1.1
+typing-extensions==4.2.0
     # via
     #   -r requirements/test.txt
     #   astroid
@@ -641,7 +649,7 @@ virtualenv==20.14.1
     # via
     #   -r requirements/test.txt
     #   tox
-werkzeug==2.1.1
+werkzeug==2.1.2
     # via
     #   -r requirements/test.txt
     #   moto
@@ -651,7 +659,7 @@ wrapt==1.13.3
     #   -r requirements/test.txt
     #   astroid
     #   deprecated
-xmltodict==0.12.0
+xmltodict==0.13.0
     # via
     #   -r requirements/test.txt
     #   moto

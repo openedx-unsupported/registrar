@@ -3009,7 +3009,7 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
 
     @classmethod
     def tearDown(cls):  # pylint: disable=arguments-differ
-        super().tearDown(cls)
+        super().tearDown(cls)  # pylint: disable=too-many-function-args
         filestore = get_program_reports_filestore()
         files = filestore.list(f'{cls.hum_org.key}/{cls.uuid_hexify(cls.english_program.discovery_uuid)}')
 
