@@ -7,7 +7,7 @@ TOX=''
         createsuperuser html_coverage extract_translations dummy_translations \
         fake_translations pull_translations push_translations \
         detect_changed_source_translations validate_translations api_generated \
-        validate_api_committed
+        validate_api_committed install_transifex_client
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
@@ -184,3 +184,7 @@ docker_tag: docker_build
 docker_push: docker_tag docker_auth ## push to docker hub
 	docker push "openedx/registrar:latest"
 	docker push "openedx/registrar:${GITHUB_SHA}"
+
+install_transifex_client: ## Install the Transifex client
+	curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+	git checkout -- LICENSE README.md

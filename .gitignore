@@ -97,3 +97,6 @@ registrar-app.env
 
 # VS Code
 .vscode/
+
+# transifex exe
+tx
