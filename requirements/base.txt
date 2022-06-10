@@ -68,7 +68,7 @@ django==3.2.13
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
-django-cors-headers==3.12.0
+django-cors-headers==3.13.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
@@ -80,7 +80,7 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/base.in
     #   django-user-tasks
-django-mysql==4.6.0
+django-mysql==4.7.0
     # via -r requirements/base.in
 django-simple-history==3.0.0
     # via
@@ -92,7 +92,7 @@ django-storages==1.8
     #   -r requirements/base.in
 django-user-tasks==3.0.0
     # via -r requirements/base.in
-django-waffle==2.4.1
+django-waffle==2.5.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -190,9 +190,9 @@ pytz==2022.1
     #   djangorestframework
 pyyaml==6.0
     # via edx-django-release-util
-redis==4.3.1
+redis==4.3.3
     # via -r requirements/base.in
-requests==2.27.1
+requests==2.28.0
     # via
     #   analytics-python
     #   coreapi

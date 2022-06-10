@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.23.10
+boto3==1.24.6
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.26.10
+botocore==1.27.6
     # via
     #   boto3
     #   moto
@@ -82,7 +82,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.4
+coverage[toml]==6.4.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -127,7 +127,7 @@ distlib==0.3.4
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
-django-cors-headers==3.12.0
+django-cors-headers==3.13.0
     # via -r requirements/base.txt
 django-crum==0.7.9
     # via
@@ -143,7 +143,7 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==4.6.0
+django-mysql==4.7.0
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via
@@ -155,7 +155,7 @@ django-storages==1.8
     #   -r requirements/base.txt
 django-user-tasks==3.0.0
     # via -r requirements/base.txt
-django-waffle==2.4.1
+django-waffle==2.5.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -189,7 +189,7 @@ edx-django-utils==5.0.0
     #   edx-rest-api-client
 edx-drf-extensions==8.0.1
     # via -r requirements/base.txt
-edx-lint==5.2.2
+edx-lint==5.2.4
     # via -r requirements/test.in
 edx-opaque-keys==2.3.0
     # via
@@ -199,11 +199,11 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.txt
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.12.0
+faker==13.13.0
     # via
     #   -r requirements/test.in
     #   factory-boy
-filelock==3.7.0
+filelock==3.7.1
     # via
     #   tox
     #   virtualenv
@@ -258,7 +258,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==3.1.11
+moto==3.1.12
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -321,7 +321,7 @@ pyjwt[crypto]==2.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.13.9
+pylint==2.14.1
     # via
     #   edx-lint
     #   pylint-celery
@@ -386,9 +386,9 @@ pyyaml==6.0
     #   code-annotations
     #   edx-django-release-util
     #   yamllint
-redis==4.3.1
+redis==4.3.3
     # via -r requirements/base.txt
-requests==2.27.1
+requests==2.28.0
     # via
     #   -r requirements/base.txt
     #   analytics-python
@@ -418,7 +418,7 @@ ruamel-yaml-clib==0.2.6
     # via
     #   -r requirements/base.txt
     #   ruamel-yaml
-s3transfer==0.5.2
+s3transfer==0.6.0
     # via boto3
 semantic-version==2.10.0
     # via
@@ -470,6 +470,8 @@ tomli==2.0.1
     #   coverage
     #   pylint
     #   pytest
+tomlkit==0.11.0
+    # via pylint
 tox==3.25.0
     # via -r requirements/test.in
 typing-extensions==4.2.0
