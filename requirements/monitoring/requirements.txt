@@ -29,7 +29,7 @@ asgiref==3.5.2
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django
-astroid==2.11.5
+astroid==2.11.6
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -49,7 +49,7 @@ attrs==21.4.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pytest
-babel==2.10.1
+babel==2.10.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -68,14 +68,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.24.6
+boto3==1.24.8
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.27.6
+botocore==1.27.8
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -520,7 +520,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==3.1.12
+moto==3.1.13
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -890,7 +890,7 @@ social-auth-app-django==5.0.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-auth-backends
-social-auth-core==4.2.0
+social-auth-core==4.3.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt

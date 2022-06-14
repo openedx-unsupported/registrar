@@ -224,7 +224,7 @@ social-auth-app-django==5.0.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.2.0
+social-auth-core==4.3.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
