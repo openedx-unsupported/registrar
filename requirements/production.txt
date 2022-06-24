@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.8
+boto3==1.24.16
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.27.8
+botocore==1.27.16
     # via
     #   boto3
     #   s3transfer
@@ -39,7 +39,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   django-user-tasks
-certifi==2022.5.18.1
+certifi==2022.6.15
     # via
     #   -r requirements/base.txt
     #   requests
@@ -192,7 +192,7 @@ jinja2==3.1.2
     # via
     #   -r requirements/base.txt
     #   coreschema
-jmespath==1.0.0
+jmespath==1.0.1
     # via
     #   boto3
     #   botocore
@@ -208,7 +208,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-mysqlclient==2.1.0
+mysqlclient==2.1.1
     # via
     #   -r requirements/nonlocal.txt
     #   -r requirements/production.in
@@ -239,7 +239,7 @@ pycparser==2.21
     # via
     #   -r requirements/base.txt
     #   cffi
-pycryptodomex==3.14.1
+pycryptodomex==3.15.0
     # via
     #   -r requirements/base.txt
     #   pyjwkest
