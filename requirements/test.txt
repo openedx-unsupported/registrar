@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.8
+boto3==1.24.16
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.27.8
+botocore==1.27.16
     # via
     #   boto3
     #   moto
@@ -46,7 +46,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   django-user-tasks
-certifi==2022.5.18.1
+certifi==2022.6.15
     # via
     #   -r requirements/base.txt
     #   requests
@@ -199,7 +199,7 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.txt
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.13.0
+faker==13.14.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -237,7 +237,7 @@ jinja2==3.1.2
     #   code-annotations
     #   coreschema
     #   moto
-jmespath==1.0.0
+jmespath==1.0.1
     # via
     #   boto3
     #   botocore
@@ -258,7 +258,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==3.1.13
+moto==3.1.14
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -305,7 +305,7 @@ pycparser==2.21
     # via
     #   -r requirements/base.txt
     #   cffi
-pycryptodomex==3.14.1
+pycryptodomex==3.15.0
     # via
     #   -r requirements/base.txt
     #   pyjwkest
@@ -321,7 +321,7 @@ pyjwt[crypto]==2.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.14.1
+pylint==2.14.3
     # via
     #   edx-lint
     #   pylint-celery

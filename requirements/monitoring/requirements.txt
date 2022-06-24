@@ -49,7 +49,7 @@ attrs==21.4.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pytest
-babel==2.10.2
+babel==2.10.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -68,14 +68,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.24.8
+boto3==1.24.16
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.27.8
+botocore==1.27.16
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -91,7 +91,7 @@ celery==4.4.7
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django-user-tasks
-certifi==2022.5.18.1
+certifi==2022.6.15
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -239,7 +239,7 @@ django-crum==0.7.9
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-django-utils
-django-debug-toolbar==3.4.0
+django-debug-toolbar==3.5.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -392,7 +392,7 @@ factory-boy==3.2.1
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==13.13.0
+faker==13.14.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -478,7 +478,7 @@ jinja2==3.1.2
     #   coreschema
     #   moto
     #   sphinx
-jmespath==1.0.0
+jmespath==1.0.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -520,12 +520,12 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==3.1.13
+moto==3.1.14
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-mysqlclient==2.1.0
+mysqlclient==2.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../production.txt
@@ -619,7 +619,7 @@ pycparser==2.21
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   cffi
-pycryptodomex==3.14.1
+pycryptodomex==3.15.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -649,7 +649,7 @@ pyjwt[crypto]==2.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.14.1
+pylint==2.14.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -898,7 +898,7 @@ social-auth-core==4.3.0
     #   -r requirements/monitoring/../test.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sphinx==5.0.1
+sphinx==5.0.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
