@@ -94,7 +94,7 @@ django-storages==1.8
     #   -r requirements/base.in
 django-user-tasks==3.0.0
     # via -r requirements/base.in
-django-waffle==2.5.0
+django-waffle==2.6.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -109,7 +109,7 @@ djangorestframework==3.13.1
     #   edx-drf-extensions
 drf-jwt==1.19.2
     # via edx-drf-extensions
-drf-yasg==1.20.0
+drf-yasg==1.21.3
     # via edx-api-doc-tools
 edx-api-doc-tools==1.6.0
     # via -r requirements/base.in
@@ -190,6 +190,7 @@ pytz==2022.1
     #   celery
     #   django
     #   djangorestframework
+    #   drf-yasg
 pyyaml==6.0
     # via edx-django-release-util
 redis==4.3.4
@@ -232,7 +233,7 @@ social-auth-core==4.3.0
     #   social-auth-app-django
 sqlparse==0.4.2
     # via django
-stevedore==3.5.0
+stevedore==4.0.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
