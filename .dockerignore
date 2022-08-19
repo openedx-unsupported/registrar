@@ -1,6 +1,8 @@
 # .dockerignore for registrar.
 # There's a lot here, please try to keep it organized.
 
+Dockerfile
+
 ### Files that are not needed in the docker file
 
 /test_root/
