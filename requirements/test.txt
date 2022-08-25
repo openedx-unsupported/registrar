@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.48
+boto3==1.24.58
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.27.48
+botocore==1.27.58
     # via
     #   boto3
     #   moto
@@ -55,7 +55,7 @@ cffi==1.15.1
     #   -r requirements/base.txt
     #   cryptography
     #   pynacl
-charset-normalizer==2.1.0
+charset-normalizer==2.1.1
     # via
     #   -r requirements/base.txt
     #   requests
@@ -82,7 +82,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.4.3
+coverage[toml]==6.4.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -92,7 +92,7 @@ cryptography==37.0.4
     #   moto
     #   pyjwt
     #   social-auth-core
-ddt==1.5.0
+ddt==1.6.0
     # via -r requirements/test.in
 defusedxml==0.7.1
     # via
@@ -145,7 +145,7 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==4.7.0
+django-mysql==4.7.1
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via
@@ -157,7 +157,7 @@ django-storages==1.8
     #   -r requirements/base.txt
 django-user-tasks==3.0.0
     # via -r requirements/base.txt
-django-waffle==2.6.0
+django-waffle==2.7.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -189,7 +189,7 @@ edx-django-utils==5.0.0
     #   -r requirements/base.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.0.1
+edx-drf-extensions==8.2.0
     # via -r requirements/base.txt
 edx-lint==5.2.4
     # via -r requirements/test.in
@@ -201,7 +201,7 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.txt
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.15.1
+faker==14.1.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -209,7 +209,7 @@ filelock==3.8.0
     # via
     #   tox
     #   virtualenv
-freezegun==1.2.1
+freezegun==1.2.2
     # via -r requirements/test.in
 future==0.18.2
     # via
@@ -260,7 +260,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==3.1.17
+moto==4.0.0
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -281,7 +281,7 @@ packaging==21.3
     #   tox
 pathspec==0.9.0
     # via yamllint
-pbr==5.9.0
+pbr==5.10.0
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -375,7 +375,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.1
+pytz==2022.2.1
     # via
     #   -r requirements/base.txt
     #   celery
@@ -472,7 +472,7 @@ tomli==2.0.1
     #   coverage
     #   pylint
     #   pytest
-tomlkit==0.11.3
+tomlkit==0.11.4
     # via pylint
 tox==3.25.1
     # via -r requirements/test.in
@@ -485,7 +485,7 @@ uritemplate==4.1.1
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   -r requirements/base.txt
     #   botocore

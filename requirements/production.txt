@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.48
+boto3==1.24.58
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.27.48
+botocore==1.27.58
     # via
     #   boto3
     #   s3transfer
@@ -48,7 +48,7 @@ cffi==1.15.1
     #   -r requirements/base.txt
     #   cryptography
     #   pynacl
-charset-normalizer==2.1.0
+charset-normalizer==2.1.1
     # via
     #   -r requirements/base.txt
     #   requests
@@ -116,7 +116,7 @@ django-model-utils==4.2.0
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==4.7.0
+django-mysql==4.7.1
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via
@@ -128,7 +128,7 @@ django-storages==1.8
     #   -r requirements/base.txt
 django-user-tasks==3.0.0
     # via -r requirements/base.txt
-django-waffle==2.6.0
+django-waffle==2.7.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -160,7 +160,7 @@ edx-django-utils==5.0.0
     #   -r requirements/base.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.0.1
+edx-drf-extensions==8.2.0
     # via -r requirements/base.txt
 edx-opaque-keys==2.3.0
     # via
@@ -229,7 +229,7 @@ packaging==21.3
     #   -r requirements/base.txt
     #   drf-yasg
     #   redis
-pbr==5.9.0
+pbr==5.10.0
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -281,7 +281,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.1
+pytz==2022.2.1
     # via
     #   -r requirements/base.txt
     #   celery
@@ -362,7 +362,7 @@ uritemplate==4.1.1
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   -r requirements/base.txt
     #   botocore
