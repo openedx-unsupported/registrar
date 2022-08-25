@@ -3007,14 +3007,13 @@ class ReportsListViewTest(S3MockMixin, RegistrarAPITestCase, AuthRequestMixin):
     def uuid_hexify(cls, uuid_object):
         return uuid_object.hex
 
-    @classmethod
-    def tearDown(cls):  # pylint: disable=arguments-differ
-        super().tearDown(cls)  # pylint: disable=too-many-function-args
+    def tearDown(self):
+        super().tearDown()
         filestore = get_program_reports_filestore()
-        files = filestore.list(f'{cls.hum_org.key}/{cls.uuid_hexify(cls.english_program.discovery_uuid)}')
+        files = filestore.list(f'{self.hum_org.key}/{self.uuid_hexify(self.english_program.discovery_uuid)}')
 
         for file in files[1]:
-            file_path = f'{cls.hum_org.key}/{cls.uuid_hexify(cls.english_program.discovery_uuid)}/{file}'
+            file_path = f'{self.hum_org.key}/{self.uuid_hexify(self.english_program.discovery_uuid)}/{file}'
             filestore.delete(file_path)
 
     def test_ok(self):
