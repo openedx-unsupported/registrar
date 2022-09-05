@@ -45,10 +45,7 @@ def get_logger_config(log_dir='/var/tmp',
         logging_env=logging_env, hostname=hostname
     )
 
-    if debug:
-        handlers = ['console']
-    else:
-        handlers = ['local']
+    handlers = ['console']
 
     logger_config = {
         'version': 1,
