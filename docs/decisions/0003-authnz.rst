@@ -21,7 +21,7 @@ Authentication
    which will facilitate the creation of a ``core_user`` account in registrar based on the user profile
    information provided in the JWT.
 3. The LMS endpoint ``/api-admin/`` will allow API clients of registrar to manage their own OAuth2 client credentials.
-   See https://github.com/edx/edx-platform/tree/master/openedx/core/djangoapps/api_admin
+   See https://github.com/openedx/edx-platform/tree/master/openedx/core/djangoapps/api_admin
 4. We'll also allow authenticated clients to access the DRF browsable API.
 
 Authorization
@@ -67,4 +67,4 @@ Resources
 1. https://openedx.atlassian.net/wiki/spaces/MS/pages/952009187/Registrar+AuthN+Z+Discovery
 2. https://openedx.atlassian.net/browse/EDUCATOR-4154 (Internal staff permissions discovery)
 
-.. _0004-program-authz: https://github.com/edx/registrar/blob/zhancock/reporting-decision/docs/decisions/0004-program-authz.rst
+.. _0004-program-authz: https://github.com/openedx/registrar/blob/zhancock/reporting-decision/docs/decisions/0004-program-authz.rst

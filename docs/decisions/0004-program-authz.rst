@@ -23,4 +23,4 @@ Status
 -------
 Accepted (circa December 2019)
 
-.. _0003-authnz: https://github.com/edx/registrar/blob/master/docs/decisions/0003-authnz.rst
+.. _0003-authnz: https://github.com/openedx/registrar/blob/master/docs/decisions/0003-authnz.rst

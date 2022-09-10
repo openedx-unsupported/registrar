@@ -16,7 +16,7 @@ to maintain consistency.
 This decision was spurred by
 `this comment on a refactoring PR`_.
 
-.. _this comment on a refactoring PR: https://github.com/edx/registrar/pull/246#pullrequestreview-351727975
+.. _this comment on a refactoring PR: https://github.com/openedx/registrar/pull/246#pullrequestreview-351727975
 
 
 Decision
