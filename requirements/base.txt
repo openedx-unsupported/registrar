@@ -21,7 +21,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-user-tasks
-certifi==2022.6.15
+certifi==2022.6.15.1
     # via requests
 cffi==1.15.1
     # via
@@ -37,7 +37,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   pyjwt
     #   social-auth-core
@@ -94,7 +94,7 @@ django-storages==1.8
     #   -r requirements/base.in
 django-user-tasks==3.0.0
     # via -r requirements/base.in
-django-waffle==2.7.0
+django-waffle==3.0.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -117,11 +117,11 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.in
 edx-django-release-util==1.2.0
     # via -r requirements/base.in
-edx-django-utils==5.0.0
+edx-django-utils==5.0.1
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.2.0
+edx-drf-extensions==8.3.1
     # via -r requirements/base.in
 edx-opaque-keys==2.3.0
     # via edx-drf-extensions
@@ -147,7 +147,7 @@ newrelic==5.24.0.153
     # via
     #   -c requirements/constraints.txt
     #   edx-django-utils
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   requests-oauthlib
     #   social-auth-core
@@ -157,7 +157,7 @@ packaging==21.3
     #   redis
 pbr==5.10.0
     # via stevedore
-psutil==5.9.1
+psutil==5.9.2
     # via edx-django-utils
 pycparser==2.21
     # via cffi
