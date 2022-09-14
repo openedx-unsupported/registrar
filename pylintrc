@@ -285,7 +285,7 @@ disable =
 	feature-toggle-needs-doc,
 	illegal-waffle-usage,
 	
-	logging-fstring-interpolation,,invalid-name
+	logging-fstring-interpolation,,invalid-name,missing-timeout
 
 [REPORTS]
 output-format = text
@@ -383,4 +383,4 @@ int-import-graph =
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
 
-# 59f8f21e782c6538e95de3ca0be689fbf26fb223
+# bd160cb5e5977d0f43327df95e3406c1723c5429
