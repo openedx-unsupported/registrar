@@ -113,7 +113,7 @@ Discovery and LMS services.
    See examples at http://localhost:18000/admin/oauth2_provider/application/
 
 #. When making API calls into LMS or Discovery service within Registrar,
-   leverage the edx-rest-api-client library https://github.com/edx/edx-rest-api-client/blob/master/edx_rest_api_client/client.py#L88
+   leverage the edx-rest-api-client library https://github.com/openedx/edx-rest-api-client/blob/master/edx_rest_api_client/client.py#L88
    by providing ``settings.BACKEND_SERVICE_EDX_OAUTH2_KEY`` and ``settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET``.
 
 
@@ -177,7 +177,7 @@ Django application's user table (which is ``core.User`` in our case), and gets o
 with the username and email provided in the JWT.
 
 How ``edx-drf-extensions`` helps us create a new user in registrar from a JWT:
-https://github.com/edx/edx-drf-extensions/blob/master/edx_rest_framework_extensions/auth/jwt/authentication.py#L54-L55
+https://github.com/openedx/edx-drf-extensions/blob/master/edx_rest_framework_extensions/auth/jwt/authentication.py#L54-L55
 
 Asynchronous Jobs
 -----------------

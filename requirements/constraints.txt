@@ -23,14 +23,14 @@ django-storages<1.9
 celery<5.0  # version 5.0 drops support for python 3.5
 
 
-code-annotations>=0.3.1  # Pinned to avoid pyyaml security alerts. (https://github.com/edx/registrar/pull/42)
+code-annotations>=0.3.1  # Pinned to avoid pyyaml security alerts. (https://github.com/openedx/registrar/pull/42)
 
 # transifex-client==0.14.2(latest) requires python-slugify<5.0.0 for Python 2.0 support.
 # This can be removed once transifex-client drops support for Python 2.0 and removes the required constraint.
 python-slugify<5.0.0
 
 # From production.in
-boto3>=1.4.4    # https://github.com/edx/registrar/pull/66
+boto3>=1.4.4    # https://github.com/openedx/registrar/pull/66
 
 
 # Constraint responses library to be less than 0.18.0 because version 0.18.0 would remove response._is_string() member function.

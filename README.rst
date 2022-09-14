@@ -11,9 +11,9 @@ providing REST APIs involving program structure, enrollment, and grading.
 
 Through Django Admin, it allows the definition of access roles for different API users.
 
-It supports import and exporting of enrollment data through `Program Manager`_.
+It supports import and exporting of enrollment data through `Program Console`_.
 
-.. _Program Manager: https://github.com/edx/frontend-app-program-manager
+.. _Program Manager: https://github.com/openedx/frontend-app-program-console
 
 
 Coding Guidelines
@@ -28,7 +28,7 @@ as well as important information about PII annotation.
 Using with Devstack
 -----------------
 
-The best way to run Registrar is within the edX Devstack: https://github.com/edx/devstack.
+The best way to run Registrar is within the edX Devstack: https://github.com/openedx/devstack.
 
 See the Devstack README for information on how to install and run Registrar.
 
@@ -51,7 +51,7 @@ Requirements:
 
 First, clone this respository with one of the following::
 
-  git clone https://github.com/edx/registrar
+  git clone https://github.com/openedx/registrar
   git clone git@github.com:edx/registrar.git
 
 Navigate in, create a Python 3 virtualenv, and activate it::
@@ -98,4 +98,4 @@ License
 
 The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details.
 
-.. _LICENSE: https://github.com/edx/registrar/blob/master/LICENSE
+.. _LICENSE: https://github.com/openedx/registrar/blob/master/LICENSE
