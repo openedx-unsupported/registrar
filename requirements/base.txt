@@ -21,7 +21,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-user-tasks
-certifi==2022.6.15.1
+certifi==2022.9.24
     # via requests
 cffi==1.15.1
     # via
@@ -99,7 +99,7 @@ django-waffle==3.0.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/base.in
     #   django-user-tasks
@@ -117,7 +117,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.in
 edx-django-release-util==1.2.0
     # via -r requirements/base.in
-edx-django-utils==5.0.1
+edx-django-utils==5.1.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
@@ -129,7 +129,7 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.in
 future==0.18.2
     # via pyjwkest
-idna==3.3
+idna==3.4
     # via requests
 inflection==0.5.1
     # via drf-yasg
@@ -165,7 +165,7 @@ pycryptodomex==3.15.0
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   drf-jwt
     #   edx-auth-backends
@@ -231,12 +231,14 @@ social-auth-core==4.3.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via django
 stevedore==4.0.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
+types-cryptography==3.3.23
+    # via pyjwt
 uritemplate==4.1.1
     # via
     #   coreapi

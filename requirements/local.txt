@@ -18,7 +18,7 @@ asgiref==3.5.2
     # via
     #   -r requirements/test.txt
     #   django
-astroid==2.12.9
+astroid==2.12.10
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -43,12 +43,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.24.70
+boto3==1.24.80
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.27.70
+botocore==1.27.80
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -59,7 +59,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-user-tasks
-certifi==2022.6.15.1
+certifi==2022.9.24
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -81,6 +81,7 @@ click==8.1.3
     #   code-annotations
     #   edx-django-utils
     #   edx-lint
+    #   flask
 click-log==0.4.0
     # via
     #   -r requirements/test.txt
@@ -190,7 +191,7 @@ django-waffle==3.0.0
     #   -r requirements/test.txt
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/test.txt
     #   django-user-tasks
@@ -216,7 +217,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/test.txt
 edx-django-release-util==1.2.0
     # via -r requirements/test.txt
-edx-django-utils==5.0.1
+edx-django-utils==5.1.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
@@ -225,7 +226,7 @@ edx-drf-extensions==8.3.1
     # via -r requirements/test.txt
 edx-i18n-tools==0.9.1
     # via -r requirements/local.in
-edx-lint==5.2.5
+edx-lint==5.3.0
     # via -r requirements/test.txt
 edx-opaque-keys==2.3.0
     # via
@@ -237,7 +238,7 @@ edx-sphinx-theme==3.0.0
     # via -r requirements/docs.txt
 factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==14.2.0
+faker==14.2.1
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -246,13 +247,22 @@ filelock==3.8.0
     #   -r requirements/test.txt
     #   tox
     #   virtualenv
+flask==2.1.3
+    # via
+    #   -r requirements/test.txt
+    #   flask-cors
+    #   moto
+flask-cors==3.0.10
+    # via
+    #   -r requirements/test.txt
+    #   moto
 freezegun==1.2.2
     # via -r requirements/test.txt
 future==0.18.2
     # via
     #   -r requirements/test.txt
     #   pyjwkest
-idna==3.3
+idna==3.4
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -264,6 +274,8 @@ imagesize==1.4.1
 importlib-metadata==4.12.0
     # via
     #   -r requirements/docs.txt
+    #   -r requirements/test.txt
+    #   flask
     #   sphinx
 inflection==0.5.1
     # via
@@ -277,6 +289,10 @@ isort[requirements]==5.10.1
     # via
     #   -r requirements/test.txt
     #   pylint
+itsdangerous==2.1.2
+    # via
+    #   -r requirements/test.txt
+    #   flask
 itypes==1.2.0
     # via
     #   -r requirements/test.txt
@@ -287,6 +303,7 @@ jinja2==3.1.2
     #   -r requirements/test.txt
     #   code-annotations
     #   coreschema
+    #   flask
     #   moto
     #   sphinx
 jmespath==1.0.1
@@ -318,7 +335,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==4.0.2
+moto==4.0.5
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -388,7 +405,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   -r requirements/test.txt
     #   drf-jwt
@@ -396,7 +413,7 @@ pyjwt[crypto]==2.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.15.2
+pylint==2.15.3
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -539,6 +556,7 @@ six==1.16.0
     #   edx-drf-extensions
     #   edx-lint
     #   edx-sphinx-theme
+    #   flask-cors
     #   pyjwkest
     #   python-dateutil
     #   responses
@@ -588,7 +606,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/docs.txt
     #   sphinx
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via
     #   -r requirements/test.txt
     #   django
@@ -616,6 +634,10 @@ tomlkit==0.11.4
     #   pylint
 tox==3.26.0
     # via -r requirements/test.txt
+types-cryptography==3.3.23
+    # via
+    #   -r requirements/test.txt
+    #   pyjwt
 typing-extensions==4.3.0
     # via
     #   -r requirements/test.txt
@@ -645,6 +667,7 @@ virtualenv==20.16.5
 werkzeug==2.1.2
     # via
     #   -r requirements/test.txt
+    #   flask
     #   moto
 wrapt==1.13.3
     # via
@@ -656,11 +679,12 @@ xmltodict==0.13.0
     # via
     #   -r requirements/test.txt
     #   moto
-yamllint==1.27.1
+yamllint==1.28.0
     # via -r requirements/test.txt
 zipp==3.8.1
     # via
     #   -r requirements/docs.txt
+    #   -r requirements/test.txt
     #   importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
