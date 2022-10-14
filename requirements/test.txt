@@ -14,7 +14,7 @@ asgiref==3.5.2
     # via
     #   -r requirements/base.txt
     #   django
-astroid==2.12.9
+astroid==2.12.11
     # via
     #   pylint
     #   pylint-celery
@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.70
+boto3==1.24.90
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.27.70
+botocore==1.27.90
     # via
     #   boto3
     #   moto
@@ -46,7 +46,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   django-user-tasks
-certifi==2022.6.15.1
+certifi==2022.9.24
     # via
     #   -r requirements/base.txt
     #   requests
@@ -82,7 +82,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.4.4
+coverage[toml]==6.5.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -162,7 +162,7 @@ django-waffle==3.0.0
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
@@ -174,7 +174,7 @@ drf-jwt==1.19.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-drf-yasg==1.21.3
+drf-yasg==1.21.4
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
@@ -184,14 +184,14 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.txt
 edx-django-release-util==1.2.0
     # via -r requirements/base.txt
-edx-django-utils==5.0.1
+edx-django-utils==5.2.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
 edx-drf-extensions==8.3.1
     # via -r requirements/base.txt
-edx-lint==5.2.5
+edx-lint==5.3.0
     # via -r requirements/test.in
 edx-opaque-keys==2.3.0
     # via
@@ -201,7 +201,7 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.txt
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==14.2.0
+faker==15.1.1
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -215,7 +215,7 @@ future==0.18.2
     # via
     #   -r requirements/base.txt
     #   pyjwkest
-idna==3.3
+idna==3.4
     # via
     #   -r requirements/base.txt
     #   requests
@@ -260,7 +260,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==4.0.2
+moto==4.0.7
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -315,7 +315,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   -r requirements/base.txt
     #   drf-jwt
@@ -323,7 +323,7 @@ pyjwt[crypto]==2.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.15.2
+pylint==2.15.4
     # via
     #   edx-lint
     #   pylint-celery
@@ -354,7 +354,7 @@ pytest==7.1.3
     #   -r requirements/test.in
     #   pytest-cov
     #   pytest-django
-pytest-cov==3.0.0
+pytest-cov==4.0.0
     # via -r requirements/test.in
 pytest-django==4.5.2
     # via -r requirements/test.in
@@ -375,7 +375,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.2.1
+pytz==2022.4
     # via
     #   -r requirements/base.txt
     #   celery
@@ -453,11 +453,11 @@ social-auth-core==4.3.0
     #   -r requirements/base.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==4.0.0
+stevedore==4.0.1
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -471,11 +471,15 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.4
+tomlkit==0.11.5
     # via pylint
 tox==3.26.0
     # via -r requirements/test.in
-typing-extensions==4.3.0
+types-cryptography==3.3.23
+    # via
+    #   -r requirements/base.txt
+    #   pyjwt
+typing-extensions==4.4.0
     # via
     #   astroid
     #   pylint
@@ -507,7 +511,7 @@ wrapt==1.13.3
     #   deprecated
 xmltodict==0.13.0
     # via moto
-yamllint==1.27.1
+yamllint==1.28.0
     # via -r requirements/test.in
 
 # The following packages are considered to be unsafe in a requirements file:
