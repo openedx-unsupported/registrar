@@ -21,7 +21,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-user-tasks
-certifi==2022.6.15.1
+certifi==2022.9.24
     # via requests
 cffi==1.15.1
     # via
@@ -47,7 +47,7 @@ defusedxml==0.7.1
     #   social-auth-core
 deprecated==1.2.13
     # via redis
-django==3.2.15
+django==3.2.16
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -99,7 +99,7 @@ django-waffle==3.0.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/base.in
     #   django-user-tasks
@@ -109,7 +109,7 @@ djangorestframework==3.13.1
     #   edx-drf-extensions
 drf-jwt==1.19.2
     # via edx-drf-extensions
-drf-yasg==1.21.3
+drf-yasg==1.21.4
     # via edx-api-doc-tools
 edx-api-doc-tools==1.6.0
     # via -r requirements/base.in
@@ -117,7 +117,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.in
 edx-django-release-util==1.2.0
     # via -r requirements/base.in
-edx-django-utils==5.0.1
+edx-django-utils==5.2.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
@@ -129,7 +129,7 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.in
 future==0.18.2
     # via pyjwkest
-idna==3.3
+idna==3.4
     # via requests
 inflection==0.5.1
     # via drf-yasg
@@ -165,7 +165,7 @@ pycryptodomex==3.15.0
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   drf-jwt
     #   edx-auth-backends
@@ -184,7 +184,7 @@ python-dateutil==2.8.2
     #   edx-drf-extensions
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.2.1
+pytz==2022.4
     # via
     #   -r requirements/base.in
     #   celery
@@ -231,12 +231,14 @@ social-auth-core==4.3.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via django
-stevedore==4.0.0
+stevedore==4.0.1
     # via
     #   edx-django-utils
     #   edx-opaque-keys
+types-cryptography==3.3.23
+    # via pyjwt
 uritemplate==4.1.1
     # via
     #   coreapi
