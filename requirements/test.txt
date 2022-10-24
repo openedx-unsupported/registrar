@@ -14,7 +14,7 @@ asgiref==3.5.2
     # via
     #   -r requirements/base.txt
     #   django
-astroid==2.12.11
+astroid==2.12.12
     # via
     #   pylint
     #   pylint-celery
@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.90
+boto3==1.24.96
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.27.90
+botocore==1.27.96
     # via
     #   boto3
     #   moto
@@ -103,7 +103,7 @@ deprecated==1.2.13
     # via
     #   -r requirements/base.txt
     #   redis
-dill==0.3.5.1
+dill==0.3.6
     # via pylint
 distlib==0.3.6
     # via virtualenv
@@ -254,20 +254,21 @@ markupsafe==2.1.1
     #   -r requirements/base.txt
     #   jinja2
     #   moto
+    #   werkzeug
 mccabe==0.7.0
     # via pylint
 monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==4.0.7
+moto==4.0.8
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   edx-django-utils
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements/base.txt
     #   requests-oauthlib
@@ -281,7 +282,7 @@ packaging==21.3
     #   tox
 pathspec==0.10.1
     # via yamllint
-pbr==5.10.0
+pbr==5.11.0
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -293,7 +294,7 @@ pluggy==1.0.0
     # via
     #   pytest
     #   tox
-psutil==5.9.2
+psutil==5.9.3
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -315,7 +316,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.5.0
+pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/base.txt
     #   drf-jwt
@@ -323,7 +324,7 @@ pyjwt[crypto]==2.5.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.15.4
+pylint==2.15.5
     # via
     #   edx-lint
     #   pylint-celery
@@ -375,7 +376,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.4
+pytz==2022.5
     # via
     #   -r requirements/base.txt
     #   celery
@@ -417,7 +418,7 @@ ruamel-yaml==0.17.21
     # via
     #   -r requirements/base.txt
     #   drf-yasg
-ruamel-yaml-clib==0.2.6
+ruamel-yaml-clib==0.2.7
     # via
     #   -r requirements/base.txt
     #   ruamel-yaml
@@ -457,7 +458,7 @@ sqlparse==0.4.3
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==4.0.1
+stevedore==4.1.0
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -475,10 +476,6 @@ tomlkit==0.11.5
     # via pylint
 tox==3.26.0
     # via -r requirements/test.in
-types-cryptography==3.3.23
-    # via
-    #   -r requirements/base.txt
-    #   pyjwt
 typing-extensions==4.4.0
     # via
     #   astroid
@@ -501,7 +498,7 @@ vine==1.3.0
     #   celery
 virtualenv==20.16.5
     # via tox
-werkzeug==2.1.2
+werkzeug==2.2.2
     # via moto
 wrapt==1.13.3
     # via
