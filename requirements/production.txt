@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.24.90
+boto3==1.24.96
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.27.90
+botocore==1.27.96
     # via
     #   boto3
     #   s3transfer
@@ -172,7 +172,7 @@ future==0.18.2
     # via
     #   -r requirements/base.txt
     #   pyjwkest
-gevent==22.8.0
+gevent==22.10.1
     # via -r requirements/production.in
 greenlet==1.1.3.post0
     # via gevent
@@ -219,7 +219,7 @@ newrelic==5.24.0.153
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   edx-django-utils
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements/base.txt
     #   requests-oauthlib
@@ -229,11 +229,11 @@ packaging==21.3
     #   -r requirements/base.txt
     #   drf-yasg
     #   redis
-pbr==5.10.0
+pbr==5.11.0
     # via
     #   -r requirements/base.txt
     #   stevedore
-psutil==5.9.2
+psutil==5.9.3
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -249,7 +249,7 @@ pyjwkest==1.4.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-pyjwt[crypto]==2.5.0
+pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/base.txt
     #   drf-jwt
@@ -281,7 +281,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.4
+pytz==2022.5
     # via
     #   -r requirements/base.txt
     #   celery
@@ -314,7 +314,7 @@ ruamel-yaml==0.17.21
     # via
     #   -r requirements/base.txt
     #   drf-yasg
-ruamel-yaml-clib==0.2.6
+ruamel-yaml-clib==0.2.7
     # via
     #   -r requirements/base.txt
     #   ruamel-yaml
@@ -352,15 +352,11 @@ sqlparse==0.4.3
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==4.0.1
+stevedore==4.1.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-opaque-keys
-types-cryptography==3.3.23
-    # via
-    #   -r requirements/base.txt
-    #   pyjwt
 uritemplate==4.1.1
     # via
     #   -r requirements/base.txt
