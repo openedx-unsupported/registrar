@@ -46,7 +46,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   django-user-tasks
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   -r requirements/base.txt
     #   requests
