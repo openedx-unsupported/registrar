@@ -8,7 +8,7 @@ amqp==2.6.1
     # via kombu
 analytics-python==1.4.0
     # via -r requirements/base.in
-asgiref==3.5.2
+asgiref==3.6.0
     # via django
 async-timeout==4.0.2
     # via redis
@@ -119,7 +119,7 @@ edx-django-utils==5.2.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.3.1
+edx-drf-extensions==8.4.0
     # via -r requirements/base.in
 edx-opaque-keys==2.3.0
     # via edx-drf-extensions
@@ -178,7 +178,7 @@ python-dateutil==2.8.2
     #   edx-drf-extensions
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.6
+pytz==2022.7
     # via
     #   -r requirements/base.in
     #   celery
