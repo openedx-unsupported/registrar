@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 SCHEMA_COMMON_RESPONSES = {
     401: 'User is not authenticated.',
-    405: 'HTTP method not support on this path.'
+    405: 'HTTP method not supported on this path.'
 }
 
 
