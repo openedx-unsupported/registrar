@@ -45,7 +45,7 @@ defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.16
+django==3.2.17
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -157,7 +157,7 @@ psutil==5.9.4
     # via edx-django-utils
 pycparser==2.21
     # via cffi
-pycryptodomex==3.16.0
+pycryptodomex==3.17
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions

@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.26.55
+boto3==1.26.65
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.29.55
+botocore==1.29.65
     # via
     #   boto3
     #   s3transfer
@@ -75,7 +75,7 @@ defusedxml==0.7.1
     #   -r requirements/base.txt
     #   python3-openid
     #   social-auth-core
-django==3.2.16
+django==3.2.17
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -170,7 +170,7 @@ future==0.18.3
     #   pyjwkest
 gevent==22.10.2
     # via -r requirements/production.in
-greenlet==2.0.1
+greenlet==2.0.2
     # via gevent
 gunicorn==20.1.0
     # via -r requirements/production.in
@@ -236,7 +236,7 @@ pycparser==2.21
     # via
     #   -r requirements/base.txt
     #   cffi
-pycryptodomex==3.16.0
+pycryptodomex==3.17
     # via
     #   -r requirements/base.txt
     #   pyjwkest
