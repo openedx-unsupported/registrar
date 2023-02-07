@@ -7,7 +7,7 @@ Registrar service  |Travis|_ |Codecov|_
 .. _Codecov: http://codecov.io/github/edx/registrar?branch=master
 
 The Registrar service allows external organizations to integrate with edX programs,
-providing REST APIs involving program structure, enrollment, and grading.
+providing REST APIs involving program structure, enrollments, and grading.
 
 Through Django Admin, it allows the definition of access roles for different API users.
 
