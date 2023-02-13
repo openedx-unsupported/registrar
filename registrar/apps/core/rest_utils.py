@@ -78,7 +78,7 @@ def make_request(method, url, client, **kwargs):
     an authN'd client.
     """
     if method not in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:  # pragma: no cover
-        raise Exception('invalid http method: ' + method)
+        raise Exception('invalid http method: ' + method)  # pylint: disable=broad-exception-raised
 
     if not client:
         client = get_client(settings.LMS_BASE_URL)
@@ -102,5 +102,5 @@ def get_client(host_base_url):
     )
     client._ensure_authentication()  # pylint: disable=protected-access
     if not client.auth.token:  # pragma: no cover
-        raise Exception('No Auth Token')
+        raise Exception('No Auth Token')  # pylint: disable=broad-exception-raised
     return client
