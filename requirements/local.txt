@@ -637,7 +637,7 @@ virtualenv==20.19.0
     # via
     #   -r requirements/test.txt
     #   tox
-werkzeug==2.2.2
+werkzeug==2.2.3
     # via
     #   -r requirements/test.txt
     #   moto
