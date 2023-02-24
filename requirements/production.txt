@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.26.68
+boto3==1.26.78
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.29.68
+botocore==1.29.78
     # via
     #   boto3
     #   s3transfer
@@ -75,7 +75,7 @@ defusedxml==0.7.1
     #   -r requirements/base.txt
     #   python3-openid
     #   social-auth-core
-django==3.2.17
+django==3.2.18
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -343,7 +343,7 @@ sqlparse==0.4.3
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==4.1.1
+stevedore==5.0.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
