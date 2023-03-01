@@ -163,7 +163,7 @@ compile_translations:
 fake_translations: extract_translations dummy_translations compile_translations ## generate and compile dummy translation files
 
 pull_translations: ## pull translations from Transifex
-	tx pull -t -af --mode reviewed
+	tx pull -t -a -f --mode reviewed
 
 push_translations: ## push source translation files (.po) from Transifex
 	tx push -s
