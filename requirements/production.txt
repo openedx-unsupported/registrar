@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.26.78
+boto3==1.26.88
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.29.78
+botocore==1.29.88
     # via
     #   boto3
     #   s3transfer
@@ -48,7 +48,7 @@ cffi==1.15.1
     #   -r requirements/base.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.0.1
+charset-normalizer==3.1.0
     # via
     #   -r requirements/base.txt
     #   requests
@@ -65,7 +65,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-cryptography==39.0.1
+cryptography==39.0.2
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -96,7 +96,7 @@ django==3.2.18
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
     # via -r requirements/base.txt
 django-crum==0.7.9
     # via
@@ -112,7 +112,7 @@ django-model-utils==4.3.1
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
-django-mysql==4.8.0
+django-mysql==4.9.0
     # via -r requirements/base.txt
 django-simple-history==3.0.0
     # via
