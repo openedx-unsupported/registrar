@@ -18,7 +18,7 @@ asgiref==3.6.0
     # via
     #   -r requirements/local.txt
     #   django
-astroid==2.14.2
+astroid==2.15.0
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -31,7 +31,7 @@ attrs==22.2.0
     # via
     #   -r requirements/local.txt
     #   pytest
-babel==2.11.0
+babel==2.12.1
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -43,12 +43,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.26.78
+boto3==1.26.88
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.29.78
+botocore==1.29.88
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -68,7 +68,7 @@ cffi==1.15.1
     #   -r requirements/local.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.0.1
+charset-normalizer==3.1.0
     # via
     #   -r requirements/local.txt
     #   requests
@@ -101,11 +101,11 @@ coreschema==0.0.4
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.0
+coverage[toml]==7.2.1
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==39.0.1
+cryptography==39.0.2
     # via
     #   -r requirements/local.txt
     #   moto
@@ -149,7 +149,7 @@ django==3.2.18
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
     # via -r requirements/local.txt
 django-crum==0.7.9
     # via
@@ -169,7 +169,7 @@ django-model-utils==4.3.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==4.8.0
+django-mysql==4.9.0
     # via -r requirements/local.txt
 django-simple-history==3.0.0
     # via
@@ -237,7 +237,7 @@ exceptiongroup==1.1.0
     #   pytest
 factory-boy==3.2.1
     # via -r requirements/local.txt
-faker==17.0.0
+faker==17.6.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -317,7 +317,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.1.3
+moto==4.1.4
     # via -r requirements/local.txt
 mysqlclient==2.1.1
     # via -r requirements/nonlocal.txt
@@ -350,7 +350,7 @@ pbr==5.11.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==3.0.0
+platformdirs==3.1.0
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -398,7 +398,7 @@ pyjwt[crypto]==2.6.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.16.2
+pylint==2.17.0
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -426,7 +426,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-pytest==7.2.1
+pytest==7.2.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -641,7 +641,7 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.19.0
+virtualenv==20.20.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -660,7 +660,7 @@ xmltodict==0.13.0
     #   moto
 yamllint==1.29.0
     # via -r requirements/local.txt
-zipp==3.14.0
+zipp==3.15.0
     # via
     #   -r requirements/local.txt
     #   importlib-metadata
