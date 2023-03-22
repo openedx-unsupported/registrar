@@ -32,6 +32,7 @@ ARG REGISTRAR_CODE_DIR="${REGISTRAR_APP_DIR}"
 
 ENV PATH="$REGISTRAR_VENV_DIR/bin:$PATH"
 ENV REGISTRAR_APP_DIR ${REGISTRAR_APP_DIR}
+ENV REGISTRAR_CODE_DIR ${REGISTRAR_CODE_DIR}
 
 COPY requirements ${REGISTRAR_CODE_DIR}/requirements
 
@@ -42,7 +43,6 @@ RUN virtualenv -p python3.8 --always-copy ${REGISTRAR_VENV_DIR}
 
 # Copy just Python requirements & install them.
 COPY requirements ${REGISTRAR_CODE_DIR}/requirements
-COPY Makefile ${REGISTRAR_CODE_DIR}
 
 ENV REGISTRAR_CFG="${COMMON_CFG_DIR}/registrar.yml"
 
