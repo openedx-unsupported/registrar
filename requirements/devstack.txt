@@ -12,7 +12,7 @@ amqp==2.6.1
     # via
     #   -r requirements/local.txt
     #   kombu
-analytics-python==1.4.0
+analytics-python==1.4.post1
     # via -r requirements/local.txt
 asgiref==3.6.0
     # via
@@ -43,12 +43,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.26.88
+boto3==1.26.98
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.29.88
+botocore==1.29.98
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -101,11 +101,11 @@ coreschema==0.0.4
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.1
+coverage[toml]==7.2.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==39.0.2
+cryptography==40.0.0
     # via
     #   -r requirements/local.txt
     #   moto
@@ -212,7 +212,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/local.txt
 edx-django-release-util==1.2.0
     # via -r requirements/local.txt
-edx-django-utils==5.2.0
+edx-django-utils==5.3.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -221,7 +221,7 @@ edx-drf-extensions==8.4.1
     # via -r requirements/local.txt
 edx-i18n-tools==0.9.2
     # via -r requirements/local.txt
-edx-lint==5.3.2
+edx-lint==5.3.4
     # via -r requirements/local.txt
 edx-opaque-keys==2.3.0
     # via
@@ -231,17 +231,17 @@ edx-rest-api-client==5.5.0
     # via -r requirements/local.txt
 edx-sphinx-theme==3.1.0
     # via -r requirements/local.txt
-exceptiongroup==1.1.0
+exceptiongroup==1.1.1
     # via
     #   -r requirements/local.txt
     #   pytest
 factory-boy==3.2.1
     # via -r requirements/local.txt
-faker==17.6.0
+faker==18.3.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.9.0
+filelock==3.10.4
     # via
     #   -r requirements/local.txt
     #   tox
@@ -260,7 +260,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/local.txt
     #   sphinx
-importlib-metadata==6.0.0
+importlib-metadata==6.1.0
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -317,7 +317,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.1.4
+moto==4.1.5
     # via -r requirements/local.txt
 mysqlclient==2.1.1
     # via -r requirements/nonlocal.txt
@@ -342,7 +342,7 @@ path==16.6.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-pathspec==0.11.0
+pathspec==0.11.1
     # via
     #   -r requirements/local.txt
     #   yamllint
@@ -350,7 +350,7 @@ pbr==5.11.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==3.1.0
+platformdirs==3.1.1
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -398,7 +398,7 @@ pyjwt[crypto]==2.6.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.0
+pylint==2.17.1
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -473,7 +473,7 @@ pyyaml==6.0
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==4.5.1
+redis==4.5.3
     # via -r requirements/local.txt
 requests==2.28.2
     # via
@@ -552,11 +552,11 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-social-auth-app-django==5.0.0
+social-auth-app-django==5.1.0
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
-social-auth-core==4.3.0
+social-auth-core==4.4.0
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
@@ -630,7 +630,7 @@ uritemplate==4.1.1
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.14
+urllib3==1.26.15
     # via
     #   -r requirements/local.txt
     #   botocore
@@ -641,7 +641,7 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.20.0
+virtualenv==20.21.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -658,7 +658,7 @@ xmltodict==0.13.0
     # via
     #   -r requirements/local.txt
     #   moto
-yamllint==1.29.0
+yamllint==1.30.0
     # via -r requirements/local.txt
 zipp==3.15.0
     # via
