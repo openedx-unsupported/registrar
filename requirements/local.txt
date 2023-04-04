@@ -18,7 +18,7 @@ asgiref==3.6.0
     # via
     #   -r requirements/test.txt
     #   django
-astroid==2.15.0
+astroid==2.15.2
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -43,12 +43,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.26.98
+boto3==1.26.105
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.29.98
+botocore==1.29.105
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -105,7 +105,7 @@ coverage[toml]==7.2.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==40.0.0
+cryptography==40.0.1
     # via
     #   -r requirements/test.txt
     #   moto
@@ -149,13 +149,14 @@ django==3.2.18
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
+    #   social-auth-app-django
 django-cors-headers==3.14.0
     # via -r requirements/test.txt
 django-crum==0.7.9
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-django-debug-toolbar==3.8.1
+django-debug-toolbar==4.0.0
     # via -r requirements/local.in
 django-dynamic-fixture==3.1.2
     # via -r requirements/test.txt
@@ -237,11 +238,11 @@ exceptiongroup==1.1.1
     #   pytest
 factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==18.3.1
+faker==18.3.2
     # via
     #   -r requirements/test.txt
     #   factory-boy
-filelock==3.10.4
+filelock==3.10.7
     # via
     #   -r requirements/test.txt
     #   tox
@@ -318,7 +319,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==4.1.5
+moto==4.1.6
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -348,7 +349,7 @@ pbr==5.11.1
     # via
     #   -r requirements/test.txt
     #   stevedore
-platformdirs==3.1.1
+platformdirs==3.2.0
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -394,7 +395,7 @@ pyjwt[crypto]==2.6.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.1
+pylint==2.17.2
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -450,7 +451,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/test.txt
     #   social-auth-core
-pytz==2022.7.1
+pytz==2023.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -468,7 +469,7 @@ pyyaml==6.0
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==4.5.3
+redis==4.5.4
     # via -r requirements/test.txt
 requests==2.28.2
     # via
@@ -543,11 +544,11 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/docs.txt
     #   sphinx
-social-auth-app-django==5.1.0
+social-auth-app-django==5.2.0
     # via
     #   -r requirements/test.txt
     #   edx-auth-backends
-social-auth-core==4.4.0
+social-auth-core==4.4.1
     # via
     #   -r requirements/test.txt
     #   edx-auth-backends
@@ -603,7 +604,7 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.6
+tomlkit==0.11.7
     # via
     #   -r requirements/test.txt
     #   pylint

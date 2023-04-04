@@ -29,7 +29,7 @@ asgiref==3.6.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django
-astroid==2.15.0
+astroid==2.15.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -68,14 +68,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.26.98
+boto3==1.26.105
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.29.98
+botocore==1.29.105
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -161,7 +161,7 @@ coverage[toml]==7.2.2
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pytest-cov
-cryptography==40.0.0
+cryptography==40.0.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -219,6 +219,7 @@ django==3.2.18
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
+    #   social-auth-app-django
 django-cors-headers==3.14.0
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -232,7 +233,7 @@ django-crum==0.7.9
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-django-utils
-django-debug-toolbar==3.8.1
+django-debug-toolbar==4.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -391,13 +392,13 @@ factory-boy==3.2.1
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==18.3.1
+faker==18.3.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   factory-boy
-filelock==3.10.4
+filelock==3.10.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -524,7 +525,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==4.1.5
+moto==4.1.6
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -577,7 +578,7 @@ pbr==5.11.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   stevedore
-platformdirs==3.1.1
+platformdirs==3.2.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -651,7 +652,7 @@ pyjwt[crypto]==2.6.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.1
+pylint==2.17.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -740,7 +741,7 @@ python3-openid==3.2.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   social-auth-core
-pytz==2022.7.1
+pytz==2023.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -765,7 +766,7 @@ pyyaml==6.0
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==4.5.3
+redis==4.5.4
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -877,14 +878,14 @@ snowballstemmer==2.2.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   sphinx
-social-auth-app-django==5.1.0
+social-auth-app-django==5.2.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-auth-backends
-social-auth-core==4.4.0
+social-auth-core==4.4.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -959,7 +960,7 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.6
+tomlkit==0.11.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt

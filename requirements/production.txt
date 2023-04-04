@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.26.98
+boto3==1.26.105
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.29.98
+botocore==1.29.105
     # via
     #   boto3
     #   s3transfer
@@ -65,7 +65,7 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-cryptography==40.0.0
+cryptography==40.0.1
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -96,6 +96,7 @@ django==3.2.18
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
+    #   social-auth-app-django
 django-cors-headers==3.14.0
     # via -r requirements/base.txt
 django-crum==0.7.9
@@ -272,7 +273,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.7.1
+pytz==2023.3
     # via
     #   -r requirements/base.txt
     #   celery
@@ -284,7 +285,7 @@ pyyaml==6.0
     #   -r requirements/base.txt
     #   -r requirements/production.in
     #   edx-django-release-util
-redis==4.5.3
+redis==4.5.4
     # via -r requirements/base.txt
 requests==2.28.2
     # via
@@ -330,11 +331,11 @@ slumber==0.7.1
     # via
     #   -r requirements/base.txt
     #   edx-rest-api-client
-social-auth-app-django==5.1.0
+social-auth-app-django==5.2.0
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
-social-auth-core==4.4.0
+social-auth-core==4.4.1
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
