@@ -4,6 +4,11 @@
 #
 #    make upgrade
 #
+accessible-pygments==0.0.4
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   pydata-sphinx-theme
 alabaster==0.7.13
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -47,6 +52,7 @@ babel==2.12.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
+    #   pydata-sphinx-theme
     #   sphinx
 backoff==1.10.0
     # via
@@ -55,6 +61,11 @@ backoff==1.10.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
+beautifulsoup4==4.12.2
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   pydata-sphinx-theme
 billiard==3.6.4.0
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -302,6 +313,7 @@ docutils==0.19
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
+    #   pydata-sphinx-theme
     #   sphinx
 drf-jwt==1.19.2
     # via
@@ -371,10 +383,6 @@ edx-rest-api-client==5.5.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-edx-sphinx-theme==3.1.0
-    # via
-    #   -r requirements/monitoring/../devstack.txt
-    #   -r requirements/monitoring/../local.txt
 exceptiongroup==1.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -551,6 +559,7 @@ packaging==23.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   drf-yasg
+    #   pydata-sphinx-theme
     #   pytest
     #   sphinx
     #   tox
@@ -623,10 +632,17 @@ pycryptodomex==3.17
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   pyjwkest
+pydata-sphinx-theme==0.13.3
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   sphinx-book-theme
 pygments==2.15.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
+    #   accessible-pygments
+    #   pydata-sphinx-theme
     #   sphinx
 pyjwkest==1.4.2
     # via
@@ -854,7 +870,6 @@ six==1.16.0
     #   edx-django-release-util
     #   edx-drf-extensions
     #   edx-lint
-    #   edx-sphinx-theme
     #   pyjwkest
     #   python-dateutil
     #   python-memcached
@@ -887,11 +902,21 @@ social-auth-core==4.4.2
     #   -r requirements/monitoring/../test.txt
     #   edx-auth-backends
     #   social-auth-app-django
+soupsieve==2.4.1
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   beautifulsoup4
 sphinx==5.3.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
-    #   edx-sphinx-theme
+    #   pydata-sphinx-theme
+    #   sphinx-book-theme
+sphinx-book-theme==1.0.1
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
 sphinxcontrib-applehelp==1.0.4
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -971,6 +996,7 @@ typing-extensions==4.5.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   astroid
+    #   pydata-sphinx-theme
     #   pylint
 uritemplate==4.1.1
     # via
