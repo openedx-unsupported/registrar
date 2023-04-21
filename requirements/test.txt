@@ -14,7 +14,7 @@ asgiref==3.6.0
     # via
     #   -r requirements/base.txt
     #   django
-astroid==2.15.0
+astroid==2.15.3
     # via
     #   pylint
     #   pylint-celery
@@ -22,8 +22,6 @@ async-timeout==4.0.2
     # via
     #   -r requirements/base.txt
     #   redis
-attrs==22.2.0
-    # via pytest
 backoff==1.10.0
     # via
     #   -r requirements/base.txt
@@ -32,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.26.98
+boto3==1.26.115
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.29.98
+botocore==1.29.115
     # via
     #   boto3
     #   moto
@@ -82,11 +80,11 @@ coreschema==0.0.4
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.2
+coverage[toml]==7.2.3
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==40.0.0
+cryptography==40.0.2
     # via
     #   -r requirements/base.txt
     #   moto
@@ -123,6 +121,7 @@ distlib==0.3.6
     #   edx-django-release-util
     #   edx-django-utils
     #   edx-drf-extensions
+    #   social-auth-app-django
 django-cors-headers==3.14.0
     # via -r requirements/base.txt
 django-crum==0.7.9
@@ -180,12 +179,12 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.txt
 edx-django-release-util==1.2.0
     # via -r requirements/base.txt
-edx-django-utils==5.3.0
+edx-django-utils==5.4.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.4.1
+edx-drf-extensions==8.6.0
     # via -r requirements/base.txt
 edx-lint==5.3.4
     # via -r requirements/test.in
@@ -199,11 +198,11 @@ exceptiongroup==1.1.1
     # via pytest
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==18.3.1
+faker==18.4.0
     # via
     #   -r requirements/test.in
     #   factory-boy
-filelock==3.10.4
+filelock==3.11.0
     # via
     #   tox
     #   virtualenv
@@ -258,7 +257,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==4.1.5
+moto==4.1.7
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -270,7 +269,7 @@ oauthlib==3.2.2
     #   -r requirements/base.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.0
+packaging==23.1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -282,7 +281,7 @@ pbr==5.11.1
     # via
     #   -r requirements/base.txt
     #   stevedore
-platformdirs==3.1.1
+platformdirs==3.2.0
     # via
     #   pylint
     #   virtualenv
@@ -290,7 +289,7 @@ pluggy==1.0.0
     # via
     #   pytest
     #   tox
-psutil==5.9.4
+psutil==5.9.5
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -318,7 +317,7 @@ pyjwt[crypto]==2.6.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.1
+pylint==2.17.2
     # via
     #   edx-lint
     #   pylint-celery
@@ -340,7 +339,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pytest==7.2.2
+pytest==7.3.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -366,7 +365,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2022.7.1
+pytz==2023.3
     # via
     #   -r requirements/base.txt
     #   celery
@@ -379,7 +378,7 @@ pyyaml==6.0
     #   code-annotations
     #   edx-django-release-util
     #   yamllint
-redis==4.5.3
+redis==4.5.4
     # via -r requirements/base.txt
 requests==2.28.2
     # via
@@ -434,16 +433,16 @@ slumber==0.7.1
     # via
     #   -r requirements/base.txt
     #   edx-rest-api-client
-social-auth-app-django==5.1.0
+social-auth-app-django==5.2.0
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
-social-auth-core==4.4.0
+social-auth-core==4.4.1
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
     #   social-auth-app-django
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via
     #   -r requirements/base.txt
     #   django
@@ -461,7 +460,7 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.6
+tomlkit==0.11.7
     # via pylint
 tox==3.28.0
     # via
