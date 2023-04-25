@@ -120,7 +120,7 @@ edx-django-utils==5.4.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.6.0
+edx-drf-extensions==8.7.0
     # via -r requirements/base.in
 edx-opaque-keys==2.3.0
     # via edx-drf-extensions
@@ -222,7 +222,7 @@ social-auth-app-django==5.2.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.4.1
+social-auth-core==4.4.2
     # via
     #   edx-auth-backends
     #   social-auth-app-django
