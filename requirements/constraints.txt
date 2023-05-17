@@ -44,3 +44,6 @@ newrelic<6.0
 # wrapt > 1.10, <2, (https://github.com/tantale/deprecated/blob/801c558a07ef930f92fc070045d86cb5640397eb/setup.py#L161)
 # but base.in is for some reason compiled to require ==1.14, which conflicts with later requirements.
 wrapt < 1.14.0
+
+# At the time of adding this, the moto version 4.1.9 requires urllib3<1.27,>=1.25.4
+urllib3<1.27,>=1.25.4
