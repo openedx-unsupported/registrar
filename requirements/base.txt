@@ -8,7 +8,7 @@ amqp==2.6.1
     # via kombu
 analytics-python==1.4.post1
     # via -r requirements/base.in
-asgiref==3.6.0
+asgiref==3.7.1
     # via django
 async-timeout==4.0.2
     # via redis
@@ -124,7 +124,7 @@ edx-drf-extensions==8.8.0
     # via -r requirements/base.in
 edx-opaque-keys==2.3.0
     # via edx-drf-extensions
-edx-rest-api-client==5.5.1
+edx-rest-api-client==5.5.2
     # via -r requirements/base.in
 idna==3.4
     # via requests
@@ -184,7 +184,7 @@ pyyaml==6.0
     # via edx-django-release-util
 redis==4.5.5
     # via -r requirements/base.in
-requests==2.30.0
+requests==2.31.0
     # via
     #   analytics-python
     #   coreapi
@@ -224,11 +224,13 @@ stevedore==5.1.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
+typing-extensions==4.6.1
+    # via asgiref
 uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   -c requirements/constraints.txt
     #   requests
