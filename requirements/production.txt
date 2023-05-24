@@ -10,7 +10,7 @@ amqp==2.6.1
     #   kombu
 analytics-python==1.4.post1
     # via -r requirements/base.txt
-asgiref==3.6.0
+asgiref==3.7.1
     # via
     #   -r requirements/base.txt
     #   django
@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.26.135
+boto3==1.26.139
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.29.135
+botocore==1.29.139
     # via
     #   boto3
     #   s3transfer
@@ -163,7 +163,7 @@ edx-opaque-keys==2.3.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.5.1
+edx-rest-api-client==5.5.2
     # via -r requirements/base.txt
 gevent==22.10.2
     # via -r requirements/production.in
@@ -275,7 +275,7 @@ pyyaml==6.0
     #   edx-django-release-util
 redis==4.5.5
     # via -r requirements/base.txt
-requests==2.30.0
+requests==2.31.0
     # via
     #   -r requirements/base.txt
     #   analytics-python
@@ -335,12 +335,16 @@ stevedore==5.1.0
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-opaque-keys
+typing-extensions==4.6.1
+    # via
+    #   -r requirements/base.txt
+    #   asgiref
 uritemplate==4.1.1
     # via
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt

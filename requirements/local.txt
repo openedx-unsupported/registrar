@@ -18,7 +18,7 @@ amqp==2.6.1
     #   kombu
 analytics-python==1.4.post1
     # via -r requirements/test.txt
-asgiref==3.6.0
+asgiref==3.7.1
     # via
     #   -r requirements/test.txt
     #   django
@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.26.135
+boto3==1.26.139
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.29.135
+botocore==1.29.139
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -106,7 +106,7 @@ coreschema==0.0.4
     #   -r requirements/test.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.5
+coverage[toml]==7.2.6
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -234,7 +234,7 @@ edx-opaque-keys==2.3.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.5.1
+edx-rest-api-client==5.5.2
     # via -r requirements/test.txt
 exceptiongroup==1.1.1
     # via
@@ -319,7 +319,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==4.1.9
+moto==4.1.10
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -409,7 +409,7 @@ pylint-django==2.5.3
     # via
     #   -r requirements/test.txt
     #   edx-lint
-pylint-plugin-utils==0.8.1
+pylint-plugin-utils==0.8.2
     # via
     #   -r requirements/test.txt
     #   pylint-celery
@@ -452,7 +452,9 @@ python3-openid==3.2.0
     #   social-auth-core
 pytz==2023.3
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
+    #   babel
     #   celery
     #   django
     #   djangorestframework
@@ -468,7 +470,7 @@ pyyaml==6.0
     #   yamllint
 redis==4.5.5
     # via -r requirements/test.txt
-requests==2.30.0
+requests==2.31.0
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -612,10 +614,11 @@ tox==3.28.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
-typing-extensions==4.5.0
+typing-extensions==4.6.1
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
+    #   asgiref
     #   astroid
     #   pydata-sphinx-theme
     #   pylint
@@ -624,7 +627,7 @@ uritemplate==4.1.1
     #   -r requirements/test.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/docs.txt
@@ -654,7 +657,7 @@ xmltodict==0.13.0
     # via
     #   -r requirements/test.txt
     #   moto
-yamllint==1.31.0
+yamllint==1.32.0
     # via -r requirements/test.txt
 zipp==3.15.0
     # via

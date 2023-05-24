@@ -18,7 +18,7 @@ amqp==2.6.1
     #   kombu
 analytics-python==1.4.post1
     # via -r requirements/local.txt
-asgiref==3.6.0
+asgiref==3.7.1
     # via
     #   -r requirements/local.txt
     #   django
@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.26.135
+boto3==1.26.139
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.29.135
+botocore==1.29.139
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -106,7 +106,7 @@ coreschema==0.0.4
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.5
+coverage[toml]==7.2.6
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -234,7 +234,7 @@ edx-opaque-keys==2.3.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.5.1
+edx-rest-api-client==5.5.2
     # via -r requirements/local.txt
 exceptiongroup==1.1.1
     # via
@@ -318,7 +318,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.1.9
+moto==4.1.10
     # via -r requirements/local.txt
 mysqlclient==2.1.1
     # via -r requirements/nonlocal.txt
@@ -413,7 +413,7 @@ pylint-django==2.5.3
     # via
     #   -r requirements/local.txt
     #   edx-lint
-pylint-plugin-utils==0.8.1
+pylint-plugin-utils==0.8.2
     # via
     #   -r requirements/local.txt
     #   pylint-celery
@@ -459,6 +459,7 @@ python3-openid==3.2.0
 pytz==2023.3
     # via
     #   -r requirements/local.txt
+    #   babel
     #   celery
     #   django
     #   djangorestframework
@@ -474,7 +475,7 @@ pyyaml==6.0
     #   yamllint
 redis==4.5.5
     # via -r requirements/local.txt
-requests==2.30.0
+requests==2.31.0
     # via
     #   -r requirements/local.txt
     #   analytics-python
@@ -623,9 +624,10 @@ tox==3.28.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/local.txt
-typing-extensions==4.5.0
+typing-extensions==4.6.1
     # via
     #   -r requirements/local.txt
+    #   asgiref
     #   astroid
     #   pydata-sphinx-theme
     #   pylint
@@ -634,7 +636,7 @@ uritemplate==4.1.1
     #   -r requirements/local.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -663,7 +665,7 @@ xmltodict==0.13.0
     # via
     #   -r requirements/local.txt
     #   moto
-yamllint==1.31.0
+yamllint==1.32.0
     # via -r requirements/local.txt
 zipp==3.15.0
     # via
