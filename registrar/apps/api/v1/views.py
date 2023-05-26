@@ -769,7 +769,6 @@ class CourseRunEnrollmentUploadView(EnrollmentMixin, CourseSpecificViewMixin, En
         """
         Get field names based on waffle flag
         """
-        # MST-190 will remove the waffle and roll out the feature to all partners.
         if waffle.flag_is_active(request, 'enable_course_role_management'):
             return {'student_key', 'course_id', 'status', 'course_staff'}
         else:
@@ -808,9 +807,11 @@ class CourseRunEnrollmentDownloadView(EnrollmentMixin, JobInvokerMixin, APIView)
         """
         Submit a user task that retrieves course run enrollment data for the given program.
         """
+        course_role_management_enabled = waffle.flag_is_active(request, 'enable_course_role_management')
         return self.invoke_download_job(
             list_all_course_run_enrollments,
             self.program.key,
+            course_role_management_enabled,
         )
 
 
