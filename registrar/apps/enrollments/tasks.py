@@ -135,7 +135,14 @@ def list_course_run_enrollments(
 
 
 @shared_task(base=EnrollmentReadTask, bind=True)
-def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_key):
+def list_all_course_run_enrollments(
+        self,
+        job_id,
+        user_id,
+        file_format,
+        program_key,
+        course_role_management_enabled=False,
+):
     """
     A user task for retrieving all course enrollments within a given program from LMS.
     """
@@ -150,6 +157,7 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
                 program.discovery_uuid,
                 course_run.key,
                 course_run.external_key,
+                course_role_management_enabled
             )
         except HTTPError as err:
             post_job_failure(
@@ -169,7 +177,9 @@ def list_all_course_run_enrollments(self, job_id, user_id, file_format, program_
     if file_format == 'json':
         serialized = json.dumps(results, indent=4)
     elif file_format == 'csv':
-        serialized = serialize_course_run_enrollments_to_csv(results)
+        serialized = (serialize_course_run_enrollments_with_course_staff_to_csv(results)
+                      if course_role_management_enabled
+                      else serialize_course_run_enrollments_to_csv(results))
     else:
         raise ValueError(f'Invalid file_format: {file_format}')
     post_job_success(job_id, serialized, file_format)
