@@ -18,7 +18,7 @@ amqp==2.6.1
     #   kombu
 analytics-python==1.4.post1
     # via -r requirements/test.txt
-asgiref==3.7.1
+asgiref==3.7.2
     # via
     #   -r requirements/test.txt
     #   django
@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.26.139
+boto3==1.26.147
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.29.139
+botocore==1.29.147
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -106,11 +106,11 @@ coreschema==0.0.4
     #   -r requirements/test.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.6
+coverage[toml]==7.2.7
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==40.0.2
+cryptography==41.0.1
     # via
     #   -r requirements/test.txt
     #   moto
@@ -219,7 +219,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/test.txt
 edx-django-release-util==1.2.0
     # via -r requirements/test.txt
-edx-django-utils==5.4.0
+edx-django-utils==5.5.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
@@ -242,7 +242,7 @@ exceptiongroup==1.1.1
     #   pytest
 factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==18.9.0
+faker==18.10.1
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -305,7 +305,7 @@ lazy-object-proxy==1.9.0
     #   astroid
 lz4==4.3.2
     # via ruamel-yaml-cmd
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -319,7 +319,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==4.1.10
+moto==4.1.11
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -427,7 +427,7 @@ pytest==7.3.1
     #   -r requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==4.0.0
+pytest-cov==4.1.0
     # via -r requirements/test.txt
 pytest-django==4.5.2
     # via -r requirements/test.txt
@@ -493,7 +493,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-ruamel-yaml==0.17.26
+ruamel-yaml==0.17.31
     # via
     #   -r requirements/test.txt
     #   drf-yasg
@@ -614,7 +614,7 @@ tox==3.28.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
-typing-extensions==4.6.1
+typing-extensions==4.6.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
