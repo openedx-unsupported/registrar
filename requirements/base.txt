@@ -8,7 +8,7 @@ amqp==2.6.1
     # via kombu
 analytics-python==1.4.post1
     # via -r requirements/base.in
-asgiref==3.7.1
+asgiref==3.7.2
     # via django
 async-timeout==4.0.2
     # via redis
@@ -37,7 +37,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==40.0.2
+cryptography==41.0.1
     # via
     #   pyjwt
     #   social-auth-core
@@ -116,7 +116,7 @@ edx-auth-backends==4.1.0
     # via -r requirements/base.in
 edx-django-release-util==1.2.0
     # via -r requirements/base.in
-edx-django-utils==5.4.0
+edx-django-utils==5.5.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
@@ -136,7 +136,7 @@ jinja2==3.1.2
     # via coreschema
 kombu==4.6.11
     # via celery
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via jinja2
 monotonic==1.6
     # via analytics-python
@@ -195,7 +195,7 @@ requests==2.31.0
     #   social-auth-core
 requests-oauthlib==1.3.1
     # via social-auth-core
-ruamel-yaml==0.17.26
+ruamel-yaml==0.17.31
     # via drf-yasg
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
@@ -224,7 +224,7 @@ stevedore==5.1.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==4.6.1
+typing-extensions==4.6.3
     # via asgiref
 uritemplate==4.1.1
     # via
