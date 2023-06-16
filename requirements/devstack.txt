@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.26.147
+boto3==1.26.152
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.29.147
+botocore==1.29.152
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -246,7 +246,7 @@ faker==18.10.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.12.0
+filelock==3.12.2
     # via
     #   -r requirements/local.txt
     #   tox
@@ -352,7 +352,7 @@ pbr==5.11.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==3.5.1
+platformdirs==3.5.3
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -426,7 +426,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-pytest==7.3.1
+pytest==7.3.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -652,7 +652,7 @@ virtualenv==20.23.0
     # via
     #   -r requirements/local.txt
     #   tox
-werkzeug==2.3.4
+werkzeug==2.3.6
     # via
     #   -r requirements/local.txt
     #   moto
