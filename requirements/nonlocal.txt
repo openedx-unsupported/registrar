@@ -4,7 +4,7 @@
 #
 #    make upgrade
 #
-mysqlclient==2.1.1
+mysqlclient==2.2.0
     # via -r requirements/nonlocal.in
 python-memcached==1.59
     # via -r requirements/nonlocal.in
