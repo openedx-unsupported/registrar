@@ -39,7 +39,7 @@ defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.19
+django==3.2.20
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -209,7 +209,7 @@ stevedore==5.1.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==4.6.3
+typing-extensions==4.7.1
     # via asgiref
 uritemplate==4.1.1
     # via drf-yasg
