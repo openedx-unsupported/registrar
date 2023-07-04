@@ -185,7 +185,7 @@ distlib==0.3.6
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   virtualenv
-django==3.2.19
+django==3.2.20
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
