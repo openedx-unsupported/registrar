@@ -10,8 +10,13 @@ RUN apt-get install -qy \
 	python3-pip \
 	python3-virtualenv \
 	python3.8-dev \
+	# libmysqlclient-dev header files needed to use native C implementation for MySQL-python for performance gains.
 	libmysqlclient-dev \
-	libssl-dev && \
+	# mysqlclient wont install without libssl-dev
+	libssl-dev \
+	# mysqlclient>=2.2.0 requires pkg-config (https://github.com/PyMySQL/mysqlclient/issues/620)
+	pkg-config \
+	&& \
 	# delete apt package lists because we do not need them inflating our image
 	rm -rf /var/lib/apt/lists/*
 
