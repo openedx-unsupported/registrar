@@ -2,7 +2,7 @@ FROM ubuntu:focal as app
 
 # System requirements.
 RUN apt-get update
-RUN apt-get install -qy \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy \
 	git-core \
 	language-pack-en \
 	build-essential \
