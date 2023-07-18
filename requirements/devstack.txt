@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.28.2
+boto3==1.28.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.31.2
+botocore==1.31.4
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -77,7 +77,7 @@ charset-normalizer==3.2.0
     # via
     #   -r requirements/local.txt
     #   requests
-click==8.1.4
+click==8.1.5
     # via
     #   -r requirements/local.txt
     #   click-log
@@ -118,7 +118,7 @@ dill==0.3.6
     # via
     #   -r requirements/local.txt
     #   pylint
-distlib==0.3.6
+distlib==0.3.7
     # via
     #   -r requirements/local.txt
     #   virtualenv
@@ -233,7 +233,7 @@ exceptiongroup==1.1.2
     #   pytest
 factory-boy==3.2.1
     # via -r requirements/local.txt
-faker==18.13.0
+faker==19.1.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -304,7 +304,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.1.12
+moto==4.1.13
     # via -r requirements/local.txt
 mysqlclient==2.2.0
     # via -r requirements/nonlocal.txt
@@ -338,7 +338,7 @@ pbr==5.11.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==3.8.1
+platformdirs==3.9.1
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -452,7 +452,7 @@ pytz==2023.3
     #   drf-yasg
 pywatchman==1.4.1
     # via -r requirements/local.txt
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -497,7 +497,7 @@ ruamel-yaml-clib==0.2.7
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml
-ruamel-yaml-cmd==0.6.4
+ruamel-yaml-cmd==0.6.5
     # via -r requirements/local.txt
 ruamel-yaml-convert==0.3.2
     # via
@@ -613,6 +613,7 @@ typing-extensions==4.7.1
     #   -r requirements/local.txt
     #   asgiref
     #   astroid
+    #   faker
     #   pydata-sphinx-theme
     #   pylint
 uritemplate==4.1.1
@@ -631,7 +632,7 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.23.1
+virtualenv==20.24.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -650,7 +651,7 @@ xmltodict==0.13.0
     #   moto
 yamllint==1.32.0
     # via -r requirements/local.txt
-zipp==3.16.0
+zipp==3.16.2
     # via
     #   -r requirements/local.txt
     #   importlib-metadata
