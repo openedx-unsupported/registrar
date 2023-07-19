@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.2
+boto3==1.28.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.31.2
+botocore==1.31.4
     # via
     #   boto3
     #   s3transfer
@@ -52,7 +52,7 @@ charset-normalizer==3.2.0
     # via
     #   -r requirements/base.txt
     #   requests
-click==8.1.4
+click==8.1.5
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -156,11 +156,11 @@ edx-opaque-keys==2.3.0
     #   edx-drf-extensions
 edx-rest-api-client==5.5.2
     # via -r requirements/base.txt
-gevent==22.10.2
+gevent==23.7.0
     # via -r requirements/production.in
 greenlet==2.0.2
     # via gevent
-gunicorn==20.1.0
+gunicorn==21.1.0
     # via -r requirements/production.in
 idna==3.4
     # via
@@ -200,6 +200,7 @@ packaging==23.1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
+    #   gunicorn
 pbr==5.11.1
     # via
     #   -r requirements/base.txt
@@ -247,7 +248,7 @@ pytz==2023.3
     #   django
     #   djangorestframework
     #   drf-yasg
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   -r requirements/base.txt
     #   -r requirements/production.in
