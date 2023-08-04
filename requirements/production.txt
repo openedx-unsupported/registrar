@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.10
+boto3==1.28.19
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.31.10
+botocore==1.31.19
     # via
     #   boto3
     #   s3transfer
@@ -56,7 +56,7 @@ click==8.1.6
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-cryptography==41.0.2
+cryptography==41.0.3
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -79,6 +79,7 @@ django==3.2.20
     #   django-mysql
     #   django-storages
     #   django-user-tasks
+    #   django-waffle
     #   djangorestframework
     #   drf-jwt
     #   drf-yasg
@@ -116,7 +117,7 @@ django-storages==1.8
     #   -r requirements/base.txt
 django-user-tasks==3.1.0
     # via -r requirements/base.txt
-django-waffle==3.0.0
+django-waffle==4.0.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -140,11 +141,11 @@ drf-yasg==1.21.7
     #   edx-api-doc-tools
 edx-api-doc-tools==1.7.0
     # via -r requirements/base.txt
-edx-auth-backends==4.1.0
+edx-auth-backends==4.2.0
     # via -r requirements/base.txt
 edx-django-release-util==1.3.0
     # via -r requirements/base.txt
-edx-django-utils==5.6.0
+edx-django-utils==5.7.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -155,7 +156,7 @@ edx-opaque-keys==2.3.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.5.2
+edx-rest-api-client==5.6.0
     # via -r requirements/base.txt
 gevent==23.7.0
     # via -r requirements/production.in
