@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.19
+boto3==1.28.21
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.31.19
+botocore==1.31.21
     # via
     #   boto3
     #   moto
@@ -181,7 +181,7 @@ edx-drf-extensions==8.8.0
     # via -r requirements/base.txt
 edx-lint==5.3.4
     # via -r requirements/test.in
-edx-opaque-keys==2.3.0
+edx-opaque-keys==2.4.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
@@ -191,7 +191,7 @@ exceptiongroup==1.1.2
     # via pytest
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==19.2.0
+faker==19.3.0
     # via
     #   -r requirements/test.in
     #   factory-boy

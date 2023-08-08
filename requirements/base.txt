@@ -119,7 +119,7 @@ edx-django-utils==5.7.0
     #   edx-rest-api-client
 edx-drf-extensions==8.8.0
     # via -r requirements/base.in
-edx-opaque-keys==2.3.0
+edx-opaque-keys==2.4.0
     # via edx-drf-extensions
 edx-rest-api-client==5.6.0
     # via -r requirements/base.in
