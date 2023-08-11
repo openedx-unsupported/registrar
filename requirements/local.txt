@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.28.19
+boto3==1.28.21
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.31.19
+botocore==1.31.21
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -223,7 +223,7 @@ edx-i18n-tools==1.1.0
     # via -r requirements/local.in
 edx-lint==5.3.4
     # via -r requirements/test.txt
-edx-opaque-keys==2.3.0
+edx-opaque-keys==2.4.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
@@ -235,7 +235,7 @@ exceptiongroup==1.1.2
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==19.2.0
+faker==19.3.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -368,7 +368,7 @@ pydata-sphinx-theme==0.13.3
     # via
     #   -r requirements/docs.txt
     #   sphinx-book-theme
-pygments==2.15.1
+pygments==2.16.1
     # via
     #   -r requirements/docs.txt
     #   accessible-pygments
