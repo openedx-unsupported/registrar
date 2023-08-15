@@ -10,7 +10,7 @@ analytics-python==1.4.post1
     # via -r requirements/base.in
 asgiref==3.7.2
     # via django
-async-timeout==4.0.2
+async-timeout==4.0.3
     # via redis
 backoff==1.10.0
     # via analytics-python
@@ -117,7 +117,7 @@ edx-django-utils==5.7.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.8.0
+edx-drf-extensions==8.9.0
     # via -r requirements/base.in
 edx-opaque-keys==2.4.0
     # via edx-drf-extensions
@@ -175,7 +175,7 @@ pyyaml==6.0.1
     # via
     #   drf-yasg
     #   edx-django-release-util
-redis==4.6.0
+redis==5.0.0
     # via -r requirements/base.in
 requests==2.31.0
     # via
