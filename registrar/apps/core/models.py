@@ -3,7 +3,7 @@
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from guardian.shortcuts import remove_perm
 from model_utils.models import TimeStampedModel
 
