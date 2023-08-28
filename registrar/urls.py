@@ -18,9 +18,9 @@ import os
 
 from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
-from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 from edx_api_doc_tools import make_api_info, make_docs_ui_view
 
@@ -46,40 +46,40 @@ with open(api_description_path, encoding='utf-8') as api_description_file:
             email="masters-dev@edx.org",
             description=api_description_file.read(),
         ),
-        api_url_patterns=[url(r'^api/v2/', include(v2_urls))],
+        api_url_patterns=[path('api/v2/', include(v2_urls))],
     )
 
 urlpatterns = oauth2_urlpatterns + [
     # '/' and '/login' redirect to '/login/',
     # which attempts LMS OAuth and then redirects to api-docs.
-    url(r'^/?$', RedirectView.as_view(url=settings.LOGIN_URL)),
-    url(r'^login$', RedirectView.as_view(url=settings.LOGIN_URL)),
+    re_path(r'^/?$', RedirectView.as_view(url=settings.LOGIN_URL)),
+    path('login', RedirectView.as_view(url=settings.LOGIN_URL)),
 
     # Use the same auth views for all logins,
     # including those originating from the browseable API.
-    url(r'^api-auth/', include(oauth2_urlpatterns)),
+    path('api-auth/', include(oauth2_urlpatterns)),
 
     # NEW Swagger documentation UI, generated using edx-api-doc-tools.
-    url(r'^api-docs$', RedirectView.as_view(pattern_name='api-docs-new')),
-    url(r'^api-docs/$', new_api_ui_view, name='api-docs-new'),
+    path('api-docs', RedirectView.as_view(pattern_name='api-docs-new')),
+    path('api-docs/', new_api_ui_view, name='api-docs-new'),
 
     # Django admin panel.
-    url(r'^admin$', RedirectView.as_view(pattern_name='admin:index')),
-    url(r'^admin/', admin.site.urls),
+    path('admin', RedirectView.as_view(pattern_name='admin:index')),
+    re_path(r'^admin/', admin.site.urls),
 
     # Health view.
-    url(r'^health/?$', core_views.health, name='health'),
+    re_path(r'^health/?$', core_views.health, name='health'),
 
     # Auto-auth for testing. View raises 404 if not `settings.ENABLE_AUTO_AUTH`
-    url(r'^auto_auth/?$', core_views.AutoAuth.as_view(), name='auto_auth'),
+    re_path(r'^auto_auth/?$', core_views.AutoAuth.as_view(), name='auto_auth'),
 
     # The API itself!
-    url(r'^api/', include(api_urls)),
+    path('api/', include(api_urls)),
 ]
 
 # edx-drf-extensions csrf app
 urlpatterns += [
-    url(r'', include('csrf.urls')),
+    path('', include('csrf.urls')),
 ]
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
@@ -90,7 +90,7 @@ if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma:
             "ENABLE_DJANGO_TOOLBAR is true, but debug_toolbar could not be imported."
         )
     else:
-        urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+        urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
 
 if settings.DEBUG:  # pragma: no cover
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
