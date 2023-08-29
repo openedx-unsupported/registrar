@@ -3,7 +3,6 @@ The public-facing REST API.
 """
 import logging
 
-from edx_api_doc_tools import query_parameter, schema_for
 from edx_rest_framework_extensions.auth.jwt.authentication import (
     JwtAuthentication,
 )
@@ -20,24 +19,7 @@ from .pagination import CustomPagination
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_COMMON_RESPONSES = {
-    401: 'User is not authenticated.',
-    405: 'HTTP method not supported on this path.'
-}
 
-
-@schema_for(
-    'get',
-    parameters=[
-        query_parameter('org_key', str, 'Organization filter'),
-        query_parameter('user_has_perm', str, 'Permission filter'),
-    ],
-    responses={
-        403: 'User lacks access to organization.',
-        404: 'Organization does not exist.',
-        **SCHEMA_COMMON_RESPONSES,
-    },
-)
 class ProgramListPaginationView(ProgramListView, TrackViewMixin, ListAPIView):
     """
     A view for listing program objects.
