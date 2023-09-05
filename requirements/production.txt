@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.39
+boto3==1.28.40
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.31.39
+botocore==1.31.40
     # via
     #   boto3
     #   s3transfer
@@ -66,7 +66,7 @@ defusedxml==0.7.1
     #   -r requirements/base.txt
     #   python3-openid
     #   social-auth-core
-django==3.2.20
+django==3.2.21
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -158,7 +158,7 @@ edx-opaque-keys==2.5.0
     #   edx-drf-extensions
 edx-rest-api-client==5.6.0
     # via -r requirements/base.txt
-gevent==23.7.0
+gevent==23.9.0.post1
     # via -r requirements/production.in
 greenlet==2.0.2
     # via gevent
@@ -243,7 +243,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2023.3
+pytz==2023.3.post1
     # via
     #   -r requirements/base.txt
     #   celery
