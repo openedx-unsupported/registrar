@@ -647,6 +647,10 @@ pylint-plugin-utils==0.8.2
     #   -r requirements/monitoring/../test.txt
     #   pylint-celery
     #   pylint-django
+pymemcache==4.0.0
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../production.txt
 pymongo==3.13.0
     # via
     #   -r requirements/monitoring/../devstack.txt
