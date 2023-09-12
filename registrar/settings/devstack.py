@@ -16,8 +16,9 @@ CELERY_TASK_ALWAYS_EAGER = (
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
         'LOCATION': os.environ.get('CACHE_LOCATION', 'memcached:11211'),
+        "OPTIONS": {"no_delay": True, "ignore_exec": True, "use_pooling": True},
     }
 }
 
