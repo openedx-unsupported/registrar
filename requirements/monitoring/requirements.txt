@@ -73,14 +73,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.28.45
+boto3==1.28.50
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.31.45
+botocore==1.31.50
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -228,7 +228,7 @@ django-debug-toolbar==4.2.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
-django-dynamic-fixture==4.0.0
+django-dynamic-fixture==4.0.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -342,13 +342,13 @@ edx-django-utils==5.7.0
     #   -r requirements/monitoring/../test.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.9.2
+edx-drf-extensions==8.10.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-edx-i18n-tools==1.1.0
+edx-i18n-tools==1.2.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -387,7 +387,7 @@ faker==19.6.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   factory-boy
-filelock==3.12.3
+filelock==3.12.4
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -399,7 +399,7 @@ freezegun==1.2.2
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-gevent==23.9.0.post1
+gevent==23.9.1
     # via -r requirements/monitoring/../production.txt
 greenlet==2.0.2
     # via
@@ -497,7 +497,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==4.2.2
+moto==4.2.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -596,7 +596,7 @@ pycparser==2.21
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   cffi
-pydata-sphinx-theme==0.13.3
+pydata-sphinx-theme==0.14.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -690,7 +690,6 @@ python-dateutil==2.8.2
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
     #   botocore
-    #   edx-drf-extensions
     #   faker
     #   freezegun
     #   moto
@@ -822,7 +821,6 @@ six==1.16.0
     #   configobj
     #   edx-auth-backends
     #   edx-django-release-util
-    #   edx-drf-extensions
     #   edx-lint
     #   python-dateutil
     #   python-memcached
@@ -943,7 +941,7 @@ tox==3.28.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -953,7 +951,6 @@ typing-extensions==4.7.1
     #   astroid
     #   edx-opaque-keys
     #   faker
-    #   filelock
     #   pydata-sphinx-theme
     #   pylint
 uritemplate==4.1.1
@@ -1009,7 +1006,7 @@ yamllint==1.32.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-zipp==3.16.2
+zipp==3.17.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
