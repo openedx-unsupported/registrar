@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.45
+boto3==1.28.50
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.31.45
+botocore==1.31.50
     # via
     #   boto3
     #   s3transfer
@@ -150,7 +150,7 @@ edx-django-utils==5.7.0
     #   -r requirements/base.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.9.2
+edx-drf-extensions==8.10.0
     # via -r requirements/base.txt
 edx-opaque-keys==2.5.0
     # via
@@ -158,7 +158,7 @@ edx-opaque-keys==2.5.0
     #   edx-drf-extensions
 edx-rest-api-client==5.6.0
     # via -r requirements/base.txt
-gevent==23.9.0.post1
+gevent==23.9.1
     # via -r requirements/production.in
 greenlet==2.0.2
     # via gevent
@@ -238,7 +238,6 @@ python-dateutil==2.8.2
     #   -r requirements/base.txt
     #   analytics-python
     #   botocore
-    #   edx-drf-extensions
 python-memcached==1.59
     # via -r requirements/nonlocal.txt
 python3-openid==3.2.0
@@ -286,7 +285,6 @@ six==1.16.0
     #   analytics-python
     #   edx-auth-backends
     #   edx-django-release-util
-    #   edx-drf-extensions
     #   python-dateutil
     #   python-memcached
 slumber==0.7.1
@@ -311,7 +309,7 @@ stevedore==5.1.0
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -r requirements/base.txt
     #   asgiref

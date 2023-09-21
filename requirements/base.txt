@@ -117,7 +117,7 @@ edx-django-utils==5.7.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.9.2
+edx-drf-extensions==8.10.0
     # via -r requirements/base.in
 edx-opaque-keys==2.5.0
     # via edx-drf-extensions
@@ -159,9 +159,7 @@ pymongo==3.13.0
 pynacl==1.5.0
     # via edx-django-utils
 python-dateutil==2.8.2
-    # via
-    #   analytics-python
-    #   edx-drf-extensions
+    # via analytics-python
 python3-openid==3.2.0
     # via social-auth-core
 pytz==2023.3.post1
@@ -194,7 +192,6 @@ six==1.16.0
     #   analytics-python
     #   edx-auth-backends
     #   edx-django-release-util
-    #   edx-drf-extensions
     #   python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
@@ -212,7 +209,7 @@ stevedore==5.1.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   asgiref
     #   edx-opaque-keys

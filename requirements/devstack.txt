@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.28.45
+boto3==1.28.50
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.31.45
+botocore==1.31.50
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -155,7 +155,7 @@ django-crum==0.7.9
     #   edx-django-utils
 django-debug-toolbar==4.2.0
     # via -r requirements/local.txt
-django-dynamic-fixture==4.0.0
+django-dynamic-fixture==4.0.1
     # via -r requirements/local.txt
 django-extensions==3.1.5
     # via
@@ -217,9 +217,9 @@ edx-django-utils==5.7.0
     #   -r requirements/local.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.9.2
+edx-drf-extensions==8.10.0
     # via -r requirements/local.txt
-edx-i18n-tools==1.1.0
+edx-i18n-tools==1.2.0
     # via -r requirements/local.txt
 edx-lint==5.3.4
     # via -r requirements/local.txt
@@ -239,7 +239,7 @@ faker==19.6.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.12.3
+filelock==3.12.4
     # via
     #   -r requirements/local.txt
     #   tox
@@ -306,7 +306,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.2.2
+moto==4.2.3
     # via -r requirements/local.txt
 mysqlclient==2.2.0
     # via -r requirements/nonlocal.txt
@@ -368,7 +368,7 @@ pycparser==2.21
     # via
     #   -r requirements/local.txt
     #   cffi
-pydata-sphinx-theme==0.13.3
+pydata-sphinx-theme==0.14.0
     # via
     #   -r requirements/local.txt
     #   sphinx-book-theme
@@ -430,7 +430,6 @@ python-dateutil==2.8.2
     #   -r requirements/local.txt
     #   analytics-python
     #   botocore
-    #   edx-drf-extensions
     #   faker
     #   freezegun
     #   moto
@@ -523,7 +522,6 @@ six==1.16.0
     #   configobj
     #   edx-auth-backends
     #   edx-django-release-util
-    #   edx-drf-extensions
     #   edx-lint
     #   python-dateutil
     #   python-memcached
@@ -611,14 +609,13 @@ tox==3.28.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/local.txt
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -r requirements/local.txt
     #   asgiref
     #   astroid
     #   edx-opaque-keys
     #   faker
-    #   filelock
     #   pydata-sphinx-theme
     #   pylint
 uritemplate==4.1.1
@@ -656,7 +653,7 @@ xmltodict==0.13.0
     #   moto
 yamllint==1.32.0
     # via -r requirements/local.txt
-zipp==3.16.2
+zipp==3.17.0
     # via
     #   -r requirements/local.txt
     #   importlib-metadata
