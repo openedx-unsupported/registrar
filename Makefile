@@ -57,7 +57,7 @@ $(COMMON_CONSTRAINTS_TXT):
 upgrade: export CUSTOM_COMPILE_COMMAND=make upgrade
 
 upgrade: piptools  $(COMMON_CONSTRAINTS_TXT)  ## re-compile requirements .txt files from .in files
-	sed 's/pyjwt\[crypto\]<2.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	sed 's/edx-drf-extensions<7.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt

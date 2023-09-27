@@ -258,7 +258,7 @@ django-mysql==4.11.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-django-simple-history==3.0.0
+django-simple-history==3.4.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
