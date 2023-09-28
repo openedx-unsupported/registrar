@@ -28,9 +28,20 @@ as well as important information about PII annotation.
 Using with Devstack
 -----------------
 
-The best way to run Registrar is within the edX Devstack: https://github.com/openedx/devstack.
+The best way to run Registrar is within the edX Devstack. You can set this up by following the instructions here: https://github.com/openedx/devstack.
 
-See the Devstack README for information on how to install and run Registrar.
+The devstack, once set up, will automatically pull this repo to your machine.
+
+Once your devstack is up and running, do the following:
+
+1. In a terminal, navigate to the devstack directory
+2. Run `make dev.pull.registrar`
+3. Run `make dev.provision.registrar`
+4. Run `make dev.up.registrar`
+5. Run `make dev.shell.registrar`
+6. In the registrar shell, run `./manage.py registrar migrate`
+7. In Docker, restart the registrar container.
+
 
 Using Standalone
 -----------------
