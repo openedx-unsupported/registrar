@@ -404,6 +404,8 @@ pylint-plugin-utils==0.8.2
     #   -r requirements/local.txt
     #   pylint-celery
     #   pylint-django
+pymemcache==4.0.0
+    # via -r requirements/nonlocal.txt
 pymongo==3.13.0
     # via
     #   -r requirements/local.txt
