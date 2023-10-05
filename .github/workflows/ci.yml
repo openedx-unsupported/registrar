@@ -13,12 +13,13 @@ jobs:
     name: Tests
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-20.04
         python-version:
           - 3.8
-        toxenv: [ django32 ]
+        toxenv: [ django32, django42 ]
     steps:
     - uses: actions/checkout@v1
     - name: setup python
@@ -45,7 +46,7 @@ jobs:
         make static
         make validate_translations
     - name: Run Coverage
-      if: matrix.python-version == '3.8' && matrix.toxenv=='django32'
+      if: matrix.python-version == '3.8' && matrix.toxenv=='django42'
       uses: codecov/codecov-action@v1
       with:
         flags: unittests

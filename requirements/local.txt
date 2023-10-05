@@ -31,7 +31,7 @@ async-timeout==4.0.3
     # via
     #   -r requirements/test.txt
     #   redis
-babel==2.12.1
+babel==2.13.0
     # via
     #   -r requirements/docs.txt
     #   pydata-sphinx-theme
@@ -40,6 +40,10 @@ backoff==1.10.0
     # via
     #   -r requirements/test.txt
     #   analytics-python
+backports-zoneinfo==0.2.1
+    # via
+    #   -r requirements/test.txt
+    #   django
 beautifulsoup4==4.12.2
     # via
     #   -r requirements/docs.txt
@@ -48,12 +52,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.28.54
+boto3==1.28.56
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.31.54
+botocore==1.31.56
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -69,12 +73,12 @@ certifi==2023.7.22
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -109,7 +113,7 @@ cryptography==41.0.4
     #   social-auth-core
 ddt==1.6.0
     # via -r requirements/test.txt
-defusedxml==0.7.1
+defusedxml==0.8.0rc1
     # via
     #   -r requirements/test.txt
     #   python3-openid
@@ -124,7 +128,6 @@ distlib==0.3.7
     #   virtualenv
 django==3.2.21
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-cors-headers
@@ -173,7 +176,7 @@ django-simple-history==3.0.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
-django-storages==1.8
+django-storages==1.10
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -319,7 +322,7 @@ oauthlib==3.2.2
     #   -r requirements/test.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.1
+packaging==23.2
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -338,7 +341,7 @@ pbr==5.11.1
     # via
     #   -r requirements/test.txt
     #   stevedore
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -443,7 +446,6 @@ pytz==2023.3.post1
     #   -r requirements/test.txt
     #   babel
     #   celery
-    #   django
     #   djangorestframework
     #   drf-yasg
 pywatchman==1.4.1
@@ -480,20 +482,20 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-ruamel-yaml==0.17.32
+ruamel-yaml==0.17.35
     # via
     #   ruamel-yaml-base
     #   ruamel-yaml-cmd
     #   ruamel-yaml-convert
 ruamel-yaml-base==0.3.2
     # via ruamel-yaml-cmd
-ruamel-yaml-clib==0.2.7
+ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
 ruamel-yaml-cmd==0.6.5
     # via -r requirements/local.in
 ruamel-yaml-convert==0.3.2
     # via ruamel-yaml-cmd
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -608,7 +610,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/test.txt
     #   drf-yasg
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/docs.txt
@@ -625,7 +627,7 @@ virtualenv==20.24.5
     # via
     #   -r requirements/test.txt
     #   tox
-werkzeug==2.3.7
+werkzeug==3.0.0
     # via
     #   -r requirements/test.txt
     #   moto

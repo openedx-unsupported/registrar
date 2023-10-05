@@ -57,16 +57,6 @@ $(COMMON_CONSTRAINTS_TXT):
 upgrade: export CUSTOM_COMPILE_COMMAND=make upgrade
 
 upgrade: piptools  $(COMMON_CONSTRAINTS_TXT)  ## re-compile requirements .txt files from .in files
-	sed 's/pyjwt\[crypto\]<2.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-drf-extensions<7.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-auth-backends<4.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/social-auth-core<4.0.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip-compile --allow-unsafe --rebuild --upgrade -o requirements/pip.txt requirements/pip.in
 	pip-compile --upgrade -o requirements/pip-tools.txt requirements/pip-tools.in
 	pip install -qr requirements/pip.txt
