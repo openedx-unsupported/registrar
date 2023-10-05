@@ -138,8 +138,10 @@ django-simple-history==3.0.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.txt
-django-storages==1.14.1
-    # via -r requirements/base.txt
+django-storages==1.10.1
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.txt
 django-user-tasks==3.1.0
     # via -r requirements/base.txt
 django-waffle==4.0.0

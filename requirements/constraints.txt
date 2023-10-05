@@ -16,6 +16,8 @@ Django<4.0
 # Version 3.2.0 contains bad arabic translations that will cause validation tests to fail
 django-extensions<3.2.0
 
+# django-storages version 1.10.1 is major upgrade.
+django-storages==1.10.1
 
 # From base.in
 celery<5.0  # version 5.0 drops support for python 3.5
