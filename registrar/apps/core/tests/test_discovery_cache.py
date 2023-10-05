@@ -101,8 +101,8 @@ class ProgramDetailsTestCase(TestCase):
         super().setUp()
         cache.clear()
 
-    @mock_oauth_login
     @responses.activate
+    @mock_oauth_login
     @ddt.data(
         (200, program_from_discovery, program_from_discovery),
         (200, {}, {}),
