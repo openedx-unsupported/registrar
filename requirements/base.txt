@@ -23,23 +23,23 @@ celery==4.4.7
     #   django-user-tasks
 certifi==2023.7.22
     # via requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   cryptography
     #   pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via requests
-click==8.1.6
+click==8.1.7
     # via edx-django-utils
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   pyjwt
     #   social-auth-core
-defusedxml==0.7.1
+defusedxml==0.8.0rc2
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.20
+django==3.2.22
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -82,10 +82,8 @@ django-simple-history==3.0.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
-django-storages==1.10.1
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+django-storages==1.14.1
+    # via -r requirements/base.in
 django-user-tasks==3.1.0
     # via -r requirements/base.in
 django-waffle==4.0.0
@@ -117,9 +115,9 @@ edx-django-utils==5.7.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.9.0
+edx-drf-extensions==8.10.0
     # via -r requirements/base.in
-edx-opaque-keys==2.4.0
+edx-opaque-keys==2.5.1
     # via edx-drf-extensions
 edx-rest-api-client==5.6.0
     # via -r requirements/base.in
@@ -139,7 +137,7 @@ oauthlib==3.2.2
     # via
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.1
+packaging==23.2
     # via drf-yasg
 pbr==5.11.1
     # via stevedore
@@ -159,12 +157,10 @@ pymongo==3.13.0
 pynacl==1.5.0
     # via edx-django-utils
 python-dateutil==2.8.2
-    # via
-    #   analytics-python
-    #   edx-drf-extensions
+    # via analytics-python
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2023.3
+pytz==2023.3.post1
     # via
     #   -r requirements/base.in
     #   celery
@@ -175,7 +171,7 @@ pyyaml==6.0.1
     # via
     #   drf-yasg
     #   edx-django-release-util
-redis==5.0.0
+redis==5.0.1
     # via -r requirements/base.in
 requests==2.31.0
     # via
@@ -194,11 +190,10 @@ six==1.16.0
     #   analytics-python
     #   edx-auth-backends
     #   edx-django-release-util
-    #   edx-drf-extensions
     #   python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
-social-auth-app-django==5.2.0
+social-auth-app-django==5.3.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
@@ -212,11 +207,13 @@ stevedore==5.1.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==4.7.1
-    # via asgiref
+typing-extensions==4.8.0
+    # via
+    #   asgiref
+    #   edx-opaque-keys
 uritemplate==4.1.1
     # via drf-yasg
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   -c requirements/constraints.txt
     #   requests
