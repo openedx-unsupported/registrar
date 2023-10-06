@@ -34,11 +34,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.56
+boto3==1.28.60
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.31.56
+botocore==1.31.60
     # via
     #   boto3
     #   moto
@@ -75,7 +75,7 @@ code-annotations==1.5.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
     #   edx-lint
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -87,7 +87,7 @@ cryptography==41.0.4
     #   social-auth-core
 ddt==1.6.0
     # via -r requirements/test.in
-defusedxml==0.8.0rc1
+defusedxml==0.8.0rc2
     # via
     #   -r requirements/base.txt
     #   python3-openid
@@ -137,11 +137,12 @@ django-model-utils==4.3.1
     #   django-user-tasks
 django-mysql==4.11.0
     # via -r requirements/base.txt
-django-simple-history==3.0.0
+django-simple-history==3.4.0
+    # via -r requirements/base.txt
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.txt
-django-storages==1.10
+django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
@@ -242,7 +243,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==4.2.4
+moto==4.2.5
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -294,7 +295,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.6
+pylint==2.17.7
     # via
     #   edx-lint
     #   pylint-celery

@@ -80,14 +80,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.28.56
+boto3==1.28.60
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.31.56
+botocore==1.31.60
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -152,7 +152,7 @@ configobj==5.0.8
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   ruamel-yaml-cmd
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -172,7 +172,7 @@ ddt==1.6.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-defusedxml==0.8.0rc1
+defusedxml==0.8.0rc2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -192,7 +192,7 @@ distlib==0.3.7
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   virtualenv
-django==3.2.21
+django==3.2.22
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -265,13 +265,13 @@ django-mysql==4.11.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-django-simple-history==3.0.0
+django-simple-history==3.4.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-django-storages==1.10
+django-storages==1.10.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -504,7 +504,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==4.2.4
+moto==4.2.5
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -626,7 +626,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.6
+pylint==2.17.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt

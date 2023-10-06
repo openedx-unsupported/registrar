@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.56
+boto3==1.28.60
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.31.56
+botocore==1.31.60
     # via
     #   boto3
     #   s3transfer
@@ -65,12 +65,12 @@ cryptography==41.0.4
     #   -r requirements/base.txt
     #   pyjwt
     #   social-auth-core
-defusedxml==0.8.0rc1
+defusedxml==0.8.0rc2
     # via
     #   -r requirements/base.txt
     #   python3-openid
     #   social-auth-core
-django==3.2.21
+django==3.2.22
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
@@ -110,11 +110,11 @@ django-model-utils==4.3.1
     #   django-user-tasks
 django-mysql==4.11.0
     # via -r requirements/base.txt
-django-simple-history==3.0.0
-    # via
+django-simple-history==3.4.0
+    # via -r requirements/base.txt
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.txt
-django-storages==1.10
+django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt

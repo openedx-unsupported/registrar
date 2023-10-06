@@ -325,6 +325,7 @@ SERVICE_USER = 'registrar_service_user'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS_WITH_SCHEMES = []  # temporary setting for Django 4.2 support
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -337,3 +338,6 @@ EDX_DRF_EXTENSIONS = {
 # How long (in seconds) we keep program details from Discovery in the cache.
 # Defaults to 24 hours.
 PROGRAM_CACHE_TIMEOUT = 60 * 60 * 24
+
+# disable indexing on history_date
+SIMPLE_HISTORY_DATE_INDEX = False

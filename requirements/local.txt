@@ -52,12 +52,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.28.56
+boto3==1.28.60
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.31.56
+botocore==1.31.60
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -101,7 +101,7 @@ code-annotations==1.5.0
     #   edx-lint
 configobj==5.0.8
     # via ruamel-yaml-cmd
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -113,7 +113,7 @@ cryptography==41.0.4
     #   social-auth-core
 ddt==1.6.0
     # via -r requirements/test.txt
-defusedxml==0.8.0rc1
+defusedxml==0.8.0rc2
     # via
     #   -r requirements/test.txt
     #   python3-openid
@@ -126,7 +126,7 @@ distlib==0.3.7
     # via
     #   -r requirements/test.txt
     #   virtualenv
-django==3.2.21
+django==3.2.22
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -172,11 +172,11 @@ django-model-utils==4.3.1
     #   django-user-tasks
 django-mysql==4.11.0
     # via -r requirements/test.txt
-django-simple-history==3.0.0
-    # via
+django-simple-history==3.4.0
+    # via -r requirements/test.txt
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
-django-storages==1.10
+django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -310,7 +310,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==4.2.4
+moto==4.2.5
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -385,7 +385,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.6
+pylint==2.17.7
     # via
     #   -r requirements/test.txt
     #   edx-lint
