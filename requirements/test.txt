@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.28.54
+boto3==1.28.60
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.31.54
+botocore==1.31.60
     # via
     #   boto3
     #   moto
@@ -48,12 +48,12 @@ certifi==2023.7.22
     # via
     #   -r requirements/base.txt
     #   requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   -r requirements/base.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via
     #   -r requirements/base.txt
     #   requests
@@ -71,7 +71,7 @@ code-annotations==1.5.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
     #   edx-lint
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -83,7 +83,7 @@ cryptography==41.0.4
     #   social-auth-core
 ddt==1.6.0
     # via -r requirements/test.in
-defusedxml==0.7.1
+defusedxml==0.8.0rc2
     # via
     #   -r requirements/base.txt
     #   python3-openid
@@ -138,7 +138,7 @@ django-simple-history==3.0.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.txt
-django-storages==1.8
+django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
@@ -239,7 +239,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==4.2.4
+moto==4.2.5
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -251,7 +251,7 @@ oauthlib==3.2.2
     #   -r requirements/base.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.1
+packaging==23.2
     # via
     #   -r requirements/base.txt
     #   drf-yasg
@@ -263,7 +263,7 @@ pbr==5.11.1
     # via
     #   -r requirements/base.txt
     #   stevedore
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via
     #   pylint
     #   virtualenv
@@ -291,7 +291,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.6
+pylint==2.17.7
     # via
     #   edx-lint
     #   pylint-celery
@@ -374,7 +374,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
     #   moto
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via boto3
 semantic-version==2.10.0
     # via
@@ -439,7 +439,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
@@ -453,7 +453,7 @@ vine==1.3.0
     #   celery
 virtualenv==20.24.5
     # via tox
-werkzeug==2.3.7
+werkzeug==3.0.0
     # via moto
 wrapt==1.13.3
     # via
