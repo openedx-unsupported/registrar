@@ -41,7 +41,7 @@ defusedxml==0.8.0rc1
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.21
+django==3.2.22
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -79,11 +79,12 @@ django-model-utils==4.3.1
     #   django-user-tasks
 django-mysql==4.11.0
     # via -r requirements/base.in
-django-simple-history==3.0.0
+django-simple-history==3.4.0
+    # via -r requirements/base.in
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
-django-storages==1.10
+django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
