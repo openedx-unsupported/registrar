@@ -11,6 +11,7 @@ import responses
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
+from ..tests.test_api_client import DiscoveryServiceClientTestCase
 
 from ..api_client import DISCOVERY_API_TPL, DiscoveryServiceClient
 from ..discovery_cache import ProgramDetails
@@ -51,7 +52,7 @@ def patch_discovery_client_get_program(mock_response_data):
 
 
 @ddt.ddt
-class ProgramDetailsTestCase(TestCase):
+class ProgramDetailsTestCase(DiscoveryServiceClientTestCase):
     """
     Test ProgramDetails interface to the Discovery data cache.
     """
