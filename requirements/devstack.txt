@@ -22,7 +22,7 @@ asgiref==3.7.2
     # via
     #   -r requirements/local.txt
     #   django
-astroid==2.15.6
+astroid==2.15.8
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -31,7 +31,7 @@ async-timeout==4.0.3
     # via
     #   -r requirements/local.txt
     #   redis
-babel==2.12.1
+babel==2.13.0
     # via
     #   -r requirements/local.txt
     #   pydata-sphinx-theme
@@ -48,12 +48,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.28.50
+boto3==1.28.60
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.31.50
+botocore==1.31.60
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -68,12 +68,12 @@ certifi==2023.7.22
     # via
     #   -r requirements/local.txt
     #   requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   -r requirements/local.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via
     #   -r requirements/local.txt
     #   requests
@@ -97,11 +97,11 @@ configobj==5.0.8
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-cmd
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   -r requirements/local.txt
     #   moto
@@ -109,7 +109,7 @@ cryptography==41.0.3
     #   social-auth-core
 ddt==1.6.0
     # via -r requirements/local.txt
-defusedxml==0.7.1
+defusedxml==0.8.0rc2
     # via
     #   -r requirements/local.txt
     #   python3-openid
@@ -122,7 +122,7 @@ distlib==0.3.7
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django==3.2.21
+django==3.2.22
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -171,7 +171,9 @@ django-mysql==4.11.0
     # via -r requirements/local.txt
 django-simple-history==3.4.0
     # via -r requirements/local.txt
-django-storages==1.8
+    #   -c requirements/common_constraints.txt
+    #   -r requirements/local.txt
+django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -221,7 +223,7 @@ edx-i18n-tools==1.2.0
     # via -r requirements/local.txt
 edx-lint==5.3.4
     # via -r requirements/local.txt
-edx-opaque-keys==2.5.0
+edx-opaque-keys==2.5.1
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -233,7 +235,7 @@ exceptiongroup==1.1.3
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==19.6.1
+faker==19.6.2
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -304,7 +306,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.2.3
+moto==4.2.5
     # via -r requirements/local.txt
 mysqlclient==2.2.0
     # via -r requirements/nonlocal.txt
@@ -318,7 +320,7 @@ oauthlib==3.2.2
     #   -r requirements/local.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.1
+packaging==23.2
     # via
     #   -r requirements/local.txt
     #   drf-yasg
@@ -338,7 +340,7 @@ pbr==5.11.1
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -366,7 +368,7 @@ pycparser==2.21
     # via
     #   -r requirements/local.txt
     #   cffi
-pydata-sphinx-theme==0.14.0
+pydata-sphinx-theme==0.14.1
     # via
     #   -r requirements/local.txt
     #   sphinx-book-theme
@@ -384,7 +386,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==2.17.5
+pylint==2.17.7
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -461,7 +463,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==5.0.0
+redis==5.0.1
     # via -r requirements/local.txt
 requests==2.31.0
     # via
@@ -484,7 +486,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-ruamel-yaml==0.17.32
+ruamel-yaml==0.17.35
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-base
@@ -494,7 +496,7 @@ ruamel-yaml-base==0.3.2
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-cmd
-ruamel-yaml-clib==0.2.7
+ruamel-yaml-clib==0.2.8
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml
@@ -504,7 +506,7 @@ ruamel-yaml-convert==0.3.2
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-cmd
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -620,7 +622,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/local.txt
     #   drf-yasg
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -636,7 +638,7 @@ virtualenv==20.24.5
     # via
     #   -r requirements/local.txt
     #   tox
-werkzeug==2.3.7
+werkzeug==3.0.0
     # via
     #   -r requirements/local.txt
     #   moto

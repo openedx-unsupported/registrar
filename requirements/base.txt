@@ -23,23 +23,23 @@ celery==4.4.7
     #   django-user-tasks
 certifi==2023.7.22
     # via requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   cryptography
     #   pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via requests
 click==8.1.7
     # via edx-django-utils
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   pyjwt
     #   social-auth-core
-defusedxml==0.7.1
+defusedxml==0.8.0rc2
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.21
+django==3.2.22
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -80,7 +80,11 @@ django-mysql==4.11.0
     # via -r requirements/base.in
 django-simple-history==3.4.0
     # via -r requirements/base.in
-django-storages==1.8
+    # via
+    #   -c requirements/common_constraints.txt
+    #   -r requirements/base.in
+django-storages==1.10.1
+
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -117,7 +121,7 @@ edx-django-utils==5.7.0
     #   edx-rest-api-client
 edx-drf-extensions==8.10.0
     # via -r requirements/base.in
-edx-opaque-keys==2.5.0
+edx-opaque-keys==2.5.1
     # via edx-drf-extensions
 edx-rest-api-client==5.6.0
     # via -r requirements/base.in
@@ -137,7 +141,7 @@ oauthlib==3.2.2
     # via
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.1
+packaging==23.2
     # via drf-yasg
 pbr==5.11.1
     # via stevedore
@@ -171,7 +175,7 @@ pyyaml==6.0.1
     # via
     #   drf-yasg
     #   edx-django-release-util
-redis==5.0.0
+redis==5.0.1
     # via -r requirements/base.in
 requests==2.31.0
     # via
@@ -213,7 +217,7 @@ typing-extensions==4.8.0
     #   edx-opaque-keys
 uritemplate==4.1.1
     # via drf-yasg
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   -c requirements/constraints.txt
     #   requests
