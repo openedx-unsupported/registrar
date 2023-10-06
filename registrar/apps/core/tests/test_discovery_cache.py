@@ -10,10 +10,10 @@ import ddt
 import responses
 from django.conf import settings
 from django.core.cache import cache
-from ..tests.test_api_client import DiscoveryServiceClientTestCase
 
 from ..api_client import DISCOVERY_API_TPL, DiscoveryServiceClient
 from ..discovery_cache import ProgramDetails
+from ..tests.test_api_client import DiscoveryServiceClientTestCase
 from .utils import mock_oauth_login
 
 
