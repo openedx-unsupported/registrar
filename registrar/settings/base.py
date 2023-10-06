@@ -338,3 +338,6 @@ EDX_DRF_EXTENSIONS = {
 # How long (in seconds) we keep program details from Discovery in the cache.
 # Defaults to 24 hours.
 PROGRAM_CACHE_TIMEOUT = 60 * 60 * 24
+
+# disable indexing on history_date
+SIMPLE_HISTORY_DATE_INDEX = False

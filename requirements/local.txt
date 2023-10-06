@@ -169,8 +169,8 @@ django-model-utils==4.3.1
     #   django-user-tasks
 django-mysql==4.11.0
     # via -r requirements/test.txt
-django-simple-history==3.0.0
-    # via
+django-simple-history==3.4.0
+    # via -r requirements/test.txt
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
 django-storages==1.10.1
