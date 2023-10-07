@@ -10,10 +10,11 @@ import ddt
 import responses
 from django.conf import settings
 from django.core.cache import cache
+from django.test import TestCase
 
 from ..api_client import DISCOVERY_API_TPL, DiscoveryServiceClient
 from ..discovery_cache import ProgramDetails
-from ..tests.test_api_client import DiscoveryServiceClientTestCase
+from ..tests.test_api_client import DiscoveryServiceClientTestCase  # pylint: disable=unused-import
 from .utils import mock_oauth_login
 
 
@@ -51,7 +52,7 @@ def patch_discovery_client_get_program(mock_response_data):
 
 
 @ddt.ddt
-class ProgramDetailsTestCase(DiscoveryServiceClientTestCase):  # pylint: disable=test-inherits-tests
+class ProgramDetailsTestCase(TestCase):
     """
     Test ProgramDetails interface to the Discovery data cache.
     """
