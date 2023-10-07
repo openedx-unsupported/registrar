@@ -14,7 +14,8 @@ from django.test import TestCase
 
 from ..api_client import DISCOVERY_API_TPL, DiscoveryServiceClient
 from ..discovery_cache import ProgramDetails
-from ..tests.test_api_client import DiscoveryServiceClientTestCase  # pylint: disable=unused-import
+from ..tests.test_api_client import \
+    DiscoveryServiceClientTestCase  # pylint: disable=unused-import
 from .utils import mock_oauth_login
 
 
