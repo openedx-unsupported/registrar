@@ -381,7 +381,7 @@ factory-boy==3.3.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==19.7.0
+faker==19.8.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
