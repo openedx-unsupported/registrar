@@ -127,10 +127,10 @@ class TrackViewMixin:
         context = {
             'page': {
                 'path': self.request.path,
-                'referrer': self.request.META.get('HTTP_REFERER'),
+                'referrer': self.request.headers.get('referer'),
                 'url': self.request.build_absolute_uri(),
             },
-            'userAgent': self.request.META.get('HTTP_USER_AGENT'),
+            'userAgent': self.request.headers.get('user-agent'),
         }
 
         segment.track(self.request.user.username, event_name, properties, context)

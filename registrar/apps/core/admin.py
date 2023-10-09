@@ -16,6 +16,7 @@ from .models import (
 )
 
 
+@admin.register(User)
 class CustomUserAdmin(UserAdmin):
     """ Admin configuration for the custom User model. """
     list_display = ('id', 'username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff')
@@ -28,6 +29,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
+@admin.register(UserGroup)
 class UserGroupAdmin(UserAdmin):
     """
     Admin configuration for the UserGroup model. UserGroup is just a proxy to
@@ -40,6 +42,7 @@ class UserGroupAdmin(UserAdmin):
     )
 
 
+@admin.register(Organization)
 class OrganizationAdmin(GuardedModelAdmin):
     list_display = ('key', 'name', 'discovery_uuid')
     search_fields = ('key', 'name', 'discovery_uuid')
@@ -56,6 +59,7 @@ class GroupAdmin(admin.ModelAdmin):
         return ", ".join([user.username for user in User.objects.filter(groups__name=obj.name)])
 
 
+@admin.register(OrganizationGroup)
 class OrganizationGroupAdmin(GroupAdmin):
     """
     Admin tool for the OrganizationGroup model
@@ -68,12 +72,14 @@ class OrganizationGroupAdmin(GroupAdmin):
     exclude = ('permissions',)
 
 
+@admin.register(PendingUserGroup)
 class PendingUserGroupAdmin(admin.ModelAdmin):
     list_display = ("group", "user_email")
     search_fields = ("group__name", "user_email")
     ordering = ("group", "user_email")
 
 
+@admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     """
     Admin tool for the ProgramEnrollment model
@@ -83,6 +89,7 @@ class ProgramAdmin(admin.ModelAdmin):
     ordering = ("managing_organization", "key")
 
 
+@admin.register(ProgramOrganizationGroup)
 class ProgramGroupAdmin(GroupAdmin):
     """
     Admin tool for the ProgramOrganizationGroup model
@@ -95,10 +102,3 @@ class ProgramGroupAdmin(GroupAdmin):
     exclude = ('permissions', )
 
 
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(UserGroup, UserGroupAdmin)
-admin.site.register(Organization, OrganizationAdmin)
-admin.site.register(OrganizationGroup, OrganizationGroupAdmin)
-admin.site.register(PendingUserGroup, PendingUserGroupAdmin)
-admin.site.register(Program, ProgramAdmin)
-admin.site.register(ProgramOrganizationGroup, ProgramGroupAdmin)
