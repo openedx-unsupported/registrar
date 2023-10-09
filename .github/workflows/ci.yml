@@ -19,6 +19,7 @@ jobs:
         python-version:
         - 3.8
         toxenv: [ django32, django42 ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v1
     - name: setup python
