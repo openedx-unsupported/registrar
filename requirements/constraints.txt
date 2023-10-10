@@ -11,7 +11,8 @@
 # Common constraints for edx repos
 -c common_constraints.txt
 
-Django<4.0
+# This constraint can be removed once global constraint is updated.
+Django<4.3
 
 # Version 3.2.0 contains bad arabic translations that will cause validation tests to fail
 django-extensions<3.2.0

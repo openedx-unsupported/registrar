@@ -40,6 +40,10 @@ backoff==1.10.0
     # via
     #   -r requirements/test.txt
     #   analytics-python
+backports-zoneinfo==0.2.1
+    # via
+    #   -r requirements/test.txt
+    #   django
 beautifulsoup4==4.12.2
     # via
     #   -r requirements/docs.txt
@@ -122,9 +126,8 @@ distlib==0.3.7
     # via
     #   -r requirements/test.txt
     #   virtualenv
-django==3.2.22
+django==4.2.6
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-cors-headers
@@ -443,7 +446,6 @@ pytz==2023.3.post1
     #   -r requirements/test.txt
     #   babel
     #   celery
-    #   django
     #   djangorestframework
     #   drf-yasg
 pywatchman==1.4.1

@@ -14,6 +14,8 @@ async-timeout==4.0.3
     # via redis
 backoff==1.10.0
     # via analytics-python
+backports-zoneinfo==0.2.1
+    # via django
 billiard==3.6.4.0
     # via celery
 celery==4.4.7
@@ -39,9 +41,8 @@ defusedxml==0.8.0rc2
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.22
+django==4.2.6
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-cors-headers
@@ -164,7 +165,6 @@ pytz==2023.3.post1
     # via
     #   -r requirements/base.in
     #   celery
-    #   django
     #   djangorestframework
     #   drf-yasg
 pyyaml==6.0.1
