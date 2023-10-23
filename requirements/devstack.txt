@@ -22,7 +22,7 @@ asgiref==3.7.2
     # via
     #   -r requirements/local.txt
     #   django
-astroid==2.15.8
+astroid==3.0.1
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -52,12 +52,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.28.62
+boto3==1.28.68
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.31.62
+botocore==1.31.68
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -77,7 +77,7 @@ cffi==1.16.0
     #   -r requirements/local.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via
     #   -r requirements/local.txt
     #   requests
@@ -104,6 +104,7 @@ configobj==5.0.8
 coverage[toml]==7.3.2
     # via
     #   -r requirements/local.txt
+    #   coverage
     #   pytest-cov
 cryptography==41.0.4
     # via
@@ -150,7 +151,7 @@ django==4.2.6
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   social-auth-app-django
-django-cors-headers==4.2.0
+django-cors-headers==4.3.0
     # via -r requirements/local.txt
 django-crum==0.7.9
     # via
@@ -170,7 +171,7 @@ django-model-utils==4.3.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==4.11.0
+django-mysql==4.12.0
     # via -r requirements/local.txt
 django-simple-history==3.4.0
     # via -r requirements/local.txt
@@ -218,7 +219,7 @@ edx-django-utils==5.7.0
     #   -r requirements/local.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.10.0
+edx-drf-extensions==8.12.0
     # via -r requirements/local.txt
 edx-i18n-tools==1.3.0
     # via -r requirements/local.txt
@@ -228,7 +229,7 @@ edx-opaque-keys==2.5.1
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.6.0
+edx-rest-api-client==5.6.1
     # via -r requirements/local.txt
 exceptiongroup==1.1.3
     # via
@@ -236,7 +237,7 @@ exceptiongroup==1.1.3
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==19.7.0
+faker==19.11.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -270,6 +271,7 @@ iniconfig==2.0.0
 isort[requirements]==5.12.0
     # via
     #   -r requirements/local.txt
+    #   isort
     #   pylint
 jinja2==3.1.2
     # via
@@ -286,10 +288,6 @@ kombu==4.6.11
     # via
     #   -r requirements/local.txt
     #   celery
-lazy-object-proxy==1.9.0
-    # via
-    #   -r requirements/local.txt
-    #   astroid
 lxml==4.9.3
     # via
     #   -r requirements/local.txt
@@ -311,7 +309,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.2.5
+moto==4.2.6
     # via -r requirements/local.txt
 mysqlclient==2.2.0
     # via -r requirements/nonlocal.txt
@@ -359,7 +357,7 @@ polib==1.2.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-psutil==5.9.5
+psutil==5.9.6
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
@@ -367,7 +365,7 @@ py==1.11.0
     # via
     #   -r requirements/local.txt
     #   tox
-pycodestyle==2.11.0
+pycodestyle==2.11.1
     # via -r requirements/local.txt
 pycparser==2.21
     # via
@@ -390,8 +388,9 @@ pyjwt[crypto]==2.8.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
+    #   pyjwt
     #   social-auth-core
-pylint==2.17.7
+pylint==3.0.2
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -402,7 +401,7 @@ pylint-celery==0.3
     # via
     #   -r requirements/local.txt
     #   edx-lint
-pylint-django==2.5.3
+pylint-django==2.5.4
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -490,7 +489,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-ruamel-yaml==0.17.35
+ruamel-yaml==0.17.40
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-base
@@ -539,7 +538,7 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-social-auth-app-django==5.3.0
+social-auth-app-django==5.4.0
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
@@ -626,7 +625,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/local.txt
     #   drf-yasg
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -646,11 +645,6 @@ werkzeug==3.0.0
     # via
     #   -r requirements/local.txt
     #   moto
-wrapt==1.13.3
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/local.txt
-    #   astroid
 xmltodict==0.13.0
     # via
     #   -r requirements/local.txt
