@@ -48,3 +48,5 @@ wrapt < 1.14.0
 
 # At the time of adding this, the moto version 4.1.9 requires urllib3<1.27,>=1.25.4
 urllib3<1.27,>=1.25.4
+
+social-auth-app-django==5.0.0

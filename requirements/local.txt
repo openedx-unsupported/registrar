@@ -22,7 +22,7 @@ asgiref==3.7.2
     # via
     #   -r requirements/test.txt
     #   django
-astroid==3.0.1
+astroid==2.15.8
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -52,12 +52,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.28.68
+boto3==1.28.62
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.31.68
+botocore==1.31.62
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -78,7 +78,7 @@ cffi==1.16.0
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.3.1
+charset-normalizer==3.3.0
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -104,7 +104,6 @@ configobj==5.0.8
 coverage[toml]==7.3.2
     # via
     #   -r requirements/test.txt
-    #   coverage
     #   pytest-cov
 cryptography==41.0.4
     # via
@@ -151,7 +150,7 @@ django==4.2.6
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   social-auth-app-django
-django-cors-headers==4.3.0
+django-cors-headers==4.2.0
     # via -r requirements/test.txt
 django-crum==0.7.9
     # via
@@ -171,7 +170,7 @@ django-model-utils==4.3.1
     # via
     #   -r requirements/test.txt
     #   django-user-tasks
-django-mysql==4.12.0
+django-mysql==4.11.0
     # via -r requirements/test.txt
 django-simple-history==3.4.0
     # via -r requirements/test.txt
@@ -219,7 +218,7 @@ edx-django-utils==5.7.0
     #   -r requirements/test.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.12.0
+edx-drf-extensions==8.10.0
     # via -r requirements/test.txt
 edx-i18n-tools==1.3.0
     # via -r requirements/local.in
@@ -229,7 +228,7 @@ edx-opaque-keys==2.5.1
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.6.1
+edx-rest-api-client==5.6.0
     # via -r requirements/test.txt
 exceptiongroup==1.1.3
     # via
@@ -237,7 +236,7 @@ exceptiongroup==1.1.3
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==19.11.0
+faker==19.7.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -272,7 +271,6 @@ iniconfig==2.0.0
 isort[requirements]==5.12.0
     # via
     #   -r requirements/test.txt
-    #   isort
     #   pylint
 jinja2==3.1.2
     # via
@@ -290,6 +288,10 @@ kombu==4.6.11
     # via
     #   -r requirements/test.txt
     #   celery
+lazy-object-proxy==1.9.0
+    # via
+    #   -r requirements/test.txt
+    #   astroid
 lxml==4.9.3
     # via edx-i18n-tools
 lz4==4.3.2
@@ -308,7 +310,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==4.2.6
+moto==4.2.5
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -351,7 +353,7 @@ pluggy==1.3.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-psutil==5.9.6
+psutil==5.9.5
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -359,7 +361,7 @@ py==1.11.0
     # via
     #   -r requirements/test.txt
     #   tox
-pycodestyle==2.11.1
+pycodestyle==2.11.0
     # via -r requirements/test.txt
 pycparser==2.21
     # via
@@ -382,9 +384,8 @@ pyjwt[crypto]==2.8.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
-    #   pyjwt
     #   social-auth-core
-pylint==3.0.2
+pylint==2.17.7
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -395,7 +396,7 @@ pylint-celery==0.3
     # via
     #   -r requirements/test.txt
     #   edx-lint
-pylint-django==2.5.4
+pylint-django==2.5.3
     # via
     #   -r requirements/test.txt
     #   edx-lint
@@ -481,7 +482,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-ruamel-yaml==0.17.40
+ruamel-yaml==0.17.35
     # via
     #   ruamel-yaml-base
     #   ruamel-yaml-cmd
@@ -521,7 +522,7 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/docs.txt
     #   sphinx
-social-auth-app-django==5.4.0
+social-auth-app-django==5.3.0
     # via
     #   -r requirements/test.txt
     #   edx-auth-backends
@@ -609,7 +610,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/test.txt
     #   drf-yasg
-urllib3==1.26.18
+urllib3==1.26.17
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/docs.txt
@@ -630,6 +631,11 @@ werkzeug==3.0.0
     # via
     #   -r requirements/test.txt
     #   moto
+wrapt==1.13.3
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.txt
+    #   astroid
 xmltodict==0.13.0
     # via
     #   -r requirements/test.txt

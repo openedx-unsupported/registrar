@@ -34,7 +34,7 @@ asgiref==3.7.2
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django
-astroid==3.0.1
+astroid==2.15.8
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -80,14 +80,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.28.68
+boto3==1.28.62
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.31.68
+botocore==1.31.62
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -118,7 +118,7 @@ cffi==1.16.0
     #   -r requirements/monitoring/../test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.3.1
+charset-normalizer==3.3.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -157,7 +157,6 @@ coverage[toml]==7.3.2
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-    #   coverage
     #   pytest-cov
 cryptography==41.0.4
     # via
@@ -219,7 +218,7 @@ django==4.2.6
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   social-auth-app-django
-django-cors-headers==4.3.0
+django-cors-headers==4.2.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -260,7 +259,7 @@ django-model-utils==4.3.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   django-user-tasks
-django-mysql==4.12.0
+django-mysql==4.11.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -350,7 +349,7 @@ edx-django-utils==5.7.0
     #   -r requirements/monitoring/../test.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.12.0
+edx-drf-extensions==8.10.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -372,7 +371,7 @@ edx-opaque-keys==2.5.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.6.1
+edx-rest-api-client==5.6.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -389,7 +388,7 @@ factory-boy==3.3.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==19.11.0
+faker==19.7.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -450,7 +449,6 @@ isort[requirements]==5.12.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-    #   isort
     #   pylint
 jinja2==3.1.2
     # via
@@ -475,6 +473,12 @@ kombu==4.6.11
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
+lazy-object-proxy==1.9.0
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../test.txt
+    #   astroid
 lxml==4.9.3
     # via
     #   -r requirements/monitoring/../devstack.txt
@@ -505,7 +509,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==4.2.6
+moto==4.2.5
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -579,7 +583,7 @@ polib==1.2.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   edx-i18n-tools
-psutil==5.9.6
+psutil==5.9.5
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -592,7 +596,7 @@ py==1.11.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   tox
-pycodestyle==2.11.1
+pycodestyle==2.11.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -626,9 +630,8 @@ pyjwt[crypto]==2.8.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
-    #   pyjwt
     #   social-auth-core
-pylint==3.0.2
+pylint==2.17.7
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -643,7 +646,7 @@ pylint-celery==0.3
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-lint
-pylint-django==2.5.4
+pylint-django==2.5.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -779,7 +782,7 @@ responses==0.17.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-ruamel-yaml==0.17.40
+ruamel-yaml==0.17.35
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -846,7 +849,7 @@ snowballstemmer==2.2.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   sphinx
-social-auth-app-django==5.4.0
+social-auth-app-django==5.3.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -968,7 +971,7 @@ uritemplate==4.1.1
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   drf-yasg
-urllib3==1.26.18
+urllib3==1.26.17
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -997,6 +1000,12 @@ werkzeug==3.0.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
+wrapt==1.13.3
+    # via
+    #   -r requirements/monitoring/../devstack.txt
+    #   -r requirements/monitoring/../local.txt
+    #   -r requirements/monitoring/../test.txt
+    #   astroid
 xmltodict==0.13.0
     # via
     #   -r requirements/monitoring/../devstack.txt
