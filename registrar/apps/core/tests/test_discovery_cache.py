@@ -122,7 +122,7 @@ class ProgramDetailsTestCase(TestCase):
         assert isinstance(loaded_program, ProgramDetails)
         assert loaded_program.uuid == self.program_uuid
         assert loaded_program.raw_data == expected_raw_data
-        
+
         # due to cache issue, it fails when run it as single test.
         self.assertIn(
             'https://discovery-service-base/api/v1/programs/88888888-4444-2222-1111-000000000000',
@@ -134,7 +134,7 @@ class ProgramDetailsTestCase(TestCase):
         assert isinstance(reloaded_program, ProgramDetails)
         assert reloaded_program.uuid == self.program_uuid
         assert reloaded_program.raw_data == expected_raw_data
-        
+
         self.assertIn(
             'https://discovery-service-base/api/v1/programs/88888888-4444-2222-1111-000000000000',
             [x.response.url for x in responses.calls]
