@@ -22,7 +22,8 @@ asgiref==3.7.2
     # via
     #   -r requirements/local.txt
     #   django
-astroid==2.15.8
+    #   django-cors-headers
+astroid==3.0.1
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -31,7 +32,7 @@ async-timeout==4.0.3
     # via
     #   -r requirements/local.txt
     #   redis
-babel==2.13.0
+babel==2.13.1
     # via
     #   -r requirements/local.txt
     #   pydata-sphinx-theme
@@ -52,23 +53,27 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.28.62
+boto3==1.29.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.31.62
+botocore==1.32.4
     # via
     #   -r requirements/local.txt
     #   boto3
     #   moto
     #   s3transfer
+cachetools==5.3.2
+    # via
+    #   -r requirements/local.txt
+    #   tox
 celery==4.4.7
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   django-user-tasks
-certifi==2023.7.22
+certifi==2023.11.17
     # via
     #   -r requirements/local.txt
     #   requests
@@ -77,7 +82,11 @@ cffi==1.16.0
     #   -r requirements/local.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.3.0
+chardet==5.2.0
+    # via
+    #   -r requirements/local.txt
+    #   tox
+charset-normalizer==3.3.2
     # via
     #   -r requirements/local.txt
     #   requests
@@ -97,6 +106,10 @@ code-annotations==1.5.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   edx-lint
+colorama==0.4.6
+    # via
+    #   -r requirements/local.txt
+    #   tox
 configobj==5.0.8
     # via
     #   -r requirements/local.txt
@@ -104,14 +117,15 @@ configobj==5.0.8
 coverage[toml]==7.3.2
     # via
     #   -r requirements/local.txt
+    #   coverage
     #   pytest-cov
-cryptography==41.0.4
+cryptography==41.0.5
     # via
     #   -r requirements/local.txt
     #   moto
     #   pyjwt
     #   social-auth-core
-ddt==1.6.0
+ddt==1.7.0
     # via -r requirements/local.txt
 defusedxml==0.8.0rc2
     # via
@@ -126,7 +140,7 @@ distlib==0.3.7
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django==4.2.6
+django==4.2.7
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -150,7 +164,7 @@ django==4.2.6
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   social-auth-app-django
-django-cors-headers==4.2.0
+django-cors-headers==4.3.1
     # via -r requirements/local.txt
 django-crum==0.7.9
     # via
@@ -170,7 +184,7 @@ django-model-utils==4.3.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==4.11.0
+django-mysql==4.12.0
     # via -r requirements/local.txt
 django-simple-history==3.4.0
     # via -r requirements/local.txt
@@ -213,34 +227,34 @@ edx-auth-backends==4.2.0
     # via -r requirements/local.txt
 edx-django-release-util==1.3.0
     # via -r requirements/local.txt
-edx-django-utils==5.7.0
+edx-django-utils==5.8.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==8.10.0
+edx-drf-extensions==8.13.1
     # via -r requirements/local.txt
 edx-i18n-tools==1.3.0
     # via -r requirements/local.txt
-edx-lint==5.3.4
+edx-lint==5.3.6
     # via -r requirements/local.txt
 edx-opaque-keys==2.5.1
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.6.0
+edx-rest-api-client==5.6.1
     # via -r requirements/local.txt
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via
     #   -r requirements/local.txt
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==19.7.0
+faker==20.1.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.12.4
+filelock==3.13.1
     # via
     #   -r requirements/local.txt
     #   tox
@@ -270,6 +284,7 @@ iniconfig==2.0.0
 isort[requirements]==5.12.0
     # via
     #   -r requirements/local.txt
+    #   isort
     #   pylint
 jinja2==3.1.2
     # via
@@ -286,10 +301,6 @@ kombu==4.6.11
     # via
     #   -r requirements/local.txt
     #   celery
-lazy-object-proxy==1.9.0
-    # via
-    #   -r requirements/local.txt
-    #   astroid
 lxml==4.9.3
     # via
     #   -r requirements/local.txt
@@ -311,7 +322,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==4.2.5
+moto==4.2.9
     # via -r requirements/local.txt
 mysqlclient==2.2.0
     # via -r requirements/nonlocal.txt
@@ -330,6 +341,7 @@ packaging==23.2
     #   -r requirements/local.txt
     #   drf-yasg
     #   pydata-sphinx-theme
+    #   pyproject-api
     #   pytest
     #   sphinx
     #   tox
@@ -341,14 +353,16 @@ pathspec==0.11.2
     # via
     #   -r requirements/local.txt
     #   yamllint
-pbr==5.11.1
+pbr==6.0.0
     # via
     #   -r requirements/local.txt
     #   stevedore
 platformdirs==3.11.0
     # via
+    #   -c requirements/common_constraints.txt
     #   -r requirements/local.txt
     #   pylint
+    #   tox
     #   virtualenv
 pluggy==1.3.0
     # via
@@ -359,25 +373,21 @@ polib==1.2.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-psutil==5.9.5
+psutil==5.9.6
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-py==1.11.0
-    # via
-    #   -r requirements/local.txt
-    #   tox
-pycodestyle==2.11.0
+pycodestyle==2.11.1
     # via -r requirements/local.txt
 pycparser==2.21
     # via
     #   -r requirements/local.txt
     #   cffi
-pydata-sphinx-theme==0.14.1
+pydata-sphinx-theme==0.14.3
     # via
     #   -r requirements/local.txt
     #   sphinx-book-theme
-pygments==2.16.1
+pygments==2.17.1
     # via
     #   -r requirements/local.txt
     #   accessible-pygments
@@ -390,8 +400,9 @@ pyjwt[crypto]==2.8.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
+    #   pyjwt
     #   social-auth-core
-pylint==2.17.7
+pylint==3.0.2
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -402,7 +413,7 @@ pylint-celery==0.3
     # via
     #   -r requirements/local.txt
     #   edx-lint
-pylint-django==2.5.3
+pylint-django==2.5.5
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -421,14 +432,18 @@ pynacl==1.5.0
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-pytest==7.4.2
+pyproject-api==1.6.1
+    # via
+    #   -r requirements/local.txt
+    #   tox
+pytest==7.4.3
     # via
     #   -r requirements/local.txt
     #   pytest-cov
     #   pytest-django
 pytest-cov==4.1.0
     # via -r requirements/local.txt
-pytest-django==4.5.2
+pytest-django==4.7.0
     # via -r requirements/local.txt
 python-dateutil==2.8.2
     # via
@@ -490,7 +505,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-ruamel-yaml==0.17.35
+ruamel-yaml==0.18.5
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-base
@@ -530,7 +545,6 @@ six==1.16.0
     #   python-dateutil
     #   python-memcached
     #   responses
-    #   tox
 slumber==0.7.1
     # via
     #   -r requirements/local.txt
@@ -539,11 +553,11 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-social-auth-app-django==5.3.0
+social-auth-app-django==5.4.0
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
-social-auth-core==4.4.2
+social-auth-core==4.5.0
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
@@ -603,16 +617,15 @@ tomli==2.0.1
     #   -r requirements/local.txt
     #   coverage
     #   pylint
+    #   pyproject-api
     #   pytest
     #   tox
-tomlkit==0.12.1
+tomlkit==0.12.3
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==3.28.0
-    # via
-    #   -c requirements/common_constraints.txt
-    #   -r requirements/local.txt
+tox==4.11.3
+    # via -r requirements/local.txt
 typing-extensions==4.8.0
     # via
     #   -r requirements/local.txt
@@ -626,7 +639,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/local.txt
     #   drf-yasg
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -638,24 +651,19 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.24.5
+virtualenv==20.24.6
     # via
     #   -r requirements/local.txt
     #   tox
-werkzeug==3.0.0
+werkzeug==3.0.1
     # via
     #   -r requirements/local.txt
     #   moto
-wrapt==1.13.3
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/local.txt
-    #   astroid
 xmltodict==0.13.0
     # via
     #   -r requirements/local.txt
     #   moto
-yamllint==1.32.0
+yamllint==1.33.0
     # via -r requirements/local.txt
 zipp==3.17.0
     # via
