@@ -35,11 +35,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.33.1
+boto3==1.33.7
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.33.1
+botocore==1.33.7
     # via
     #   boto3
     #   moto
@@ -207,7 +207,7 @@ filelock==3.13.1
     # via
     #   tox
     #   virtualenv
-freezegun==1.2.2
+freezegun==1.3.1
     # via -r requirements/test.in
 idna==3.6
     # via
@@ -245,7 +245,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==4.2.10
+moto==4.2.11
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -270,9 +270,8 @@ pbr==6.0.0
     # via
     #   -r requirements/base.txt
     #   stevedore
-platformdirs==3.11.0
+platformdirs==4.1.0
     # via
-    #   -c requirements/common_constraints.txt
     #   pylint
     #   tox
     #   virtualenv
@@ -383,7 +382,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
     #   moto
-s3transfer==0.8.0
+s3transfer==0.8.2
     # via boto3
 semantic-version==2.10.0
     # via
@@ -406,7 +405,7 @@ social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
-social-auth-core==4.5.0
+social-auth-core==4.5.1
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
@@ -458,7 +457,7 @@ vine==1.3.0
     #   -r requirements/base.txt
     #   amqp
     #   celery
-virtualenv==20.24.7
+virtualenv==20.25.0
     # via tox
 werkzeug==3.0.1
     # via moto
