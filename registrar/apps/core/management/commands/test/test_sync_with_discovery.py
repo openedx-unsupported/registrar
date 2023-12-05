@@ -176,6 +176,18 @@ class TestSyncOrganizationsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase
         ]
         self.assert_organizations(orgs_to_sync, 9)
 
+    def test_success_output(self):
+        orgs_to_sync = [
+            self.new_discovery_organization,
+            self.updating_discovery_organization,
+            self.discovery_other_org,
+        ]
+        self.mock_get_organizations_patcher.return_value = orgs_to_sync
+        self.mock_get_programs_by_types_patcher.return_value = []
+        with patch('registrar.apps.core.management.commands.sync_with_discovery.logger') as mock_logger:
+            call_command(self.command)
+            mock_logger.info.assert_called_with('Sync with Discovery Service complete!')
+
 
 @ddt.ddt
 class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
