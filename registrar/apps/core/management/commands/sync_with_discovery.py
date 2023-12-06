@@ -37,6 +37,10 @@ class Command(BaseCommand):
         self.sync_org_groups()
         self.sync_program_org_groups()
 
+        # load bearing log message. edx.org monitors for this log message
+        # to know when the sync has run successfully
+        logger.info('Sync with Discovery Service complete!')
+
     def sync_organizations(self):
         """
         Make API call to discovery service and get latest organizations list
