@@ -43,7 +43,7 @@ defusedxml==0.8.0rc2
     # via
     #   python3-openid
     #   social-auth-core
-django==4.2.7
+django==4.2.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -89,7 +89,7 @@ django-storages==1.10.1
     #   -r requirements/base.in
 django-user-tasks==3.1.0
     # via -r requirements/base.in
-django-waffle==4.0.0
+django-waffle==4.1.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -118,7 +118,7 @@ edx-django-utils==5.9.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==9.0.0
+edx-drf-extensions==9.0.1
     # via -r requirements/base.in
 edx-opaque-keys==2.5.1
     # via edx-drf-extensions
@@ -200,7 +200,7 @@ social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.5.0
+social-auth-core==4.5.1
     # via
     #   edx-auth-backends
     #   social-auth-app-django
@@ -210,7 +210,7 @@ stevedore==5.1.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   asgiref
     #   edx-opaque-keys
