@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.15
+boto3==1.34.19
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.15
+botocore==1.34.19
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -250,7 +250,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==22.1.0
+faker==22.2.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -287,7 +287,7 @@ isort[requirements]==5.13.2
     #   -r requirements/test.txt
     #   isort
     #   pylint
-jinja2==3.1.2
+jinja2==3.1.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -606,7 +606,7 @@ tomlkit==0.12.3
     # via
     #   -r requirements/test.txt
     #   pylint
-tox==4.11.4
+tox==4.12.0
     # via -r requirements/test.txt
 typing-extensions==4.9.0
     # via
