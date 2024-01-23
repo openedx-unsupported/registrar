@@ -45,7 +45,7 @@ backports-zoneinfo==0.2.1
     # via
     #   -r requirements/local.txt
     #   django
-beautifulsoup4==4.12.2
+beautifulsoup4==4.12.3
     # via
     #   -r requirements/local.txt
     #   pydata-sphinx-theme
@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.15
+boto3==1.34.25
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.15
+botocore==1.34.25
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -119,7 +119,7 @@ coverage[toml]==7.4.0
     #   -r requirements/local.txt
     #   coverage
     #   pytest-cov
-cryptography==41.0.7
+cryptography==42.0.0
     # via
     #   -r requirements/local.txt
     #   moto
@@ -227,7 +227,7 @@ edx-auth-backends==4.2.0
     # via -r requirements/local.txt
 edx-django-release-util==1.3.0
     # via -r requirements/local.txt
-edx-django-utils==5.9.0
+edx-django-utils==5.10.1
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -250,7 +250,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==22.1.0
+faker==22.5.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -286,7 +286,7 @@ isort[requirements]==5.13.2
     #   -r requirements/local.txt
     #   isort
     #   pylint
-jinja2==3.1.2
+jinja2==3.1.3
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -309,7 +309,7 @@ lz4==4.3.3
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-cmd
-markupsafe==2.1.3
+markupsafe==2.1.4
     # via
     #   -r requirements/local.txt
     #   jinja2
@@ -372,7 +372,7 @@ polib==1.2.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-psutil==5.9.7
+psutil==5.9.8
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
@@ -453,7 +453,7 @@ python-dateutil==2.8.2
     #   freezegun
     #   moto
     #   ruamel-yaml-convert
-python-memcached==1.61
+python-memcached==1.62
     # via -r requirements/nonlocal.txt
 python-slugify==4.0.1
     # via
@@ -621,7 +621,7 @@ tomlkit==0.12.3
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==4.11.4
+tox==4.12.1
     # via -r requirements/local.txt
 typing-extensions==4.9.0
     # via

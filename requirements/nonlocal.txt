@@ -8,5 +8,5 @@ mysqlclient==2.2.1
     # via -r requirements/nonlocal.in
 pymemcache==4.0.0
     # via -r requirements/nonlocal.in
-python-memcached==1.61
+python-memcached==1.62
     # via -r requirements/nonlocal.in
