@@ -45,7 +45,7 @@ backports-zoneinfo==0.2.1
     # via
     #   -r requirements/test.txt
     #   django
-beautifulsoup4==4.12.2
+beautifulsoup4==4.12.3
     # via
     #   -r requirements/docs.txt
     #   pydata-sphinx-theme
@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.15
+boto3==1.34.25
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.15
+botocore==1.34.25
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -119,7 +119,7 @@ coverage[toml]==7.4.0
     #   -r requirements/test.txt
     #   coverage
     #   pytest-cov
-cryptography==41.0.7
+cryptography==42.0.0
     # via
     #   -r requirements/test.txt
     #   moto
@@ -227,7 +227,7 @@ edx-auth-backends==4.2.0
     # via -r requirements/test.txt
 edx-django-release-util==1.3.0
     # via -r requirements/test.txt
-edx-django-utils==5.9.0
+edx-django-utils==5.10.1
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
@@ -250,7 +250,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==22.1.0
+faker==22.5.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -287,7 +287,7 @@ isort[requirements]==5.13.2
     #   -r requirements/test.txt
     #   isort
     #   pylint
-jinja2==3.1.2
+jinja2==3.1.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -307,7 +307,7 @@ lxml==5.1.0
     # via edx-i18n-tools
 lz4==4.3.3
     # via ruamel-yaml-cmd
-markupsafe==2.1.3
+markupsafe==2.1.4
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -366,7 +366,7 @@ pluggy==1.3.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-psutil==5.9.7
+psutil==5.9.8
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -606,7 +606,7 @@ tomlkit==0.12.3
     # via
     #   -r requirements/test.txt
     #   pylint
-tox==4.11.4
+tox==4.12.1
     # via -r requirements/test.txt
 typing-extensions==4.9.0
     # via
