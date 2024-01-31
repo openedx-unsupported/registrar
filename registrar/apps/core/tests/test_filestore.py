@@ -45,7 +45,7 @@ class S3FilestoreTests(TestCase, S3MockEnvVarsMixin):
         # it here, but moto seems to have a bug/"feature" where it only works
         # in modules that explicitly import it.
         super().setUp()
-        self._s3_mock = moto.mock_s3()
+        self._s3_mock = moto.mock_aws()
         self._s3_mock.start()
         conn = boto3.resource('s3')
         conn.create_bucket(Bucket=self.test_bucket_1)
