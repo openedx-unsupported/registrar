@@ -205,7 +205,7 @@ class WriteEnrollmentTaskTestMixin(BaseTaskTestMixin, S3MockEnvVarsMixin):
         # it here, but moto seems to have a bug/"feature" where it only works
         # in modules that explicitly import it.
         super().setUpClass()
-        cls._s3_mock = moto.mock_s3()
+        cls._s3_mock = moto.mock_aws()
         cls._s3_mock.start()
         conn = boto3.resource('s3')
         conn.create_bucket(Bucket=settings.REGISTRAR_BUCKET)

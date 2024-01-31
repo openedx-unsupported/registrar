@@ -248,7 +248,7 @@ class S3MockMixin(S3MockEnvVarsMixin):
         # Suppress egregious boto/moto DEBUG logging.
         for logger_name in ['boto3', 'botocore', 's3transfer']:
             logging.getLogger(logger_name).setLevel(logging.INFO)
-        cls._s3_mock = moto.mock_s3()
+        cls._s3_mock = moto.mock_aws()
         cls._s3_mock.start()
         bucket_region = 'us-west-1'
         conn = boto3.resource('s3', region_name=bucket_region)

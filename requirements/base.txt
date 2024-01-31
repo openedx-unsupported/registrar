@@ -35,7 +35,7 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via edx-django-utils
-cryptography==42.0.0
+cryptography==42.0.1
     # via
     #   pyjwt
     #   social-auth-core
@@ -118,7 +118,7 @@ edx-django-utils==5.10.1
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==9.1.2
+edx-drf-extensions==10.1.0
     # via -r requirements/base.in
 edx-opaque-keys==2.5.1
     # via edx-drf-extensions
@@ -164,7 +164,7 @@ python-dateutil==2.8.2
     # via analytics-python
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2023.3.post1
+pytz==2023.4
     # via
     #   -r requirements/base.in
     #   celery
@@ -200,7 +200,7 @@ social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.5.1
+social-auth-core==4.5.2
     # via
     #   edx-auth-backends
     #   social-auth-app-django
