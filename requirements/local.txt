@@ -23,7 +23,7 @@ asgiref==3.7.2
     #   -r requirements/test.txt
     #   django
     #   django-cors-headers
-astroid==3.0.2
+astroid==3.0.3
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.30
+boto3==1.34.35
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.30
+botocore==1.34.35
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -73,7 +73,7 @@ celery==4.4.7
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   django-user-tasks
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -103,7 +103,7 @@ click-log==0.4.0
     # via
     #   -r requirements/test.txt
     #   edx-lint
-code-annotations==1.5.0
+code-annotations==1.6.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -119,7 +119,7 @@ coverage[toml]==7.4.1
     #   -r requirements/test.txt
     #   coverage
     #   pytest-cov
-cryptography==42.0.1
+cryptography==42.0.2
     # via
     #   -r requirements/test.txt
     #   moto
@@ -140,7 +140,7 @@ distlib==0.3.8
     # via
     #   -r requirements/test.txt
     #   virtualenv
-django==4.2.9
+django==4.2.10
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -170,7 +170,7 @@ django-crum==0.7.9
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-django-debug-toolbar==4.2.0
+django-debug-toolbar==4.3.0
     # via -r requirements/local.in
 django-dynamic-fixture==4.0.1
     # via -r requirements/test.txt
@@ -232,7 +232,7 @@ edx-django-utils==5.10.1
     #   -r requirements/test.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==10.1.0
+edx-drf-extensions==10.2.0
     # via -r requirements/test.txt
 edx-i18n-tools==1.3.0
     # via -r requirements/local.in
@@ -250,7 +250,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==22.6.0
+faker==22.7.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -307,7 +307,7 @@ lxml==5.1.0
     # via edx-i18n-tools
 lz4==4.3.3
     # via ruamel-yaml-cmd
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -321,7 +321,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==5.0.0
+moto==5.0.1
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -343,7 +343,7 @@ packaging==23.2
     #   pytest
     #   sphinx
     #   tox
-path==16.9.0
+path==16.10.0
     # via edx-i18n-tools
 pathspec==0.12.1
     # via
@@ -353,7 +353,7 @@ pbr==6.0.0
     # via
     #   -r requirements/test.txt
     #   stevedore
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   -r requirements/test.txt
     #   pylint
@@ -454,7 +454,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/test.txt
     #   social-auth-core
-pytz==2023.4
+pytz==2024.1
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -647,7 +647,7 @@ xmltodict==0.13.0
     # via
     #   -r requirements/test.txt
     #   moto
-yamllint==1.33.0
+yamllint==1.34.0
     # via -r requirements/test.txt
 zipp==3.17.0
     # via
