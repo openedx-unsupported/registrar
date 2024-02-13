@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.35
+boto3==1.34.40
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.35
+botocore==1.34.40
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -180,7 +180,7 @@ django-extensions==3.1.5
     #   -r requirements/test.txt
 django-guardian==2.4.0
     # via -r requirements/test.txt
-django-model-utils==4.3.1
+django-model-utils==4.4.0
     # via
     #   -r requirements/test.txt
     #   django-user-tasks
@@ -250,7 +250,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==22.7.0
+faker==23.1.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -496,7 +496,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-ruamel-yaml==0.18.5
+ruamel-yaml==0.18.6
     # via
     #   ruamel-yaml-base
     #   ruamel-yaml-cmd

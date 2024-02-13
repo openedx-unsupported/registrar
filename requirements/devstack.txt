@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.35
+boto3==1.34.40
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.35
+botocore==1.34.40
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -180,7 +180,7 @@ django-extensions==3.1.5
     #   -r requirements/local.txt
 django-guardian==2.4.0
     # via -r requirements/local.txt
-django-model-utils==4.3.1
+django-model-utils==4.4.0
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
@@ -250,7 +250,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==22.7.0
+faker==23.1.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -324,7 +324,7 @@ monotonic==1.6
     #   analytics-python
 moto==5.0.1
     # via -r requirements/local.txt
-mysqlclient==2.2.3
+mysqlclient==2.2.4
     # via -r requirements/nonlocal.txt
 newrelic==5.24.0.153
     # via
@@ -504,7 +504,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-ruamel-yaml==0.18.5
+ruamel-yaml==0.18.6
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-base
