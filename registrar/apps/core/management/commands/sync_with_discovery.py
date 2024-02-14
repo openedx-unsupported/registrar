@@ -3,6 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from slugify import slugify
 
 from registrar.apps.core.api_client import DiscoveryServiceClient
 from registrar.apps.core.models import (
@@ -127,14 +128,16 @@ class Command(BaseCommand):
                 if discovery_authoring_org:
                     auth_org = existing_org_dictionary.get(discovery_authoring_org.get('uuid'))
                 if auth_org:
+                    # key fromd disco is not guarenteed to be a valid slugfield
+                    program_key = slugify(discovery_program.get('marketing_slug'))
                     programs_to_create.append(Program(
                         discovery_uuid=discovery_program.get('uuid'),
                         managing_organization=auth_org,
-                        key=discovery_program.get('marketing_slug'),
+                        key=program_key,
                     ))
                     logger.info(
                         'Creating %s with uuid %s',
-                        discovery_program.get('marketing_slug'),
+                        program_key,
                         discovery_authoring_org.get('uuid')
                     )
 

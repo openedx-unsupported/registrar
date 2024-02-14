@@ -3,6 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from slugify import slugify
 
 from registrar.apps.core.discovery_cache import ProgramDetails
 from registrar.apps.core.models import Organization, Program
@@ -89,7 +90,7 @@ class Command(BaseCommand):
             discovery_uuid=program_uuid,
             defaults={
                 'managing_organization': org,
-                'key': program_key or program_details.get('marketing_slug'),
+                'key': program_key or slugify(program_details.get('marketing_slug')),
             },
         )
         if (not created) and program_key and (program.key != program_key):
