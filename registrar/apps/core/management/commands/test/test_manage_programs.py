@@ -86,6 +86,23 @@ class TestManagePrograms(TestCase):
         )
         self.assert_program(self.arabic_uuid, 'masters-in-arabic', self.org)
 
+    def test_create_program_discovery_nonslug_key(self):
+        """
+        Discovery program with a key that is not a valid SlugField
+        should be slugified on create
+        """
+        self.mock_get_discovery_program.return_value = self.discovery_dict(
+            self.org.key,
+            self.arabic_uuid,
+            'nonslug/marketing/key-format',
+        )
+        self.assert_program_nonexistant(self.arabic_uuid)
+        call_command(
+            self.command,
+            self.arabic_uuid,
+        )
+        self.assert_program(self.arabic_uuid, 'nonslug-marketing-key-format', self.org)
+
     def test_create_program_no_key(self):
         self.mock_get_discovery_program.return_value = self.arabic_discovery_program
         self.assert_program_nonexistant(self.arabic_uuid)

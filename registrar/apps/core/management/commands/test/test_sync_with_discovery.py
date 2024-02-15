@@ -299,6 +299,20 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
 
         self.assert_programs(programs_to_sync, 42)
 
+    def test_sync_programs_create_with_non_slug_marketing_slug(self):
+        """ Discovery keys that are not valid slugs should be slugified """
+        discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            '77777777-2222-3333-4444-555555555555',
+            'marketing/path/non-slug',
+        )
+        programs_to_sync = [
+            discovery_program,
+        ]
+        self.assert_programs(programs_to_sync, 26)
+        created_program = Program.objects.get(discovery_uuid=discovery_program['uuid'])
+        self.assertEqual(created_program.key, 'marketing-path-non-slug')
+
     def test_sync_programs_with_different_slugs(self):
         updated_discovery_program = self.discovery_program_dict(
             self.german_program.managing_organization.discovery_uuid,
