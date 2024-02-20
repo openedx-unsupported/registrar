@@ -35,7 +35,7 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via edx-django-utils
-cryptography==42.0.2
+cryptography==42.0.3
     # via
     #   pyjwt
     #   social-auth-core
@@ -75,7 +75,7 @@ django-extensions==3.1.5
     #   -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
-django-model-utils==4.3.1
+django-model-utils==4.4.0
     # via
     #   -r requirements/base.in
     #   django-user-tasks
@@ -154,7 +154,6 @@ pyjwt[crypto]==2.8.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
-    #   pyjwt
     #   social-auth-core
 pymongo==3.13.0
     # via edx-opaque-keys
@@ -200,7 +199,7 @@ social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.5.2
+social-auth-core==4.5.3
     # via
     #   edx-auth-backends
     #   social-auth-app-django

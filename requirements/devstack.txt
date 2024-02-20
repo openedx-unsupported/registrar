@@ -53,12 +53,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.35
+boto3==1.34.45
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.35
+botocore==1.34.45
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -117,9 +117,8 @@ configobj==5.0.8
 coverage[toml]==7.4.1
     # via
     #   -r requirements/local.txt
-    #   coverage
     #   pytest-cov
-cryptography==42.0.2
+cryptography==42.0.3
     # via
     #   -r requirements/local.txt
     #   moto
@@ -180,7 +179,7 @@ django-extensions==3.1.5
     #   -r requirements/local.txt
 django-guardian==2.4.0
     # via -r requirements/local.txt
-django-model-utils==4.3.1
+django-model-utils==4.4.0
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
@@ -250,7 +249,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==22.7.0
+faker==23.2.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -284,7 +283,6 @@ iniconfig==2.0.0
 isort[requirements]==5.13.2
     # via
     #   -r requirements/local.txt
-    #   isort
     #   pylint
 jinja2==3.1.3
     # via
@@ -322,9 +320,9 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==5.0.1
+moto==5.0.2
     # via -r requirements/local.txt
-mysqlclient==2.2.3
+mysqlclient==2.2.4
     # via -r requirements/nonlocal.txt
 newrelic==5.24.0.153
     # via
@@ -399,7 +397,6 @@ pyjwt[crypto]==2.8.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
-    #   pyjwt
     #   social-auth-core
 pylint==3.0.3
     # via
@@ -435,7 +432,7 @@ pyproject-api==1.6.1
     # via
     #   -r requirements/local.txt
     #   tox
-pytest==8.0.0
+pytest==8.0.1
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -504,7 +501,7 @@ responses==0.17.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-ruamel-yaml==0.18.5
+ruamel-yaml==0.18.6
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-base
@@ -554,7 +551,7 @@ social-auth-app-django==5.4.0
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
-social-auth-core==4.5.2
+social-auth-core==4.5.3
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
@@ -621,7 +618,7 @@ tomlkit==0.12.3
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==4.12.1
+tox==4.13.0
     # via -r requirements/local.txt
 typing-extensions==4.9.0
     # via
@@ -660,7 +657,7 @@ xmltodict==0.13.0
     # via
     #   -r requirements/local.txt
     #   moto
-yamllint==1.34.0
+yamllint==1.35.1
     # via -r requirements/local.txt
 zipp==3.17.0
     # via
