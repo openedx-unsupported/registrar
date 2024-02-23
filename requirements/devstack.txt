@@ -43,6 +43,7 @@ backoff==1.10.0
     #   analytics-python
 backports-zoneinfo[tzdata]==0.2.1
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   celery
     #   django
@@ -161,7 +162,6 @@ distlib==0.3.8
 django==4.2.14
     # via
     #   -c requirements/common_constraints.txt
-    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   django-cors-headers
     #   django-crum
