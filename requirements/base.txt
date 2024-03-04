@@ -12,6 +12,7 @@ asgiref==3.7.2
     # via
     #   django
     #   django-cors-headers
+    #   django-simple-history
 async-timeout==4.0.3
     # via redis
 backoff==1.10.0
@@ -35,7 +36,7 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via edx-django-utils
-cryptography==42.0.3
+cryptography==42.0.5
     # via
     #   pyjwt
     #   social-auth-core
@@ -43,8 +44,9 @@ defusedxml==0.8.0rc2
     # via
     #   python3-openid
     #   social-auth-core
-django==4.2.10
+django==4.2.11
     # via
+    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-cors-headers
@@ -81,7 +83,7 @@ django-model-utils==4.4.0
     #   django-user-tasks
 django-mysql==4.12.0
     # via -r requirements/base.in
-django-simple-history==3.4.0
+django-simple-history==3.5.0
     # via -r requirements/base.in
 django-storages==1.10.1
     # via
@@ -159,7 +161,7 @@ pymongo==3.13.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via analytics-python
 python-slugify==4.0.1
     # via
@@ -177,7 +179,7 @@ pyyaml==6.0.1
     # via
     #   drf-yasg
     #   edx-django-release-util
-redis==5.0.1
+redis==5.0.2
     # via -r requirements/base.in
 requests==2.31.0
     # via
@@ -209,13 +211,13 @@ social-auth-core==4.5.3
     #   social-auth-app-django
 sqlparse==0.4.4
     # via django
-stevedore==5.1.0
+stevedore==5.2.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
 text-unidecode==1.3
     # via python-slugify
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   asgiref
     #   edx-opaque-keys
