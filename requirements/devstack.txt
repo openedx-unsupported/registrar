@@ -54,12 +54,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.54
+boto3==1.34.55
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.54
+botocore==1.34.55
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -251,7 +251,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==23.3.0
+faker==24.0.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -434,7 +434,7 @@ pyproject-api==1.6.1
     # via
     #   -r requirements/local.txt
     #   tox
-pytest==8.1.0
+pytest==8.0.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
