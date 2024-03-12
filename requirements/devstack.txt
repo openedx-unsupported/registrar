@@ -54,12 +54,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.55
+boto3==1.34.60
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.55
+botocore==1.34.60
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -228,7 +228,7 @@ edx-auth-backends==4.2.0
     # via -r requirements/local.txt
 edx-django-release-util==1.3.0
     # via -r requirements/local.txt
-edx-django-utils==5.10.1
+edx-django-utils==5.11.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -251,7 +251,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==24.0.0
+faker==24.1.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -270,7 +270,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/local.txt
     #   sphinx
-importlib-metadata==7.0.1
+importlib-metadata==7.0.2
     # via
     #   -r requirements/local.txt
     #   sphinx
@@ -322,7 +322,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==5.0.2
+moto==5.0.3
     # via -r requirements/local.txt
 mysqlclient==2.2.4
     # via -r requirements/nonlocal.txt
@@ -336,7 +336,7 @@ oauthlib==3.2.2
     #   -r requirements/local.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.2
+packaging==24.0
     # via
     #   -r requirements/local.txt
     #   drf-yasg
@@ -434,7 +434,7 @@ pyproject-api==1.6.1
     # via
     #   -r requirements/local.txt
     #   tox
-pytest==8.0.2
+pytest==8.1.1
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -480,7 +480,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==5.0.2
+redis==5.0.3
     # via -r requirements/local.txt
 requests==2.31.0
     # via
@@ -494,7 +494,7 @@ requests==2.31.0
     #   slumber
     #   social-auth-core
     #   sphinx
-requests-oauthlib==1.3.1
+requests-oauthlib==1.4.0
     # via
     #   -r requirements/local.txt
     #   social-auth-core
@@ -620,7 +620,7 @@ tomlkit==0.12.4
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==4.13.0
+tox==4.14.1
     # via -r requirements/local.txt
 typing-extensions==4.10.0
     # via

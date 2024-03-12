@@ -82,14 +82,14 @@ billiard==3.6.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.34.55
+boto3==1.34.60
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.34.55
+botocore==1.34.60
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -361,7 +361,7 @@ edx-django-release-util==1.3.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-edx-django-utils==5.10.1
+edx-django-utils==5.11.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -408,7 +408,7 @@ factory-boy==3.3.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==24.0.0
+faker==24.1.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -446,7 +446,7 @@ imagesize==1.4.1
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   sphinx
-importlib-metadata==7.0.1
+importlib-metadata==7.0.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -523,7 +523,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==5.0.2
+moto==5.0.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -548,7 +548,7 @@ oauthlib==3.2.2
     #   -r requirements/monitoring/../test.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==23.2
+packaging==24.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -693,7 +693,7 @@ pyproject-api==1.6.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   tox
-pytest==8.0.2
+pytest==8.1.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -765,7 +765,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==5.0.2
+redis==5.0.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -786,7 +786,7 @@ requests==2.31.0
     #   slumber
     #   social-auth-core
     #   sphinx
-requests-oauthlib==1.3.1
+requests-oauthlib==1.4.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -964,7 +964,7 @@ tomlkit==0.12.4
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pylint
-tox==4.13.0
+tox==4.14.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
