@@ -12,7 +12,7 @@ alabaster==0.7.13
     # via
     #   -r requirements/local.txt
     #   sphinx
-amqp==2.6.1
+amqp==5.2.0
     # via
     #   -r requirements/local.txt
     #   kombu
@@ -42,25 +42,27 @@ backoff==1.10.0
     # via
     #   -r requirements/local.txt
     #   analytics-python
-backports-zoneinfo==0.2.1
+backports-zoneinfo[tzdata]==0.2.1
     # via
     #   -r requirements/local.txt
+    #   celery
     #   django
     #   djangorestframework
+    #   kombu
 beautifulsoup4==4.12.3
     # via
     #   -r requirements/local.txt
     #   pydata-sphinx-theme
-billiard==3.6.4.0
+billiard==4.2.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.92
+boto3==1.34.94
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.92
+botocore==1.34.94
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -70,7 +72,7 @@ cachetools==5.3.3
     # via
     #   -r requirements/local.txt
     #   tox
-celery==4.4.7
+celery==5.4.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -95,14 +97,30 @@ charset-normalizer==3.3.2
 click==8.1.7
     # via
     #   -r requirements/local.txt
+    #   celery
+    #   click-didyoumean
     #   click-log
+    #   click-plugins
+    #   click-repl
     #   code-annotations
     #   edx-django-utils
     #   edx-lint
+click-didyoumean==0.3.1
+    # via
+    #   -r requirements/local.txt
+    #   celery
 click-log==0.4.0
     # via
     #   -r requirements/local.txt
     #   edx-lint
+click-plugins==1.1.1
+    # via
+    #   -r requirements/local.txt
+    #   celery
+click-repl==0.3.0
+    # via
+    #   -r requirements/local.txt
+    #   celery
 code-annotations==1.8.0
     # via
     #   -c requirements/constraints.txt
@@ -256,11 +274,11 @@ exceptiongroup==1.2.1
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==24.14.0
+faker==25.0.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.13.4
+filelock==3.14.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -303,7 +321,7 @@ jmespath==1.0.1
     #   -r requirements/local.txt
     #   boto3
     #   botocore
-kombu==4.6.11
+kombu==5.3.7
     # via
     #   -r requirements/local.txt
     #   celery
@@ -333,7 +351,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==5.0.5
+moto==5.0.6
     # via -r requirements/local.txt
 mysqlclient==2.2.4
     # via -r requirements/nonlocal.txt
@@ -383,6 +401,10 @@ polib==1.2.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
+prompt-toolkit==3.0.43
+    # via
+    #   -r requirements/local.txt
+    #   click-repl
 psutil==5.9.8
     # via
     #   -r requirements/local.txt
@@ -445,7 +467,7 @@ pyproject-api==1.6.1
     # via
     #   -r requirements/local.txt
     #   tox
-pytest==8.1.1
+pytest==8.2.0
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -459,6 +481,7 @@ python-dateutil==2.9.0.post0
     #   -r requirements/local.txt
     #   analytics-python
     #   botocore
+    #   celery
     #   faker
     #   freezegun
     #   moto
@@ -478,7 +501,6 @@ pytz==2024.1
     # via
     #   -r requirements/local.txt
     #   babel
-    #   celery
     #   drf-yasg
 pywatchman==2.0.0
     # via -r requirements/local.txt
@@ -630,7 +652,7 @@ tomlkit==0.12.4
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==4.14.2
+tox==4.15.0
     # via -r requirements/local.txt
 typing-extensions==4.11.0
     # via
@@ -638,9 +660,14 @@ typing-extensions==4.11.0
     #   asgiref
     #   astroid
     #   edx-opaque-keys
-    #   faker
+    #   kombu
     #   pydata-sphinx-theme
     #   pylint
+tzdata==2024.1
+    # via
+    #   -r requirements/local.txt
+    #   backports-zoneinfo
+    #   celery
 uritemplate==4.1.1
     # via
     #   -r requirements/local.txt
@@ -652,15 +679,20 @@ urllib3==1.26.18
     #   botocore
     #   requests
     #   responses
-vine==1.3.0
+vine==5.1.0
     # via
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.26.0
+    #   kombu
+virtualenv==20.26.1
     # via
     #   -r requirements/local.txt
     #   tox
+wcwidth==0.2.13
+    # via
+    #   -r requirements/local.txt
+    #   prompt-toolkit
 werkzeug==3.0.2
     # via
     #   -r requirements/local.txt
