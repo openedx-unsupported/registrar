@@ -128,8 +128,13 @@ class Command(BaseCommand):
                 if discovery_authoring_org:
                     auth_org = existing_org_dictionary.get(discovery_authoring_org.get('uuid'))
                 if auth_org:
-                    # key fromd disco is not guarenteed to be a valid slugfield
-                    program_key = slugify(discovery_program.get('marketing_slug'))
+                    # key from disco is not guaranteed to be a valid slugfield.
+                    # The current key pattern in disco looks something like /masters/program/name-of-the-program,
+                    # so we should only use the piece of the marketing slug that contains the name of the program.
+                    program_key = slugify(
+                        discovery_program.get('marketing_slug').split('/')[-1],
+                        max_length=100,
+                    )
                     programs_to_create.append(Program(
                         discovery_uuid=discovery_program.get('uuid'),
                         managing_organization=auth_org,
