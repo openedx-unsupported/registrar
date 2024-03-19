@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import ddt
 from django.core.management import call_command
+from django.db.utils import IntegrityError
 from django.test import TestCase
 
 from registrar.apps.core.api_client import DiscoveryServiceClient
@@ -301,17 +302,47 @@ class TestSyncProgramsWithDiscoveryCommand(TestSyncWithDiscoveryCommandBase):
 
     def test_sync_programs_create_with_non_slug_marketing_slug(self):
         """ Discovery keys that are not valid slugs should be slugified """
+        long_slug = (
+            'masters/online-masters/masters-in-business/'
+            'university-of-open-edx-online-masters-in-'
+            'business-analytics-statistics-and-computer-science-and-data-science-and-data-anlytics'
+        )
         discovery_program = self.discovery_program_dict(
             self.org.discovery_uuid,
             '77777777-2222-3333-4444-555555555555',
-            'marketing/path/non-slug',
+            long_slug,
         )
         programs_to_sync = [
             discovery_program,
         ]
         self.assert_programs(programs_to_sync, 26)
         created_program = Program.objects.get(discovery_uuid=discovery_program['uuid'])
-        self.assertEqual(created_program.key, 'marketing-path-non-slug')
+        self.assertEqual(
+            created_program.key,
+            'university-of-open-edx-online-masters-in-business-analytics-statistics-and-computer-science-and-data'
+        )
+
+    def test_sync_programs_multiple_non_slug_marketing_slug(self):
+        """
+        Discovery keys that are not valid slugs should be slugified, and job should fail if keys are not unique
+        """
+        discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            '77777777-2222-3333-4444-555555555555',
+            'marketing/online-masters/this-is-the-program-name',
+        )
+        another_discovery_program = self.discovery_program_dict(
+            self.org.discovery_uuid,
+            '77777777-2222-3333-4444-666666666666',
+            'marketing/masters/this-is-the-program-name',
+        )
+        programs_to_sync = [
+            discovery_program,
+            another_discovery_program,
+        ]
+
+        with self.assertRaises(IntegrityError):
+            self.assert_programs(programs_to_sync, 26)
 
     def test_sync_programs_with_different_slugs(self):
         updated_discovery_program = self.discovery_program_dict(
