@@ -55,12 +55,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.75
+boto3==1.34.80
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.75
+botocore==1.34.80
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -105,7 +105,7 @@ click-log==0.4.0
     # via
     #   -r requirements/test.txt
     #   edx-lint
-code-annotations==1.7.0
+code-annotations==1.8.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -223,7 +223,7 @@ drf-yasg==1.21.7
     #   -r requirements/test.txt
     #   django-user-tasks
     #   edx-api-doc-tools
-edx-api-doc-tools==1.7.0
+edx-api-doc-tools==1.8.0
     # via -r requirements/test.txt
 edx-auth-backends==4.3.0
     # via -r requirements/test.txt
@@ -244,7 +244,7 @@ edx-opaque-keys==2.5.1
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.6.1
+edx-rest-api-client==5.7.0
     # via -r requirements/test.txt
 exceptiongroup==1.2.0
     # via
@@ -252,7 +252,7 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==24.4.0
+faker==24.7.1
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -305,7 +305,7 @@ kombu==4.6.11
     # via
     #   -r requirements/test.txt
     #   celery
-lxml==5.2.0
+lxml==5.2.1
     # via edx-i18n-tools
 lz4==4.3.3
     # via ruamel-yaml-cmd
@@ -323,7 +323,7 @@ monotonic==1.6
     # via
     #   -r requirements/test.txt
     #   analytics-python
-moto==5.0.4
+moto==5.0.5
     # via -r requirements/test.txt
 newrelic==5.24.0.153
     # via
@@ -345,7 +345,7 @@ packaging==24.0
     #   pytest
     #   sphinx
     #   tox
-path==16.10.0
+path==16.14.0
     # via edx-i18n-tools
 pathspec==0.12.1
     # via
@@ -608,7 +608,7 @@ tomlkit==0.12.4
     #   pylint
 tox==4.14.2
     # via -r requirements/test.txt
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
