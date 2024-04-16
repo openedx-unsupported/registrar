@@ -55,12 +55,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.80
+boto3==1.34.84
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.80
+botocore==1.34.84
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -236,7 +236,7 @@ edx-django-utils==5.12.0
     #   edx-rest-api-client
 edx-drf-extensions==10.3.0
     # via -r requirements/test.txt
-edx-i18n-tools==1.3.0
+edx-i18n-tools==1.5.0
     # via -r requirements/local.in
 edx-lint==5.3.6
     # via -r requirements/test.txt
@@ -252,18 +252,18 @@ exceptiongroup==1.2.0
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.txt
-faker==24.7.1
+faker==24.9.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
-filelock==3.13.3
+filelock==3.13.4
     # via
     #   -r requirements/test.txt
     #   tox
     #   virtualenv
 freezegun==1.4.0
     # via -r requirements/test.txt
-idna==3.6
+idna==3.7
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -579,7 +579,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/docs.txt
     #   sphinx
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements/test.txt
     #   django
