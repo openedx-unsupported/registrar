@@ -83,7 +83,7 @@ django-model-utils==4.5.0
     # via
     #   -r requirements/base.in
     #   django-user-tasks
-django-mysql==4.12.0
+django-mysql==4.13.0
     # via -r requirements/base.in
 django-simple-history==3.5.0
     # via -r requirements/base.in
@@ -106,6 +106,8 @@ djangorestframework==3.15.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
+dnspython==2.6.1
+    # via pymongo
 drf-jwt==1.19.2
     # via edx-drf-extensions
 drf-yasg==1.21.7
@@ -124,7 +126,7 @@ edx-django-utils==5.12.0
     #   edx-rest-api-client
 edx-drf-extensions==10.3.0
     # via -r requirements/base.in
-edx-opaque-keys==2.5.1
+edx-opaque-keys==2.9.0
     # via edx-drf-extensions
 edx-rest-api-client==5.7.0
     # via -r requirements/base.in
@@ -159,7 +161,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pymongo==3.13.0
+pymongo==4.4.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
@@ -180,7 +182,7 @@ pyyaml==6.0.1
     # via
     #   drf-yasg
     #   edx-django-release-util
-redis==5.0.3
+redis==5.0.4
     # via -r requirements/base.in
 requests==2.31.0
     # via
@@ -202,11 +204,11 @@ six==1.16.0
     #   python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
-social-auth-app-django==5.4.0
+social-auth-app-django==5.4.1
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.5.3
+social-auth-core==4.5.4
     # via
     #   edx-auth-backends
     #   social-auth-app-django

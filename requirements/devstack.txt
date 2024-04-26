@@ -55,12 +55,12 @@ billiard==3.6.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.84
+boto3==1.34.92
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.84
+botocore==1.34.92
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -116,7 +116,7 @@ configobj==5.0.8
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-cmd
-coverage[toml]==7.4.4
+coverage[toml]==7.5.0
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -186,7 +186,7 @@ django-model-utils==4.5.0
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
-django-mysql==4.12.0
+django-mysql==4.13.0
     # via -r requirements/local.txt
 django-simple-history==3.5.0
     # via -r requirements/local.txt
@@ -209,6 +209,10 @@ djangorestframework==3.15.1
     #   drf-yasg
     #   edx-api-doc-tools
     #   edx-drf-extensions
+dnspython==2.6.1
+    # via
+    #   -r requirements/local.txt
+    #   pymongo
 docutils==0.19
     # via
     #   -r requirements/local.txt
@@ -236,23 +240,23 @@ edx-django-utils==5.12.0
     #   edx-rest-api-client
 edx-drf-extensions==10.3.0
     # via -r requirements/local.txt
-edx-i18n-tools==1.5.0
+edx-i18n-tools==1.6.0
     # via -r requirements/local.txt
 edx-lint==5.3.6
     # via -r requirements/local.txt
-edx-opaque-keys==2.5.1
+edx-opaque-keys==2.9.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
 edx-rest-api-client==5.7.0
     # via -r requirements/local.txt
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via
     #   -r requirements/local.txt
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==24.9.0
+faker==24.14.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -261,7 +265,7 @@ filelock==3.13.4
     #   -r requirements/local.txt
     #   tox
     #   virtualenv
-freezegun==1.4.0
+freezegun==1.5.0
     # via -r requirements/local.txt
 idna==3.7
     # via
@@ -303,10 +307,15 @@ kombu==4.6.11
     # via
     #   -r requirements/local.txt
     #   celery
-lxml==5.2.1
+lxml[html-clean]==5.2.1
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
+    #   lxml-html-clean
+lxml-html-clean==0.1.1
+    # via
+    #   -r requirements/local.txt
+    #   lxml
 lz4==4.3.3
     # via
     #   -r requirements/local.txt
@@ -359,13 +368,13 @@ pbr==6.0.0
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via
     #   -r requirements/local.txt
     #   pylint
     #   tox
     #   virtualenv
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   -r requirements/local.txt
     #   pytest
@@ -424,7 +433,7 @@ pylint-plugin-utils==0.8.2
     #   pylint-django
 pymemcache==4.0.0
     # via -r requirements/nonlocal.txt
-pymongo==3.13.0
+pymongo==4.4.0
     # via
     #   -r requirements/local.txt
     #   edx-opaque-keys
@@ -481,7 +490,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==5.0.3
+redis==5.0.4
     # via -r requirements/local.txt
 requests==2.31.0
     # via
@@ -550,11 +559,11 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/local.txt
     #   sphinx
-social-auth-app-django==5.4.0
+social-auth-app-django==5.4.1
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
-social-auth-core==4.5.3
+social-auth-core==4.5.4
     # via
     #   -r requirements/local.txt
     #   edx-auth-backends
@@ -648,7 +657,7 @@ vine==1.3.0
     #   -r requirements/local.txt
     #   amqp
     #   celery
-virtualenv==20.25.1
+virtualenv==20.26.0
     # via
     #   -r requirements/local.txt
     #   tox
