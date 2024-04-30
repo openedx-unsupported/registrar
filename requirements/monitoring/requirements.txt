@@ -396,7 +396,7 @@ edx-django-release-util==1.4.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-edx-django-utils==5.12.0
+edx-django-utils==5.13.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
