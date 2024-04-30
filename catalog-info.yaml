@@ -1,0 +1,29 @@
+# This file records information about this repo. Its use is described in OEP-55:
+# https://open-edx-proposals.readthedocs.io/en/latest/processes/oep-0055-proc-project-maintainers.html
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  # (Required) Must be the name of the repo, without the owning organization.
+  name: 'registrar'
+  description: >
+            The Registrar service allows external organizations to
+            integrate with Open edX programs, providing REST APIs involving
+            program structure, enrollment, and grading."
+  links:
+    - url: "https://github.com/openedx/registrar"
+      title: "openedx/registrar"
+      icon: "GitHub"
+  annotations:
+    openedx.org/arch-interest-groups: ""
+    openedx.org/release: "main"
+spec:
+  # If you need a new team created, create an issue with Axim engineering:
+  # https://github.com/openedx/axim-engineering/issues/new/choose
+  owner: group:openedx-unmaintained
+
+  # (Required) Acceptable Type Values: service, website, library
+  type: 'service'
+
+  # (Required) Acceptable Lifecycle Values: experimental, production, deprecated
+  lifecycle: 'production'
