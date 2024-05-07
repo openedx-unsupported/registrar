@@ -47,7 +47,7 @@ backoff==1.10.0
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   analytics-python
-backports-zoneinfo[tzdata]==0.2.1
+backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
