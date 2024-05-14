@@ -16,7 +16,7 @@ asgiref==3.8.1
     #   django
     #   django-cors-headers
     #   django-simple-history
-astroid==3.1.0
+astroid==3.2.0
     # via
     #   pylint
     #   pylint-celery
@@ -39,11 +39,11 @@ billiard==4.2.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.34.94
+boto3==1.34.104
     # via
     #   -c requirements/constraints.txt
     #   moto
-botocore==1.34.94
+botocore==1.34.104
     # via
     #   boto3
     #   moto
@@ -102,11 +102,11 @@ code-annotations==1.8.0
     #   edx-lint
 colorama==0.4.6
     # via tox
-coverage[toml]==7.5.0
+coverage[toml]==7.5.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==42.0.5
+cryptography==42.0.7
     # via
     #   -r requirements/base.txt
     #   moto
@@ -159,7 +159,7 @@ django-extensions==3.1.5
     #   -r requirements/base.txt
 django-guardian==2.4.0
     # via -r requirements/base.txt
-django-model-utils==4.5.0
+django-model-utils==4.5.1
     # via
     #   -r requirements/base.txt
     #   django-user-tasks
@@ -224,7 +224,7 @@ exceptiongroup==1.2.1
     # via pytest
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==25.0.0
+faker==25.2.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -232,7 +232,7 @@ filelock==3.14.0
     # via
     #   tox
     #   virtualenv
-freezegun==1.5.0
+freezegun==1.5.1
     # via -r requirements/test.in
 idna==3.7
     # via
@@ -248,7 +248,7 @@ isort[requirements]==5.13.2
     # via
     #   -r requirements/test.in
     #   pylint
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   code-annotations
     #   moto
@@ -270,7 +270,7 @@ monotonic==1.6
     # via
     #   -r requirements/base.txt
     #   analytics-python
-moto==5.0.6
+moto==5.0.7
     # via -r requirements/test.in
 newrelic==5.24.0.153
     # via
@@ -326,7 +326,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==3.1.0
+pylint==3.2.0
     # via
     #   edx-lint
     #   pylint-celery
@@ -459,7 +459,7 @@ tomli==2.0.1
     #   pyproject-api
     #   pytest
     #   tox
-tomlkit==0.12.4
+tomlkit==0.12.5
     # via pylint
 tox==4.15.0
     # via -r requirements/test.in
@@ -493,13 +493,13 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.1
+virtualenv==20.26.2
     # via tox
 wcwidth==0.2.13
     # via
     #   -r requirements/base.txt
     #   prompt-toolkit
-werkzeug==3.0.2
+werkzeug==3.0.3
     # via moto
 xmltodict==0.13.0
     # via moto
