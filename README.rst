@@ -1,12 +1,10 @@
 Registrar service  |Travis|_ |Codecov|_
 ===================================================
-.. |Travis| image:: https://travis-ci.com/edx/registrar.svg?branch=master
-.. _Travis: https://travis-ci.com/edx/registrar
 
-.. |Codecov| image:: http://codecov.io/github/edx/registrar/coverage.svg?branch=master
-.. _Codecov: http://codecov.io/github/edx/registrar?branch=master
+.. |Codecov| image:: http://codecov.io/github/openedx/registrar/coverage.svg?branch=master
+.. _Codecov: http://codecov.io/github/openedx/registrar?branch=master
 
-The Registrar service allows external organizations to integrate with edX programs,
+The Registrar service allows external organizations to integrate with Open edX programs,
 providing REST APIs involving program structure, enrollment, and grading.
 
 Through Django Admin, it allows the definition of access roles for different API users.
@@ -28,6 +26,8 @@ as well as important information about PII annotation.
 Using with Devstack
 -----------------
 
+! Note ! This section may be outdated. Tutor (https://docs.tutor.edly.io/gettingstarted.html) is now the supported development environment for the Open edX project, but we have not currently verified if Registrar works on Tutor.
+
 The best way to run Registrar is within the edX Devstack: https://github.com/openedx/devstack.
 
 See the Devstack README for information on how to install and run Registrar.
@@ -35,7 +35,7 @@ See the Devstack README for information on how to install and run Registrar.
 Using Standalone
 -----------------
 
-Alternatively, you may run Registrar locally without the edX Devstack. Note that in this configuration, functionality that depends on communication with other edX services (e.g. LMS authentication) will not work by default.
+Alternatively, you may run Registrar locally. Note that in this configuration, functionality that depends on communication with other Open edX services (e.g. LMS authentication) will not work by default.
 
 Requirements:
 
