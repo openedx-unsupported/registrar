@@ -183,7 +183,7 @@ edx-opaque-keys==2.10.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.7.0
+edx-rest-api-client==5.6.1
     # via -r requirements/base.txt
 gevent==24.2.1
     # via -r requirements/production.in
@@ -292,7 +292,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
 redis==5.0.6
     # via -r requirements/base.txt
-requests==2.31.0
+requests==2.32.3
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt

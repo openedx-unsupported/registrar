@@ -426,7 +426,7 @@ edx-opaque-keys==2.10.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.7.0
+edx-rest-api-client==5.6.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -817,7 +817,7 @@ redis==5.0.6
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt

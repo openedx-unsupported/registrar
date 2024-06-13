@@ -49,6 +49,7 @@ wrapt < 1.14.0
 # At the time of adding this, the moto version 4.1.9 requires urllib3<1.27,>=1.25.4
 urllib3<1.27,>=1.25.4
 
-# Constrain requests upgrade, as higher versions were being downloaded for Sphinx in docs.in, which caused a version conflict
-# i.e. v2.31.0 and v2.32.3 were being downloaded at the same time, causing this to break
-requests<=2.31.0
+# Constrain requests upgrade to be the latest version of later.
+# For some reason v2.31.0 and v2.32.3 (which is the latest version as of this writing) were installed at the same time
+# This caused a version error. This constraint may be removed later if this causes issues or is no longer needed. 
+requests>=2.32.3
