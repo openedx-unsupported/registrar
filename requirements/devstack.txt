@@ -23,8 +23,7 @@ asgiref==3.8.1
     #   -r requirements/local.txt
     #   django
     #   django-cors-headers
-    #   django-simple-history
-astroid==3.1.0
+astroid==3.2.2
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -33,7 +32,7 @@ async-timeout==4.0.3
     # via
     #   -r requirements/local.txt
     #   redis
-babel==2.14.0
+babel==2.15.0
     # via
     #   -r requirements/local.txt
     #   pydata-sphinx-theme
@@ -57,12 +56,12 @@ billiard==4.2.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.94
+boto3==1.34.125
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.94
+botocore==1.34.125
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -77,7 +76,7 @@ celery==5.4.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   django-user-tasks
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   -r requirements/local.txt
     #   requests
@@ -134,11 +133,11 @@ configobj==5.0.8
     # via
     #   -r requirements/local.txt
     #   ruamel-yaml-cmd
-coverage[toml]==7.5.0
+coverage[toml]==7.5.3
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==42.0.5
+cryptography==42.0.8
     # via
     #   -r requirements/local.txt
     #   moto
@@ -159,7 +158,7 @@ distlib==0.3.8
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django==4.2.11
+django==4.2.13
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -171,6 +170,7 @@ django==4.2.11
     #   django-guardian
     #   django-model-utils
     #   django-mysql
+    #   django-simple-history
     #   django-storages
     #   django-user-tasks
     #   django-waffle
@@ -190,7 +190,7 @@ django-crum==0.7.9
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-django-debug-toolbar==4.3.0
+django-debug-toolbar==4.4.2
     # via -r requirements/local.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/local.txt
@@ -200,13 +200,13 @@ django-extensions==3.1.5
     #   -r requirements/local.txt
 django-guardian==2.4.0
     # via -r requirements/local.txt
-django-model-utils==4.5.0
+django-model-utils==4.5.1
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
 django-mysql==4.13.0
     # via -r requirements/local.txt
-django-simple-history==3.5.0
+django-simple-history==3.7.0
     # via -r requirements/local.txt
 django-storages==1.10.1
     # via
@@ -251,7 +251,7 @@ edx-auth-backends==4.3.0
     # via -r requirements/local.txt
 edx-django-release-util==1.4.0
     # via -r requirements/local.txt
-edx-django-utils==5.13.0
+edx-django-utils==5.14.2
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -262,11 +262,11 @@ edx-i18n-tools==1.6.0
     # via -r requirements/local.txt
 edx-lint==5.3.6
     # via -r requirements/local.txt
-edx-opaque-keys==2.9.0
+edx-opaque-keys==2.10.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.7.0
+edx-rest-api-client==5.6.1
     # via -r requirements/local.txt
 exceptiongroup==1.2.1
     # via
@@ -274,16 +274,16 @@ exceptiongroup==1.2.1
     #   pytest
 factory-boy==3.3.0
     # via -r requirements/local.txt
-faker==25.0.0
+faker==25.8.0
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.14.0
+filelock==3.15.1
     # via
     #   -r requirements/local.txt
     #   tox
     #   virtualenv
-freezegun==1.5.0
+freezegun==1.5.1
     # via -r requirements/local.txt
 idna==3.7
     # via
@@ -310,7 +310,7 @@ isort[requirements]==5.13.2
     # via
     #   -r requirements/local.txt
     #   pylint
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -325,7 +325,7 @@ kombu==5.3.7
     # via
     #   -r requirements/local.txt
     #   celery
-lxml[html-clean]==5.2.1
+lxml[html-clean]==5.2.2
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
@@ -351,7 +351,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==5.0.6
+moto==5.0.9
     # via -r requirements/local.txt
 mysqlclient==2.2.4
     # via -r requirements/nonlocal.txt
@@ -365,7 +365,7 @@ oauthlib==3.2.2
     #   -r requirements/local.txt
     #   requests-oauthlib
     #   social-auth-core
-packaging==24.0
+packaging==24.1
     # via
     #   -r requirements/local.txt
     #   drf-yasg
@@ -386,7 +386,7 @@ pbr==6.0.0
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==4.2.1
+platformdirs==4.2.2
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -401,7 +401,7 @@ polib==1.2.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
-prompt-toolkit==3.0.43
+prompt-toolkit==3.0.47
     # via
     #   -r requirements/local.txt
     #   click-repl
@@ -419,7 +419,7 @@ pydata-sphinx-theme==0.14.4
     # via
     #   -r requirements/local.txt
     #   sphinx-book-theme
-pygments==2.17.2
+pygments==2.18.0
     # via
     #   -r requirements/local.txt
     #   accessible-pygments
@@ -433,7 +433,7 @@ pyjwt[crypto]==2.8.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==3.1.0
+pylint==3.2.3
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -455,7 +455,7 @@ pylint-plugin-utils==0.8.2
     #   pylint-django
 pymemcache==4.0.0
     # via -r requirements/nonlocal.txt
-pymongo==4.4.0
+pymongo==4.7.3
     # via
     #   -r requirements/local.txt
     #   edx-opaque-keys
@@ -467,7 +467,7 @@ pyproject-api==1.6.1
     # via
     #   -r requirements/local.txt
     #   tox
-pytest==8.2.0
+pytest==8.2.2
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -512,10 +512,11 @@ pyyaml==6.0.1
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==5.0.4
+redis==5.0.6
     # via -r requirements/local.txt
-requests==2.31.0
+requests==2.32.3
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   analytics-python
     #   edx-drf-extensions
@@ -648,13 +649,13 @@ tomli==2.0.1
     #   pyproject-api
     #   pytest
     #   tox
-tomlkit==0.12.4
+tomlkit==0.12.5
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==4.15.0
+tox==4.15.1
     # via -r requirements/local.txt
-typing-extensions==4.11.0
+typing-extensions==4.12.2
     # via
     #   -r requirements/local.txt
     #   asgiref
@@ -685,7 +686,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.1
+virtualenv==20.26.2
     # via
     #   -r requirements/local.txt
     #   tox
@@ -693,7 +694,7 @@ wcwidth==0.2.13
     # via
     #   -r requirements/local.txt
     #   prompt-toolkit
-werkzeug==3.0.2
+werkzeug==3.0.3
     # via
     #   -r requirements/local.txt
     #   moto
@@ -703,7 +704,7 @@ xmltodict==0.13.0
     #   moto
 yamllint==1.35.1
     # via -r requirements/local.txt
-zipp==3.18.1
+zipp==3.19.2
     # via
     #   -r requirements/local.txt
     #   importlib-metadata
