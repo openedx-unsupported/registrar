@@ -56,12 +56,12 @@ billiard==4.2.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.34.125
+boto3==1.34.126
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
     #   moto
-botocore==1.34.125
+botocore==1.34.126
     # via
     #   -r requirements/test.txt
     #   boto3
