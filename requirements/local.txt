@@ -14,12 +14,16 @@ alabaster==0.7.13
     #   sphinx
 amqp==5.2.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   kombu
 analytics-python==1.4.post1
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 asgiref==3.8.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django
     #   django-cors-headers
@@ -30,6 +34,7 @@ astroid==3.2.2
     #   pylint-celery
 async-timeout==4.0.3
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   redis
 babel==2.15.0
@@ -39,10 +44,12 @@ babel==2.15.0
     #   sphinx
 backoff==1.10.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   analytics-python
 backports-zoneinfo[tzdata]==0.2.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
     #   django
@@ -54,6 +61,7 @@ beautifulsoup4==4.12.3
     #   pydata-sphinx-theme
 billiard==4.2.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
 boto3==1.34.126
@@ -74,6 +82,7 @@ cachetools==5.3.3
 celery==5.4.0
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django-user-tasks
 certifi==2024.6.2
@@ -83,6 +92,7 @@ certifi==2024.6.2
     #   requests
 cffi==1.16.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
@@ -97,6 +107,7 @@ charset-normalizer==3.3.2
     #   requests
 click==8.1.7
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
     #   click-didyoumean
@@ -108,6 +119,7 @@ click==8.1.7
     #   edx-lint
 click-didyoumean==0.3.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
 click-log==0.4.0
@@ -116,10 +128,12 @@ click-log==0.4.0
     #   edx-lint
 click-plugins==1.1.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
 click-repl==0.3.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
 code-annotations==1.8.0
@@ -139,6 +153,7 @@ coverage[toml]==7.5.3
     #   pytest-cov
 cryptography==42.0.8
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   moto
     #   pyjwt
@@ -147,6 +162,7 @@ ddt==1.7.2
     # via -r requirements/test.txt
 defusedxml==0.8.0rc2
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   python3-openid
     #   social-auth-core
@@ -162,6 +178,7 @@ django==4.2.13
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django-cors-headers
     #   django-crum
@@ -185,9 +202,12 @@ django==4.2.13
     #   edx-i18n-tools
     #   social-auth-app-django
 django-cors-headers==4.3.1
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 django-crum==0.7.9
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-django-utils
 django-debug-toolbar==4.4.2
@@ -197,30 +217,43 @@ django-dynamic-fixture==4.0.1
 django-extensions==3.1.5
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
 django-guardian==2.4.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 django-model-utils==4.5.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django-user-tasks
 django-mysql==4.13.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 django-simple-history==3.7.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 django-storages==1.10.1
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
 django-user-tasks==3.2.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 django-waffle==4.1.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-django-utils
     #   edx-drf-extensions
 djangorestframework==3.15.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django-user-tasks
     #   drf-jwt
@@ -229,6 +262,7 @@ djangorestframework==3.15.1
     #   edx-drf-extensions
 dnspython==2.6.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   pymongo
 docutils==0.19
@@ -238,36 +272,50 @@ docutils==0.19
     #   sphinx
 drf-jwt==1.19.2
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-drf-extensions
 drf-yasg==1.21.7
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django-user-tasks
     #   edx-api-doc-tools
 edx-api-doc-tools==1.8.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 edx-auth-backends==4.3.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 edx-django-release-util==1.4.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 edx-django-utils==5.14.2
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
 edx-drf-extensions==10.3.0
-    # via -r requirements/test.txt
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 edx-i18n-tools==1.6.0
     # via -r requirements/local.in
 edx-lint==5.3.6
     # via -r requirements/test.txt
 edx-opaque-keys==2.10.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.6.1
-    # via -r requirements/test.txt
+edx-rest-api-client==5.7.0
+    # via
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
 exceptiongroup==1.2.1
     # via
     #   -r requirements/test.txt
@@ -301,6 +349,7 @@ importlib-metadata==6.11.0
     #   sphinx
 inflection==0.5.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   drf-yasg
 iniconfig==2.0.0
@@ -325,6 +374,7 @@ jmespath==1.0.1
     #   botocore
 kombu==5.3.7
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   celery
 lxml[html-clean,html_clean]==5.2.2
@@ -347,6 +397,7 @@ mccabe==0.7.0
     #   pylint
 monotonic==1.6
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   analytics-python
 moto==5.0.9
@@ -354,10 +405,12 @@ moto==5.0.9
 newrelic==5.24.0.153
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-django-utils
 oauthlib==3.2.2
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   requests-oauthlib
     #   social-auth-core
@@ -379,6 +432,7 @@ pathspec==0.12.1
     #   yamllint
 pbr==6.0.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   stevedore
 platformdirs==4.2.2
@@ -396,16 +450,19 @@ polib==1.2.0
     # via edx-i18n-tools
 prompt-toolkit==3.0.47
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   click-repl
 psutil==5.9.8
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-django-utils
 pycodestyle==2.11.1
     # via -r requirements/test.txt
 pycparser==2.22
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   cffi
 pydata-sphinx-theme==0.14.4
@@ -420,6 +477,7 @@ pygments==2.18.0
     #   sphinx
 pyjwt[crypto]==2.8.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   drf-jwt
     #   edx-auth-backends
@@ -448,10 +506,12 @@ pylint-plugin-utils==0.8.2
     #   pylint-django
 pymongo==4.7.3
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-opaque-keys
 pynacl==1.5.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-django-utils
 pyproject-api==1.6.1
@@ -469,6 +529,7 @@ pytest-django==4.8.0
     # via -r requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   analytics-python
     #   botocore
@@ -480,10 +541,12 @@ python-dateutil==2.9.0.post0
 python-slugify==4.0.1
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   code-annotations
 python3-openid==3.2.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   social-auth-core
 pytz==2024.1
@@ -496,6 +559,7 @@ pywatchman==2.0.0
     # via -r requirements/local.in
 pyyaml==6.0.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   code-annotations
     #   drf-yasg
@@ -503,10 +567,11 @@ pyyaml==6.0.1
     #   edx-i18n-tools
     #   yamllint
 redis==5.0.6
-    # via -r requirements/test.txt
-requests==2.32.3
     # via
-    #   -c requirements/constraints.txt
+    #   -r requirements/docs.txt
+    #   -r requirements/test.txt
+requests==2.31.0
+    # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   analytics-python
@@ -520,6 +585,7 @@ requests==2.32.3
     #   sphinx
 requests-oauthlib==2.0.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   social-auth-core
 responses==0.17.0
@@ -546,10 +612,12 @@ s3transfer==0.10.1
     #   boto3
 semantic-version==2.10.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-drf-extensions
 six==1.16.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   analytics-python
     #   configobj
@@ -560,6 +628,7 @@ six==1.16.0
     #   responses
 slumber==0.7.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-rest-api-client
 snowballstemmer==2.2.0
@@ -568,10 +637,12 @@ snowballstemmer==2.2.0
     #   sphinx
 social-auth-app-django==5.4.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-auth-backends
 social-auth-core==4.5.4
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -612,17 +683,20 @@ sphinxcontrib-serializinghtml==1.1.5
     #   sphinx
 sqlparse==0.5.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   django
     #   django-debug-toolbar
 stevedore==5.2.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
 text-unidecode==1.3
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   python-slugify
 tomli==2.0.1
@@ -651,11 +725,13 @@ typing-extensions==4.12.2
     #   pylint
 tzdata==2024.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   backports-zoneinfo
     #   celery
 uritemplate==4.1.1
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   drf-yasg
 urllib3==1.26.18
@@ -668,6 +744,7 @@ urllib3==1.26.18
     #   responses
 vine==5.1.0
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   amqp
     #   celery
@@ -678,6 +755,7 @@ virtualenv==20.26.2
     #   tox
 wcwidth==0.2.13
     # via
+    #   -r requirements/docs.txt
     #   -r requirements/test.txt
     #   prompt-toolkit
 werkzeug==3.0.3
