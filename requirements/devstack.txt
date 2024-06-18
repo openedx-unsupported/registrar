@@ -56,12 +56,12 @@ billiard==4.2.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.126
+boto3==1.34.128
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.126
+botocore==1.34.128
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -409,7 +409,7 @@ psutil==5.9.8
     # via
     #   -r requirements/local.txt
     #   edx-django-utils
-pycodestyle==2.11.1
+pycodestyle==2.12.0
     # via -r requirements/local.txt
 pycparser==2.22
     # via
@@ -672,7 +672,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/local.txt
     #   drf-yasg
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
