@@ -5,7 +5,7 @@
 ## ready to accept Issues of all types, this file must be deleted so inheritance
 ## of standard openedx configuration works properly.
 
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
   - name: Open edX Community Support
     url: https://discuss.openedx.org/
