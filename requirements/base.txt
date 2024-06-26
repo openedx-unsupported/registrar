@@ -82,7 +82,7 @@ django==4.2.13
     #   edx-django-utils
     #   edx-drf-extensions
     #   social-auth-app-django
-django-cors-headers==4.3.1
+django-cors-headers==4.4.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
@@ -96,7 +96,7 @@ django-model-utils==4.5.1
     # via
     #   -r requirements/base.in
     #   django-user-tasks
-django-mysql==4.13.0
+django-mysql==4.14.0
     # via -r requirements/base.in
 django-simple-history==3.7.0
     # via -r requirements/base.in
@@ -111,7 +111,7 @@ django-waffle==4.1.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.15.1
+djangorestframework==3.15.2
     # via
     #   -r requirements/base.in
     #   django-user-tasks
@@ -141,7 +141,7 @@ edx-drf-extensions==10.3.0
     # via -r requirements/base.in
 edx-opaque-keys==2.10.0
     # via edx-drf-extensions
-edx-rest-api-client==5.7.0
+edx-rest-api-client==5.7.1
     # via -r requirements/base.in
 idna==3.7
     # via requests
@@ -165,7 +165,7 @@ pbr==6.0.0
     # via stevedore
 prompt-toolkit==3.0.47
     # via click-repl
-psutil==5.9.8
+psutil==6.0.0
     # via edx-django-utils
 pycparser==2.22
     # via cffi
@@ -200,7 +200,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
 redis==5.0.6
     # via -r requirements/base.in
-requests==2.31.0
+requests==2.32.3
     # via
     #   analytics-python
     #   edx-drf-extensions
