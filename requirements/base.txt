@@ -50,7 +50,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-cryptography==42.0.8
+cryptography==43.0.0
     # via
     #   pyjwt
     #   social-auth-core
@@ -220,7 +220,7 @@ six==1.16.0
     #   python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
-social-auth-app-django==5.4.1
+social-auth-app-django==5.4.2
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
@@ -228,7 +228,7 @@ social-auth-core==4.5.4
     # via
     #   edx-auth-backends
     #   social-auth-app-django
-sqlparse==0.5.0
+sqlparse==0.5.1
     # via django
 stevedore==5.2.0
     # via
