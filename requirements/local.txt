@@ -424,8 +424,10 @@ packaging==24.1
     #   pytest
     #   sphinx
     #   tox
-path==17.0.0
-    # via edx-i18n-tools
+path==16.14.0
+    # via
+    #   -c requirements/constraints.txt
+    #   edx-i18n-tools
 pathspec==0.12.1
     # via
     #   -r requirements/test.txt

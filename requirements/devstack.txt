@@ -374,8 +374,9 @@ packaging==24.1
     #   pytest
     #   sphinx
     #   tox
-path==17.0.0
+path==16.14.0
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   edx-i18n-tools
 pathspec==0.12.1

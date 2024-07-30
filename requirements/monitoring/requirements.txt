@@ -602,7 +602,7 @@ packaging==24.1
     #   pytest
     #   sphinx
     #   tox
-path==17.0.0
+path==16.14.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt

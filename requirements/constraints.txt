@@ -49,3 +49,6 @@ urllib3<1.27,>=1.25.4
 # backports.zoneinfo needed for Python 3.12 + Django 4.2 compatibility
 # Can be removed once requirements have been upgraded with Python>=3.9
 backports.zoneinfo; python_version<'3.9'
+
+# path>16.14.0 has removed the deprecated abspath function, which is breaking the docs build
+path<16.15.0
