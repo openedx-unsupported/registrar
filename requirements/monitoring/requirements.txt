@@ -812,7 +812,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
     #   edx-i18n-tools
     #   yamllint
-redis==5.0.7
+redis==5.0.8
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
