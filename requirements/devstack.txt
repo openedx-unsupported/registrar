@@ -41,8 +41,9 @@ backoff==1.10.0
     # via
     #   -r requirements/local.txt
     #   analytics-python
-backports-zoneinfo[tzdata]==0.2.1
+backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   celery
     #   django
@@ -56,12 +57,12 @@ billiard==4.2.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.34.149
+boto3==1.34.150
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.34.149
+botocore==1.34.150
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -161,7 +162,6 @@ distlib==0.3.8
 django==4.2.14
     # via
     #   -c requirements/common_constraints.txt
-    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   django-cors-headers
     #   django-crum
@@ -258,7 +258,7 @@ edx-django-utils==5.14.2
     #   edx-rest-api-client
 edx-drf-extensions==10.3.0
     # via -r requirements/local.txt
-edx-i18n-tools==1.6.0
+edx-i18n-tools==1.6.1
     # via -r requirements/local.txt
 edx-lint==5.3.7
     # via -r requirements/local.txt
@@ -330,7 +330,7 @@ lxml[html-clean]==5.2.2
     #   -r requirements/local.txt
     #   edx-i18n-tools
     #   lxml-html-clean
-lxml-html-clean==0.1.1
+lxml-html-clean==0.2.0
     # via
     #   -r requirements/local.txt
     #   lxml
@@ -376,6 +376,7 @@ packaging==24.1
     #   tox
 path==16.14.0
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   edx-i18n-tools
 pathspec==0.12.1
