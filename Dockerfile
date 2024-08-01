@@ -1,47 +1,27 @@
 FROM ubuntu:focal as app
 
-# ENV variables for Python 3.12 support
-ARG PYTHON_VERSION=3.12
-ENV TZ=UTC
-ENV TERM=xterm-256color
-ENV DEBIAN_FRONTEND=noninteractive
-
-# software-properties-common is needed to setup Python 3.12 env
-RUN apt-get update && \
-  apt-get install -y software-properties-common && \
-  apt-add-repository -y ppa:deadsnakes/ppa
-
 # System requirements.
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy \
 	git-core \
 	language-pack-en \
 	build-essential \
+	python3.8 \
+	python3-pip \
+	python3-virtualenv \
+	python3.8-dev \
 	# libmysqlclient-dev header files needed to use native C implementation for MySQL-python for performance gains.
 	libmysqlclient-dev \
 	# mysqlclient wont install without libssl-dev
 	libssl-dev \
 	# mysqlclient>=2.2.0 requires pkg-config (https://github.com/PyMySQL/mysqlclient/issues/620)
 	pkg-config \
-	curl \
-	python3-pip \
-	python${PYTHON_VERSION} \
-	python${PYTHON_VERSION}-dev \
-	python${PYTHON_VERSION}-distutils
-
-# need to use virtualenv pypi package with Python 3.12
-RUN pip install --upgrade pip setuptools
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
-RUN pip install virtualenv
-
-# delete apt package lists because we do not need them inflating our image
-RUN rm -rf /var/lib/apt/lists/*
+	&& \
+	# delete apt package lists because we do not need them inflating our image
+	rm -rf /var/lib/apt/lists/*
 
 # Python is Python3.
 RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# Setup zoneinfo for Python 3.12
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8
@@ -64,7 +44,7 @@ COPY requirements ${REGISTRAR_CODE_DIR}/requirements
 # Working directory will be root of repo.
 WORKDIR ${REGISTRAR_CODE_DIR}
 
-RUN virtualenv -p python${PYTHON_VERSION} --always-copy ${REGISTRAR_VENV_DIR}
+RUN virtualenv -p python3.8 --always-copy ${REGISTRAR_VENV_DIR}
 
 # Copy just Python requirements & install them.
 COPY requirements ${REGISTRAR_CODE_DIR}/requirements
