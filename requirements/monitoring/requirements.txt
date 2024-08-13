@@ -42,7 +42,7 @@ astroid==3.2.4
     #   -r requirements/monitoring/../test.txt
     #   pylint
     #   pylint-celery
-babel==2.15.0
+babel==2.16.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -67,14 +67,14 @@ billiard==4.2.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.34.154
+boto3==1.34.159
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.34.154
+botocore==1.34.159
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -103,7 +103,7 @@ certifi==2024.7.4
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   requests
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -420,7 +420,7 @@ factory-boy==3.3.0
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
-faker==26.2.0
+faker==27.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -444,7 +444,7 @@ greenlet==3.0.3
     # via
     #   -r requirements/monitoring/../production.txt
     #   gevent
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements/monitoring/../production.txt
 idna==3.7
     # via
@@ -500,7 +500,7 @@ kombu==5.4.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-lxml==5.2.2
+lxml==5.3.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -766,7 +766,7 @@ pywatchman==2.0.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -891,7 +891,7 @@ social-auth-core==4.5.4
     #   -r requirements/monitoring/../test.txt
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.5
+soupsieve==2.6
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -966,7 +966,7 @@ tomlkit==0.13.0
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pylint
-tox==4.17.0
+tox==4.17.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -1045,7 +1045,7 @@ zope-event==5.0
     # via
     #   -r requirements/monitoring/../production.txt
     #   gevent
-zope-interface==7.0
+zope-interface==7.0.1
     # via
     #   -r requirements/monitoring/../production.txt
     #   gevent
