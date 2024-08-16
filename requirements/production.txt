@@ -23,11 +23,11 @@ billiard==4.2.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.34.154
+boto3==1.34.159
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.34.154
+botocore==1.34.159
     # via
     #   boto3
     #   s3transfer
@@ -40,7 +40,7 @@ certifi==2024.7.4
     # via
     #   -r requirements/base.txt
     #   requests
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements/base.txt
     #   cryptography
@@ -177,7 +177,7 @@ gevent==24.2.1
     # via -r requirements/production.in
 greenlet==3.0.3
     # via gevent
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements/production.in
 idna==3.7
     # via
@@ -272,7 +272,7 @@ pytz==2024.1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via
     #   -r requirements/base.txt
     #   -r requirements/production.in
@@ -362,7 +362,7 @@ wcwidth==0.2.13
     #   prompt-toolkit
 zope-event==5.0
     # via gevent
-zope-interface==7.0
+zope-interface==7.0.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
