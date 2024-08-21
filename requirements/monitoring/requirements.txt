@@ -67,14 +67,14 @@ billiard==4.2.0
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   celery
-boto3==1.34.159
+boto3==1.35.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   moto
-botocore==1.34.159
+botocore==1.35.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -83,7 +83,7 @@ botocore==1.34.159
     #   boto3
     #   moto
     #   s3transfer
-cachetools==5.4.0
+cachetools==5.5.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -415,7 +415,7 @@ edx-rest-api-client==5.7.1
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
-factory-boy==3.3.0
+factory-boy==3.3.1
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -530,7 +530,7 @@ monotonic==1.6
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   analytics-python
-moto==5.0.12
+moto==5.0.13
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
@@ -960,13 +960,13 @@ text-unidecode==1.3
     #   -r requirements/monitoring/../production.txt
     #   -r requirements/monitoring/../test.txt
     #   python-slugify
-tomlkit==0.13.0
+tomlkit==0.13.2
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
     #   -r requirements/monitoring/../test.txt
     #   pylint
-tox==4.17.1
+tox==4.18.0
     # via
     #   -r requirements/monitoring/../devstack.txt
     #   -r requirements/monitoring/../local.txt
