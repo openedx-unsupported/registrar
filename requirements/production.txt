@@ -23,11 +23,11 @@ billiard==4.2.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.35.1
+boto3==1.35.6
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.35.1
+botocore==1.35.6
     # via
     #   boto3
     #   s3transfer
@@ -179,7 +179,7 @@ greenlet==3.0.3
     # via gevent
 gunicorn==23.0.0
     # via -r requirements/production.in
-idna==3.7
+idna==3.8
     # via
     #   -r requirements/base.txt
     #   requests
@@ -218,7 +218,7 @@ packaging==24.1
     #   -r requirements/base.txt
     #   drf-yasg
     #   gunicorn
-pbr==6.0.0
+pbr==6.1.0
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -323,7 +323,7 @@ sqlparse==0.5.1
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==5.2.0
+stevedore==5.3.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -362,7 +362,7 @@ wcwidth==0.2.13
     #   prompt-toolkit
 zope-event==5.0
     # via gevent
-zope-interface==7.0.1
+zope-interface==7.0.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:

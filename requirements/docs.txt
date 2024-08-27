@@ -179,7 +179,7 @@ edx-opaque-keys==2.10.0
     #   edx-drf-extensions
 edx-rest-api-client==5.7.1
     # via -r requirements/base.txt
-idna==3.7
+idna==3.8
     # via
     #   -r requirements/base.txt
     #   requests
@@ -217,7 +217,7 @@ packaging==24.1
     #   drf-yasg
     #   pydata-sphinx-theme
     #   sphinx
-pbr==6.0.0
+pbr==6.1.0
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -345,7 +345,7 @@ sqlparse==0.5.1
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==5.2.0
+stevedore==5.3.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils

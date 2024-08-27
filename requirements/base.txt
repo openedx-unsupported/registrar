@@ -134,7 +134,7 @@ edx-opaque-keys==2.10.0
     # via edx-drf-extensions
 edx-rest-api-client==5.7.1
     # via -r requirements/base.in
-idna==3.7
+idna==3.8
     # via requests
 inflection==0.5.1
     # via drf-yasg
@@ -152,7 +152,7 @@ oauthlib==3.2.2
     #   social-auth-core
 packaging==24.1
     # via drf-yasg
-pbr==6.0.0
+pbr==6.1.0
     # via stevedore
 prompt-toolkit==3.0.47
     # via click-repl
@@ -221,7 +221,7 @@ social-auth-core==4.5.4
     #   social-auth-app-django
 sqlparse==0.5.1
     # via django
-stevedore==5.2.0
+stevedore==5.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
