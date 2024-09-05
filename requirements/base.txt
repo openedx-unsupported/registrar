@@ -21,9 +21,9 @@ celery==5.4.0
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-user-tasks
-certifi==2024.7.4
+certifi==2024.8.30
     # via requests
-cffi==1.17.0
+cffi==1.17.1
     # via
     #   cryptography
     #   pynacl
@@ -42,7 +42,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   pyjwt
     #   social-auth-core
@@ -50,7 +50,7 @@ defusedxml==0.8.0rc2
     # via
     #   python3-openid
     #   social-auth-core
-django==4.2.15
+django==4.2.16
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
@@ -83,7 +83,7 @@ django-extensions==3.1.5
     #   -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
-django-model-utils==4.5.1
+django-model-utils==5.0.0
     # via
     #   -r requirements/base.in
     #   django-user-tasks
@@ -128,13 +128,13 @@ edx-django-utils==5.15.0
     # via
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==10.3.0
+edx-drf-extensions==10.4.0
     # via -r requirements/base.in
-edx-opaque-keys==2.10.0
+edx-opaque-keys==2.11.0
     # via edx-drf-extensions
 edx-rest-api-client==5.7.1
     # via -r requirements/base.in
-idna==3.7
+idna==3.8
     # via requests
 inflection==0.5.1
     # via drf-yasg
@@ -152,7 +152,7 @@ oauthlib==3.2.2
     #   social-auth-core
 packaging==24.1
     # via drf-yasg
-pbr==6.0.0
+pbr==6.1.0
     # via stevedore
 prompt-toolkit==3.0.47
     # via click-repl
@@ -221,7 +221,7 @@ social-auth-core==4.5.4
     #   social-auth-app-django
 sqlparse==0.5.1
     # via django
-stevedore==5.2.0
+stevedore==5.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
@@ -233,7 +233,7 @@ tzdata==2024.1
     # via celery
 uritemplate==4.1.1
     # via drf-yasg
-urllib3==1.26.19
+urllib3==1.26.20
     # via
     #   -c requirements/constraints.txt
     #   requests

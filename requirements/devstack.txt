@@ -45,12 +45,12 @@ billiard==4.2.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.35.1
+boto3==1.35.12
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.35.1
+botocore==1.35.12
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -65,11 +65,11 @@ celery==5.4.0
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   django-user-tasks
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   -r requirements/local.txt
     #   requests
-cffi==1.17.0
+cffi==1.17.1
     # via
     #   -r requirements/local.txt
     #   cryptography
@@ -126,7 +126,7 @@ coverage[toml]==7.6.1
     # via
     #   -r requirements/local.txt
     #   pytest-cov
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   -r requirements/local.txt
     #   moto
@@ -147,7 +147,7 @@ distlib==0.3.8
     # via
     #   -r requirements/local.txt
     #   virtualenv
-django==4.2.15
+django==4.2.16
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/local.txt
@@ -188,7 +188,7 @@ django-extensions==3.1.5
     #   -r requirements/local.txt
 django-guardian==2.4.0
     # via -r requirements/local.txt
-django-model-utils==4.5.1
+django-model-utils==5.0.0
     # via
     #   -r requirements/local.txt
     #   django-user-tasks
@@ -244,13 +244,13 @@ edx-django-utils==5.15.0
     #   -r requirements/local.txt
     #   edx-drf-extensions
     #   edx-rest-api-client
-edx-drf-extensions==10.3.0
+edx-drf-extensions==10.4.0
     # via -r requirements/local.txt
 edx-i18n-tools==1.6.2
     # via -r requirements/local.txt
-edx-lint==5.3.7
+edx-lint==5.4.0
     # via -r requirements/local.txt
-edx-opaque-keys==2.10.0
+edx-opaque-keys==2.11.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
@@ -258,7 +258,7 @@ edx-rest-api-client==5.7.1
     # via -r requirements/local.txt
 factory-boy==3.3.1
     # via -r requirements/local.txt
-faker==27.0.0
+faker==28.4.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
@@ -269,7 +269,7 @@ filelock==3.15.4
     #   virtualenv
 freezegun==1.5.1
     # via -r requirements/local.txt
-idna==3.7
+idna==3.8
     # via
     #   -r requirements/local.txt
     #   requests
@@ -357,7 +357,7 @@ pathspec==0.12.1
     # via
     #   -r requirements/local.txt
     #   yamllint
-pbr==6.0.0
+pbr==6.1.0
     # via
     #   -r requirements/local.txt
     #   stevedore
@@ -408,7 +408,7 @@ pyjwt[crypto]==2.9.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   social-auth-core
-pylint==3.2.6
+pylint==3.2.7
     # via
     #   -r requirements/local.txt
     #   edx-lint
@@ -449,7 +449,7 @@ pytest==8.3.2
     #   pytest-django
 pytest-cov==5.0.0
     # via -r requirements/local.txt
-pytest-django==4.8.0
+pytest-django==4.9.0
     # via -r requirements/local.txt
 python-dateutil==2.9.0.post0
     # via
@@ -604,7 +604,7 @@ sqlparse==0.5.1
     #   -r requirements/local.txt
     #   django
     #   django-debug-toolbar
-stevedore==5.2.0
+stevedore==5.3.0
     # via
     #   -r requirements/local.txt
     #   code-annotations
@@ -633,7 +633,7 @@ uritemplate==4.1.1
     # via
     #   -r requirements/local.txt
     #   drf-yasg
-urllib3==1.26.19
+urllib3==1.26.20
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
@@ -654,7 +654,7 @@ wcwidth==0.2.13
     # via
     #   -r requirements/local.txt
     #   prompt-toolkit
-werkzeug==3.0.3
+werkzeug==3.0.4
     # via
     #   -r requirements/local.txt
     #   moto
