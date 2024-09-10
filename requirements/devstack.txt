@@ -45,12 +45,12 @@ billiard==4.2.0
     # via
     #   -r requirements/local.txt
     #   celery
-boto3==1.35.12
+boto3==1.35.15
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.txt
     #   moto
-botocore==1.35.12
+botocore==1.35.15
     # via
     #   -r requirements/local.txt
     #   boto3
@@ -235,7 +235,7 @@ drf-yasg==1.21.7
     #   edx-api-doc-tools
 edx-api-doc-tools==1.8.0
     # via -r requirements/local.txt
-edx-auth-backends==4.3.0
+edx-auth-backends==4.4.0
     # via -r requirements/local.txt
 edx-django-release-util==1.4.0
     # via -r requirements/local.txt
@@ -246,7 +246,7 @@ edx-django-utils==5.15.0
     #   edx-rest-api-client
 edx-drf-extensions==10.4.0
     # via -r requirements/local.txt
-edx-i18n-tools==1.6.2
+edx-i18n-tools==1.6.3
     # via -r requirements/local.txt
 edx-lint==5.4.0
     # via -r requirements/local.txt
@@ -254,7 +254,7 @@ edx-opaque-keys==2.11.0
     # via
     #   -r requirements/local.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.7.1
+edx-rest-api-client==6.0.0
     # via -r requirements/local.txt
 factory-boy==3.3.1
     # via -r requirements/local.txt
@@ -262,7 +262,7 @@ faker==28.4.1
     # via
     #   -r requirements/local.txt
     #   factory-boy
-filelock==3.15.4
+filelock==3.16.0
     # via
     #   -r requirements/local.txt
     #   tox
@@ -304,10 +304,15 @@ kombu==5.4.0
     # via
     #   -r requirements/local.txt
     #   celery
-lxml==5.3.0
+lxml[html-clean]==5.3.0
     # via
     #   -r requirements/local.txt
     #   edx-i18n-tools
+    #   lxml-html-clean
+lxml-html-clean==0.2.2
+    # via
+    #   -r requirements/local.txt
+    #   lxml
 lz4==4.3.3
     # via
     #   -r requirements/local.txt
@@ -325,7 +330,7 @@ monotonic==1.6
     # via
     #   -r requirements/local.txt
     #   analytics-python
-moto==5.0.13
+moto==5.0.14
     # via -r requirements/local.txt
 mysqlclient==2.2.4
     # via -r requirements/nonlocal.txt
@@ -361,7 +366,7 @@ pbr==6.1.0
     # via
     #   -r requirements/local.txt
     #   stevedore
-platformdirs==4.2.2
+platformdirs==4.3.2
     # via
     #   -r requirements/local.txt
     #   pylint
@@ -442,7 +447,7 @@ pyproject-api==1.7.1
     # via
     #   -r requirements/local.txt
     #   tox
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r requirements/local.txt
     #   pytest-cov
@@ -497,7 +502,6 @@ requests==2.32.3
     #   moto
     #   requests-oauthlib
     #   responses
-    #   slumber
     #   social-auth-core
     #   sphinx
 requests-oauthlib==2.0.0
@@ -547,10 +551,6 @@ six==1.16.0
     #   edx-lint
     #   python-dateutil
     #   responses
-slumber==0.7.1
-    # via
-    #   -r requirements/local.txt
-    #   edx-rest-api-client
 snowballstemmer==2.2.0
     # via
     #   -r requirements/local.txt
@@ -618,7 +618,7 @@ tomlkit==0.13.2
     # via
     #   -r requirements/local.txt
     #   pylint
-tox==4.18.0
+tox==4.18.1
     # via -r requirements/local.txt
 typing-extensions==4.12.2
     # via
@@ -646,7 +646,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.3
+virtualenv==20.26.4
     # via
     #   -r requirements/local.txt
     #   tox

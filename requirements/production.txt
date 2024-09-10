@@ -23,11 +23,11 @@ billiard==4.2.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.35.12
+boto3==1.35.15
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/production.in
-botocore==1.35.12
+botocore==1.35.15
     # via
     #   boto3
     #   s3transfer
@@ -156,7 +156,7 @@ drf-yasg==1.21.7
     #   edx-api-doc-tools
 edx-api-doc-tools==1.8.0
     # via -r requirements/base.txt
-edx-auth-backends==4.3.0
+edx-auth-backends==4.4.0
     # via -r requirements/base.txt
 edx-django-release-util==1.4.0
     # via -r requirements/base.txt
@@ -171,7 +171,7 @@ edx-opaque-keys==2.11.0
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-edx-rest-api-client==5.7.1
+edx-rest-api-client==6.0.0
     # via -r requirements/base.txt
 gevent==24.2.1
     # via -r requirements/production.in
@@ -287,7 +287,6 @@ requests==2.32.3
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   requests-oauthlib
-    #   slumber
     #   social-auth-core
 requests-oauthlib==2.0.0
     # via
@@ -306,10 +305,6 @@ six==1.16.0
     #   edx-auth-backends
     #   edx-django-release-util
     #   python-dateutil
-slumber==0.7.1
-    # via
-    #   -r requirements/base.txt
-    #   edx-rest-api-client
 social-auth-app-django==5.4.2
     # via
     #   -r requirements/base.txt
