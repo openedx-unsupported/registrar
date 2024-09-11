@@ -1,3 +1,13 @@
+⚠️ DEPRECATION WARNING
+======================
+
+This repository is `deprecated`_. It will no longer receive maintenance, support, or updates from the Open edX project.
+
+At the time of writing, edX.org still runs `a fork`_ of this repository, but neither they nor the Open edX project make any guarantees about the stability or long-term availability of that code.
+
+.. _deprecated: https://github.com/openedx/public-engineering/issues/276
+.. _a fork: https://github.com/edx/registrar
+
 Registrar service  |Travis|_ |Codecov|_
 ===================================================
 
